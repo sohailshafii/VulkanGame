@@ -73,18 +73,15 @@ private:
 
 	void initWindow() {
 		glfwInit();
-		// don't create OpenGL context
+
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan",
-			nullptr, nullptr);
+		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 	}
 
 	void setupDebugMessenger() {
-		if (!enableValidationLayers) {
-			return;
-		}
+		if (!enableValidationLayers) return;
 
 		VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -92,23 +89,14 @@ private:
 		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 		createInfo.pfnUserCallback = debugCallback;
 
-		VkResult createResult = CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr,
-			&debugMessenger);
-		if (createResult != VK_SUCCESS) {
-			throw std::runtime_error("Failed to setup debug messenger!!");
+		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+			throw std::runtime_error("failed to set up debug messenger!");
 		}
 	}
 
 	void createInstance() {
-		bool turnOnValidation = false;
-		if (enableValidationLayers) {
-
-			if (!checkValidationLayerSupport()) {
-				std::cerr << "Validation layers requested but they are not available!\n";
-			}
-			else {
-				turnOnValidation = true;
-			}
+		if (enableValidationLayers && !checkValidationLayerSupport()) {
+			throw std::runtime_error("validation layers requested, but not available!");
 		}
 
 		VkApplicationInfo appInfo = {};
@@ -127,15 +115,16 @@ private:
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
-		createInfo.enabledLayerCount = 0;
-		if (turnOnValidation) {
+		if (enableValidationLayers) {
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 			createInfo.ppEnabledLayerNames = validationLayers.data();
 		}
+		else {
+			createInfo.enabledLayerCount = 0;
+		}
 
-		VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
-		if (result != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create instance!");
+		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create instance!");
 		}
 	}
 
@@ -149,9 +138,8 @@ private:
 	}
 
 	void createSurface() {
-		if (glfwCreateWindowSurface(instance, window, nullptr,
-			&surface) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create window surface!");
+		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create window surface!");
 		}
 	}
 
@@ -160,7 +148,7 @@ private:
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
 		if (deviceCount == 0) {
-			throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+			throw std::runtime_error("failed to find GPUs with Vulkan support!");
 		}
 
 		std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -174,7 +162,7 @@ private:
 		}
 
 		if (physicalDevice == VK_NULL_HANDLE) {
-			throw std::runtime_error("Failed to find a suitable GPU!");
+			throw std::runtime_error("failed to find a suitable GPU!");
 		}
 	}
 
@@ -334,11 +322,11 @@ private:
 		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueueQueueFamilies = { indices.graphicsFamily.value(),
+		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(),
 			indices.presentFamily.value() };
 
 		float queuePriority = 1.0f;
-		for (uint32_t queueFamily : uniqueueQueueFamilies) {
+		for (uint32_t queueFamily : uniqueQueueFamilies) {
 			VkDeviceQueueCreateInfo queueCreateInfo = {};
 			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -356,8 +344,9 @@ private:
 		createInfo.pQueueCreateInfos = queueCreateInfos.data();
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
-		// no device-specific extensions
-		createInfo.enabledExtensionCount = 0;
+		// necessary for stuff like swap chains!
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
 		if (enableValidationLayers) {
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
@@ -518,15 +507,17 @@ private:
 
 	void cleanUp() {
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
-
 		vkDestroyDevice(device, nullptr);
+
 		if (enableValidationLayers) {
 			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 		}
 
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
+
 		glfwDestroyWindow(window);
+
 		glfwTerminate();
 	}
 };
