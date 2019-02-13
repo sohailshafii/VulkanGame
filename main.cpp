@@ -10,6 +10,7 @@
 #include <cstring>
 #include <optional>
 #include <algorithm>
+#include <fstream>
 
 class HelloTriangleApplication {
 public:
@@ -139,6 +140,25 @@ private:
 		createSwapChain();
 		createImageViews();
 		createGraphicsPipeline();
+	}
+
+	static std::vector<char> readFile(const std::string& fileName) {
+		std::ifstream file(fileName, std::ios::ate | std::ios::binary);
+
+		if (!file.is_open()) {
+			throw std::runtime_error("Failed to open file!");
+		}
+
+		size_t fileSize = (size_t)file.tellg();
+		std::vector<char> buffer(fileSize);
+		std::cout << "Number of bytes to read: " << fileSize << ".\n";
+
+		file.seekg(0);
+		file.read(buffer.data(), fileSize);
+
+		file.close();
+
+		return buffer;
 	}
 
 	void createSurface() {
@@ -366,9 +386,9 @@ private:
 		}
 
 		vkGetDeviceQueue(device, indices.graphicsFamily.value(),
-			0, &graphicsQueue);
-		vkGetDeviceQueue(device, indices.presentFamily.value(),
-			0, &presentQueue);
+0, &graphicsQueue);
+vkGetDeviceQueue(device, indices.presentFamily.value(),
+	0, &presentQueue);
 	}
 
 	void createSwapChain() {
@@ -456,8 +476,32 @@ private:
 		}
 	}
 
-	void createGraphicsPipeline() {
+	VkShaderModule createShaderModule(const std::vector<char>& code) {
+		// need to make sure data satisfies alignment requirements of
+		// uint32_t. fortunately, std::vector's default allocator
+		// ensures data satisfies worst case alignment requirements
+		VkShaderModuleCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = code.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+		VkShaderModule shaderModule;
+		if (vkCreateShaderModule(device, &createInfo, nullptr,
+			&shaderModule) != VK_SUCCESS) {
+			throw std::runtime_error("Failed to create shader module!");
+		}
 
+		return shaderModule;
+	}
+
+	void createGraphicsPipeline() {
+		auto vertShaderCode = readFile("shaders/vert.spv"),
+			fragShaderCode = readFile("shaders/frag.spv");
+
+		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+
+		vkDestroyShaderModule(device, fragShaderModule, nullptr);
+		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 	}
 
 	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
