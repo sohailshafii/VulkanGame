@@ -82,6 +82,9 @@ private:
 	VkCommandPool commandPool;
 	std::vector<VkCommandBuffer> commandBuffers;
 
+	VkSemaphore imageAvailableSemaphore,
+		renderFinishedSemaphore;
+
 	void initWindow() {
 		glfwInit();
 
@@ -134,8 +137,10 @@ private:
 			createInfo.enabledLayerCount = 0;
 		}
 
-		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create instance!");
+		auto returnVal = vkCreateInstance(&createInfo, nullptr, &instance);
+		if (returnVal != VK_SUCCESS) {
+			std::cout << "Return value: " << returnVal << std::endl;
+			throw std::runtime_error("failed to create instance! ");
 		}
 	}
 
@@ -152,6 +157,7 @@ private:
 		createFramebuffers();
 		createCommandPool();
 		createCommandBuffers();
+		createSemaphores();
 	}
 
 	static std::vector<char> readFile(const std::string& fileName) {
@@ -775,6 +781,18 @@ vkDestroyShaderModule(device, vertShaderModule, nullptr);
 		}
 	}
 
+	void createSemaphores() {
+		VkSemaphoreCreateInfo semaphoreInfo = {};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore)
+			!= VK_SUCCESS ||
+			vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore)
+			!= VK_SUCCESS) {
+			throw std::runtime_error("Failed to create semaphores!");
+		}
+	}
+
 	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 		const VkAllocationCallbacks* pAllocator,
@@ -852,10 +870,41 @@ vkDestroyShaderModule(device, vertShaderModule, nullptr);
 	void mainLoop() {
 		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
+			drawFrame();
+		}
+	}
+
+	void drawFrame() {
+		uint32_t imageIndex;
+		vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(),
+			imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+
+		VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) !=
+			VK_SUCCESS) {
+			throw std::runtime_error("Failed to submit draw command buffer!");
 		}
 	}
 
 	void cleanUp() {
+		vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
+		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
+
 		vkDestroyCommandPool(device, commandPool, nullptr);
 
 		for (auto framebuffer : swapChainFramebuffers) {
