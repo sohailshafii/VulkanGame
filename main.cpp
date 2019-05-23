@@ -241,6 +241,7 @@ private:
 		createIndexBuffer();
 		createUniformBuffers();
 		createDescriptorPool();
+		createDescriptorSets();
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -780,7 +781,7 @@ private:
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.lineWidth = 1.0f;
 		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizer.depthBiasEnable = VK_FALSE;
 		rasterizer.depthBiasConstantFactor = 0.0f; // optional
 		rasterizer.depthBiasClamp = 0.0f; // optional
@@ -1093,6 +1094,11 @@ private:
 
 			vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
+			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+				pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()),
+				1, 0, 0, 0);
+
 			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
 			vkCmdEndRenderPass(commandBuffers[i]);
@@ -1137,7 +1143,25 @@ private:
 		}
 
 		for (size_t i = 0; i < swapChainImages.size(); ++i) {
-			// TODO
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = uniformBuffers[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(UniformBufferObject);
+
+			VkWriteDescriptorSet descriptorWrite = {};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = descriptorSets[i];
+			descriptorWrite.dstBinding = 0;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrite.pImageInfo = nullptr;
+			descriptorWrite.pTexelBufferView = nullptr;
+
+			vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0,
+				nullptr);
 		}
 	}
 
@@ -1333,7 +1357,7 @@ private:
 			glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
 			(float)swapChainExtent.height, 0.1f, 10.0f);
-		ubo.proj[1][1] *= -1; // flip Y
+		ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 		void* data;
 		vkMapMemory(device, uniformBuffersMemory[currentImage], 0,
