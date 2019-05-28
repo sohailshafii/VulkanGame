@@ -49,8 +49,11 @@ struct Vertex {
 	}
 };
 
+// we have to make sure everything is alighned properly
+// so make sure their offsets are properly divisible
 struct UniformBufferObject {
-	glm::mat4 model;
+	glm::vec2 foo;
+	alignas(16) glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
 };
