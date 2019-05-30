@@ -1082,6 +1082,67 @@ private:
 	}
 
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+		VkBufferCopy copyRegion = {};
+		copyRegion.srcOffset = 0; // optional
+		copyRegion.dstOffset = 0; // optional
+		copyRegion.size = size;
+		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+		vkEndCommandBuffer(commandBuffer);
+
+		endSingleTimeCommands(commandBuffer);
+	}
+
+	void transitionImageLayout(VkImage image, VkFormat format,
+		VkImageLayout oldLayout, VkImageLayout newLayout) {
+		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+		VkImageMemoryBarrier barrier = {};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.oldLayout = oldLayout;
+		barrier.newLayout = newLayout;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+		barrier.image = image;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+
+		barrier.srcAccessMask = 0; // TODO
+		barrier.dstAccessMask = 0; // TODO
+
+		vkCmdPipelineBarrier(
+			commandBuffer,
+			0 /* TODO */, 0 /* TODO */,
+			0,
+			0, nullptr,
+			0, nullptr,
+			1, &barrier
+		);
+
+		endSingleTimeCommands(commandBuffer);
+	}
+
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+		VkPhysicalDeviceMemoryProperties memProperties;
+		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags
+				& properties) == properties){
+				return i;
+			}
+		}
+
+		throw std::runtime_error("Failed to find suitable memory type!");
+	}
+
+	VkCommandBuffer beginSingleTimeCommands() {
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -1097,12 +1158,10 @@ private:
 
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-		VkBufferCopy copyRegion = {};
-		copyRegion.srcOffset = 0; // optional
-		copyRegion.dstOffset = 0; // optional
-		copyRegion.size = size;
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+		return commandBuffer;
+	}
 
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 		vkEndCommandBuffer(commandBuffer);
 
 		VkSubmitInfo submitInfo = {};
@@ -1114,20 +1173,6 @@ private:
 		vkQueueWaitIdle(graphicsQueue);
 
 		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-	}
-
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
-		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags
-				& properties) == properties){
-				return i;
-			}
-		}
-
-		throw std::runtime_error("Failed to find suitable memory type!");
 	}
 
 	void createCommandBuffers() {
