@@ -1026,6 +1026,9 @@ private:
 
 		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	
+		vkDestroyBuffer(device, stagingBuffer, nullptr);
+		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
 	void createVertexBuffer() {
@@ -1124,9 +1127,32 @@ private:
 		barrier.srcAccessMask = 0; // TODO
 		barrier.dstAccessMask = 0; // TODO
 
+		VkPipelineStageFlags sourceStage;
+		VkPipelineStageFlags destinationStage;
+
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+			newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		}
+		else {
+			throw std::invalid_argument("Unsupported layout transition!");
+		}
+
 		vkCmdPipelineBarrier(
 			commandBuffer,
-			0 /* TODO */, 0 /* TODO */,
+			sourceStage, destinationStage,
 			0,
 			0, nullptr,
 			0, nullptr,
@@ -1538,6 +1564,9 @@ private:
 
 	void cleanUp() {
 		cleanupSwapChain();
+
+		vkDestroyImage(device, textureImage, nullptr);
+		vkFreeMemory(device, textureImageMemory, nullptr);
 		
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
