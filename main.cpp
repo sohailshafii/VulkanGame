@@ -82,6 +82,9 @@ private:
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
+	const std::string MODEL_PATH = "models/chalet.obj";
+	const std::string TEXTURE_PATH = "textures/chalet.jpg";
+
 	const std::vector<Vertex> vertices = {
 		{{-0.5f,-0.5f, 0.0f }, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
 		{ { 0.5f,-0.5f, 0.0f },{ 0.0f, 1.0f, 0.0f }, {0.0f, 0.0f} },
@@ -1087,7 +1090,7 @@ private:
 
 	void createTextureImage() {
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("textures/texture.jpg",
+		stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(),
 			&texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 

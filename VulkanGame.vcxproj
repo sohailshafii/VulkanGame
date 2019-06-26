@@ -82,7 +82,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\plato\ExtraLibraries\glm;C:\Users\plato\ExtraLibraries\glfw-3.2.1.bin.WIN64\include;C:\VulkanSDK\1.1.92.1\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\plato\ExtraLibraries\tinyobjloader;C:\Users\plato\ExtraLibraries\glm;C:\Users\plato\ExtraLibraries\glfw-3.2.1.bin.WIN64\include;C:\VulkanSDK\1.1.92.1\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -111,7 +111,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\plato\ExtraLibraries\glm;C:\Users\plato\ExtraLibraries\glfw-3.2.1.bin.WIN64\include;C:\VulkanSDK\1.1.92.1\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\plato\ExtraLibraries\tinyobjloader;C:\Users\plato\ExtraLibraries\glm;C:\Users\plato\ExtraLibraries\glfw-3.2.1.bin.WIN64\include;C:\VulkanSDK\1.1.92.1\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
