@@ -356,7 +356,7 @@ private:
 		}
 
 		return indices.isComplete() && extensionsSupported
-			&& swapChainAdequate && (supportedFeatures.samplerAnisotropy
+			&& swapChainAdequate && ((bool)supportedFeatures.samplerAnisotropy
 			== true);
 	}
 
