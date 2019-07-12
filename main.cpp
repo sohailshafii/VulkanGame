@@ -1146,11 +1146,22 @@ throw std::runtime_error("Failed to load texture image!");
 
 		vkDestroyBuffer(device, stagingBuffer, nullptr);
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
-		generateMipmaps(textureImage, texWidth, texHeight, mipLevels);
+		generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_UNORM, texWidth,
+			texHeight, mipLevels);
 	}
 
-	void generateMipmaps(VkImage image, uint32_t texWidth,
+	void generateMipmaps(VkImage image, VkFormat imageFormat, uint32_t texWidth,
 		uint32_t texHeight, uint32_t mipLevels) {
+		// check if image format supports linear blitting
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(physicalDevice, imageFormat,
+			&formatProperties);
+
+		if (!(formatProperties.optimalTilingFeatures &&
+			VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
+			throw std::runtime_error("Texture image format does not support linear blitting!");
+		}
+
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
 		VkImageMemoryBarrier barrier = {};
@@ -1272,7 +1283,7 @@ throw std::runtime_error("Failed to load texture image!");
 		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 		samplerInfo.mipLodBias = 0.0f;
 		samplerInfo.minLod = 0.0f;
-		samplerInfo.maxLod = 0.0f;
+		samplerInfo.maxLod = static_cast<float>(mipLevels);
 
 		if (vkCreateSampler(device, &samplerInfo, nullptr,
 			&textureSampler) != VK_SUCCESS) {
