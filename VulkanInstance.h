@@ -39,7 +39,18 @@ public:
 private:
 	bool checkValidationLayerSupport();
 	std::vector<const char*> getRequiredExtensions(bool enableValidationLayers);
+	void setupDebugMessenger(bool enableValidationLayers);
+	VkResult createDebugUtilsMessengerEXT(VkInstance instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
+		VkDebugUtilsMessengerEXT* pDebugMessenger);
+	void destroyDebugUtilsMessengerEXT(VkInstance instance,
+		VkDebugUtilsMessengerEXT debugMessenger,
+		const VkAllocationCallbacks* pAllocator);
 
 	VkInstance vkInstance;
 	VkResult creationResult;
+	bool enableValidationLayers;
+
+	VkDebugUtilsMessengerEXT debugMessenger;
 };
