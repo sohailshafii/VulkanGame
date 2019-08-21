@@ -1864,8 +1864,6 @@ throw std::runtime_error("Failed to load texture image!");
 
 		vkDestroyDevice(device, nullptr);
 
-		
-
 		vkDestroySurfaceKHR(instance->getVkInstance(), surface, nullptr);
 
 		delete instance;

@@ -122,10 +122,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GfxDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GfxDeviceManager.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="VulkanInstance.h" />
   </ItemGroup>

@@ -40,6 +40,9 @@ private:
 	bool checkValidationLayerSupport();
 	std::vector<const char*> getRequiredExtensions(bool enableValidationLayers);
 	void setupDebugMessenger(bool enableValidationLayers);
+
+	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&
+		createInfo);
 	VkResult createDebugUtilsMessengerEXT(VkInstance instance,
 		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 		const VkAllocationCallbacks* pAllocator,
