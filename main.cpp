@@ -33,6 +33,7 @@
 #include <tiny_obj_loader.h>
 
 #include "VulkanInstance.h"
+#include "GfxDeviceManager.h"
 
 struct Vertex {
 	glm::vec3 pos;
@@ -110,22 +111,6 @@ private:
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 
-	struct QueueFamilyIndices {
-		std::optional<uint32_t> graphicsFamily;
-		std::optional<uint32_t> presentFamily;
-
-		bool isComplete() {
-			return graphicsFamily.has_value() &&
-				presentFamily.has_value();
-		}
-	};
-
-	struct SwapChainSupportDetails {
-		VkSurfaceCapabilitiesKHR capabilities;
-		std::vector<VkSurfaceFormatKHR> formats;
-		std::vector<VkPresentModeKHR> presentModes;
-	};
-
 	const std::vector<const char*> deviceExtensions = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
@@ -137,6 +122,7 @@ private:
 #endif
 
 	VulkanInstance *instance;
+	GfxDeviceManager *gfxDeviceManager;
 
 	VkDevice device;
 
@@ -213,8 +199,6 @@ private:
 		app->framebufferResized = true;
 	}
 
-	
-
 	void createInstance() {
 		instance = new VulkanInstance(enableValidationLayers);
 
@@ -222,6 +206,10 @@ private:
 			std::cout << "Return value: " << instance->getCreationResult() << std::endl;
 			throw std::runtime_error("failed to create instance! ");
 		}
+	}
+
+	void pickPhysicalDevice() {
+		gfxDeviceManager = new GfxDeviceManager(instance->getVkInstance());
 	}
 
 	void initVulkan() {
@@ -274,53 +262,6 @@ private:
 		if (glfwCreateWindowSurface(instance->getVkInstance(), window, nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
 		}
-	}
-
-	void pickPhysicalDevice() {
-		uint32_t deviceCount = 0;
-		vkEnumeratePhysicalDevices(instance->getVkInstance(), &deviceCount, nullptr);
-
-		if (deviceCount == 0) {
-			throw std::runtime_error("failed to find GPUs with Vulkan support!");
-		}
-
-		std::vector<VkPhysicalDevice> devices(deviceCount);
-		vkEnumeratePhysicalDevices(instance->getVkInstance(), &deviceCount, devices.data());
-
-		for (const auto& device : devices) {
-			if (isDeviceSuitable(device)) {
-				physicalDevice = device;
-				msaaSamples = getMaxUsableSampleCount();
-				break;
-			}
-		}
-
-		if (physicalDevice == VK_NULL_HANDLE) {
-			throw std::runtime_error("failed to find a suitable GPU!");
-		}
-	}
-
-	bool isDeviceSuitable(VkPhysicalDevice device) {
-		VkPhysicalDeviceProperties deviceProperties;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
-
-		VkPhysicalDeviceFeatures supportedFeatures;
-		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
-
-		QueueFamilyIndices indices = findQueueFamilies(device);
-
-		bool extensionsSupported = checkDeviceExtensionSupport(device);
-
-		bool swapChainAdequate = false;
-		if (extensionsSupported) {
-			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-			swapChainAdequate = !swapChainSupport.formats.empty() &&
-				!swapChainSupport.presentModes.empty();
-		}
-
-		return indices.isComplete() && extensionsSupported
-			&& swapChainAdequate && ((bool)supportedFeatures.samplerAnisotropy
-			== true);
 	}
 
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
@@ -459,7 +400,7 @@ private:
 	}
 
 	void createLogicalDevice() {
-		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+		QueueFamilyIndices indices = findQueueFamilies(gfxDeviceManager->getPhysicalDevice());
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(),
@@ -500,7 +441,7 @@ private:
 			createInfo.enabledLayerCount = 0;
 		}
 
-		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device)
+		if (vkCreateDevice(gfxDeviceManager->getPhysicalDevice(), &createInfo, nullptr, &device)
 		!= VK_SUCCESS) {
 			throw std::runtime_error("Failed to create logic device!");
 		}
@@ -573,7 +514,7 @@ private:
 
 	void createSwapChain() {
 		SwapChainSupportDetails swapChainSupport =
-			querySwapChainSupport(physicalDevice);
+			querySwapChainSupport(gfxDeviceManager->getPhysicalDevice());
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(
 			swapChainSupport.formats);
@@ -598,7 +539,7 @@ private:
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+		QueueFamilyIndices indices = findQueueFamilies(gfxDeviceManager->getPhysicalDevice());
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(),
 			indices.presentFamily.value() };
 
@@ -658,7 +599,7 @@ private:
 	void createRenderPass() {
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.format = swapChainImageFormat;
-		colorAttachment.samples = msaaSamples;
+		colorAttachment.samples = gfxDeviceManager->getMSAASamples();
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -672,7 +613,7 @@ private:
 
 		VkAttachmentDescription depthAttachment = {};
 		depthAttachment.format = findDepthFormat();
-		depthAttachment.samples = msaaSamples;
+		depthAttachment.samples = gfxDeviceManager->getMSAASamples();
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -829,7 +770,7 @@ private:
 		VkPipelineMultisampleStateCreateInfo multiSampling = {};
 		multiSampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multiSampling.sampleShadingEnable = VK_TRUE;
-		multiSampling.rasterizationSamples = msaaSamples;
+		multiSampling.rasterizationSamples = gfxDeviceManager->getMSAASamples();
 		multiSampling.minSampleShading = 0.2f; // min fraction for sample shading; 
 		// closer to one is smoother
 		multiSampling.pSampleMask = nullptr;
@@ -947,7 +888,7 @@ private:
 	}
 
 	void createCommandPool() {
-		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(gfxDeviceManager->getPhysicalDevice());
 
 		VkCommandPoolCreateInfo poolInfo = {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -994,7 +935,7 @@ private:
 		VkFormat colorFormat = swapChainImageFormat;
 
 		createImage(swapChainExtent.width, swapChainExtent.height, 1,
-			msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL,
+			gfxDeviceManager->getMSAASamples(), colorFormat, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory);
 		colorImageView = createImageView(colorImage, colorFormat,
@@ -1049,7 +990,7 @@ private:
 	void createDepthResources() {
 		VkFormat depthFormat = findDepthFormat();
 		createImage(swapChainExtent.width, swapChainExtent.height,
-			1, msaaSamples, depthFormat, VK_IMAGE_TILING_OPTIMAL,
+			1, gfxDeviceManager->getMSAASamples(), depthFormat, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			depthImage, depthImageMemory);
@@ -1066,7 +1007,7 @@ private:
 		features) {
 		for (VkFormat format : candidates) {
 			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(physicalDevice,
+			vkGetPhysicalDeviceFormatProperties(gfxDeviceManager->getPhysicalDevice(),
 				format, &props);
 			if (tiling == VK_IMAGE_TILING_LINEAR &&
 				(props.linearTilingFeatures & features) == features) {
@@ -1151,7 +1092,7 @@ throw std::runtime_error("Failed to load texture image!");
 		uint32_t texHeight, uint32_t mipLevels) {
 		// check if image format supports linear blitting
 		VkFormatProperties formatProperties;
-		vkGetPhysicalDeviceFormatProperties(physicalDevice, imageFormat,
+		vkGetPhysicalDeviceFormatProperties(gfxDeviceManager->getPhysicalDevice(), imageFormat,
 			&formatProperties);
 
 		if (!(formatProperties.optimalTilingFeatures &&
@@ -1515,7 +1456,7 @@ throw std::runtime_error("Failed to load texture image!");
 
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
 		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+		vkGetPhysicalDeviceMemoryProperties(gfxDeviceManager->getPhysicalDevice(), &memProperties);
 
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
 			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags
@@ -1847,6 +1788,8 @@ throw std::runtime_error("Failed to load texture image!");
 		vkDestroyDevice(device, nullptr);
 
 		vkDestroySurfaceKHR(instance->getVkInstance(), surface, nullptr);
+
+		delete gfxDeviceManager;
 
 		delete instance;
 
