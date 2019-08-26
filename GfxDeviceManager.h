@@ -2,6 +2,7 @@
 
 #include "vulkan/vulkan.h"
 #include <optional>
+#include <vector>
 
 class GfxDeviceManager {
 public:
@@ -21,8 +22,14 @@ public:
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
-	GfxDeviceManager(const VkInstance& vkInstance);
+	GfxDeviceManager(const VkInstance& vkInstance, const
+		VkSurfaceKHR surface, std::vector<const char*>& deviceExtensions);
 	~GfxDeviceManager();
+
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
+		VkSurfaceKHR surface);
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
+		VkSurfaceKHR surface);
 
 	VkPhysicalDevice getPhysicalDevice() {
 		return physicalDevice;
@@ -32,11 +39,14 @@ public:
 		return msaaSamples;
 	}
 private:
-	void pickPhysicalDevice(const VkInstance& vkInstance);
-	bool isDeviceSuitable(VkPhysicalDevice device);
+	void pickPhysicalDevice(const VkInstance& vkInstance,
+		VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
+	bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
+		const std::vector<const char*>& deviceExtensions);
 
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device,
+		const std::vector<const char*>& deviceExtensions);
 	VkSampleCountFlagBits getMaxUsableSampleCount(VkPhysicalDevice device);
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 	VkPhysicalDevice physicalDevice;
 	VkSampleCountFlagBits msaaSamples;

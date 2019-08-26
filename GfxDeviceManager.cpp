@@ -1,19 +1,23 @@
 #include "GfxDeviceManager.h"
 #include <stdexcept>
 #include <vector>
+#include <set>
+#include <string>
 #include <algorithm>
 
-GfxDeviceManager::GfxDeviceManager(const VkInstance& vkInstance) {
+GfxDeviceManager::GfxDeviceManager(const VkInstance& vkInstance,
+	VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions) {
 	physicalDevice = VK_NULL_HANDLE;
 	msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-	pickPhysicalDevice(vkInstance);
+	pickPhysicalDevice(vkInstance, surface, deviceExtensions);
 }
 
 GfxDeviceManager::~GfxDeviceManager() {
 
 }
 
-void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance) {
+void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance,
+	VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions) {
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 
@@ -25,7 +29,7 @@ void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance) {
 	vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
 
 	for (const auto& device : devices) {
-		if (isDeviceSuitable(device)) {
+		if (isDeviceSuitable(device, surface, extensions)) {
 			physicalDevice = device;
 			msaaSamples = getMaxUsableSampleCount();
 			break;
@@ -37,16 +41,17 @@ void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance) {
 	}
 }
 
-bool GfxDeviceManager::isDeviceSuitable(VkPhysicalDevice device) {
+bool GfxDeviceManager::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
+	const std::vector<const char*>& deviceExtensions) {
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
 	VkPhysicalDeviceFeatures supportedFeatures;
 	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-	QueueFamilyIndices indices = findQueueFamilies(device);
+	QueueFamilyIndices indices = findQueueFamilies(device, surface);
 
-	bool extensionsSupported = checkDeviceExtensionSupport(device);
+	bool extensionsSupported = checkDeviceExtensionSupport(device, deviceExtensions);
 
 	bool swapChainAdequate = false;
 	if (extensionsSupported) {
@@ -76,7 +81,8 @@ VkSampleCountFlagBits GfxDeviceManager::getMaxUsableSampleCount(VkPhysicalDevice
 	return VK_SAMPLE_COUNT_1_BIT;
 }
 
-QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkPhysicalDevice device,
+	VkSurfaceKHR surface) {
 	QueueFamilyIndices indices;
 
 	uint32_t queueFamilyCount = 0;
@@ -91,6 +97,13 @@ QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkPhysicalDevice device) 
 			indices.graphicsFamily = i;
 		}
 
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device,
+			i, surface, &presentSupport);
+		if (queueFamily.queueCount > 0 && presentSupport) {
+			indices.presentFamily = i;
+		}
+
 		if (indices.isComplete()) {
 			break;
 		}
@@ -98,4 +111,53 @@ QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkPhysicalDevice device) 
 	}
 
 	return indices;
+}
+
+bool GfxDeviceManager::checkDeviceExtensionSupport(VkPhysicalDevice device,
+	const std::vector<const char*>& deviceExtensions) {
+	uint32_t extensionCount;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
+		nullptr);
+
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
+		availableExtensions.data());
+
+	std::set<std::string> requiredExtensions(deviceExtensions.begin(),
+		deviceExtensions.end());
+
+	for (const auto& extension : availableExtensions) {
+		requiredExtensions.erase(extension.extensionName);
+	}
+
+	return requiredExtensions.empty();
+}
+
+SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(VkPhysicalDevice device,
+	VkSurfaceKHR surface) {
+	SwapChainSupportDetails details;
+
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
+		&details.capabilities);
+
+	uint32_t formatCount;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+	if (formatCount != 0) {
+		details.formats.resize(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
+			details.formats.data());
+	}
+
+	uint32_t presentModeCount;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface,
+		&presentModeCount, nullptr);
+
+	if (presentModeCount != 0) {
+		details.presentModes.resize(presentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface,
+			&presentModeCount, details.presentModes.data());
+	}
+
+	return details;
 }
