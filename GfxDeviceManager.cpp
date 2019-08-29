@@ -6,7 +6,7 @@
 #include <algorithm>
 
 GfxDeviceManager::GfxDeviceManager(const VkInstance& vkInstance,
-	VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions) {
+	const VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions) {
 	physicalDevice = VK_NULL_HANDLE;
 	msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 	pickPhysicalDevice(vkInstance, surface, deviceExtensions);
@@ -29,9 +29,9 @@ void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance,
 	vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
 
 	for (const auto& device : devices) {
-		if (isDeviceSuitable(device, surface, extensions)) {
+		if (isDeviceSuitable(device, surface, deviceExtensions)) {
 			physicalDevice = device;
-			msaaSamples = getMaxUsableSampleCount();
+			msaaSamples = getMaxUsableSampleCount(device);
 			break;
 		}
 	}
@@ -55,7 +55,7 @@ bool GfxDeviceManager::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR su
 
 	bool swapChainAdequate = false;
 	if (extensionsSupported) {
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device, surface);
 		swapChainAdequate = !swapChainSupport.formats.empty() &&
 			!swapChainSupport.presentModes.empty();
 	}
@@ -81,7 +81,11 @@ VkSampleCountFlagBits GfxDeviceManager::getMaxUsableSampleCount(VkPhysicalDevice
 	return VK_SAMPLE_COUNT_1_BIT;
 }
 
-QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkPhysicalDevice device,
+GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkSurfaceKHR surface) {
+	return findQueueFamilies(physicalDevice, surface);
+}
+
+GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkPhysicalDevice device,
 	VkSurfaceKHR surface) {
 	QueueFamilyIndices indices;
 
@@ -133,8 +137,13 @@ bool GfxDeviceManager::checkDeviceExtensionSupport(VkPhysicalDevice device,
 	return requiredExtensions.empty();
 }
 
-SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(VkPhysicalDevice device,
+GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(
 	VkSurfaceKHR surface) {
+	return querySwapChainSupport(physicalDevice, surface);
+}
+
+GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(
+	VkPhysicalDevice device, VkSurfaceKHR surface) {
 	SwapChainSupportDetails details;
 
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,

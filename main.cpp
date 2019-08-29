@@ -209,7 +209,8 @@ private:
 	}
 
 	void pickPhysicalDevice() {
-		gfxDeviceManager = new GfxDeviceManager(instance->getVkInstance(), deviceExtensions);
+		gfxDeviceManager = new GfxDeviceManager(instance->getVkInstance(), surface,
+			deviceExtensions);
 	}
 
 	void initVulkan() {
@@ -320,7 +321,8 @@ private:
 	}
 
 	void createLogicalDevice() {
-		QueueFamilyIndices indices = findQueueFamilies(gfxDeviceManager->getPhysicalDevice());
+		GfxDeviceManager::QueueFamilyIndices indices = 
+			gfxDeviceManager->findQueueFamilies(surface);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(),
@@ -433,8 +435,8 @@ private:
 	}
 
 	void createSwapChain() {
-		SwapChainSupportDetails swapChainSupport =
-			querySwapChainSupport(gfxDeviceManager->getPhysicalDevice());
+		GfxDeviceManager::SwapChainSupportDetails swapChainSupport =
+			gfxDeviceManager->querySwapChainSupport(surface);
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(
 			swapChainSupport.formats);
@@ -459,7 +461,8 @@ private:
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QueueFamilyIndices indices = findQueueFamilies(gfxDeviceManager->getPhysicalDevice());
+		GfxDeviceManager::QueueFamilyIndices indices = gfxDeviceManager->findQueueFamilies(
+			surface);
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(),
 			indices.presentFamily.value() };
 
@@ -808,7 +811,8 @@ private:
 	}
 
 	void createCommandPool() {
-		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(gfxDeviceManager->getPhysicalDevice());
+		GfxDeviceManager::QueueFamilyIndices queueFamilyIndices = gfxDeviceManager->
+			findQueueFamilies(surface);
 
 		VkCommandPoolCreateInfo poolInfo = {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

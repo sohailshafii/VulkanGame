@@ -23,13 +23,11 @@ public:
 	};
 
 	GfxDeviceManager(const VkInstance& vkInstance, const
-		VkSurfaceKHR surface, std::vector<const char*>& deviceExtensions);
+		VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
 	~GfxDeviceManager();
 
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
-		VkSurfaceKHR surface);
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
-		VkSurfaceKHR surface);
+	QueueFamilyIndices findQueueFamilies(VkSurfaceKHR surface);
+	SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface);
 
 	VkPhysicalDevice getPhysicalDevice() {
 		return physicalDevice;
@@ -39,6 +37,11 @@ public:
 		return msaaSamples;
 	}
 private:
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
+		VkSurfaceKHR surface);
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
+		VkSurfaceKHR surface);
+
 	void pickPhysicalDevice(const VkInstance& vkInstance,
 		VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
 	bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
