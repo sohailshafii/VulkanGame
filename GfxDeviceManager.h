@@ -26,10 +26,10 @@ public:
 		VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
 	~GfxDeviceManager();
 
-	QueueFamilyIndices findQueueFamilies(VkSurfaceKHR surface);
-	SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface);
+	QueueFamilyIndices findQueueFamilies(VkSurfaceKHR surface) const;
+	SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface) const;
 
-	VkPhysicalDevice getPhysicalDevice() {
+	VkPhysicalDevice getPhysicalDevice() const {
 		return physicalDevice;
 	}
 
@@ -38,9 +38,9 @@ public:
 	}
 private:
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
-		VkSurfaceKHR surface);
+		VkSurfaceKHR surface) const;
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
-		VkSurfaceKHR surface);
+		VkSurfaceKHR surface) const;
 
 	void pickPhysicalDevice(const VkInstance& vkInstance,
 		VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);

@@ -81,12 +81,14 @@ VkSampleCountFlagBits GfxDeviceManager::getMaxUsableSampleCount(VkPhysicalDevice
 	return VK_SAMPLE_COUNT_1_BIT;
 }
 
-GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkSurfaceKHR surface) {
+GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(
+	VkSurfaceKHR surface) const {
 	return findQueueFamilies(physicalDevice, surface);
 }
 
-GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(VkPhysicalDevice device,
-	VkSurfaceKHR surface) {
+GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(
+	VkPhysicalDevice device,
+	VkSurfaceKHR surface) const {
 	QueueFamilyIndices indices;
 
 	uint32_t queueFamilyCount = 0;
@@ -138,12 +140,12 @@ bool GfxDeviceManager::checkDeviceExtensionSupport(VkPhysicalDevice device,
 }
 
 GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(
-	VkSurfaceKHR surface) {
+	VkSurfaceKHR surface) const {
 	return querySwapChainSupport(physicalDevice, surface);
 }
 
 GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(
-	VkPhysicalDevice device, VkSurfaceKHR surface) {
+	VkPhysicalDevice device, VkSurfaceKHR surface) const {
 	SwapChainSupportDetails details;
 
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
