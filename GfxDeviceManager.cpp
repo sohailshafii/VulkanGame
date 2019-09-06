@@ -98,6 +98,8 @@ GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
 	int i = 0;
+	// note that the queue family index for graphics and presentation can
+	// differ
 	for (const auto& queueFamily : queueFamilies) {
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			indices.graphicsFamily = i;
