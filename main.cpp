@@ -35,6 +35,7 @@
 #include "VulkanInstance.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
+#include "SwapChainManager.h"
 
 struct Vertex {
 	glm::vec3 pos;
@@ -128,10 +129,7 @@ private:
 
 	VkSurfaceKHR surface;
 
-	VkSwapchainKHR swapChain;
-	std::vector<VkImage> swapChainImages;
-	VkFormat swapChainImageFormat;
-	VkExtent2D swapChainExtent;
+	SwapChainManager *swapChainMgr;
 
 	std::vector<VkImageView> swapChainImageViews;
 	VkRenderPass renderPass;
@@ -261,61 +259,6 @@ private:
 			throw std::runtime_error("failed to create window surface!");
 		}
 	}
-	
-	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
-		// special case where vulkan tells us no preferred format exists
-		if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED) {
-			return { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
-		}
-
-		for (const auto &availableFormat : availableFormats) {
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
-				availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-				return availableFormat;
-			}
-		}
-
-		return availableFormats[0];
-	}
-
-	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>
-		availablePresentModes) {
-		VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
-
-		for (const auto& availablePresentMode : availablePresentModes) {
-			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-				return availablePresentMode;
-			}
-			// in case mailbox not available, default to immediate
-			else if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-				bestMode = availablePresentMode;
-			}
-		}
-
-		return bestMode;
-	}
-
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
-		// if uint32_t max is not used, just return what capabilities gives us
-		if (capabilities.currentExtent.width != 
-			std::numeric_limits<uint32_t>::max()) {
-			return capabilities.currentExtent;
-		}
-		else {
-			int width, height;
-			glfwGetFramebufferSize(window, &width, &height);
-
-			VkExtent2D actualExtent = { static_cast<uint32_t>(width),
-				static_cast<uint32_t>(height) };
-
-			actualExtent.width = std::max(capabilities.minImageExtent.width,
-				std::min(capabilities.maxImageExtent.width, actualExtent.width));
-			actualExtent.height = std::max(capabilities.minImageExtent.height,
-				std::min(capabilities.maxImageExtent.height, actualExtent.height));
-
-			return actualExtent;
-		}
-	}
 
 	void createLogicalDevice() {
 		logicalDeviceManager = new LogicalDeviceManager(gfxDeviceManager,
@@ -347,9 +290,10 @@ private:
 			vkDestroyImageView(logicalDeviceManager->getDevice(), swapChainImageViews[i], nullptr);
 		}
 
-		vkDestroySwapchainKHR(logicalDeviceManager->getDevice(), swapChain, nullptr);
+		size_t numSwapChainImages = swapChainMgr->getSwapChainImages().size();
+		delete swapChainMgr;
 
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
+		for (size_t i = 0; i < numSwapChainImages; i++) {
 			vkDestroyBuffer(logicalDeviceManager->getDevice(), uniformBuffers[i], nullptr);
 			vkFreeMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[i], nullptr);
 		}
@@ -383,65 +327,14 @@ private:
 	}
 
 	void createSwapChain() {
-		GfxDeviceManager::SwapChainSupportDetails swapChainSupport =
-			gfxDeviceManager->querySwapChainSupport(surface);
-
-		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(
-			swapChainSupport.formats);
-		VkPresentModeKHR presentMode = chooseSwapPresentMode(
-			swapChainSupport.presentModes);
-		VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
-
-		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-		// maxImageCount = 0 means no limit besides memory requirements
-		if (swapChainSupport.capabilities.maxImageCount > 0 &&
-			imageCount > swapChainSupport.capabilities.maxImageCount) {
-			imageCount = swapChainSupport.capabilities.maxImageCount;
-		}
-
-		VkSwapchainCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = surface;
-		createInfo.minImageCount = imageCount;
-		createInfo.imageFormat = surfaceFormat.format;
-		createInfo.imageColorSpace = surfaceFormat.colorSpace;
-		createInfo.imageExtent = extent;
-		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-		GfxDeviceManager::QueueFamilyIndices indices = gfxDeviceManager->findQueueFamilies(
-			surface);
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(),
-			indices.presentFamily.value() };
-
-		if (indices.graphicsFamily != indices.presentFamily) {
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = 2;
-			createInfo.pQueueFamilyIndices = queueFamilyIndices;
-		}
-		else {
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		}
-		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = presentMode;
-		createInfo.clipped = VK_TRUE;
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
-
-		if (vkCreateSwapchainKHR(logicalDeviceManager->getDevice(), &createInfo, nullptr,
-			&swapChain) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create swap chain!");
-		}
-
-		vkGetSwapchainImagesKHR(logicalDeviceManager->getDevice(), swapChain, &imageCount, nullptr);
-		swapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(logicalDeviceManager->getDevice(), swapChain, &imageCount, swapChainImages.data());
-
-		swapChainImageFormat = surfaceFormat.format;
-		swapChainExtent = extent;
+		swapChainMgr = new SwapChainManager(gfxDeviceManager,
+			logicalDeviceManager);
+		swapChainMgr->create(surface, window);
 	}
 
 	void createImageViews() {
+		const std::vector<VkImage>& swapChainImages = swapChainMgr->getSwapChainImages();
+		auto swapChainImageFormat = swapChainMgr->getSwapChainImageFormat();
 		swapChainImageViews.resize(swapChainImages.size());
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
 			swapChainImageViews[i] = createImageView(
@@ -469,6 +362,7 @@ private:
 
 	void createRenderPass() {
 		VkAttachmentDescription colorAttachment = {};
+		auto swapChainImageFormat = swapChainMgr->getSwapChainImageFormat();
 		colorAttachment.format = swapChainImageFormat;
 		colorAttachment.samples = gfxDeviceManager->getMSAASamples();
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -609,6 +503,7 @@ private:
 		VkViewport viewport = {};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
+		auto swapChainExtent = swapChainMgr->getSwapChainExtent();
 		viewport.width = (float)swapChainExtent.width;
 		viewport.height = (float)swapChainExtent.height;
 		viewport.minDepth = 0.0f;
@@ -747,6 +642,7 @@ private:
 			framebufferInfo.renderPass = renderPass;
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
+			auto swapChainExtent = swapChainMgr->getSwapChainExtent();
 			framebufferInfo.width = swapChainExtent.width;
 			framebufferInfo.height = swapChainExtent.height;
 			framebufferInfo.layers = 1;
@@ -803,6 +699,8 @@ private:
 	}
 
 	void createColorResources() {
+		auto swapChainImageFormat = swapChainMgr->getSwapChainImageFormat();
+		auto swapChainExtent = swapChainMgr->getSwapChainExtent();
 		VkFormat colorFormat = swapChainImageFormat;
 
 		createImage(swapChainExtent.width, swapChainExtent.height, 1,
@@ -860,6 +758,7 @@ private:
 
 	void createDepthResources() {
 		VkFormat depthFormat = findDepthFormat();
+		auto swapChainExtent = swapChainMgr->getSwapChainExtent();
 		createImage(swapChainExtent.width, swapChainExtent.height,
 			1, gfxDeviceManager->getMSAASamples(), depthFormat, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
@@ -1190,6 +1089,7 @@ throw std::runtime_error("Failed to load texture image!");
 	void createUniformBuffers() {
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
+		const std::vector<VkImage>& swapChainImages = swapChainMgr->getSwapChainImages();
 		uniformBuffers.resize(swapChainImages.size());
 		uniformBuffersMemory.resize(swapChainImages.size());
 
@@ -1400,6 +1300,7 @@ throw std::runtime_error("Failed to load texture image!");
 			renderPassInfo.renderPass = renderPass;
 			renderPassInfo.framebuffer = swapChainFramebuffers[i];
 			renderPassInfo.renderArea.offset = { 0, 0 };
+			auto swapChainExtent = swapChainMgr->getSwapChainExtent();
 			renderPassInfo.renderArea.extent = swapChainExtent;
 
 			// order of clear values = order of attachments
@@ -1440,6 +1341,7 @@ throw std::runtime_error("Failed to load texture image!");
 	void createDescriptorPool() {
 		std::array<VkDescriptorPoolSize, 2> poolSizes = {};
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		const std::vector<VkImage>& swapChainImages = swapChainMgr->getSwapChainImages();
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
@@ -1457,6 +1359,7 @@ throw std::runtime_error("Failed to load texture image!");
 	}
 
 	void createDescriptorSets() {
+		const std::vector<VkImage>& swapChainImages = swapChainMgr->getSwapChainImages();
 		std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(),
 			descriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo = {};
@@ -1546,7 +1449,8 @@ throw std::runtime_error("Failed to load texture image!");
 			std::numeric_limits<uint64_t>::max());
 
 		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(logicalDeviceManager->getDevice(), swapChain, std::numeric_limits<uint64_t>::max(),
+		VkResult result = vkAcquireNextImageKHR(logicalDeviceManager->getDevice(),
+			swapChainMgr->getSwapChain(), std::numeric_limits<uint64_t>::max(),
 			imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			recreateSwapChain();
@@ -1588,7 +1492,7 @@ throw std::runtime_error("Failed to load texture image!");
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
-		VkSwapchainKHR swapChains[] = { swapChain };
+		VkSwapchainKHR swapChains[] = { swapChainMgr->getSwapChain() };
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &imageIndex;
@@ -1621,6 +1525,7 @@ throw std::runtime_error("Failed to load texture image!");
 			glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		auto swapChainExtent = swapChainMgr->getSwapChainExtent();
 		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
 			(float)swapChainExtent.height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
