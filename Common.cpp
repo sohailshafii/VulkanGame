@@ -1,5 +1,6 @@
 #include "Common.h"
 #include "LogicalDeviceManager.h"
+#include <stdexcept>
 
 VkImageView Common::createImageView(VkImage image, VkFormat format,
 	VkImageAspectFlags aspectFlags, uint32_t mipLevels,

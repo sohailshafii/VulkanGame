@@ -1,5 +1,6 @@
 #include "SwapChainManager.h"
 #include <algorithm>
+#include <stdexcept>
 #include "Common.h"
 
 SwapChainManager::SwapChainManager(GfxDeviceManager* gfxDeviceManager,
