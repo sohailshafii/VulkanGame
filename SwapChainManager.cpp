@@ -1,7 +1,6 @@
 #include "SwapChainManager.h"
-
-
 #include <algorithm>
+#include "Common.h"
 
 SwapChainManager::SwapChainManager(GfxDeviceManager* gfxDeviceManager,
 	LogicalDeviceManager* logicalDeviceManager) {
@@ -10,6 +9,9 @@ SwapChainManager::SwapChainManager(GfxDeviceManager* gfxDeviceManager,
 }
 
 SwapChainManager::~SwapChainManager() {
+	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+		vkDestroyImageView(logicalDeviceManager->getDevice(), swapChainImageViews[i], nullptr);
+	}
 	vkDestroySwapchainKHR(logicalDeviceManager->getDevice(), swapChain, nullptr);
 }
 
@@ -71,6 +73,16 @@ void SwapChainManager::create(VkSurfaceKHR surface, GLFWwindow *window) {
 
 	swapChainImageFormat = surfaceFormat.format;
 	swapChainExtent = extent;
+}
+
+void SwapChainManager::createImageViews() {
+	auto swapChainImageFormat = getSwapChainImageFormat();
+	swapChainImageViews.resize(swapChainImages.size());
+	for (size_t i = 0; i < swapChainImages.size(); i++) {
+		swapChainImageViews[i] = Common::createImageView(
+			swapChainImages[i], swapChainImageFormat,
+			VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDeviceManager);
+	}
 }
 
 VkSurfaceFormatKHR SwapChainManager::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {

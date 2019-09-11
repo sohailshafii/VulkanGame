@@ -36,6 +36,7 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "SwapChainManager.h"
+#include "Common.h"
 
 struct Vertex {
 	glm::vec3 pos;
@@ -131,7 +132,6 @@ private:
 
 	SwapChainManager *swapChainMgr;
 
-	std::vector<VkImageView> swapChainImageViews;
 	VkRenderPass renderPass;
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkPipelineLayout pipelineLayout;
@@ -286,13 +286,11 @@ private:
 		vkDestroyPipelineLayout(logicalDeviceManager->getDevice(), pipelineLayout, nullptr);
 		vkDestroyRenderPass(logicalDeviceManager->getDevice(), renderPass, nullptr);
 
-		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-			vkDestroyImageView(logicalDeviceManager->getDevice(), swapChainImageViews[i], nullptr);
-		}
-
 		size_t numSwapChainImages = swapChainMgr->getSwapChainImages().size();
 		delete swapChainMgr;
 
+		// TODO: each swap chain image should have an associated meta data with it
+		// so create SwapChainImage class for that
 		for (size_t i = 0; i < numSwapChainImages; i++) {
 			vkDestroyBuffer(logicalDeviceManager->getDevice(), uniformBuffers[i], nullptr);
 			vkFreeMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[i], nullptr);
@@ -333,14 +331,7 @@ private:
 	}
 
 	void createImageViews() {
-		const std::vector<VkImage>& swapChainImages = swapChainMgr->getSwapChainImages();
-		auto swapChainImageFormat = swapChainMgr->getSwapChainImageFormat();
-		swapChainImageViews.resize(swapChainImages.size());
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			swapChainImageViews[i] = createImageView(
-				swapChainImages[i], swapChainImageFormat,
-				VK_IMAGE_ASPECT_COLOR_BIT, 1);
-		}
+		swapChainMgr->createImageViews();
 	}
 
 	VkShaderModule createShaderModule(const std::vector<char>& code) {
@@ -629,6 +620,7 @@ private:
 	}
 
 	void createFramebuffers() {
+		auto& swapChainImageViews = swapChainMgr->getSwapChainImageViews();
 		swapChainFramebuffers.resize(swapChainImageViews.size());
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
 			std::array<VkImageView, 3> attachments = {
@@ -707,8 +699,8 @@ private:
 			gfxDeviceManager->getMSAASamples(), colorFormat, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory);
-		colorImageView = createImageView(colorImage, colorFormat,
-			VK_IMAGE_ASPECT_COLOR_BIT, 1);
+		colorImageView = Common::createImageView(colorImage, colorFormat,
+			VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDeviceManager);
 
 		transitionImageLayout(colorImage, colorFormat, VK_IMAGE_LAYOUT_UNDEFINED,
 			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1);
@@ -764,8 +756,8 @@ private:
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			depthImage, depthImageMemory);
-		depthImageView = createImageView(depthImage, depthFormat,
-			VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+		depthImageView = Common::createImageView(depthImage, depthFormat,
+			VK_IMAGE_ASPECT_DEPTH_BIT, 1, logicalDeviceManager);
 
 		transitionImageLayout(depthImage, depthFormat,
 			VK_IMAGE_LAYOUT_UNDEFINED,
@@ -943,31 +935,9 @@ throw std::runtime_error("Failed to load texture image!");
 	}
 
 	void createTextureImageView() {
-		textureImageView = createImageView(textureImage,
+		textureImageView = Common::createImageView(textureImage,
 			VK_FORMAT_R8G8B8A8_UNORM,
-			VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
-	}
-
-	VkImageView createImageView(VkImage image, VkFormat format,
-		VkImageAspectFlags aspectFlags, uint32_t mipLevels) {
-		VkImageViewCreateInfo viewInfo = {};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = mipLevels;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
-		VkImageView imageView;
-		if (vkCreateImageView(logicalDeviceManager->getDevice(), &viewInfo, nullptr,
-			&imageView) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create texture image view!");
-		}
-
-		return imageView;
+			VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, logicalDeviceManager);
 	}
 
 	void createTextureSampler() {

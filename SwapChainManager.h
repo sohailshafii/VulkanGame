@@ -14,6 +14,7 @@ public:
 	~SwapChainManager();
 
 	void create(VkSurfaceKHR surface, GLFWwindow *window);
+	void createImageViews();
 
 	VkSwapchainKHR getSwapChain() {
 		return swapChain;
@@ -21,6 +22,10 @@ public:
 
 	const std::vector<VkImage>& getSwapChainImages() const {
 		return swapChainImages;
+	}
+
+	const std::vector<VkImageView>& getSwapChainImageViews() const {
+		return swapChainImageViews;
 	}
 
 	VkFormat getSwapChainImageFormat() {
@@ -38,6 +43,7 @@ private:
 	GfxDeviceManager *gfxDeviceManager;
 
 	std::vector<VkImage> swapChainImages;
+	std::vector<VkImageView> swapChainImageViews;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
