@@ -36,6 +36,7 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "SwapChainManager.h"
+#include "ShaderModule.h"
 #include "Common.h"
 
 struct Vertex {
@@ -235,25 +236,6 @@ private:
 		createSyncObjects();
 	}
 
-	static std::vector<char> readFile(const std::string& fileName) {
-		std::ifstream file(fileName, std::ios::ate | std::ios::binary);
-
-		if (!file.is_open()) {
-			throw std::runtime_error("Failed to open file!");
-		}
-
-		size_t fileSize = (size_t)file.tellg();
-		std::vector<char> buffer(fileSize);
-		std::cout << "Number of bytes to read: " << fileSize << ".\n";
-
-		file.seekg(0);
-		file.read(buffer.data(), fileSize);
-
-		file.close();
-
-		return buffer;
-	}
-
 	void createSurface() {
 		if (glfwCreateWindowSurface(instance->getVkInstance(), window, nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
@@ -332,23 +314,6 @@ private:
 
 	void createImageViews() {
 		swapChainMgr->createImageViews();
-	}
-
-	VkShaderModule createShaderModule(const std::vector<char>& code) {
-		// need to make sure data satisfies alignment requirements of
-		// uint32_t. fortunately, std::vector's default allocator
-		// ensures data satisfies worst case alignment requirements
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(logicalDeviceManager->getDevice(), &createInfo, nullptr,
-			&shaderModule) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create shader module!");
-		}
-
-		return shaderModule;
 	}
 
 	void createRenderPass() {
@@ -453,22 +418,19 @@ private:
 	}
 
 	void createGraphicsPipeline() {
-		auto vertShaderCode = readFile("shaders/vert.spv"),
-			fragShaderCode = readFile("shaders/frag.spv");
-
-		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
-		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+		ShaderModule vertShaderModule("shaders/vert.spv", logicalDeviceManager->getDevice());
+		ShaderModule fragShaderModule("shaders/frag.spv", logicalDeviceManager->getDevice());
 
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		vertShaderStageInfo.module = vertShaderModule;
+		vertShaderStageInfo.module = vertShaderModule.getVkShaderModule();
 		vertShaderStageInfo.pName = "main";
 
 		VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
 		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		fragShaderStageInfo.module = fragShaderModule;
+		fragShaderStageInfo.module = fragShaderModule.getVkShaderModule();
 		fragShaderStageInfo.pName = "main";
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = {
@@ -614,9 +576,6 @@ private:
 			&pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create graphics pipeline!");
 		}
-
-		vkDestroyShaderModule(logicalDeviceManager->getDevice(), fragShaderModule, nullptr);
-		vkDestroyShaderModule(logicalDeviceManager->getDevice(), vertShaderModule, nullptr);
 	}
 
 	void createFramebuffers() {
