@@ -4,7 +4,7 @@
 
 Pipeline::Pipeline(const std::string& vertShaderPath,
 	const std::string& fragShaderPath, VkDevice device,
-	VkExtent2D swapChainExtent) {
+	VkExtent2D swapChainExtent, GfxDeviceManager* gfxDeviceManager) {
 	ShaderModule vertShaderModule("shaders/vert.spv", device);
 	ShaderModule fragShaderModule("shaders/frag.spv", device);
 
@@ -43,7 +43,6 @@ Pipeline::Pipeline(const std::string& vertShaderPath,
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	auto swapChainExtent = swapChainExtent;
 	viewport.width = (float)swapChainExtent.width;
 	viewport.height = (float)swapChainExtent.height;
 	viewport.minDepth = 0.0f;
@@ -60,7 +59,6 @@ Pipeline::Pipeline(const std::string& vertShaderPath,
 	viewportState.scissorCount = 1;
 	viewportState.pScissors = &scissor;
 
-
 	VkPipelineRasterizationStateCreateInfo rasterizer = {};
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterizer.depthClampEnable = VK_FALSE;
@@ -73,6 +71,49 @@ Pipeline::Pipeline(const std::string& vertShaderPath,
 	rasterizer.depthBiasConstantFactor = 0.0f; // optional
 	rasterizer.depthBiasClamp = 0.0f; // optional
 	rasterizer.depthBiasSlopeFactor = 0.0f; // optional
+
+	VkPipelineMultisampleStateCreateInfo multiSampling = {};
+	multiSampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multiSampling.sampleShadingEnable = VK_TRUE;
+	multiSampling.rasterizationSamples = gfxDeviceManager->getMSAASamples();
+	multiSampling.minSampleShading = 0.2f; // min fraction for sample shading; 
+	// closer to one is smoother
+	multiSampling.pSampleMask = nullptr;
+	multiSampling.alphaToCoverageEnable = VK_FALSE;
+	multiSampling.alphaToOneEnable = VK_FALSE;
+
+	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+		VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	colorBlendAttachment.blendEnable = VK_FALSE;
+	// rest are optional (for now)
+	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+	VkPipelineColorBlendStateCreateInfo colorBlending = {};
+	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	colorBlending.logicOpEnable = VK_FALSE;
+	colorBlending.logicOp = VK_LOGIC_OP_COPY;
+	colorBlending.attachmentCount = 1;
+	colorBlending.pAttachments = &colorBlendAttachment;
+	colorBlending.blendConstants[0] = 0.0f; // optional
+	colorBlending.blendConstants[1] = 0.0f; // optional
+	colorBlending.blendConstants[2] = 0.0f; // optional
+	colorBlending.blendConstants[3] = 0.0f; // optional
+
+	/*VkDynamicState dynamicStates[] = {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_LINE_WIDTH
+	};
+
+	VkPipelineDynamicStateCreateInfo dynamicState = {};
+	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicState.dynamicStateCount = 2;
+	dynamicState.pDynamicStates = dynamicStates;*/
 
 	// TODO complete
 }
