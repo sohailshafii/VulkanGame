@@ -37,6 +37,7 @@
 #include "LogicalDeviceManager.h"
 #include "SwapChainManager.h"
 #include "ShaderModule.h"
+#include "PipelineModule.h"
 #include "Common.h"
 
 class HelloTriangleApplication {
@@ -78,9 +79,8 @@ private:
 
 	VkRenderPass renderPass;
 	VkDescriptorSetLayout descriptorSetLayout;
-	VkPipelineLayout pipelineLayout;
 
-	VkPipeline graphicsPipeline;
+	PipelineModule* graphicsPipelineModule;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	VkCommandPool commandPool;
@@ -207,8 +207,7 @@ private:
 			static_cast<uint32_t>(commandBuffers.size()),
 			commandBuffers.data());
 
-		vkDestroyPipeline(logicalDeviceManager->getDevice(), graphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(logicalDeviceManager->getDevice(), pipelineLayout, nullptr);
+		delete graphicsPipelineModule;
 		vkDestroyRenderPass(logicalDeviceManager->getDevice(), renderPass, nullptr);
 
 		size_t numSwapChainImages = swapChainMgr->getSwapChainImages().size();
@@ -361,54 +360,10 @@ private:
 	}
 
 	void createGraphicsPipeline() {
-		// TODO: port more to Pipeline class
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-		pipelineLayoutInfo.pushConstantRangeCount = 0;
-		pipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-		if (vkCreatePipelineLayout(logicalDeviceManager->getDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout)
-			!= VK_SUCCESS) {
-			throw std::runtime_error("Failed to create pipeline layout!");
-		}
-
-		VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-		depthStencil.depthTestEnable = VK_TRUE;
-		depthStencil.depthWriteEnable = VK_TRUE;
-		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-		depthStencil.depthBoundsTestEnable = VK_FALSE;
-		depthStencil.minDepthBounds = 0.0f; // Optional
-		depthStencil.maxDepthBounds = 1.0f; // Optional
-		depthStencil.stencilTestEnable = VK_FALSE;
-		depthStencil.front = {}; // optional
-		depthStencil.back = {}; // optional
-
-		VkGraphicsPipelineCreateInfo pipelineInfo = {};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssembly;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizer;
-		pipelineInfo.pMultisampleState = &multiSampling;
-		pipelineInfo.pDepthStencilState = &depthStencil;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDynamicState = nullptr;
-
-		pipelineInfo.layout = pipelineLayout;
-		pipelineInfo.renderPass = renderPass;
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-		pipelineInfo.basePipelineIndex = -1;
-
-		if (vkCreateGraphicsPipelines(logicalDeviceManager->getDevice(), VK_NULL_HANDLE, 1,
-			&pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create graphics pipeline!");
-		}
+		graphicsPipelineModule = new PipelineModule("shaders/vert.spv",
+			"shaders/frag.spv", logicalDeviceManager->getDevice(),
+			swapChainMgr->getSwapChainExtent(), gfxDeviceManager,
+			descriptorSetLayout, renderPass);
 	}
 
 	void createFramebuffers() {
@@ -1078,7 +1033,7 @@ throw std::runtime_error("Failed to load texture image!");
 				VK_SUBPASS_CONTENTS_INLINE);
 
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-				graphicsPipeline);
+				graphicsPipelineModule->GetPipeline());
 
 			// bind our vertex buffers
 			VkBuffer vertexBuffers[] = { vertexBuffer };
@@ -1088,7 +1043,7 @@ throw std::runtime_error("Failed to load texture image!");
 			vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+				graphicsPipelineModule->GetLayout(), 0, 1, &descriptorSets[i], 0, nullptr);
 			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()),
 				1, 0, 0, 0);
 
