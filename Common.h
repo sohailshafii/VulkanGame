@@ -3,6 +3,9 @@
 #include "vulkan/vulkan.h"
 #include <array>
 #include <glm/glm.hpp>
+// NOTE: these two lines are necessary for hashing!!!!
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 class LogicalDeviceManager;
 
@@ -53,11 +56,11 @@ struct Vertex {
 };
 
 namespace std {
-	template<> struct std::hash<Vertex> {
+	template<> struct hash<Vertex> {
 		size_t operator()(Vertex const& vertex) const {
-			return ((std::hash<glm::vec3>()(vertex.pos) ^
-				(std::hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
-				(std::hash<glm::vec2>()(vertex.texCoord) << 1);
+			return ((hash<glm::vec3>()(vertex.pos) ^
+				(hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+				(hash<glm::vec2>()(vertex.texCoord) << 1);
 		}
 	};
 }

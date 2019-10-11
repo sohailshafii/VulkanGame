@@ -36,10 +36,10 @@
     <ClCompile Include="CommonImage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline.cpp">
+    <ClCompile Include="ShaderModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderModule.cpp">
+    <ClCompile Include="PipelineModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,7 +68,7 @@
     <ClInclude Include="ShaderModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline.h">
+    <ClInclude Include="PipelineModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

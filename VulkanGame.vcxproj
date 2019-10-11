@@ -127,7 +127,7 @@
     <ClCompile Include="GfxDeviceManager.cpp" />
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Pipeline.cpp" />
+    <ClCompile Include="PipelineModule.cpp" />
     <ClCompile Include="ShaderModule.cpp" />
     <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
@@ -137,7 +137,7 @@
     <ClInclude Include="CommonImage.h" />
     <ClInclude Include="GfxDeviceManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
-    <ClInclude Include="Pipeline.h" />
+    <ClInclude Include="PipelineModule.h" />
     <ClInclude Include="ShaderModule.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="SwapChainManager.h" />
