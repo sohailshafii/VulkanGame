@@ -14,6 +14,12 @@ public:
 	static VkImageView Common::createImageView(VkImage image, VkFormat format,
 		VkImageAspectFlags aspectFlags, uint32_t mipLevels,
 		LogicalDeviceManager* logicalDeviceManager);
+
+	static VkFormat Common::findSupportedFormat(const std::vector<VkFormat>&
+		candidates, VkImageTiling tiling, VkFormatFeatureFlags
+		features, VkPhysicalDevice physicalDevice);
+
+	static VkFormat Common::findDepthFormat(VkPhysicalDevice physicalDevice);
 };
 
 struct Vertex {

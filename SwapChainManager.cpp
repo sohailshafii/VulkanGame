@@ -7,6 +7,8 @@ SwapChainManager::SwapChainManager(GfxDeviceManager* gfxDeviceManager,
 	LogicalDeviceManager* logicalDeviceManager) {
 	this->logicalDeviceManager = logicalDeviceManager;
 	this->gfxDeviceManager = gfxDeviceManager;
+	this->swapChain = VK_NULL_HANDLE;
+	this->swapChainExtent = VkExtent2D();
 }
 
 SwapChainManager::~SwapChainManager() {

@@ -128,6 +128,7 @@
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PipelineModule.cpp" />
+    <ClCompile Include="RenderPassModule.cpp" />
     <ClCompile Include="ShaderModule.cpp" />
     <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="GfxDeviceManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
     <ClInclude Include="PipelineModule.h" />
+    <ClInclude Include="RenderPassModule.h" />
     <ClInclude Include="ShaderModule.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="SwapChainManager.h" />

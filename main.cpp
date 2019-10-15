@@ -38,6 +38,7 @@
 #include "SwapChainManager.h"
 #include "ShaderModule.h"
 #include "PipelineModule.h"
+#include "RenderPassModule.h"
 #include "Common.h"
 
 class HelloTriangleApplication {
@@ -76,8 +77,7 @@ private:
 	VkSurfaceKHR surface;
 
 	SwapChainManager *swapChainMgr;
-
-	VkRenderPass renderPass;
+	RenderPassModule* renderPassModule;
 	VkDescriptorSetLayout descriptorSetLayout;
 
 	PipelineModule* graphicsPipelineModule;
@@ -208,7 +208,7 @@ private:
 			commandBuffers.data());
 
 		delete graphicsPipelineModule;
-		vkDestroyRenderPass(logicalDeviceManager->getDevice(), renderPass, nullptr);
+		delete renderPassModule;
 
 		size_t numSwapChainImages = swapChainMgr->getSwapChainImages().size();
 		delete swapChainMgr;
@@ -259,77 +259,9 @@ private:
 	}
 
 	void createRenderPass() {
-		VkAttachmentDescription colorAttachment = {};
-		auto swapChainImageFormat = swapChainMgr->getSwapChainImageFormat();
-		colorAttachment.format = swapChainImageFormat;
-		colorAttachment.samples = gfxDeviceManager->getMSAASamples();
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkAttachmentReference colorAttachmentRef = {};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkAttachmentDescription depthAttachment = {};
-		depthAttachment.format = findDepthFormat();
-		depthAttachment.samples = gfxDeviceManager->getMSAASamples();
-		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		VkAttachmentReference depthAttachmentRef = {};
-		depthAttachmentRef.attachment = 1;
-		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-		VkAttachmentDescription colorAttachmentResolve = {};
-		colorAttachmentResolve.format = swapChainImageFormat;
-		colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachmentResolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		VkAttachmentReference colorAttachmentResolveRef = {};
-		colorAttachmentResolveRef.attachment = 2;
-		colorAttachmentResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
-		subpass.pDepthStencilAttachment = &depthAttachmentRef;
-		subpass.pResolveAttachments = &colorAttachmentResolveRef;
-
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-		std::array<VkAttachmentDescription, 3> attachments =
-		{ colorAttachment, depthAttachment, colorAttachmentResolve };
-		VkRenderPassCreateInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-		renderPassInfo.pAttachments = attachments.data();
-		renderPassInfo.subpassCount = 1;
-		renderPassInfo.pSubpasses = &subpass;
-		renderPassInfo.dependencyCount = 1;
-		renderPassInfo.pDependencies = &dependency;
-
-		if (vkCreateRenderPass(logicalDeviceManager->getDevice(), &renderPassInfo, nullptr,
-			&renderPass) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create render pass!");
-		}
+		renderPassModule = new RenderPassModule(logicalDeviceManager->getDevice(),
+			gfxDeviceManager->getPhysicalDevice(), 
+			swapChainMgr->getSwapChainImageFormat(), gfxDeviceManager->getMSAASamples());
 	}
 
 	void createDescriptorSetLayout() {
@@ -363,7 +295,7 @@ private:
 		graphicsPipelineModule = new PipelineModule("shaders/vert.spv",
 			"shaders/frag.spv", logicalDeviceManager->getDevice(),
 			swapChainMgr->getSwapChainExtent(), gfxDeviceManager,
-			descriptorSetLayout, renderPass);
+			descriptorSetLayout, renderPassModule->GetRenderPass());
 	}
 
 	void createFramebuffers() {
@@ -378,7 +310,7 @@ private:
 
 			VkFramebufferCreateInfo framebufferInfo = {};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = renderPass;
+			framebufferInfo.renderPass = renderPassModule->GetRenderPass();
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
 			auto swapChainExtent = swapChainMgr->getSwapChainExtent();
@@ -496,7 +428,7 @@ private:
 	}
 
 	void createDepthResources() {
-		VkFormat depthFormat = findDepthFormat();
+		VkFormat depthFormat = Common::findDepthFormat(gfxDeviceManager->getPhysicalDevice());
 		auto swapChainExtent = swapChainMgr->getSwapChainExtent();
 		createImage(swapChainExtent.width, swapChainExtent.height,
 			1, gfxDeviceManager->getMSAASamples(), depthFormat, VK_IMAGE_TILING_OPTIMAL,
@@ -511,33 +443,7 @@ private:
 			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
 	}
 
-	VkFormat findSupportedFormat(const std::vector<VkFormat>&
-		candidates, VkImageTiling tiling, VkFormatFeatureFlags
-		features) {
-		for (VkFormat format : candidates) {
-			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(gfxDeviceManager->getPhysicalDevice(),
-				format, &props);
-			if (tiling == VK_IMAGE_TILING_LINEAR &&
-				(props.linearTilingFeatures & features) == features) {
-				return format;
-			}
-			else if (tiling == VK_IMAGE_TILING_OPTIMAL &&
-				(props.optimalTilingFeatures & features) == features) {
-				return format;
-			}
-		}
 
-		throw std::runtime_error("Failed to find supported format!");
-	}
-
-	VkFormat findDepthFormat() {
-		return findSupportedFormat(
-			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT,
-			VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL,
-			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-		);
-	}
 
 	bool hasStencilComponent(VkFormat format) {
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT ||
@@ -1014,7 +920,7 @@ throw std::runtime_error("Failed to load texture image!");
 
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderPass;
+			renderPassInfo.renderPass = renderPassModule->GetRenderPass();
 			renderPassInfo.framebuffer = swapChainFramebuffers[i];
 			renderPassInfo.renderArea.offset = { 0, 0 };
 			auto swapChainExtent = swapChainMgr->getSwapChainExtent();
