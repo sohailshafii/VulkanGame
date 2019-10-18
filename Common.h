@@ -20,6 +20,11 @@ public:
 		features, VkPhysicalDevice physicalDevice);
 
 	static VkFormat Common::findDepthFormat(VkPhysicalDevice physicalDevice);
+
+	static VkCommandBuffer Common::beginSingleTimeCommands(VkCommandPool commandPool,
+		LogicalDeviceManager* logicalDeviceManager);
+	static void Common::endSingleTimeCommands(VkCommandBuffer commandBuffer,
+		VkCommandPool commandPool, LogicalDeviceManager* logicalDeviceManager);
 };
 
 struct Vertex {

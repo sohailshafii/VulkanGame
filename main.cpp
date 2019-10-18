@@ -515,7 +515,8 @@ throw std::runtime_error("Failed to load texture image!");
 			throw std::runtime_error("Texture image format does not support linear blitting!");
 		}
 
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
+			logicalDeviceManager);
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -584,7 +585,7 @@ throw std::runtime_error("Failed to load texture image!");
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
 			0, nullptr, 0, nullptr, 1, &barrier);
 
-		endSingleTimeCommands(commandBuffer);
+		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
 	}
 
 	void createTextureImageView() {
@@ -724,7 +725,8 @@ throw std::runtime_error("Failed to load texture image!");
 	}
 
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
+			logicalDeviceManager);
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.srcOffset = 0; // optional
@@ -732,13 +734,14 @@ throw std::runtime_error("Failed to load texture image!");
 		copyRegion.size = size;
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-		endSingleTimeCommands(commandBuffer);
+		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
 	}
 
 	void transitionImageLayout(VkImage image, VkFormat format,
 		VkImageLayout oldLayout, VkImageLayout newLayout,
 		uint32_t mipLevels) {
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
+			logicalDeviceManager);
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -812,12 +815,13 @@ throw std::runtime_error("Failed to load texture image!");
 			1, &barrier
 		);
 
-		endSingleTimeCommands(commandBuffer);
+		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
 	}
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
 		uint32_t height) {
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
+			logicalDeviceManager);
 
 		VkBufferImageCopy region = {};
 		region.bufferOffset = 0;
@@ -845,7 +849,7 @@ throw std::runtime_error("Failed to load texture image!");
 			&region
 		);
 
-		endSingleTimeCommands(commandBuffer);
+		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
 	}
 
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -862,38 +866,7 @@ throw std::runtime_error("Failed to load texture image!");
 		throw std::runtime_error("Failed to find suitable memory type!");
 	}
 
-	VkCommandBuffer beginSingleTimeCommands() {
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = commandPool;
-		allocInfo.commandBufferCount = 1;
-
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(logicalDeviceManager->getDevice(), &allocInfo, &commandBuffer);
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-		return commandBuffer;
-	}
-
-	void endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-		vkEndCommandBuffer(commandBuffer);
-
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
-
-		vkQueueSubmit(logicalDeviceManager->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(logicalDeviceManager->getGraphicsQueue());
-
-		vkFreeCommandBuffers(logicalDeviceManager->getDevice(), commandPool, 1, &commandBuffer);
-	}
+	
 
 	void createCommandBuffers() {
 		commandBuffers.resize(swapChainFramebuffers.size());
