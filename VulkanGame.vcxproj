@@ -122,6 +122,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommandBufferModule.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="CommonImage.cpp" />
     <ClCompile Include="GfxDeviceManager.cpp" />
@@ -135,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="CommonBufferModule.h" />
     <ClInclude Include="CommonImage.h" />
     <ClInclude Include="GfxDeviceManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
