@@ -457,7 +457,7 @@ private:
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		if (!pixels) {
-throw std::runtime_error("Failed to load texture image!");
+			throw std::runtime_error("Failed to load texture image!");
 		}
 		mipLevels = static_cast<uint32_t>(std::floor(
 			std::log2(std::max(texWidth, texHeight)))) + 1;
@@ -866,8 +866,7 @@ throw std::runtime_error("Failed to load texture image!");
 		throw std::runtime_error("Failed to find suitable memory type!");
 	}
 
-	
-
+	// TODO: create command buffer module that encapsulates the allocate info, etc
 	void createCommandBuffers() {
 		commandBuffers.resize(swapChainFramebuffers.size());
 
