@@ -40,6 +40,7 @@
 #include "PipelineModule.h"
 #include "RenderPassModule.h"
 #include "Common.h"
+#include "CommonBufferModule.h"
 
 class HelloTriangleApplication {
 public:
@@ -84,7 +85,7 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	VkCommandPool commandPool;
-	std::vector<VkCommandBuffer> commandBuffers;
+	CommandBufferModule* commandBufferModule;
 
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -203,9 +204,7 @@ private:
 		vkDestroyImage(logicalDeviceManager->getDevice(), depthImage, nullptr);
 		vkFreeMemory(logicalDeviceManager->getDevice(), depthImageMemory, nullptr);
 
-		vkFreeCommandBuffers(logicalDeviceManager->getDevice(), commandPool,
-			static_cast<uint32_t>(commandBuffers.size()),
-			commandBuffers.data());
+		delete commandBufferModule;
 
 		delete graphicsPipelineModule;
 		delete renderPassModule;
@@ -334,8 +333,8 @@ private:
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 		poolInfo.flags = 0;
 
-		if (vkCreateCommandPool(logicalDeviceManager->getDevice(), &poolInfo, nullptr, &commandPool) !=
-			VK_SUCCESS) {
+		if (vkCreateCommandPool(logicalDeviceManager->getDevice(), &poolInfo, nullptr,
+			&commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create command pool!");
 		}
 	}
@@ -868,19 +867,9 @@ private:
 
 	// TODO: create command buffer module that encapsulates the allocate info, etc
 	void createCommandBuffers() {
-		commandBuffers.resize(swapChainFramebuffers.size());
-
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = commandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-
-		if (vkAllocateCommandBuffers(logicalDeviceManager->getDevice(), &allocInfo, commandBuffers.data())
-			!= VK_SUCCESS) {
-			throw std::runtime_error("Failed to allocate command buffers!");
-		}
-
+		commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
+			logicalDeviceManager->getDevice(), commandPool);
+		auto& commandBuffers = commandBufferModule->getCommandBuffers();
 		for (size_t i = 0; i < commandBuffers.size(); i++) {
 			VkCommandBufferBeginInfo beginInfo = {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1067,7 +1056,7 @@ private:
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+		submitInfo.pCommandBuffers = &(commandBufferModule->getCommandBuffers()[imageIndex]);
 
 		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 		submitInfo.signalSemaphoreCount = 1;
