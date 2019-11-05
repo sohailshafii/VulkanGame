@@ -126,6 +126,7 @@
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="CommonImage.cpp" />
     <ClCompile Include="GfxDeviceManager.cpp" />
+    <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PipelineModule.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="CommonBufferModule.h" />
     <ClInclude Include="CommonImage.h" />
     <ClInclude Include="GfxDeviceManager.h" />
+    <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
     <ClInclude Include="PipelineModule.h" />
     <ClInclude Include="RenderPassModule.h" />
