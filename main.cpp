@@ -41,6 +41,7 @@
 #include "RenderPassModule.h"
 #include "Common.h"
 #include "CommonBufferModule.h"
+#include "GraphicsEngine.h"
 
 class HelloTriangleApplication {
 public:
@@ -83,6 +84,8 @@ private:
 
 	PipelineModule* graphicsPipelineModule;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
+
+	GraphicsEngine* graphicsEngine;
 
 	VkCommandPool commandPool;
 	CommandBufferModule* commandBufferModule;
@@ -212,6 +215,8 @@ private:
 		size_t numSwapChainImages = swapChainMgr->getSwapChainImages().size();
 		delete swapChainMgr;
 
+		//delete graphicsEngine;
+
 		// TODO: each swap chain image should have an associated meta data with it
 		// so create SwapChainImage class for that
 		for (size_t i = 0; i < numSwapChainImages; i++) {
@@ -234,10 +239,10 @@ private:
 
 		cleanupSwapChain();
 
-		createSwapChain();
-		createImageViews();
-		createRenderPass();
-		createGraphicsPipeline();
+		createSwapChain(); // 1
+		createImageViews(); // 2
+		createRenderPass(); // 3
+		createGraphicsPipeline(); // 4
 		createColorResources();
 		createDepthResources();
 		createFramebuffers();
@@ -251,6 +256,9 @@ private:
 		swapChainMgr = new SwapChainManager(gfxDeviceManager,
 			logicalDeviceManager);
 		swapChainMgr->create(surface, window);
+
+	//	graphicsEngine = new GraphicsEngine(gfxDeviceManager,
+		//	logicalDeviceManager, surface, window);
 	}
 
 	void createImageViews() {
