@@ -13,7 +13,8 @@ class GraphicsEngine {
 public:
 	GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 		LogicalDeviceManager* logicalDeviceManager, VkSurfaceKHR surface,
-		GLFWwindow* window);
+		GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
+		VkCommandPool commandPool);
 
 	~GraphicsEngine();
 
@@ -21,9 +22,14 @@ public:
 		LogicalDeviceManager* logicalDeviceManager, VkDescriptorSetLayout descriptorSetLayout);
 
 private:
+	LogicalDeviceManager* logicalDeviceManager; // TODO: shared_ptr
 	SwapChainManager* swapChainManager;
 	RenderPassModule* renderPassModule;
 	PipelineModule* graphicsPipelineModule;
+
+	VkImage colorImage;
+	VkDeviceMemory colorImageMemory;
+	VkImageView colorImageView;
 
 	void cleanUpSwapChain();
 	void createSwapChain(GfxDeviceManager* gfxDeviceManager,
@@ -32,4 +38,7 @@ private:
 	void createSwapChainImageViews();
 	void createRenderPassModule(GfxDeviceManager* gfxDeviceManager,
 		LogicalDeviceManager* logicalDeviceManager);
+
+	void createColorResources(GfxDeviceManager* gfxDeviceManager,
+		LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool);
 };
