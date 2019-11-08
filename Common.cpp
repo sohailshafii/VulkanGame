@@ -231,3 +231,33 @@ uint32_t Common::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 
 	throw std::runtime_error("Failed to find suitable memory type!");
 }
+
+void Common::createBuffer(LogicalDeviceManager* logicalDeviceManager,
+	GfxDeviceManager* gfxDeviceManager, VkDeviceSize size, VkBufferUsageFlags usage,
+	VkMemoryPropertyFlags properties,VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = size;
+	bufferInfo.usage = usage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	if (vkCreateBuffer(logicalDeviceManager->getDevice(), &bufferInfo, nullptr,
+		&buffer) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create buffer!");
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(logicalDeviceManager->getDevice(), buffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = Common::findMemoryType(memRequirements.memoryTypeBits,
+		properties, gfxDeviceManager);
+
+	if (vkAllocateMemory(logicalDeviceManager->getDevice(), &allocInfo, nullptr, &bufferMemory) !=
+		VK_SUCCESS) {
+		throw std::runtime_error("Failed to allocate vertex buffer memory!");
+	}
+	vkBindBufferMemory(logicalDeviceManager->getDevice(), buffer, bufferMemory, 0);
+}

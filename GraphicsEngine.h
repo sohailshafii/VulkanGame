@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vulkan/vulkan.h"
+#include <vector>
 
 class SwapChainManager;
 class GfxDeviceManager;
@@ -31,6 +32,15 @@ private:
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
 
+	VkImage depthImage;
+	VkDeviceMemory depthImageMemory;
+	VkImageView depthImageView;
+
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
 	void cleanUpSwapChain();
 	void createSwapChain(GfxDeviceManager* gfxDeviceManager,
 		LogicalDeviceManager* logicalDeviceManager, VkSurfaceKHR surface,
@@ -41,4 +51,9 @@ private:
 
 	void createColorResources(GfxDeviceManager* gfxDeviceManager,
 		LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool);
+	void createDepthResources(GfxDeviceManager* gfxDeviceManager,
+		LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool);
+	void createFramebuffers();
+	void createUniformBuffers(GfxDeviceManager* gfxDeviceManager,
+		LogicalDeviceManager* logicalDeviceManager);
 };

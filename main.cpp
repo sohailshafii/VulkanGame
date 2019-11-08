@@ -162,13 +162,13 @@ private:
 		pickPhysicalDevice();
 		createLogicalDevice();
 		createDescriptorSetLayout();
+		createCommandPool();
 
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
 		createGraphicsPipeline();
 
-		createCommandPool();
 		createColorResources();
 		createDepthResources();
 		createFramebuffers();
@@ -245,10 +245,10 @@ private:
 		createImageViews(); // 2
 		createRenderPass(); // 3
 		createGraphicsPipeline(); // 4
-		createColorResources();
-		createDepthResources();
-		createFramebuffers();
-		createUniformBuffers();
+		createColorResources(); // 5
+		createDepthResources(); // 6
+		createFramebuffers(); // 7
+		createUniformBuffers(); // 8
 		createDescriptorPool();
 		createDescriptorSets();
 		createCommandBuffers();
@@ -349,35 +349,6 @@ private:
 		}
 	}
 
-	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
-		VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usage;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		if (vkCreateBuffer(logicalDeviceManager->getDevice(), &bufferInfo, nullptr,
-			&buffer) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create buffer!");
-		}
-
-		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(logicalDeviceManager->getDevice(), buffer, &memRequirements);
-
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = Common::findMemoryType(memRequirements.memoryTypeBits,
-			properties, gfxDeviceManager);
-
-		if (vkAllocateMemory(logicalDeviceManager->getDevice(), &allocInfo, nullptr, &bufferMemory) !=
-			VK_SUCCESS) {
-			throw std::runtime_error("Failed to allocate vertex buffer memory!");
-		}
-		vkBindBufferMemory(logicalDeviceManager->getDevice(), buffer, bufferMemory, 0);
-	}
-
 	void createColorResources() {
 		auto swapChainImageFormat = swapChainMgr->getSwapChainImageFormat();
 		auto swapChainExtent = swapChainMgr->getSwapChainExtent();
@@ -424,8 +395,8 @@ private:
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 
-		createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, imageSize, 
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, stagingBuffer,
 			stagingBufferMemory);
 
@@ -626,18 +597,18 @@ private:
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBuffer, stagingBufferMemory);
+		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		void*data;
 		vkMapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, vertices.data(), (size_t)bufferSize);
 		vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
 
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			vertexBuffer, vertexBufferMemory);
+		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
 		copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
@@ -650,18 +621,18 @@ private:
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBuffer, stagingBufferMemory);
+		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		void* data;
 		vkMapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, indices.data(), (size_t)bufferSize);
 		vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
 
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-			VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			indexBuffer, indexBufferMemory);
+		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
 		copyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
@@ -677,9 +648,9 @@ private:
 		uniformBuffersMemory.resize(swapChainImages.size());
 
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-				uniformBuffers[i], uniformBuffersMemory[i]);
+			Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+				VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 		}
 	}
 

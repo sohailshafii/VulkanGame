@@ -40,6 +40,10 @@ public:
 
 	static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
 		GfxDeviceManager* gfxDeviceManager);
+
+	static void createBuffer(LogicalDeviceManager* logicalDeviceManager,
+		GfxDeviceManager* gfxDeviceManager, VkDeviceSize size, VkBufferUsageFlags usage,
+		VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 };
 
 struct Vertex {
