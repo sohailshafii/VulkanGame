@@ -164,24 +164,25 @@ private:
 		createDescriptorSetLayout();
 		createCommandPool();
 
+		loadModel();
+		createVertexBuffer();
+		createIndexBuffer();
+		createTextureImage();
+		createTextureImageView();
+		createTextureSampler();
+
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
 		createGraphicsPipeline();
-
 		createColorResources();
 		createDepthResources();
 		createFramebuffers();
-		createTextureImage();
-		createTextureImageView();
-		createTextureSampler();
-		loadModel();
-		createVertexBuffer();
-		createIndexBuffer();
 		createUniformBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
 		createCommandBuffers();
+
 		createSyncObjects();
 	}
 
@@ -231,7 +232,8 @@ private:
 
 	void recreateSwapChain() {
 		int width = 0, height = 0;
-		// in case window is minimized
+		// in case window is minimized; wait for it
+		// to come back up again
 		while (width == 0 || height == 0) {
 			glfwGetFramebufferSize(window, &width, &height);
 			glfwWaitEvents();
