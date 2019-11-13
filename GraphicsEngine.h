@@ -15,7 +15,7 @@ struct GLFWwindow;
 class GraphicsEngine {
 public:
 	GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
-		LogicalDeviceManager* logicalDeviceManager, VkSurfaceKHR surface,
+		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager, VkSurfaceKHR surface,
 		GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
 		VkCommandPool commandPool, VkImageView textureImageView, VkSampler textureSampler,
 		const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
@@ -24,10 +24,10 @@ public:
 	~GraphicsEngine();
 
 	void createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-		LogicalDeviceManager* logicalDeviceManager, VkDescriptorSetLayout descriptorSetLayout);
+		VkDescriptorSetLayout descriptorSetLayout);
 
 private:
-	LogicalDeviceManager* logicalDeviceManager; // TODO: shared_ptr
+	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	SwapChainManager* swapChainManager;
 	RenderPassModule* renderPassModule;
 	PipelineModule* graphicsPipelineModule;
@@ -52,19 +52,16 @@ private:
 
 	void cleanUpSwapChain();
 	void createSwapChain(GfxDeviceManager* gfxDeviceManager,
-		LogicalDeviceManager* logicalDeviceManager, VkSurfaceKHR surface,
-		GLFWwindow* window);
+		VkSurfaceKHR surface, GLFWwindow* window);
 	void createSwapChainImageViews();
-	void createRenderPassModule(GfxDeviceManager* gfxDeviceManager,
-		LogicalDeviceManager* logicalDeviceManager);
+	void createRenderPassModule(GfxDeviceManager* gfxDeviceManager);
 
 	void createColorResources(GfxDeviceManager* gfxDeviceManager,
-		LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool);
+		VkCommandPool commandPool);
 	void createDepthResources(GfxDeviceManager* gfxDeviceManager,
-		LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool);
+		VkCommandPool commandPool);
 	void createFramebuffers();
-	void createUniformBuffers(GfxDeviceManager* gfxDeviceManager,
-		LogicalDeviceManager* logicalDeviceManager);
+	void createUniformBuffers(GfxDeviceManager* gfxDeviceManager);
 
 	void createDescriptorPool();
 	void createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,

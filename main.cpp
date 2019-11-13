@@ -74,7 +74,7 @@ private:
 
 	VulkanInstance *instance;
 	GfxDeviceManager *gfxDeviceManager;
-	LogicalDeviceManager *logicalDeviceManager;
+	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 
 	VkSurfaceKHR surface;
 
@@ -193,7 +193,7 @@ private:
 	}
 
 	void createLogicalDevice() {
-		logicalDeviceManager = new LogicalDeviceManager(gfxDeviceManager,
+		logicalDeviceManager = std::make_shared<LogicalDeviceManager>(gfxDeviceManager,
 			instance, surface, deviceExtensions, enableValidationLayers);
 	}
 
@@ -258,7 +258,7 @@ private:
 
 	void createSwapChain() {
 		swapChainMgr = new SwapChainManager(gfxDeviceManager,
-			logicalDeviceManager);
+			logicalDeviceManager.get());
 		swapChainMgr->create(surface, window);
 
 	//	graphicsEngine = new GraphicsEngine(gfxDeviceManager,
@@ -359,13 +359,13 @@ private:
 		Common::createImage(swapChainExtent.width, swapChainExtent.height, 1,
 			gfxDeviceManager->getMSAASamples(), colorFormat, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, logicalDeviceManager,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory, logicalDeviceManager.get(),
 			gfxDeviceManager);
 		colorImageView = Common::createImageView(colorImage, colorFormat,
-			VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDeviceManager);
+			VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDeviceManager.get());
 
 		Common::transitionImageLayout(colorImage, colorFormat, VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager);
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager.get());
 	}
 
 	void createDepthResources() {
@@ -374,12 +374,12 @@ private:
 		Common::createImage(swapChainExtent.width, swapChainExtent.height,
 			1, gfxDeviceManager->getMSAASamples(), depthFormat, VK_IMAGE_TILING_OPTIMAL,
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			depthImage, depthImageMemory, logicalDeviceManager, gfxDeviceManager);
+			depthImage, depthImageMemory, logicalDeviceManager.get(), gfxDeviceManager);
 		depthImageView = Common::createImageView(depthImage, depthFormat,
-			VK_IMAGE_ASPECT_DEPTH_BIT, 1, logicalDeviceManager);
+			VK_IMAGE_ASPECT_DEPTH_BIT, 1, logicalDeviceManager.get());
 
 		Common::transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager);
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager.get());
 	}
 
 	void createTextureImage() {
@@ -397,7 +397,7 @@ private:
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 
-		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, imageSize, 
+		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, imageSize,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, stagingBuffer,
 			stagingBufferMemory);
@@ -414,11 +414,11 @@ private:
 			VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory,
-			logicalDeviceManager, gfxDeviceManager);
+			logicalDeviceManager.get(), gfxDeviceManager);
 
 		Common::transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM,
 			VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			mipLevels, commandPool, logicalDeviceManager);
+			mipLevels, commandPool, logicalDeviceManager.get());
 		// transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 		// while generating mipmaps
 		
@@ -448,7 +448,7 @@ private:
 		}
 
 		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
-			logicalDeviceManager);
+			logicalDeviceManager.get());
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -517,13 +517,13 @@ private:
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
 			0, nullptr, 0, nullptr, 1, &barrier);
 
-		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
+		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager.get());
 	}
 
 	void createTextureImageView() {
 		textureImageView = Common::createImageView(textureImage,
 			VK_FORMAT_R8G8B8A8_UNORM,
-			VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, logicalDeviceManager);
+			VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, logicalDeviceManager.get());
 	}
 
 	void createTextureSampler() {
@@ -599,7 +599,7 @@ private:
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
@@ -608,7 +608,7 @@ private:
 		memcpy(data, vertices.data(), (size_t)bufferSize);
 		vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
 
-		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
@@ -623,7 +623,7 @@ private:
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
@@ -632,7 +632,7 @@ private:
 		memcpy(data, indices.data(), (size_t)bufferSize);
 		vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
 
-		Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
@@ -650,7 +650,7 @@ private:
 		uniformBuffersMemory.resize(swapChainImages.size());
 
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			Common::createBuffer(logicalDeviceManager, gfxDeviceManager, bufferSize,
+			Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 				VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 		}
@@ -658,7 +658,7 @@ private:
 
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
 		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
-			logicalDeviceManager);
+			logicalDeviceManager.get());
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.srcOffset = 0; // optional
@@ -666,13 +666,13 @@ private:
 		copyRegion.size = size;
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
+		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager.get());
 	}
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width,
 		uint32_t height) {
 		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
-			logicalDeviceManager);
+			logicalDeviceManager.get());
 
 		VkBufferImageCopy region = {};
 		region.bufferOffset = 0;
@@ -700,7 +700,7 @@ private:
 			&region
 		);
 
-		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
+		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager.get());
 	}
 
 	// TODO: create command buffer module that encapsulates the allocate info, etc
@@ -935,6 +935,7 @@ private:
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
+	// TODO: use push constants, that's more efficient
 	void updateUniformBuffer(uint32_t currentImage) {
 		static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -983,7 +984,7 @@ private:
 		}
 		vkDestroyCommandPool(logicalDeviceManager->getDevice(), commandPool, nullptr);
 
-		delete logicalDeviceManager;
+		logicalDeviceManager.reset();
 
 		vkDestroySurfaceKHR(instance->getVkInstance(), surface, nullptr);
 
