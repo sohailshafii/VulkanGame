@@ -23,11 +23,16 @@ public:
 
 	~GraphicsEngine();
 
-	void createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-		VkDescriptorSetLayout descriptorSetLayout);
+	SwapChainManager* GetSwapChainManager() { return swapChainManager; }
+	RenderPassModule* GetRenderPassModule() { return renderPassModule; }
+	PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
+	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
+	std::vector<VkDeviceMemory>& GetUniformBuffersMemory() { return uniformBuffersMemory; }
 
 private:
+	// not owned by us
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
+
 	SwapChainManager* swapChainManager;
 	RenderPassModule* renderPassModule;
 	PipelineModule* graphicsPipelineModule;
@@ -51,6 +56,8 @@ private:
 	CommandBufferModule* commandBufferModule;
 
 	void cleanUpSwapChain();
+	void createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
+		VkDescriptorSetLayout descriptorSetLayout);
 	void createSwapChain(GfxDeviceManager* gfxDeviceManager,
 		VkSurfaceKHR surface, GLFWwindow* window);
 	void createSwapChainImageViews();
