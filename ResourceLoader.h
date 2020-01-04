@@ -2,7 +2,8 @@
 
 #include <map>
 #include <string>
-#include "ShaderModule.h"
+#include "vulkan/vulkan.h"
+#include "ShaderLoader.h"
 
 // Responsible for loading and caching any
 // resources used, like textures, shaders,
@@ -12,9 +13,9 @@ public:
 	ResourceLoader();
 	~ResourceLoader();
 
-	//ShaderModule& getShader(std::string path);
+	ShaderLoader* getShader(std::string path, VkDevice device);
 
 private:
 
-	std::map<std::string, ShaderModule> shadersLoaded;
+	std::map<std::string, ShaderLoader*> shadersLoaded;
 };

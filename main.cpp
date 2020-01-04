@@ -36,7 +36,6 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "SwapChainManager.h"
-#include "ShaderModule.h"
 #include "PipelineModule.h"
 #include "RenderPassModule.h"
 #include "Common.h"

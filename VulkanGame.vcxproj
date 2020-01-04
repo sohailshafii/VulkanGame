@@ -133,7 +133,7 @@
     <ClCompile Include="PipelineModule.cpp" />
     <ClCompile Include="RenderPassModule.cpp" />
     <ClCompile Include="ResourceLoader.cpp" />
-    <ClCompile Include="ShaderModule.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="SwapChainManager.cpp" />
     <ClCompile Include="VulkanInstance.cpp" />
   </ItemGroup>
@@ -148,7 +148,7 @@
     <ClInclude Include="PipelineModule.h" />
     <ClInclude Include="RenderPassModule.h" />
     <ClInclude Include="ResourceLoader.h" />
-    <ClInclude Include="ShaderModule.h" />
+    <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="SwapChainManager.h" />
     <ClInclude Include="VulkanInstance.h" />

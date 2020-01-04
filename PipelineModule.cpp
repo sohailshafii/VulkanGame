@@ -1,5 +1,5 @@
 #include "PipelineModule.h"
-#include "ShaderModule.h"
+#include "ShaderLoader.h"
 #include "Common.h"
 
 PipelineModule::PipelineModule(const std::string& vertShaderPath,
@@ -8,8 +8,8 @@ PipelineModule::PipelineModule(const std::string& vertShaderPath,
 	VkDescriptorSetLayout descriptorSetLayout,
 	VkRenderPass renderPass) {
 	this->device = device;
-	ShaderModule vertShaderModule("shaders/vert.spv", device);
-	ShaderModule fragShaderModule("shaders/frag.spv", device);
+	ShaderLoader vertShaderModule("shaders/vert.spv", device);
+	ShaderLoader fragShaderModule("shaders/frag.spv", device);
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

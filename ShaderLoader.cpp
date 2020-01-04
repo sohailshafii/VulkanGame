@@ -1,18 +1,26 @@
-#include "ShaderModule.h"
+#include "ShaderLoader.h"
 #include <fstream>
 #include <iostream>
 
-ShaderModule::ShaderModule(const std::string& path, VkDevice device) {
+ShaderLoader::ShaderLoader(const std::string& path, VkDevice device) {
 	this->device = device;
 	auto shaderCode = readFile(path);
 	shaderModule = assembleShaderModule(shaderCode);
 }
 
-ShaderModule::~ShaderModule() {
+ShaderLoader::~ShaderLoader() {
 	vkDestroyShaderModule(device, shaderModule, nullptr);
 }
 
-std::vector<char>  ShaderModule::readFile(const std::string& path) {
+ShaderLoader& ShaderLoader::operator=(const ShaderLoader& rhs) {
+	if (this != &rhs) {
+		shaderModule = rhs.shaderModule;
+		device = rhs.device;
+	}
+	return *this;
+}
+
+std::vector<char> ShaderLoader::readFile(const std::string& path) {
 	std::ifstream file(path, std::ios::ate | std::ios::binary);
 
 	if (!file.is_open()) {
@@ -31,7 +39,7 @@ std::vector<char>  ShaderModule::readFile(const std::string& path) {
 	return buffer;
 }
 
-VkShaderModule ShaderModule::assembleShaderModule(const
+VkShaderModule ShaderLoader::assembleShaderModule(const
 	std::vector<char>& code) {
 	// need to make sure data satisfies alignment requirements of
 	// uint32_t. fortunately, std::vector's default allocator

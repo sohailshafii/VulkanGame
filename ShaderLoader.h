@@ -4,14 +4,16 @@
 #include <string>
 #include <vector>
 
-class ShaderModule {
+class ShaderLoader {
 public:
-	ShaderModule(const std::string& path, VkDevice device);
-	~ShaderModule();
+	ShaderLoader(const std::string& path, VkDevice device);
+	~ShaderLoader();
 
 	VkShaderModule getVkShaderModule() const {
 		return shaderModule;
 	}
+
+	ShaderLoader& operator=(const ShaderLoader& rhs);
 
 private:
 	VkShaderModule shaderModule;
