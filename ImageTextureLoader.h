@@ -15,6 +15,18 @@ public:
 		VkCommandPool commandPool);
 	~ImageTextureLoader();
 
+	VkDeviceMemory getTextureImageMemory() {
+		return textureImageMemory;
+	}
+
+	VkImageView getTextureImageView() {
+		return textureImageView;
+	}
+
+	VkSampler getTextureImageSampler() {
+		return textureSampler;
+	}
+
 private:
 	void createTextureImage(const std::string& path,
 		GfxDeviceManager* gfxDeviceManager,
@@ -31,6 +43,7 @@ private:
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	uint32_t mipLevels;
 	VkImage textureImage;
+
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
 	VkSampler textureSampler;

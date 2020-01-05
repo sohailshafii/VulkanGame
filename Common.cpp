@@ -73,6 +73,8 @@ VkCommandBuffer Common::beginSingleTimeCommands(VkCommandPool commandPool,
 	return commandBuffer;
 }
 
+// TODO: it's often better to set up commands, and submit them to the
+// queue asynchronously as opposed to waiting like this
 void Common::endSingleTimeCommands(VkCommandBuffer commandBuffer, VkCommandPool commandPool,
 	LogicalDeviceManager* logicalDeviceManager) {
 	vkEndCommandBuffer(commandBuffer);

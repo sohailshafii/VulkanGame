@@ -11,13 +11,14 @@ class RenderPassModule;
 class PipelineModule;
 class CommandBufferModule;
 struct GLFWwindow;
+class ImageTextureLoader;
 
 class GraphicsEngine {
 public:
 	GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager, VkSurfaceKHR surface,
 		GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-		VkCommandPool commandPool, VkImageView textureImageView, VkSampler textureSampler,
+		VkCommandPool commandPool, ImageTextureLoader *imageTexture,
 		const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
 		VkBuffer vertexBuffer, VkBuffer indexBuffer);
 

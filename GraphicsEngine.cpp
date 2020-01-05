@@ -6,6 +6,7 @@
 #include "RenderPassModule.h"
 #include "PipelineModule.h"
 #include "CommonBufferModule.h"
+#include "ImageTextureLoader.h"
 
 // TODO renaming this to something else..it's not really a graphics engine, but 
 // something that gets recreated when something like the window or parts of the pipeline
@@ -13,7 +14,7 @@
 GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager, VkSurfaceKHR surface,
 	GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-	VkCommandPool commandPool, VkImageView textureImageView, VkSampler textureSampler,
+	VkCommandPool commandPool, ImageTextureLoader* imageTexture,
 	const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
 	VkBuffer vertexBuffer, VkBuffer indexBuffer) {
 	this->logicalDeviceManager = logicalDeviceManager;
@@ -29,7 +30,8 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	createUniformBuffers(gfxDeviceManager); // 8
 
 	createDescriptorPool();
-	createDescriptorSets(descriptorSetLayout, textureImageView, textureSampler);
+	createDescriptorSets(descriptorSetLayout, imageTexture->getTextureImageView(),
+		imageTexture->getTextureImageSampler());
 	createCommandBuffers(commandPool, vertices, indices, vertexBuffer, indexBuffer);
 }
 
