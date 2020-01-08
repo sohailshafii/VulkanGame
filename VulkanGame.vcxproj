@@ -131,6 +131,7 @@
     <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="LogicalDeviceManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="PipelineModule.cpp" />
     <ClCompile Include="RenderPassModule.cpp" />
     <ClCompile Include="ResourceLoader.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="ImageTextureLoader.h" />
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="LogicalDeviceManager.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="PipelineModule.h" />
     <ClInclude Include="RenderPassModule.h" />
     <ClInclude Include="ResourceLoader.h" />

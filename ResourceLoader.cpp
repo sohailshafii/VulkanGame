@@ -4,6 +4,7 @@
 #include "ImageTextureLoader.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
+#include "ModelLoader.h"
 
 ResourceLoader::ResourceLoader() {
 
@@ -38,4 +39,15 @@ std::shared_ptr<ImageTextureLoader> ResourceLoader::getTexture(const std::string
 		logicalDeviceManager, commandPool);
 	texturesLoaded[path] = newTexture;
 	return newTexture;
+}
+
+std::shared_ptr<ModelLoader> ResourceLoader::getModel(const std::string& path) {
+	auto& foundModelItr = modelsLoaded.find(path);
+	if (foundModelItr != modelsLoaded.cend()) {
+		return foundModelItr->second;
+	}
+
+	auto newModel = std::make_shared<ModelLoader>(path);
+	modelsLoaded[path] = newModel;
+	return newModel;
 }

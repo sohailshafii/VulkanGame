@@ -252,8 +252,9 @@ void GraphicsEngine::createDescriptorSets(VkDescriptorSetLayout descriptorSetLay
 }
 
 // TODO: create command buffer module that encapsulates the allocate info, etc
-void GraphicsEngine::createCommandBuffers(VkCommandPool commandPool, const std::vector<Vertex>& vertices,
-	const std::vector<uint32_t>& indices, VkBuffer vertexBuffer, VkBuffer indexBuffer) {
+void GraphicsEngine::createCommandBuffers(VkCommandPool commandPool,
+	const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
+	VkBuffer vertexBuffer, VkBuffer indexBuffer) {
 	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
 		logicalDeviceManager->getDevice(), commandPool);
 	auto& commandBuffers = commandBufferModule->getCommandBuffers();

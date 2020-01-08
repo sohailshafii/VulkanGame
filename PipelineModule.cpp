@@ -2,6 +2,7 @@
 #include "ShaderLoader.h"
 #include "ResourceLoader.h"
 #include "Common.h"
+#include "ModelLoader.h"
 
 PipelineModule::PipelineModule(const std::string& vertShaderPath,
 	const std::string& fragShaderPath, VkDevice device,

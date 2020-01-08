@@ -29,9 +29,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
-
 #include "VulkanInstance.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
@@ -43,6 +40,7 @@
 #include "GraphicsEngine.h"
 #include "ImageTextureLoader.h"
 #include "ResourceLoader.h"
+#include "ModelLoader.h"
 
 class HelloTriangleApplication {
 public:
@@ -92,8 +90,6 @@ private:
 
 	bool framebufferResized = false;
 
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
@@ -143,15 +139,15 @@ private:
 		createCommandPool();
 
 		resourceLoader = new ResourceLoader();
+		std::shared_ptr<ModelLoader> modelLoaded = resourceLoader->getModel(MODEL_PATH);
 
-		loadModel();
-		createVertexBuffer();
-		createIndexBuffer();
+		createVertexBuffer(modelLoaded->getVertices());
+		createIndexBuffer(modelLoaded->getIndices());
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
 			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
-			vertices, indices, vertexBuffer, indexBuffer);
+			modelLoaded->getVertices(), modelLoaded->getIndices(), vertexBuffer, indexBuffer);
 
 		createSyncObjects();
 	}
@@ -179,10 +175,11 @@ private:
 		vkDeviceWaitIdle(logicalDeviceManager->getDevice());
 
 		delete graphicsEngine;
+		std::shared_ptr<ModelLoader> modelLoaded = resourceLoader->getModel(MODEL_PATH);
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
 			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
-			vertices, indices, vertexBuffer, indexBuffer);
+			modelLoaded->getVertices(), modelLoaded->getIndices(), vertexBuffer, indexBuffer);
 	}
 
 	void createDescriptorSetLayout() {
@@ -227,46 +224,7 @@ private:
 		}
 	}
 
-	void loadModel() {
-		tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn, err;
-
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn,
-			&err, MODEL_PATH.c_str())) {
-			throw std::runtime_error(warn + err);
-		}
-
-		std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
-		for (const auto& shape : shapes) {
-			for (const auto& index : shape.mesh.indices) {
-				Vertex vertex = {};
-				vertex.pos = {
-					attrib.vertices[3 * index.vertex_index + 0],
-					attrib.vertices[3 * index.vertex_index + 1],
-					attrib.vertices[3 * index.vertex_index + 2]
-				};
-
-				vertex.texCoord = {
-					attrib.texcoords[2 * index.texcoord_index + 0],
-					// vulkan is top to bottom for texture
-					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-				};
-
-				vertex.color = { 1.0f, 1.0f, 1.0f };
-
-				if (uniqueVertices.count(vertex) == 0) {
-					uniqueVertices[vertex] = static_cast<uint32_t>
-						(vertices.size());
-					vertices.push_back(vertex);
-				}
-				indices.push_back(uniqueVertices[vertex]);
-			}
-		}
-	}
-
-	void createVertexBuffer() {
+	void createVertexBuffer(const std::vector<Vertex>& vertices) {
 		VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
 
 		VkBuffer stagingBuffer;
@@ -290,7 +248,7 @@ private:
 		vkFreeMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, nullptr);
 	}
 
-	void createIndexBuffer() {
+	void createIndexBuffer(const std::vector<uint32_t>& indices) {
 		VkDeviceSize bufferSize = sizeof(indices[0])*indices.size();
 
 		VkBuffer stagingBuffer;
