@@ -12,13 +12,15 @@ class PipelineModule;
 class CommandBufferModule;
 struct GLFWwindow;
 class ImageTextureLoader;
+class ResourceLoader;
 
 class GraphicsEngine {
 public:
 	GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
-		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager, VkSurfaceKHR surface,
+		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+		ResourceLoader* resourceLoader, VkSurfaceKHR surface,
 		GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-		VkCommandPool commandPool, ImageTextureLoader *imageTexture,
+		VkCommandPool commandPool, std::shared_ptr<ImageTextureLoader> imageTexture,
 		const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
 		VkBuffer vertexBuffer, VkBuffer indexBuffer);
 
@@ -58,7 +60,7 @@ private:
 
 	void cleanUpSwapChain();
 	void createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-		VkDescriptorSetLayout descriptorSetLayout);
+		ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout);
 	void createSwapChain(GfxDeviceManager* gfxDeviceManager,
 		VkSurfaceKHR surface, GLFWwindow* window);
 	void createSwapChainImageViews();

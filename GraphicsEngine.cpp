@@ -7,14 +7,16 @@
 #include "PipelineModule.h"
 #include "CommonBufferModule.h"
 #include "ImageTextureLoader.h"
+#include "ResourceLoader.h"
 
 // TODO renaming this to something else..it's not really a graphics engine, but 
 // something that gets recreated when something like the window or parts of the pipeline
 // change
 GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
-	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager, VkSurfaceKHR surface,
+	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+	ResourceLoader *resourceLoader, VkSurfaceKHR surface,
 	GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-	VkCommandPool commandPool, ImageTextureLoader* imageTexture,
+	VkCommandPool commandPool, std::shared_ptr<ImageTextureLoader> imageTexture,
 	const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
 	VkBuffer vertexBuffer, VkBuffer indexBuffer) {
 	this->logicalDeviceManager = logicalDeviceManager;
@@ -22,7 +24,7 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 		window);
 	createSwapChainImageViews();
 	createRenderPassModule(gfxDeviceManager);
-	createGraphicsPipeline(gfxDeviceManager, descriptorSetLayout);
+	createGraphicsPipeline(gfxDeviceManager, resourceLoader, descriptorSetLayout);
 
 	createColorResources(gfxDeviceManager, commandPool); // 5
 	createDepthResources(gfxDeviceManager, commandPool); // 6
@@ -97,11 +99,11 @@ void GraphicsEngine::createRenderPassModule(GfxDeviceManager* gfxDeviceManager) 
 }
 
 void GraphicsEngine::createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-	VkDescriptorSetLayout descriptorSetLayout) {
+	ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout) {
 	graphicsPipelineModule = new PipelineModule("shaders/vert.spv",
 		"shaders/frag.spv", logicalDeviceManager->getDevice(),
 		swapChainManager->getSwapChainExtent(), gfxDeviceManager,
-		descriptorSetLayout, renderPassModule->GetRenderPass());
+		resourceLoader, descriptorSetLayout, renderPassModule->GetRenderPass());
 }
 
 void GraphicsEngine::createColorResources(GfxDeviceManager* gfxDeviceManager,

@@ -4,11 +4,14 @@
 #include "GfxDeviceManager.h"
 #include <string>
 
+class ResourceLoader;
+
 class PipelineModule {
 public:
 	PipelineModule(const std::string& vertShaderPath,
 		const std::string& fragShaderPath, VkDevice device,
 		VkExtent2D swapChainExtent, GfxDeviceManager *gfxDeviceManager,
+		ResourceLoader *resourceLoader,
 		VkDescriptorSetLayout descriptorSetLayout,
 		VkRenderPass renderPass);
 	~PipelineModule();

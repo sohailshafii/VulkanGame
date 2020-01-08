@@ -42,6 +42,7 @@
 #include "CommonBufferModule.h"
 #include "GraphicsEngine.h"
 #include "ImageTextureLoader.h"
+#include "ResourceLoader.h"
 
 class HelloTriangleApplication {
 public:
@@ -99,7 +100,7 @@ private:
 	VkDeviceMemory indexBufferMemory;
 
 	uint32_t mipLevels;
-	ImageTextureLoader* imageTexture;
+	ResourceLoader* resourceLoader;
 
 	void initWindow() {
 		glfwInit();
@@ -141,13 +142,15 @@ private:
 		createDescriptorSetLayout();
 		createCommandPool();
 
+		resourceLoader = new ResourceLoader();
+
 		loadModel();
 		createVertexBuffer();
 		createIndexBuffer();
-		createTextureImage();
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-			surface, window, descriptorSetLayout, commandPool, imageTexture,
+			resourceLoader, surface, window, descriptorSetLayout, commandPool,
+			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 			vertices, indices, vertexBuffer, indexBuffer);
 
 		createSyncObjects();
@@ -177,7 +180,8 @@ private:
 
 		delete graphicsEngine;
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-			surface, window, descriptorSetLayout, commandPool, imageTexture,
+			resourceLoader, surface, window, descriptorSetLayout, commandPool,
+			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 			vertices, indices, vertexBuffer, indexBuffer);
 	}
 
@@ -221,11 +225,6 @@ private:
 			&commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create command pool!");
 		}
-	}
-
-	void createTextureImage() {
-		imageTexture = new ImageTextureLoader(TEXTURE_PATH,
-			gfxDeviceManager, logicalDeviceManager, commandPool);
 	}
 
 	void loadModel() {
@@ -460,9 +459,9 @@ private:
 	}
 
 	void cleanUp() {
-		delete graphicsEngine;
+		delete resourceLoader;
 
-		delete imageTexture;
+		delete graphicsEngine;
 
 		vkDestroyDescriptorSetLayout(logicalDeviceManager->getDevice(), descriptorSetLayout, nullptr);
 
