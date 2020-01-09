@@ -47,7 +47,7 @@ void ImageTextureLoader::createTextureImage(const std::string& path,
 
 	Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, imageSize,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, stagingBuffer,
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
 		stagingBufferMemory);
 
 	void* data;
