@@ -11,11 +11,21 @@ PipelineModule::PipelineModule(const std::string& vertShaderPath,
 	VkDescriptorSetLayout descriptorSetLayout,
 	VkRenderPass renderPass) {
 	this->device = device;
+	// TODO: use first set of paths when completely switched to cmake
+	// on Windows
+#if __APPLE__
+	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->getShader(
+	"../../shaders/vert.spv", device);
+std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
+	"../../shaders/frag.spv", device);
+#else
 	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->getShader(
 		"shaders/vert.spv", device);
 	std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
 		"shaders/frag.spv", device);
 
+#endif
+	
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;

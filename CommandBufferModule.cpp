@@ -6,6 +6,7 @@ CommandBufferModule::CommandBufferModule(size_t numBuffers,
 	VkDevice logicalDevice, VkCommandPool commandPool) {
 	commandBuffers.resize(numBuffers);
 	this->logicalDevice = logicalDevice;
+	this->commandPool = commandPool;
 
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 project(VulkanGame)
 
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -16,11 +16,11 @@ target_link_libraries(VulkanGame Vulkan::Vulkan)
 
 find_package(GLM REQUIRED)
 include_directories(${GLM_INCLUDE_DIRS})
-link_directories(${GLM_LIBRARY_DIRS})
+target_link_libraries(VulkanGame ${GLM_LIBRARY})
 
 find_package(GLFW REQUIRED)
 include_directories(${GLFW_INCLUDE_DIRS})
-link_directories(${GLFW_LIBRARY_DIRS})
+target_link_libraries(VulkanGame ${GLFW_LIBRARY})
 
 target_include_directories(VulkanGame
 	PRIVATE

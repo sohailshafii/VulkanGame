@@ -7,8 +7,14 @@
 class GfxDeviceManager {
 public:
 	struct QueueFamilyIndices {
+/*#if __APPLE__
+		optional<uint32_t> graphicsFamily;
+		optional<uint32_t> presentFamily;
+#else*/
 		std::optional<uint32_t> graphicsFamily;
 		std::optional<uint32_t> presentFamily;
+//#endif
+		
 
 		bool isComplete() {
 			return graphicsFamily.has_value() &&
