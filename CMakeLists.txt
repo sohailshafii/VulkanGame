@@ -14,7 +14,7 @@ find_package(Vulkan REQUIRED)
 target_include_directories(VulkanGame PRIVATE Vulkan::Vulkan)
 target_link_libraries(VulkanGame Vulkan::Vulkan)
 
-find_package(GLM REQUIRED)
+FIND_PACKAGE(GLM REQUIRED)
 include_directories(${GLM_INCLUDE_DIRS})
 target_link_libraries(VulkanGame ${GLM_LIBRARY})
 

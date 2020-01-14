@@ -20,9 +20,9 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
 	"../../shaders/frag.spv", device);
 #else
 	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->getShader(
-		"shaders/vert.spv", device);
+		"../shaders/vert.spv", device);
 	std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
-		"shaders/frag.spv", device);
+		"../shaders/frag.spv", device);
 
 #endif
 	

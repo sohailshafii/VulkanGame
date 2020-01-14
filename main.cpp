@@ -56,14 +56,12 @@ private:
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
-// TODO: use first set of paths when completely switched to cmake
-// on Windows
 #if __APPLE__
 	const std::string MODEL_PATH = "../../models/chalet.obj";
 	const std::string TEXTURE_PATH = "../../textures/chalet.jpg";
 #else
-	const std::string MODEL_PATH = "./models/chalet.obj";
-	const std::string TEXTURE_PATH = "./textures/chalet.jpg";
+	const std::string MODEL_PATH = "../models/chalet.obj";
+	const std::string TEXTURE_PATH = "../textures/chalet.jpg";
 #endif
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
