@@ -10,5 +10,7 @@ public:
 	void UpdateFrame();
 
 private:
+	enum GameMode { MainMenu = 0, Level };
 
+	GameMode currentGameMode;
 };
