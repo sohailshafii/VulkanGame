@@ -104,15 +104,13 @@ private:
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 
-	uint32_t mipLevels;
 	ResourceLoader* resourceLoader;
-
-	float lastFrameTime;
 
 	// need to be static for cursor callback function to work
 	static Camera mainCamera;
 	static bool firstMouse;
 	static float lastX, lastY;
+	static float lastFrameTime;
 
 	void initWindow() {
 		glfwInit();
@@ -332,12 +330,21 @@ private:
 
 	void mainLoop() {
 		lastFrameTime = glfwGetTime();
+		float lastFrameReportTime = lastFrameTime;
+		
 		while (!glfwWindowShouldClose(window)) {
 			float currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 			HelloTriangleApplication::processInput(window, deltaTime);
 			drawFrame();
+			
+			if ((currentFrameTime - lastFrameReportTime)
+				> 3.0f) {
+				lastFrameReportTime = currentFrameTime;
+				std::cout << "Current FPS: " << 1.0f/deltaTime
+					<< ".\n";
+			}
 
 			glfwPollEvents();
 		}
@@ -417,19 +424,10 @@ private:
 
 	// TODO: use push constants, that's more efficient
 	void updateUniformBuffer(uint32_t currentImage) {
-		static auto startTime = std::chrono::high_resolution_clock::now();
-
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration<float, std::chrono::seconds::period>
-			(currentTime - startTime).count();
-
 		UniformBufferObject ubo = {};
 		ubo.model = glm::rotate(glm::mat4(1.0f),
-			glm::radians(0.90f),
-			//time * glm::radians(90.0f),
-			glm::vec3(0.0f, 0.0f, 1.0f));
-		//ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f),
-		//	glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::radians(-90.0f),
+			glm::vec3(1.0f, 0.0f, 0.0f));
 		ubo.view = HelloTriangleApplication::mainCamera.constructViewMatrix();
 		auto swapChainExtent = graphicsEngine->GetSwapChainManager()->getSwapChainExtent();
 		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
@@ -479,11 +477,12 @@ private:
 };
 
 Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 0.0f, 0.0f),
-	glm::vec3(0.0f, 0.0f,-1.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 4.5f,
-	0.04f);
+	glm::vec3(0.0f, 0.0f,-1.0f), glm::vec3(0.0f, 1.0f, 0.0f), 90.0f, 0.0f, 4.5f,
+	3.5f);
 bool HelloTriangleApplication::firstMouse = false;
 float HelloTriangleApplication::lastX = 0.0f;
 float HelloTriangleApplication::lastY = 0.0f;
+float HelloTriangleApplication::lastFrameTime = 0.0f;
 
 void HelloTriangleApplication::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -498,8 +497,11 @@ void HelloTriangleApplication::mouse_callback(GLFWwindow* window, double xpos, d
 	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 	lastX = xpos;
 	lastY = ypos;
-
-	HelloTriangleApplication::mainCamera.processMouse(xoffset, yoffset);
+	
+	float currentFrameTime = glfwGetTime();
+	float deltaTime = currentFrameTime - lastFrameTime;
+	HelloTriangleApplication::mainCamera.processMouse(deltaTime*xoffset,
+													  deltaTime*yoffset);
 }
 
 void HelloTriangleApplication::processInput(GLFWwindow* window, float frameTime) {
