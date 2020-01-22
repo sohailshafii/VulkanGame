@@ -40,8 +40,10 @@
 #include "GraphicsEngine.h"
 #include "ImageTextureLoader.h"
 #include "ResourceLoader.h"
-#include "ModelLoader.h"
+#include "Model.h"
 #include "Camera.h"
+
+#include "GameObject.h"
 
 class HelloTriangleApplication {
 public:
@@ -105,6 +107,7 @@ private:
 	VkDeviceMemory indexBufferMemory;
 
 	ResourceLoader* resourceLoader;
+	std::vector<GameObject> gameObjects;
 
 	// need to be static for cursor callback function to work
 	static Camera mainCamera;
@@ -156,7 +159,9 @@ private:
 		createCommandPool();
 
 		resourceLoader = new ResourceLoader();
-		std::shared_ptr<ModelLoader> modelLoaded = resourceLoader->getModel(MODEL_PATH);
+		std::shared_ptr<Model> modelLoaded = resourceLoader->getModel(MODEL_PATH);
+		gameObjects.push_back(GameObject(modelLoaded));
+		// TODO: use gameobjects vector, and add another one (cube)
 
 		createVertexBuffer(modelLoaded->getVertices());
 		createIndexBuffer(modelLoaded->getIndices());
@@ -192,7 +197,7 @@ private:
 		vkDeviceWaitIdle(logicalDeviceManager->getDevice());
 
 		delete graphicsEngine;
-		std::shared_ptr<ModelLoader> modelLoaded = resourceLoader->getModel(MODEL_PATH);
+		std::shared_ptr<Model> modelLoaded = resourceLoader->getModel(MODEL_PATH);
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
 			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),

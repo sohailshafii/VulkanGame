@@ -9,7 +9,7 @@ class ShaderLoader;
 class ImageTextureLoader;
 class GfxDeviceManager;
 class LogicalDeviceManager;
-class ModelLoader;
+class Model;
 
 // Responsible for loading and caching any
 // resources used, like textures, shaders,
@@ -24,10 +24,10 @@ public:
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 		VkCommandPool commandPool);
-	std::shared_ptr<ModelLoader> getModel(const std::string& path);
+	std::shared_ptr<Model> getModel(const std::string& path);
 
 private:
 	std::map<std::string, std::shared_ptr<ShaderLoader>> shadersLoaded;
 	std::map<std::string, std::shared_ptr<ImageTextureLoader>> texturesLoaded;
-	std::map<std::string, std::shared_ptr<ModelLoader>> modelsLoaded;
+	std::map<std::string, std::shared_ptr<Model>> modelsLoaded;
 };

@@ -1,9 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <array>
-#include <glm/glm.hpp>
-#include "vulkan/vulkan.h"
 // NOTE: these two lines are necessary for hashing!!!!
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -56,24 +52,4 @@ namespace std {
 		}
 	};
 }
-
-class ModelLoader {
-public:
-	ModelLoader(const std::string& modelPath);
-	~ModelLoader();
-
-	const std::vector<Vertex>& getVertices() {
-		return vertices;
-	}
-
-	const std::vector<uint32_t>& getIndices() {
-		return indices;
-	}
-
-private:
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
-};
-
-
 

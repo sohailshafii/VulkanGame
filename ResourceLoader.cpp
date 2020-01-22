@@ -4,7 +4,7 @@
 #include "ImageTextureLoader.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
-#include "ModelLoader.h"
+#include "Model.h"
 
 ResourceLoader::ResourceLoader() {
 
@@ -41,13 +41,13 @@ std::shared_ptr<ImageTextureLoader> ResourceLoader::getTexture(const std::string
 	return newTexture;
 }
 
-std::shared_ptr<ModelLoader> ResourceLoader::getModel(const std::string& path) {
+std::shared_ptr<Model> ResourceLoader::getModel(const std::string& path) {
 	auto foundModelItr = modelsLoaded.find(path);
 	if (foundModelItr != modelsLoaded.cend()) {
 		return foundModelItr->second;
 	}
 
-	auto newModel = std::make_shared<ModelLoader>(path);
+	auto newModel = std::make_shared<Model>(path);
 	modelsLoaded[path] = newModel;
 	return newModel;
 }

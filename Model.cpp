@@ -1,11 +1,11 @@
-#include "ModelLoader.h"
+#include "Model.h"
 
 #include <string>
 #include <unordered_map>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-ModelLoader::ModelLoader(const std::string& modelPath) {
+Model::Model(const std::string& modelPath) {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
@@ -44,6 +44,6 @@ ModelLoader::ModelLoader(const std::string& modelPath) {
 	}
 }
 
-ModelLoader::~ModelLoader() {
+Model::~Model() {
 
 }

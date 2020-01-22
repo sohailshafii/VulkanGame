@@ -2,7 +2,7 @@
 
 #include "vulkan/vulkan.h"
 #include "Common.h"
-#include "ModelLoader.h"
+#include "Model.h"
 #include <vector>
 
 class SwapChainManager;
