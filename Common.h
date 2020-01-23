@@ -42,6 +42,8 @@ public:
 	static void createBuffer(LogicalDeviceManager* logicalDeviceManager,
 		GfxDeviceManager* gfxDeviceManager, VkDeviceSize size, VkBufferUsageFlags usage,
 		VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	
+	static void copyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 };
 
 // we have to make sure everything is aligned properly

@@ -159,8 +159,9 @@ private:
 		createCommandPool();
 
 		resourceLoader = new ResourceLoader();
-		std::shared_ptr<Model> modelLoaded = resourceLoader->getModel(MODEL_PATH);
-		gameObjects.push_back(GameObject(modelLoaded));
+		gameObjects.push_back(GameObject(resourceLoader->getModel(MODEL_PATH),
+										 gfxDeviceManager, logicalDeviceManager,
+										 commandPool));
 		// TODO: use gameobjects vector, and add another one (cube)
 
 		createVertexBuffer(modelLoaded->getVertices());
@@ -451,6 +452,9 @@ private:
 		delete resourceLoader;
 
 		delete graphicsEngine;
+		
+		// kill game objects before device manager is removed
+		gameObjects.clear();
 
 		vkDestroyDescriptorSetLayout(logicalDeviceManager->getDevice(), descriptorSetLayout, nullptr);
 

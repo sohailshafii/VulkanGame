@@ -264,3 +264,16 @@ void Common::createBuffer(LogicalDeviceManager* logicalDeviceManager,
 	}
 	vkBindBufferMemory(logicalDeviceManager->getDevice(), buffer, bufferMemory, 0);
 }
+
+void Common::copyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+	VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
+		logicalDeviceManager);
+
+	VkBufferCopy copyRegion = {};
+	copyRegion.srcOffset = 0; // optional
+	copyRegion.dstOffset = 0; // optional
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
+}
