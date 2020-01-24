@@ -159,13 +159,8 @@ private:
 		createCommandPool();
 
 		resourceLoader = new ResourceLoader();
-		gameObjects.push_back(std::make_shared<GameObject>(resourceLoader->getModel(MODEL_PATH),
-										 gfxDeviceManager, logicalDeviceManager,
-										 commandPool));
+		createGameObjects();
 		// TODO: use gameobjects vector, and add another one (cube)
-
-		//createVertexBuffer(modelLoaded->getVertices());
-		//createIndexBuffer(modelLoaded->getIndices());
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
@@ -198,7 +193,6 @@ private:
 		vkDeviceWaitIdle(logicalDeviceManager->getDevice());
 
 		delete graphicsEngine;
-		//std::shared_ptr<Model> modelLoaded = resourceLoader->getModel(MODEL_PATH);
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
 			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
@@ -247,66 +241,14 @@ private:
 		}
 	}
 
-	/*void createVertexBuffer(const std::vector<Vertex>& vertices) {
-		VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void*data;
-		vkMapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices.data(), (size_t)bufferSize);
-		vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
-
-		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-
-		copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
-
-		vkDestroyBuffer(logicalDeviceManager->getDevice(), stagingBuffer, nullptr);
-		vkFreeMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, nullptr);
+	void createGameObjects() {
+		std::shared_ptr<GameObject> houseObj = std::make_shared<GameObject>(resourceLoader->getModel(MODEL_PATH),
+																		 gfxDeviceManager, logicalDeviceManager,
+																		 commandPool);
+		
+		
+		gameObjects.push_back(houseObj);
 	}
-
-	void createIndexBuffer(const std::vector<uint32_t>& indices) {
-		VkDeviceSize bufferSize = sizeof(indices[0])*indices.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), (size_t)bufferSize);
-		vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
-
-		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
-
-		copyBuffer(stagingBuffer, indexBuffer, bufferSize);
-
-		vkDestroyBuffer(logicalDeviceManager->getDevice(), stagingBuffer, nullptr);
-		vkFreeMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, nullptr);
-	}
-
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-		VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
-			logicalDeviceManager.get());
-
-		VkBufferCopy copyRegion = {};
-		copyRegion.srcOffset = 0; // optional
-		copyRegion.dstOffset = 0; // optional
-		copyRegion.size = size;
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager.get());
-	}*/
 
 	void createSyncObjects() {
 		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
