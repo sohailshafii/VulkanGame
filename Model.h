@@ -11,11 +11,11 @@ public:
 	Model(const std::string& modelPath);
 	~Model();
 
-	const std::vector<Vertex>& getVertices() {
+	const std::vector<Vertex>& GetVertices() {
 		return vertices;
 	}
 
-	const std::vector<uint32_t>& getIndices() {
+	const std::vector<uint32_t>& GetIndices() {
 		return indices;
 	}
 

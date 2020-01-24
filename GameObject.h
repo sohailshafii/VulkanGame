@@ -5,7 +5,7 @@
 #include "vulkan/vulkan.h"
 
 class Model;
-class Vertex;
+struct Vertex;
 class GfxDeviceManager;
 class LogicalDeviceManager;
 
@@ -22,6 +22,14 @@ public:
 	
 	std::shared_ptr<Model> GetModel() {
 		return objModel;
+	}
+	
+	VkBuffer GetVertexBuffer() const {
+		return vertexBuffer;
+	}
+	
+	VkBuffer GetIndexBuffer() const {
+		return indexBuffer;
 	}
 	
 private:

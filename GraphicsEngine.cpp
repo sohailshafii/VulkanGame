@@ -17,31 +17,30 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader *resourceLoader, VkSurfaceKHR surface,
 	GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
 	VkCommandPool commandPool, std::shared_ptr<ImageTextureLoader> imageTexture,
-	const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
-	VkBuffer vertexBuffer, VkBuffer indexBuffer) {
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	this->logicalDeviceManager = logicalDeviceManager;
-	createSwapChain(gfxDeviceManager, surface,
+	CreateSwapChain(gfxDeviceManager, surface,
 		window);
-	createSwapChainImageViews();
-	createRenderPassModule(gfxDeviceManager);
-	createGraphicsPipeline(gfxDeviceManager, resourceLoader, descriptorSetLayout);
+	CreateSwapChainImageViews();
+	CreateRenderPassModule(gfxDeviceManager);
+	CreateGraphicsPipeline(gfxDeviceManager, resourceLoader, descriptorSetLayout);
 
-	createColorResources(gfxDeviceManager, commandPool); // 5
-	createDepthResources(gfxDeviceManager, commandPool); // 6
-	createFramebuffers(); // 7
-	createUniformBuffers(gfxDeviceManager); // 8
+	CreateColorResources(gfxDeviceManager, commandPool); // 5
+	CreateDepthResources(gfxDeviceManager, commandPool); // 6
+	CreateFramebuffers(); // 7
+	CreateUniformBuffers(gfxDeviceManager); // 8
 
-	createDescriptorPool();
-	createDescriptorSets(descriptorSetLayout, imageTexture->getTextureImageView(),
+	CreateDescriptorPool();
+	CreateDescriptorSets(descriptorSetLayout, imageTexture->getTextureImageView(),
 		imageTexture->getTextureImageSampler());
-	createCommandBuffers(commandPool, vertices, indices, vertexBuffer, indexBuffer);
+	CreateCommandBuffers(commandPool, gameObjects);
 }
 
 GraphicsEngine::~GraphicsEngine() {
-	cleanUpSwapChain();
+	CleanUpSwapChain();
 }
 
-void GraphicsEngine::cleanUpSwapChain() {
+void GraphicsEngine::CleanUpSwapChain() {
 	// TODO: verify notnull throughout
 	for (size_t i = 0; i < swapChainFramebuffers.size(); i++) {
 		vkDestroyFramebuffer(logicalDeviceManager->getDevice(), swapChainFramebuffers[i],
@@ -81,24 +80,24 @@ void GraphicsEngine::cleanUpSwapChain() {
 	vkDestroyDescriptorPool(logicalDeviceManager->getDevice(), descriptorPool, nullptr);
 }
 
-void GraphicsEngine::createSwapChain(GfxDeviceManager* gfxDeviceManager,
+void GraphicsEngine::CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
 	VkSurfaceKHR surface, GLFWwindow* window) {
 	swapChainManager = new SwapChainManager(gfxDeviceManager,
 		logicalDeviceManager.get());
 	swapChainManager->create(surface, window);
 }
 
-void GraphicsEngine::createSwapChainImageViews() {
+void GraphicsEngine::CreateSwapChainImageViews() {
 	swapChainManager->createImageViews();
 }
 
-void GraphicsEngine::createRenderPassModule(GfxDeviceManager* gfxDeviceManager) {
+void GraphicsEngine::CreateRenderPassModule(GfxDeviceManager* gfxDeviceManager) {
 	renderPassModule = new RenderPassModule(logicalDeviceManager->getDevice(),
 		gfxDeviceManager->getPhysicalDevice(), swapChainManager->getSwapChainImageFormat(),
 		gfxDeviceManager->getMSAASamples());
 }
 
-void GraphicsEngine::createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
+void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout) {
 	graphicsPipelineModule = new PipelineModule("shaders/vert.spv",
 		"shaders/frag.spv", logicalDeviceManager->getDevice(),
@@ -106,7 +105,7 @@ void GraphicsEngine::createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 		resourceLoader, descriptorSetLayout, renderPassModule->GetRenderPass());
 }
 
-void GraphicsEngine::createColorResources(GfxDeviceManager* gfxDeviceManager,
+void GraphicsEngine::CreateColorResources(GfxDeviceManager* gfxDeviceManager,
 	VkCommandPool commandPool) {
 	auto swapChainImageFormat = swapChainManager->getSwapChainImageFormat();
 	auto swapChainExtent = swapChainManager->getSwapChainExtent();
@@ -124,7 +123,7 @@ void GraphicsEngine::createColorResources(GfxDeviceManager* gfxDeviceManager,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager.get());
 }
 
-void GraphicsEngine::createDepthResources(GfxDeviceManager* gfxDeviceManager,
+void GraphicsEngine::CreateDepthResources(GfxDeviceManager* gfxDeviceManager,
 	VkCommandPool commandPool) {
 	VkFormat depthFormat = Common::findDepthFormat(gfxDeviceManager->getPhysicalDevice());
 	auto swapChainExtent = swapChainManager->getSwapChainExtent();
@@ -139,7 +138,7 @@ void GraphicsEngine::createDepthResources(GfxDeviceManager* gfxDeviceManager,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager.get());
 }
 
-void GraphicsEngine::createFramebuffers() {
+void GraphicsEngine::CreateFramebuffers() {
 	auto& swapChainImageViews = swapChainManager->getSwapChainImageViews();
 	swapChainFramebuffers.resize(swapChainImageViews.size());
 	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
@@ -166,7 +165,7 @@ void GraphicsEngine::createFramebuffers() {
 	}
 }
 
-void GraphicsEngine::createUniformBuffers(GfxDeviceManager* gfxDeviceManager) {
+void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager) {
 	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
 	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
@@ -180,7 +179,7 @@ void GraphicsEngine::createUniformBuffers(GfxDeviceManager* gfxDeviceManager) {
 	}
 }
 
-void GraphicsEngine::createDescriptorPool() {
+void GraphicsEngine::CreateDescriptorPool() {
 	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
@@ -200,7 +199,7 @@ void GraphicsEngine::createDescriptorPool() {
 	}
 }
 
-void GraphicsEngine::createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
+void GraphicsEngine::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 	VkImageView textureImageView, VkSampler textureSampler) {
 	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
 	std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(),
@@ -252,9 +251,11 @@ void GraphicsEngine::createDescriptorSets(VkDescriptorSetLayout descriptorSetLay
 }
 
 // TODO: create command buffer module that encapsulates the allocate info, etc
-void GraphicsEngine::createCommandBuffers(VkCommandPool commandPool,
-	const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
-	VkBuffer vertexBuffer, VkBuffer indexBuffer) {
+void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
+										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	// TODO: support multiple game objects, not just one
+	std::shared_ptr<GameObject> gameObject = gameObjects[0];
+	
 	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
 		logicalDeviceManager->getDevice(), commandPool);
 	auto& commandBuffers = commandBufferModule->getCommandBuffers();
@@ -277,10 +278,10 @@ void GraphicsEngine::createCommandBuffers(VkCommandPool commandPool,
 
 		// order of clear values = order of attachments
 		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0 };
+		clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		//VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
@@ -291,15 +292,15 @@ void GraphicsEngine::createCommandBuffers(VkCommandPool commandPool,
 			graphicsPipelineModule->GetPipeline());
 
 		// bind our vertex buffers
-		VkBuffer vertexBuffers[] = { vertexBuffer };
+		VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-		vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(commandBuffers[i], gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
 		vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			graphicsPipelineModule->GetLayout(), 0, 1, &descriptorSets[i], 0, nullptr);
-		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()),
+		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
 			1, 0, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffers[i]);

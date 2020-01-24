@@ -101,13 +101,13 @@ private:
 
 	bool framebufferResized = false;
 
-	VkBuffer vertexBuffer;
+	/*VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
+	VkDeviceMemory indexBufferMemory;*/
 
 	ResourceLoader* resourceLoader;
-	std::vector<GameObject> gameObjects;
+	std::vector<std::shared_ptr<GameObject>> gameObjects;
 
 	// need to be static for cursor callback function to work
 	static Camera mainCamera;
@@ -159,18 +159,18 @@ private:
 		createCommandPool();
 
 		resourceLoader = new ResourceLoader();
-		gameObjects.push_back(GameObject(resourceLoader->getModel(MODEL_PATH),
+		gameObjects.push_back(std::make_shared<GameObject>(resourceLoader->getModel(MODEL_PATH),
 										 gfxDeviceManager, logicalDeviceManager,
 										 commandPool));
 		// TODO: use gameobjects vector, and add another one (cube)
 
-		createVertexBuffer(modelLoaded->getVertices());
-		createIndexBuffer(modelLoaded->getIndices());
+		//createVertexBuffer(modelLoaded->getVertices());
+		//createIndexBuffer(modelLoaded->getIndices());
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
 			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
-			modelLoaded->getVertices(), modelLoaded->getIndices(), vertexBuffer, indexBuffer);
+			gameObjects);
 
 		createSyncObjects();
 	}
@@ -198,11 +198,11 @@ private:
 		vkDeviceWaitIdle(logicalDeviceManager->getDevice());
 
 		delete graphicsEngine;
-		std::shared_ptr<Model> modelLoaded = resourceLoader->getModel(MODEL_PATH);
+		//std::shared_ptr<Model> modelLoaded = resourceLoader->getModel(MODEL_PATH);
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
 			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
-			modelLoaded->getVertices(), modelLoaded->getIndices(), vertexBuffer, indexBuffer);
+			gameObjects);
 	}
 
 	void createDescriptorSetLayout() {
@@ -247,7 +247,7 @@ private:
 		}
 	}
 
-	void createVertexBuffer(const std::vector<Vertex>& vertices) {
+	/*void createVertexBuffer(const std::vector<Vertex>& vertices) {
 		VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
 
 		VkBuffer stagingBuffer;
@@ -306,7 +306,7 @@ private:
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
 		Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager.get());
-	}
+	}*/
 
 	void createSyncObjects() {
 		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -458,11 +458,11 @@ private:
 
 		vkDestroyDescriptorSetLayout(logicalDeviceManager->getDevice(), descriptorSetLayout, nullptr);
 
-		vkDestroyBuffer(logicalDeviceManager->getDevice(), indexBuffer, nullptr);
+		/*vkDestroyBuffer(logicalDeviceManager->getDevice(), indexBuffer, nullptr);
 		vkFreeMemory(logicalDeviceManager->getDevice(), indexBufferMemory, nullptr);
 
 		vkDestroyBuffer(logicalDeviceManager->getDevice(), vertexBuffer, nullptr);
-		vkFreeMemory(logicalDeviceManager->getDevice(), vertexBufferMemory, nullptr);
+		vkFreeMemory(logicalDeviceManager->getDevice(), vertexBufferMemory, nullptr);*/
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(logicalDeviceManager->getDevice(), renderFinishedSemaphores[i], nullptr);

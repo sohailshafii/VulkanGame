@@ -3,6 +3,7 @@
 #include "vulkan/vulkan.h"
 #include "Common.h"
 #include "Model.h"
+#include "GameObject.h"
 #include <vector>
 
 class SwapChainManager;
@@ -21,9 +22,7 @@ public:
 		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkSurfaceKHR surface,
 		GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-		VkCommandPool commandPool, std::shared_ptr<ImageTextureLoader> imageTexture,
-		const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
-		VkBuffer vertexBuffer, VkBuffer indexBuffer);
+		VkCommandPool commandPool, std::shared_ptr<ImageTextureLoader> imageTexture, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	~GraphicsEngine();
 
@@ -59,24 +58,23 @@ private:
 
 	CommandBufferModule* commandBufferModule;
 
-	void cleanUpSwapChain();
-	void createGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
+	void CleanUpSwapChain();
+	void CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout);
-	void createSwapChain(GfxDeviceManager* gfxDeviceManager,
+	void CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
 		VkSurfaceKHR surface, GLFWwindow* window);
-	void createSwapChainImageViews();
-	void createRenderPassModule(GfxDeviceManager* gfxDeviceManager);
+	void CreateSwapChainImageViews();
+	void CreateRenderPassModule(GfxDeviceManager* gfxDeviceManager);
 
-	void createColorResources(GfxDeviceManager* gfxDeviceManager,
+	void CreateColorResources(GfxDeviceManager* gfxDeviceManager,
 		VkCommandPool commandPool);
-	void createDepthResources(GfxDeviceManager* gfxDeviceManager,
+	void CreateDepthResources(GfxDeviceManager* gfxDeviceManager,
 		VkCommandPool commandPool);
-	void createFramebuffers();
-	void createUniformBuffers(GfxDeviceManager* gfxDeviceManager);
+	void CreateFramebuffers();
+	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager);
 
-	void createDescriptorPool();
-	void createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
+	void CreateDescriptorPool();
+	void CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 		VkImageView textureImageView, VkSampler textureSampler);
-	void createCommandBuffers(VkCommandPool commandPool, const std::vector<Vertex>& vertices,
-		const std::vector<uint32_t>& indices, VkBuffer vertexBuffer, VkBuffer indexBuffer);
+	void CreateCommandBuffers(VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 };

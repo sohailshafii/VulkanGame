@@ -10,6 +10,8 @@ GameObject::GameObject(std::shared_ptr<Model> model,
 					   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 					   VkCommandPool commandPool) :
 	objModel(model), logicalDeviceManager(logicalDeviceManager) {
+	createVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
+	createIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
 
 void GameObject::createVertexBuffer(const std::vector<Vertex>& vertices,
