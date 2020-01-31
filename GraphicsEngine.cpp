@@ -252,10 +252,7 @@ void GraphicsEngine::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLay
 
 // TODO: create command buffer module that encapsulates the allocate info, etc
 void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
-										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {
-	// TODO: support multiple game objects, not just one
-	std::shared_ptr<GameObject> gameObject = gameObjects[0];
-	
+										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {	
 	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
 		logicalDeviceManager->getDevice(), commandPool);
 	auto& commandBuffers = commandBufferModule->getCommandBuffers();
@@ -291,17 +288,19 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			graphicsPipelineModule->GetPipeline());
 
-		// bind our vertex buffers
-		VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+		for (const auto& gameObject : gameObjects) {
+			// bind our vertex buffers
+			VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-		vkCmdBindIndexBuffer(commandBuffers[i], gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+			vkCmdBindIndexBuffer(commandBuffers[i], gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-		vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			graphicsPipelineModule->GetLayout(), 0, 1, &descriptorSets[i], 0, nullptr);
-		vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
+			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
 			1, 0, 0, 0);
+		}
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 

@@ -53,18 +53,3 @@ Model::~Model() {
 
 }
 
-std::shared_ptr<Model> Model::CreateCube() {
-	float vertsArray[] = {
-		// TODO
-        // positions          // normals           // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-
-    };
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
-	// TODO
-	return std::make_shared<Model>(vertices, indices);
-}

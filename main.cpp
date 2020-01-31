@@ -64,9 +64,11 @@ private:
 
 #if __APPLE__
 	const std::string MODEL_PATH = "../../models/chalet.obj";
+	const std::string CUBE_MODEL_PATH = "../../models/cube.obj";
 	const std::string TEXTURE_PATH = "../../textures/chalet.jpg";
 #else
 	const std::string MODEL_PATH = "../models/chalet.obj";
+	const std::string CUBE_MODEL_PATH = "../models/cube.obj";
 	const std::string TEXTURE_PATH = "../textures/chalet.jpg";
 #endif
 
@@ -160,7 +162,6 @@ private:
 
 		resourceLoader = new ResourceLoader();
 		createGameObjects();
-		// TODO: use gameobjects vector, and add another one (cube)
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
@@ -246,8 +247,13 @@ private:
 																		 gfxDeviceManager, logicalDeviceManager,
 																		 commandPool);
 		
-		
+		std::shared_ptr<GameObject> cubeObj =
+		std::make_shared<GameObject>(resourceLoader->getModel(CUBE_MODEL_PATH),
+		gfxDeviceManager, logicalDeviceManager,
+		commandPool);
+	
 		gameObjects.push_back(houseObj);
+		gameObjects.push_back(cubeObj);
 	}
 
 	void createSyncObjects() {
