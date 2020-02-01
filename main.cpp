@@ -322,8 +322,12 @@ private:
 		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 			throw std::runtime_error("Failed to acquire swap chain image!");
 		}
-
-		updateUniformBuffer(imageIndex);
+		// TODO: loop over models. per model do:
+		// get model transform
+		// get command buffers per model
+		// wait on those buffers
+		const GameObject* firstModel = gameObjects[0].get();
+		updateUniformBuffer(imageIndex, firstModel);
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -377,7 +381,7 @@ private:
 	}
 
 	// TODO: use push constants, that's more efficient
-	void updateUniformBuffer(uint32_t currentImage) {
+	void updateUniformBuffer(uint32_t currentImage, const GameObject *gameObject) {
 		UniformBufferObject ubo = {};
 		ubo.model = glm::rotate(glm::mat4(1.0f),
 			glm::radians(-90.0f),

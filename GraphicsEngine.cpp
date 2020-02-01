@@ -251,6 +251,9 @@ void GraphicsEngine::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLay
 }
 
 // TODO: create command buffer module that encapsulates the allocate info, etc
+// TODO: it should be possible to have multiple pipelines/command buffers
+// per object. have a ubo per object, then update that ubo based on the matrices associated
+// move render logic to this class!
 void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {	
 	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),

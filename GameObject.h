@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include "vulkan/vulkan.h"
+#include <glm/glm.hpp>
 
 class Model;
 struct Vertex;
@@ -24,6 +25,14 @@ public:
 		return objModel;
 	}
 	
+	glm::mat4 GetModelTransform() const {
+		return model;
+	}
+	
+	void SetModelTransform(const glm::mat4& model) {
+		this->model = model;
+	}
+	
 	VkBuffer GetVertexBuffer() const {
 		return vertexBuffer;
 	}
@@ -38,6 +47,8 @@ private:
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+	
+	glm::mat4 model;
 	
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	
