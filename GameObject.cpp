@@ -45,6 +45,12 @@ GameObject::~GameObject() {
 	vkFreeMemory(logicalDeviceManager->getDevice(), indexBufferMemory, nullptr);
 	vkDestroyBuffer(logicalDeviceManager->getDevice(), vertexBuffer, nullptr);
 	vkFreeMemory(logicalDeviceManager->getDevice(), vertexBufferMemory, nullptr);
+	
+	/*size_t numBuffers = uniformBuffers.size();
+	for (size_t i = 0; i < numBuffers; i++) {
+		vkDestroyBuffer(logicalDeviceManager->getDevice(), uniformBuffers[i], nullptr);
+		vkFreeMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[i], nullptr);
+	}*/
 }
 
 void GameObject::createIndexBuffer(const std::vector<uint32_t>& indices,

@@ -70,8 +70,6 @@ void GraphicsEngine::CleanUpSwapChain() {
 		delete swapChainManager;
 	}
 
-	// TODO: each swap chain image should have an associated meta data with it
-	// so create SwapChainImage class for that
 	for (size_t i = 0; i < numSwapChainImages; i++) {
 		vkDestroyBuffer(logicalDeviceManager->getDevice(), uniformBuffers[i], nullptr);
 		vkFreeMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[i], nullptr);

@@ -52,6 +52,9 @@ private:
 	
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	
 	void createVertexBuffer(const std::vector<Vertex>& vertices,
 							GfxDeviceManager *gfxDeviceManager,
 							VkCommandPool commandPool);
