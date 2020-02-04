@@ -291,7 +291,12 @@ private:
 			float deltaTime = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 			HelloTriangleApplication::processInput(window, deltaTime);
-			drawFrame();
+			
+			uint32_t imageIndex;
+			if (canAcquireNextPresentableImageIndex(imageIndex)) {
+				updateGameState(deltaTime);
+				drawFrame(imageIndex);
+			}
 			
 			if ((currentFrameTime - lastFrameReportTime)
 				> 3.0f) {
@@ -306,22 +311,32 @@ private:
 		// wait for all operations to finish before cleaning up
 		vkDeviceWaitIdle(logicalDeviceManager->getDevice());
 	}
-
-	void drawFrame() {
+	
+	bool canAcquireNextPresentableImageIndex(uint32_t& imageIndex) {
 		vkWaitForFences(logicalDeviceManager->getDevice(), 1, &inFlightFences[currentFrame], VK_TRUE,
 			std::numeric_limits<uint64_t>::max());
 
-		uint32_t imageIndex;
 		VkResult result = vkAcquireNextImageKHR(logicalDeviceManager->getDevice(),
 			graphicsEngine->GetSwapChainManager()->getSwapChain(), std::numeric_limits<uint64_t>::max(),
 			imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			recreateSwapChain();
-			return;
+			return false;
 		}
 		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 			throw std::runtime_error("Failed to acquire swap chain image!");
 		}
+		
+		return true;
+	}
+	
+	void updateGameState(float deltaTime) {
+		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
+			// TODO: update
+		}
+	}
+
+	void drawFrame(uint32_t imageIndex) {
 		// TODO: loop over models. per model do:
 		// get model transform
 		// get command buffers per model
@@ -366,7 +381,7 @@ private:
 
 		presentInfo.pResults = nullptr;
 
-		result = vkQueuePresentKHR(logicalDeviceManager->getPresentQueue(), &presentInfo);
+		VkResult result = vkQueuePresentKHR(logicalDeviceManager->getPresentQueue(), &presentInfo);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result ==
 			VK_SUBOPTIMAL_KHR || framebufferResized) {
