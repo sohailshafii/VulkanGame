@@ -28,7 +28,7 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	CreateColorResources(gfxDeviceManager, commandPool); // 5
 	CreateDepthResources(gfxDeviceManager, commandPool); // 6
 	CreateFramebuffers(); // 7
-	CreateUniformBuffers(gfxDeviceManager); // 8
+	CreateUniformBuffers(gfxDeviceManager, gameObjects); // 8
 
 	CreateDescriptorPool();
 	CreateDescriptorSets(descriptorSetLayout, imageTexture->getTextureImageView(),
@@ -163,7 +163,8 @@ void GraphicsEngine::CreateFramebuffers() {
 	}
 }
 
-void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager) {
+void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
+										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
 	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
@@ -174,6 +175,10 @@ void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager) {
 		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+	}
+	
+	for(auto gameObject : gameObjects) {
+		gameObject->CreateCommandBuffers(gfxDeviceManager, swapChainImages.size());
 	}
 }
 

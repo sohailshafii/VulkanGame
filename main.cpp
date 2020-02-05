@@ -161,6 +161,7 @@ private:
 		createCommandPool();
 
 		resourceLoader = new ResourceLoader();
+	
 		createGameObjects();
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
@@ -244,13 +245,13 @@ private:
 
 	void createGameObjects() {
 		std::shared_ptr<GameObject> houseObj = std::make_shared<GameObject>(resourceLoader->getModel(MODEL_PATH),
-																		 gfxDeviceManager, logicalDeviceManager,
-																		 commandPool);
+										gfxDeviceManager, logicalDeviceManager,
+										commandPool);
 		
 		std::shared_ptr<GameObject> cubeObj =
 		std::make_shared<GameObject>(resourceLoader->getModel(CUBE_MODEL_PATH),
-		gfxDeviceManager, logicalDeviceManager,
-		commandPool);
+									 gfxDeviceManager, logicalDeviceManager,
+									 commandPool);
 	
 		gameObjects.push_back(houseObj);
 		gameObjects.push_back(cubeObj);
@@ -424,12 +425,6 @@ private:
 		gameObjects.clear();
 
 		vkDestroyDescriptorSetLayout(logicalDeviceManager->getDevice(), descriptorSetLayout, nullptr);
-
-		/*vkDestroyBuffer(logicalDeviceManager->getDevice(), indexBuffer, nullptr);
-		vkFreeMemory(logicalDeviceManager->getDevice(), indexBufferMemory, nullptr);
-
-		vkDestroyBuffer(logicalDeviceManager->getDevice(), vertexBuffer, nullptr);
-		vkFreeMemory(logicalDeviceManager->getDevice(), vertexBufferMemory, nullptr);*/
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(logicalDeviceManager->getDevice(), renderFinishedSemaphores[i], nullptr);

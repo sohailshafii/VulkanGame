@@ -41,6 +41,9 @@ public:
 		return indexBuffer;
 	}
 	
+	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
+								size_t numSwapChainImages);
+	
 private:
 	std::shared_ptr<Model> objModel;
 	VkBuffer vertexBuffer;
@@ -55,10 +58,14 @@ private:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	
-	void createVertexBuffer(const std::vector<Vertex>& vertices,
+	void CreateVertexBuffer(const std::vector<Vertex>& vertices,
 							GfxDeviceManager *gfxDeviceManager,
 							VkCommandPool commandPool);
-	void createIndexBuffer(const std::vector<uint32_t>& indices,
+	void CreateIndexBuffer(const std::vector<uint32_t>& indices,
 						   GfxDeviceManager *gfxDeviceManager,
 						   VkCommandPool commandPool);
+	
+	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
+							  size_t numSwapChainImages);
+	void CleanUpUniformBuffers();
 };

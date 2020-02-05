@@ -71,7 +71,8 @@ private:
 	void CreateDepthResources(GfxDeviceManager* gfxDeviceManager,
 		VkCommandPool commandPool);
 	void CreateFramebuffers();
-	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager);
+	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
+							  std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	void CreateDescriptorPool();
 	void CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
