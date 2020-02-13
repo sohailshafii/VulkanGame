@@ -30,7 +30,6 @@ public:
 	RenderPassModule* GetRenderPassModule() { return renderPassModule; }
 	PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
 	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
-	std::vector<VkDeviceMemory>& GetUniformBuffersMemory() { return uniformBuffersMemory; }
 
 private:
 	// not owned by us
@@ -50,12 +49,6 @@ private:
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
-
-	VkDescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
-
 	CommandBufferModule* commandBufferModule;
 
 	void CleanUpSwapChain();
@@ -74,8 +67,8 @@ private:
 	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 							  std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
-	void CreateDescriptorPool();
-	void CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
-		VkImageView textureImageView, VkSampler textureSampler);
+	void CreateDescriptorPoolAndSets(VkDescriptorSetLayout descriptorSetLayout,
+									 VkImageView textureImageView, VkSampler textureSampler,
+									 std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateCommandBuffers(VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 };

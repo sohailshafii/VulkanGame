@@ -30,9 +30,10 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	CreateFramebuffers(); // 7
 	CreateUniformBuffers(gfxDeviceManager, gameObjects); // 8
 
-	CreateDescriptorPool();
+	/*CreateDescriptorPool();
 	CreateDescriptorSets(descriptorSetLayout, imageTexture->getTextureImageView(),
-		imageTexture->getTextureImageSampler());
+		imageTexture->getTextureImageSampler(), gameObjects);*/
+	CreateDescriptorPoolAndSets(descriptorSetLayout, imageTexture->getTextureImageView(), imageTexture->getTextureImageSampler(), gameObjects);
 	CreateCommandBuffers(commandPool, gameObjects);
 }
 
@@ -65,17 +66,9 @@ void GraphicsEngine::CleanUpSwapChain() {
 	if (renderPassModule != nullptr) {
 		delete renderPassModule;
 	}
-	size_t numSwapChainImages = swapChainManager->getSwapChainImages().size();
 	if (swapChainManager != nullptr) {
 		delete swapChainManager;
 	}
-
-	for (size_t i = 0; i < numSwapChainImages; i++) {
-		vkDestroyBuffer(logicalDeviceManager->getDevice(), uniformBuffers[i], nullptr);
-		vkFreeMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[i], nullptr);
-	}
-
-	vkDestroyDescriptorPool(logicalDeviceManager->getDevice(), descriptorPool, nullptr);
 }
 
 void GraphicsEngine::CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
@@ -165,24 +158,14 @@ void GraphicsEngine::CreateFramebuffers() {
 
 void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
 	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
-	uniformBuffers.resize(swapChainImages.size());
-	uniformBuffersMemory.resize(swapChainImages.size());
-
-	for (size_t i = 0; i < swapChainImages.size(); i++) {
-		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
-	}
-	
+	size_t numSwapChainImages = swapChainImages.size();
 	for(auto gameObject : gameObjects) {
-		gameObject->CreateCommandBuffers(gfxDeviceManager, swapChainImages.size());
+		gameObject->CreateCommandBuffers(gfxDeviceManager, numSwapChainImages);
 	}
 }
 
-void GraphicsEngine::CreateDescriptorPool() {
+/*void GraphicsEngine::CreateDescriptorPool() {
 	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
@@ -200,10 +183,15 @@ void GraphicsEngine::CreateDescriptorPool() {
 		nullptr, &descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
-}
+}*/
 
-void GraphicsEngine::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
-	VkImageView textureImageView, VkSampler textureSampler) {
+// ubo -> descriptor set -> draw calls
+// each ubo has its own descriptor set.
+// for each object, we have N ubos, and each ubo has an associated descriptor set
+// we need a way to allow multiple ubos, which means multiple descriptor sets, each of which is associated with a game object. so associate a descriptor set with a game object
+/*void GraphicsEngine::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
+	VkImageView textureImageView, VkSampler textureSampler,
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
 	std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(),
 		descriptorSetLayout);
@@ -218,10 +206,11 @@ void GraphicsEngine::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLay
 		descriptorSets.data()) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to allocate descriptor sets!");
 	}
-
+	
 	for (size_t i = 0; i < swapChainImages.size(); ++i) {
 		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = uniformBuffers[i];
+		// TODO: do this per game object?
+		bufferInfo.buffer = gameObjects[0]->GetUniformBuffer(i);
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
@@ -250,6 +239,16 @@ void GraphicsEngine::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLay
 		vkUpdateDescriptorSets(logicalDeviceManager->getDevice(), static_cast<uint32_t>(descriptorWrites.size()),
 			descriptorWrites.data(), 0,
 			nullptr);
+	}
+}*/
+
+void GraphicsEngine::CreateDescriptorPoolAndSets(VkDescriptorSetLayout descriptorSetLayout,
+								 VkImageView textureImageView, VkSampler textureSampler,
+								 std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
+	size_t numSwapChainImages = swapChainImages.size();
+	for(auto gameObject : gameObjects) {
+		gameObject->CreateDescriptorPoolAndSets(numSwapChainImages, descriptorSetLayout, textureImageView, textureSampler);
 	}
 }
 
@@ -303,7 +302,7 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 			vkCmdBindIndexBuffer(commandBuffers[i], gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-			graphicsPipelineModule->GetLayout(), 0, 1, &descriptorSets[i], 0, nullptr);
+									graphicsPipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(i), 0, nullptr);
 			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
 			1, 0, 0, 0);
 		}

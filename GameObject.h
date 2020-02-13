@@ -41,8 +41,20 @@ public:
 		return indexBuffer;
 	}
 	
+	VkBuffer GetUniformBuffer(size_t index) const {
+		return uniformBuffers[index];
+	}
+	
+	VkDescriptorSet* GetDescriptorSetPtr(size_t index) {
+		return &descriptorSets[index];
+	}
+	
 	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
 								size_t numSwapChainImages);
+	
+	void CreateDescriptorPoolAndSets(size_t numSwapChainImages,
+									 VkDescriptorSetLayout descriptorSetLayout,
+									 VkImageView textureImageView, VkSampler textureSampler);
 	
 private:
 	std::shared_ptr<Model> objModel;
@@ -58,6 +70,9 @@ private:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	
+	VkDescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
+	
 	void CreateVertexBuffer(const std::vector<Vertex>& vertices,
 							GfxDeviceManager *gfxDeviceManager,
 							VkCommandPool commandPool);
@@ -68,4 +83,11 @@ private:
 	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 							  size_t numSwapChainImages);
 	void CleanUpUniformBuffers();
+	
+	void CreateDescriptorPool(size_t numSwapChainImages);
+	void CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
+							  VkImageView textureImageView, VkSampler textureSampler,
+							  size_t numSwapChainImages);
+	void CleanUpDescriptorPool();
+	
 };

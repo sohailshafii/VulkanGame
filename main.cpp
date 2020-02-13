@@ -409,6 +409,7 @@ private:
 		ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 		void* data;
+		// TODO: update UBO for ALL objects
 		auto& uniformBuffersMemory = graphicsEngine->GetUniformBuffersMemory();
 		vkMapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[currentImage], 0,
 			sizeof(ubo), 0, &data);
