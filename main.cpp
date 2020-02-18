@@ -336,13 +336,15 @@ private:
 	// get model transform
 	// get command buffers per model
 	// wait on those buffers
-	void updateGameState(uint32_t imageIndex, float deltaTime) {
+	void updateGameState(float deltaTime, uint32_t imageIndex) {
 		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
 			updateUniformBuffer(imageIndex, gameObject.get());
 		}
 	}
 
 	void drawFrame(uint32_t imageIndex) {
+		updateUniformBuffer(imageIndex, gameObjects[0].get());
+		
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -407,7 +409,6 @@ private:
 		ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 		void* data;
-		// TODO: update UBO for ALL objects
 		auto& uniformBuffersMemory = gameObject->GetUniformBuffersMemory();
 		vkMapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[currentImage], 0,
 			sizeof(ubo), 0, &data);
