@@ -9,7 +9,7 @@ GameObject::GameObject(std::shared_ptr<Model> model,
 					   GfxDeviceManager *gfxDeviceManager,
 					   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 					   VkCommandPool commandPool) :
-	objModel(model), logicalDeviceManager(logicalDeviceManager) {
+	objModel(model), logicalDeviceManager(logicalDeviceManager), descriptorPool(nullptr) {
 	CreateVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
@@ -46,6 +46,7 @@ GameObject::~GameObject() {
 	vkDestroyBuffer(logicalDeviceManager->getDevice(), vertexBuffer, nullptr);
 	vkFreeMemory(logicalDeviceManager->getDevice(), vertexBufferMemory, nullptr);
 	CleanUpUniformBuffers();
+	CleanUpDescriptorPool();
 }
 
 void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,
@@ -181,5 +182,8 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 }
 
 void GameObject::CleanUpDescriptorPool() {
-	vkDestroyDescriptorPool(logicalDeviceManager->getDevice(), descriptorPool, nullptr);
+	if (descriptorPool != nullptr) {
+		vkDestroyDescriptorPool(logicalDeviceManager->getDevice(), descriptorPool, nullptr);
+		descriptorPool = nullptr;
+	}
 }

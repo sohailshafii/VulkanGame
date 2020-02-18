@@ -295,7 +295,7 @@ private:
 			
 			uint32_t imageIndex;
 			if (canAcquireNextPresentableImageIndex(imageIndex)) {
-				updateGameState(deltaTime);
+				updateGameState(deltaTime, imageIndex);
 				drawFrame(imageIndex);
 			}
 			
@@ -331,20 +331,18 @@ private:
 		return true;
 	}
 	
-	void updateGameState(float deltaTime) {
+
+	// TODO: loop over models. per model do:
+	// get model transform
+	// get command buffers per model
+	// wait on those buffers
+	void updateGameState(uint32_t imageIndex, float deltaTime) {
 		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
-			// TODO: update
+			updateUniformBuffer(imageIndex, gameObject.get());
 		}
 	}
 
 	void drawFrame(uint32_t imageIndex) {
-		// TODO: loop over models. per model do:
-		// get model transform
-		// get command buffers per model
-		// wait on those buffers
-		const GameObject* firstModel = gameObjects[0].get();
-		updateUniformBuffer(imageIndex, firstModel);
-
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -397,7 +395,7 @@ private:
 	}
 
 	// TODO: use push constants, that's more efficient
-	void updateUniformBuffer(uint32_t currentImage, const GameObject *gameObject) {
+	void updateUniformBuffer(uint32_t currentImage, GameObject *gameObject) {
 		UniformBufferObject ubo = {};
 		ubo.model = glm::rotate(glm::mat4(1.0f),
 			glm::radians(-90.0f),
@@ -410,7 +408,7 @@ private:
 
 		void* data;
 		// TODO: update UBO for ALL objects
-		auto& uniformBuffersMemory = graphicsEngine->GetUniformBuffersMemory();
+		auto& uniformBuffersMemory = gameObject->GetUniformBuffersMemory();
 		vkMapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));

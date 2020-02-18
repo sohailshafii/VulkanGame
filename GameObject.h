@@ -45,6 +45,8 @@ public:
 		return uniformBuffers[index];
 	}
 	
+	std::vector<VkDeviceMemory>& GetUniformBuffersMemory() { return uniformBuffersMemory; }
+	
 	VkDescriptorSet* GetDescriptorSetPtr(size_t index) {
 		return &descriptorSets[index];
 	}

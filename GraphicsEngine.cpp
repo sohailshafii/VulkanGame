@@ -304,7 +304,7 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 									graphicsPipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(i), 0, nullptr);
 			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
-			1, 0, 0, 0);
+							 1, 0, 0, 0);
 		}
 
 		vkCmdEndRenderPass(commandBuffers[i]);
