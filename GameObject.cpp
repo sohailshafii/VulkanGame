@@ -111,6 +111,25 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages,
 						 numSwapChainImages);
 }
 
+// TODO: use push constants, more efficient
+void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
+									 VkExtent2D swapChainExtent) {
+	UniformBufferObject ubo = {};
+	ubo.model = glm::rotate(glm::mat4(1.0f),
+		glm::radians(-90.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f));
+	ubo.view = viewMatrix;
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
+		(float)swapChainExtent.height, 0.1f, 10.0f);
+	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
+
+	void* data;
+	vkMapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[imageIndex], 0,
+		sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[imageIndex]);
+}
+
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
 	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;

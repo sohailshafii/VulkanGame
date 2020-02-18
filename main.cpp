@@ -338,13 +338,13 @@ private:
 	// wait on those buffers
 	void updateGameState(float deltaTime, uint32_t imageIndex) {
 		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
-			updateUniformBuffer(imageIndex, gameObject.get());
+			gameObject->UpdateUniformBuffer(imageIndex,
+											HelloTriangleApplication::mainCamera.constructViewMatrix(),
+											graphicsEngine->GetSwapChainManager()->getSwapChainExtent());
 		}
 	}
 
 	void drawFrame(uint32_t imageIndex) {
-		updateUniformBuffer(imageIndex, gameObjects[0].get());
-		
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -394,26 +394,6 @@ private:
 		}
 
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-	}
-
-	// TODO: use push constants, that's more efficient
-	void updateUniformBuffer(uint32_t currentImage, GameObject *gameObject) {
-		UniformBufferObject ubo = {};
-		ubo.model = glm::rotate(glm::mat4(1.0f),
-			glm::radians(-90.0f),
-			glm::vec3(1.0f, 0.0f, 0.0f));
-		ubo.view = HelloTriangleApplication::mainCamera.constructViewMatrix();
-		auto swapChainExtent = graphicsEngine->GetSwapChainManager()->getSwapChainExtent();
-		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-			(float)swapChainExtent.height, 0.1f, 10.0f);
-		ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
-
-		void* data;
-		auto& uniformBuffersMemory = gameObject->GetUniformBuffersMemory();
-		vkMapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[currentImage], 0,
-			sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[currentImage]);
 	}
 
 	void cleanUp() {

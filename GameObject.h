@@ -58,6 +58,9 @@ public:
 									 VkDescriptorSetLayout descriptorSetLayout,
 									 VkImageView textureImageView, VkSampler textureSampler);
 	
+	void UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
+							 VkExtent2D swapChainExtent);
+	
 private:
 	std::shared_ptr<Model> objModel;
 	VkBuffer vertexBuffer;
