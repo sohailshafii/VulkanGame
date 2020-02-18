@@ -9,7 +9,7 @@ public:
 	ShaderLoader(const std::string& path, VkDevice device);
 	~ShaderLoader();
 
-	VkShaderModule getVkShaderModule() const {
+	VkShaderModule GetVkShaderModule() const {
 		return shaderModule;
 	}
 
@@ -19,6 +19,6 @@ private:
 	VkShaderModule shaderModule;
 	VkDevice device;
 
-	std::vector<char> readFile(const std::string& path);
-	VkShaderModule assembleShaderModule(const std::vector<char>& code);
+	std::vector<char> ReadFile(const std::string& path);
+	VkShaderModule AssembleShaderModule(const std::vector<char>& code);
 };

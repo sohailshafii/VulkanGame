@@ -15,7 +15,7 @@ ResourceLoader::~ResourceLoader() {
 	texturesLoaded.clear();
 }
 
-std::shared_ptr<ShaderLoader> ResourceLoader::getShader(std::string path, VkDevice device) {
+std::shared_ptr<ShaderLoader> ResourceLoader::GetShader(std::string path, VkDevice device) {
 	auto foundShaderItr = shadersLoaded.find(path);
 	if (foundShaderItr != shadersLoaded.cend()) {
 		return foundShaderItr->second;
@@ -26,7 +26,7 @@ std::shared_ptr<ShaderLoader> ResourceLoader::getShader(std::string path, VkDevi
 	return newShader;
 }
 
-std::shared_ptr<ImageTextureLoader> ResourceLoader::getTexture(const std::string& path,
+std::shared_ptr<ImageTextureLoader> ResourceLoader::GetTexture(const std::string& path,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 	VkCommandPool commandPool) {
@@ -41,7 +41,7 @@ std::shared_ptr<ImageTextureLoader> ResourceLoader::getTexture(const std::string
 	return newTexture;
 }
 
-std::shared_ptr<Model> ResourceLoader::getModel(const std::string& path) {
+std::shared_ptr<Model> ResourceLoader::GetModel(const std::string& path) {
 	auto foundModelItr = modelsLoaded.find(path);
 	if (foundModelItr != modelsLoaded.cend()) {
 		return foundModelItr->second;

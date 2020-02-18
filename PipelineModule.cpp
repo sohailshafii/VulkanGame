@@ -14,9 +14,9 @@ PipelineModule::PipelineModule(const std::string& vertShaderPath,
 	// TODO: use first set of paths when completely switched to cmake
 	// on Windows
 #if __APPLE__
-	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->getShader(
+	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->GetShader(
 	"../../shaders/vert.spv", device);
-std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
+std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	"../../shaders/frag.spv", device);
 #else
 	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->getShader(
@@ -29,13 +29,13 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-	vertShaderStageInfo.module = vertShaderModule->getVkShaderModule();
+	vertShaderStageInfo.module = vertShaderModule->GetVkShaderModule();
 	vertShaderStageInfo.pName = "main";
 
 	VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
 	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	fragShaderStageInfo.module = fragShaderModule->getVkShaderModule();
+	fragShaderStageInfo.module = fragShaderModule->GetVkShaderModule();
 	fragShaderStageInfo.pName = "main";
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = {
@@ -93,7 +93,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
 	VkPipelineMultisampleStateCreateInfo multiSampling = {};
 	multiSampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multiSampling.sampleShadingEnable = VK_TRUE;
-	multiSampling.rasterizationSamples = gfxDeviceManager->getMSAASamples();
+	multiSampling.rasterizationSamples = gfxDeviceManager->GetMSAASamples();
 	multiSampling.minSampleShading = 0.2f; // min fraction for sample shading; 
 	// closer to one is smoother
 	multiSampling.pSampleMask = nullptr;

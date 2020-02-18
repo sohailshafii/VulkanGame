@@ -12,17 +12,17 @@ public:
 		float yaw, float pitch, float movementSpeed,
 		float mouseSensitivity);
 
-	glm::mat4 constructViewMatrix() const;
+	glm::mat4 ConstructViewMatrix() const;
 
-	void moveForward(float deltaTime);
-	void moveBackward(float deltaTime);
-	void moveRight(float deltaTime);
-	void moveLeft(float deltaTime);
+	void MoveForward(float deltaTime);
+	void MoveBackward(float deltaTime);
+	void MoveRight(float deltaTime);
+	void MoveLeft(float deltaTime);
 
-	void processMouse(float mouseXMovement, float mouseYMovement);
+	void ProcessMouse(float mouseXMovement, float mouseYMovement);
 
 private:
-	void updateCoordinateSystem();
+	void UpdateCoordinateSystem();
 
 	glm::vec3 position;
 	glm::vec3 forward, up, right;

@@ -14,15 +14,15 @@ public:
 		bool enableValidationLayers);
 	~LogicalDeviceManager();
 
-	VkDevice getDevice() {
+	VkDevice GetDevice() {
 		return device;
 	}
 
-	VkQueue getGraphicsQueue() {
+	VkQueue GetGraphicsQueue() {
 		return graphicsQueue;
 	}
 
-	VkQueue getPresentQueue() {
+	VkQueue GetPresentQueue() {
 		return presentQueue;
 	}
 

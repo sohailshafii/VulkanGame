@@ -9,14 +9,14 @@ GfxDeviceManager::GfxDeviceManager(const VkInstance& vkInstance,
 	const VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions) {
 	physicalDevice = VK_NULL_HANDLE;
 	msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-	pickPhysicalDevice(vkInstance, surface, deviceExtensions);
+	PickPhysicalDevice(vkInstance, surface, deviceExtensions);
 }
 
 GfxDeviceManager::~GfxDeviceManager() {
 
 }
 
-void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance,
+void GfxDeviceManager::PickPhysicalDevice(const VkInstance& vkInstance,
 	VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions) {
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
@@ -29,9 +29,9 @@ void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance,
 	vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data());
 
 	for (const auto& device : devices) {
-		if (isDeviceSuitable(device, surface, deviceExtensions)) {
+		if (IsDeviceSuitable(device, surface, deviceExtensions)) {
 			physicalDevice = device;
-			msaaSamples = getMaxUsableSampleCount(device);
+			msaaSamples = GetMaxUsableSampleCount(device);
 			break;
 		}
 	}
@@ -41,7 +41,7 @@ void GfxDeviceManager::pickPhysicalDevice(const VkInstance& vkInstance,
 	}
 }
 
-bool GfxDeviceManager::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
+bool GfxDeviceManager::IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
 	const std::vector<const char*>& deviceExtensions) {
 	VkPhysicalDeviceProperties deviceProperties;
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -49,23 +49,23 @@ bool GfxDeviceManager::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR su
 	VkPhysicalDeviceFeatures supportedFeatures;
 	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-	QueueFamilyIndices indices = findQueueFamilies(device, surface);
+	QueueFamilyIndices indices = FindQueueFamilies(device, surface);
 
-	bool extensionsSupported = checkDeviceExtensionSupport(device, deviceExtensions);
+	bool extensionsSupported = CheckDeviceExtensionSupport(device, deviceExtensions);
 
 	bool swapChainAdequate = false;
 	if (extensionsSupported) {
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device, surface);
+		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device, surface);
 		swapChainAdequate = !swapChainSupport.formats.empty() &&
 			!swapChainSupport.presentModes.empty();
 	}
 
-	return indices.isComplete() && extensionsSupported
+	return indices.IsComplete() && extensionsSupported
 		&& swapChainAdequate && ((bool)supportedFeatures.samplerAnisotropy
 			== true);
 }
 
-VkSampleCountFlagBits GfxDeviceManager::getMaxUsableSampleCount(VkPhysicalDevice device) {
+VkSampleCountFlagBits GfxDeviceManager::GetMaxUsableSampleCount(VkPhysicalDevice device) {
 	VkPhysicalDeviceProperties physicalDeviceProperties;
 	vkGetPhysicalDeviceProperties(device, &physicalDeviceProperties);
 
@@ -81,12 +81,12 @@ VkSampleCountFlagBits GfxDeviceManager::getMaxUsableSampleCount(VkPhysicalDevice
 	return VK_SAMPLE_COUNT_1_BIT;
 }
 
-GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(
+GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::FindQueueFamilies(
 	VkSurfaceKHR surface) const {
-	return findQueueFamilies(physicalDevice, surface);
+	return FindQueueFamilies(physicalDevice, surface);
 }
 
-GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(
+GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::FindQueueFamilies(
 	VkPhysicalDevice device,
 	VkSurfaceKHR surface) const {
 	QueueFamilyIndices indices;
@@ -113,7 +113,7 @@ GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(
 			indices.presentFamily = i;
 		}
 
-		if (indices.isComplete()) {
+		if (indices.IsComplete()) {
 			break;
 		}
 		i++;
@@ -122,7 +122,7 @@ GfxDeviceManager::QueueFamilyIndices GfxDeviceManager::findQueueFamilies(
 	return indices;
 }
 
-bool GfxDeviceManager::checkDeviceExtensionSupport(VkPhysicalDevice device,
+bool GfxDeviceManager::CheckDeviceExtensionSupport(VkPhysicalDevice device,
 	const std::vector<const char*>& deviceExtensions) {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
@@ -142,12 +142,12 @@ bool GfxDeviceManager::checkDeviceExtensionSupport(VkPhysicalDevice device,
 	return requiredExtensions.empty();
 }
 
-GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(
+GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::QuerySwapChainSupport(
 	VkSurfaceKHR surface) const {
-	return querySwapChainSupport(physicalDevice, surface);
+	return QuerySwapChainSupport(physicalDevice, surface);
 }
 
-GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::querySwapChainSupport(
+GfxDeviceManager::SwapChainSupportDetails GfxDeviceManager::QuerySwapChainSupport(
 	VkPhysicalDevice device, VkSurfaceKHR surface) const {
 	SwapChainSupportDetails details;
 

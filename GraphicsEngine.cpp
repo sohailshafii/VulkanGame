@@ -33,7 +33,7 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	/*CreateDescriptorPool();
 	CreateDescriptorSets(descriptorSetLayout, imageTexture->getTextureImageView(),
 		imageTexture->getTextureImageSampler(), gameObjects);*/
-	CreateDescriptorPoolAndSets(descriptorSetLayout, imageTexture->getTextureImageView(), imageTexture->getTextureImageSampler(), gameObjects);
+	CreateDescriptorPoolAndSets(descriptorSetLayout, imageTexture->GetTextureImageView(), imageTexture->GetTextureImageSampler(), gameObjects);
 	CreateCommandBuffers(commandPool, gameObjects);
 }
 
@@ -44,17 +44,17 @@ GraphicsEngine::~GraphicsEngine() {
 void GraphicsEngine::CleanUpSwapChain() {
 	// TODO: verify notnull throughout
 	for (size_t i = 0; i < swapChainFramebuffers.size(); i++) {
-		vkDestroyFramebuffer(logicalDeviceManager->getDevice(), swapChainFramebuffers[i],
+		vkDestroyFramebuffer(logicalDeviceManager->GetDevice(), swapChainFramebuffers[i],
 			nullptr);
 	}
 
-	vkDestroyImageView(logicalDeviceManager->getDevice(), colorImageView, nullptr);
-	vkDestroyImage(logicalDeviceManager->getDevice(), colorImage, nullptr);
-	vkFreeMemory(logicalDeviceManager->getDevice(), colorImageMemory, nullptr);
+	vkDestroyImageView(logicalDeviceManager->GetDevice(), colorImageView, nullptr);
+	vkDestroyImage(logicalDeviceManager->GetDevice(), colorImage, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), colorImageMemory, nullptr);
 
-	vkDestroyImageView(logicalDeviceManager->getDevice(), depthImageView, nullptr);
-	vkDestroyImage(logicalDeviceManager->getDevice(), depthImage, nullptr);
-	vkFreeMemory(logicalDeviceManager->getDevice(), depthImageMemory, nullptr);
+	vkDestroyImageView(logicalDeviceManager->GetDevice(), depthImageView, nullptr);
+	vkDestroyImage(logicalDeviceManager->GetDevice(), depthImage, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), depthImageMemory, nullptr);
 
 	if (commandBufferModule != nullptr) {
 		delete commandBufferModule;
@@ -75,62 +75,62 @@ void GraphicsEngine::CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
 	VkSurfaceKHR surface, GLFWwindow* window) {
 	swapChainManager = new SwapChainManager(gfxDeviceManager,
 		logicalDeviceManager.get());
-	swapChainManager->create(surface, window);
+	swapChainManager->Create(surface, window);
 }
 
 void GraphicsEngine::CreateSwapChainImageViews() {
-	swapChainManager->createImageViews();
+	swapChainManager->CreateImageViews();
 }
 
 void GraphicsEngine::CreateRenderPassModule(GfxDeviceManager* gfxDeviceManager) {
-	renderPassModule = new RenderPassModule(logicalDeviceManager->getDevice(),
-		gfxDeviceManager->getPhysicalDevice(), swapChainManager->getSwapChainImageFormat(),
-		gfxDeviceManager->getMSAASamples());
+	renderPassModule = new RenderPassModule(logicalDeviceManager->GetDevice(),
+		gfxDeviceManager->GetPhysicalDevice(), swapChainManager->GetSwapChainImageFormat(),
+		gfxDeviceManager->GetMSAASamples());
 }
 
 void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout) {
 	graphicsPipelineModule = new PipelineModule("shaders/vert.spv",
-		"shaders/frag.spv", logicalDeviceManager->getDevice(),
-		swapChainManager->getSwapChainExtent(), gfxDeviceManager,
+		"shaders/frag.spv", logicalDeviceManager->GetDevice(),
+		swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
 		resourceLoader, descriptorSetLayout, renderPassModule->GetRenderPass());
 }
 
 void GraphicsEngine::CreateColorResources(GfxDeviceManager* gfxDeviceManager,
 	VkCommandPool commandPool) {
-	auto swapChainImageFormat = swapChainManager->getSwapChainImageFormat();
-	auto swapChainExtent = swapChainManager->getSwapChainExtent();
+	auto swapChainImageFormat = swapChainManager->GetSwapChainImageFormat();
+	auto swapChainExtent = swapChainManager->GetSwapChainExtent();
 	VkFormat colorFormat = swapChainImageFormat;
 
-	Common::createImage(swapChainExtent.width, swapChainExtent.height, 1,
-		gfxDeviceManager->getMSAASamples(), colorFormat, VK_IMAGE_TILING_OPTIMAL,
+	Common::CreateImage(swapChainExtent.width, swapChainExtent.height, 1,
+		gfxDeviceManager->GetMSAASamples(), colorFormat, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory,
 		logicalDeviceManager.get(), gfxDeviceManager);
-	colorImageView = Common::createImageView(colorImage, colorFormat,
+	colorImageView = Common::CreateImageView(colorImage, colorFormat,
 		VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDeviceManager.get());
 
-	Common::transitionImageLayout(colorImage, colorFormat, VK_IMAGE_LAYOUT_UNDEFINED,
+	Common::TransitionImageLayout(colorImage, colorFormat, VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager.get());
 }
 
 void GraphicsEngine::CreateDepthResources(GfxDeviceManager* gfxDeviceManager,
 	VkCommandPool commandPool) {
-	VkFormat depthFormat = Common::findDepthFormat(gfxDeviceManager->getPhysicalDevice());
-	auto swapChainExtent = swapChainManager->getSwapChainExtent();
-	Common::createImage(swapChainExtent.width, swapChainExtent.height,
-		1, gfxDeviceManager->getMSAASamples(), depthFormat, VK_IMAGE_TILING_OPTIMAL,
+	VkFormat depthFormat = Common::FindDepthFormat(gfxDeviceManager->GetPhysicalDevice());
+	auto swapChainExtent = swapChainManager->GetSwapChainExtent();
+	Common::CreateImage(swapChainExtent.width, swapChainExtent.height,
+		1, gfxDeviceManager->GetMSAASamples(), depthFormat, VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		depthImage, depthImageMemory, logicalDeviceManager.get(), gfxDeviceManager);
-	depthImageView = Common::createImageView(depthImage, depthFormat,
+	depthImageView = Common::CreateImageView(depthImage, depthFormat,
 		VK_IMAGE_ASPECT_DEPTH_BIT, 1, logicalDeviceManager.get());
 
-	Common::transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
+	Common::TransitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1, commandPool, logicalDeviceManager.get());
 }
 
 void GraphicsEngine::CreateFramebuffers() {
-	auto& swapChainImageViews = swapChainManager->getSwapChainImageViews();
+	auto& swapChainImageViews = swapChainManager->GetSwapChainImageViews();
 	swapChainFramebuffers.resize(swapChainImageViews.size());
 	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
 		std::array<VkImageView, 3> attachments = {
@@ -144,12 +144,12 @@ void GraphicsEngine::CreateFramebuffers() {
 		framebufferInfo.renderPass = renderPassModule->GetRenderPass();
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
-		auto swapChainExtent = swapChainManager->getSwapChainExtent();
+		auto swapChainExtent = swapChainManager->GetSwapChainExtent();
 		framebufferInfo.width = swapChainExtent.width;
 		framebufferInfo.height = swapChainExtent.height;
 		framebufferInfo.layers = 1;
 
-		if (vkCreateFramebuffer(logicalDeviceManager->getDevice(), &framebufferInfo, nullptr,
+		if (vkCreateFramebuffer(logicalDeviceManager->GetDevice(), &framebufferInfo, nullptr,
 			&swapChainFramebuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create framebuffer!");
 		}
@@ -158,7 +158,7 @@ void GraphicsEngine::CreateFramebuffers() {
 
 void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {
-	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
+	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto gameObject : gameObjects) {
 		gameObject->CreateCommandBuffers(gfxDeviceManager, numSwapChainImages);
@@ -245,7 +245,7 @@ void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 void GraphicsEngine::CreateDescriptorPoolAndSets(VkDescriptorSetLayout descriptorSetLayout,
 								 VkImageView textureImageView, VkSampler textureSampler,
 								 std::vector<std::shared_ptr<GameObject>>& gameObjects) {
-	const std::vector<VkImage>& swapChainImages = swapChainManager->getSwapChainImages();
+	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto gameObject : gameObjects) {
 		gameObject->CreateDescriptorPoolAndSets(numSwapChainImages, descriptorSetLayout, textureImageView, textureSampler);
@@ -259,8 +259,8 @@ void GraphicsEngine::CreateDescriptorPoolAndSets(VkDescriptorSetLayout descripto
 void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {	
 	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
-		logicalDeviceManager->getDevice(), commandPool);
-	auto& commandBuffers = commandBufferModule->getCommandBuffers();
+		logicalDeviceManager->GetDevice(), commandPool);
+	auto& commandBuffers = commandBufferModule->GetCommandBuffers();
 	for (size_t i = 0; i < commandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -275,7 +275,7 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 		renderPassInfo.renderPass = renderPassModule->GetRenderPass();
 		renderPassInfo.framebuffer = swapChainFramebuffers[i];
 		renderPassInfo.renderArea.offset = { 0, 0 };
-		auto swapChainExtent = swapChainManager->getSwapChainExtent();
+		auto swapChainExtent = swapChainManager->GetSwapChainExtent();
 		renderPassInfo.renderArea.extent = swapChainExtent;
 
 		// order of clear values = order of attachments

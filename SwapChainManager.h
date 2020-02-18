@@ -13,26 +13,26 @@ public:
 		LogicalDeviceManager* logicalDeviceManager);
 	~SwapChainManager();
 
-	void create(VkSurfaceKHR surface, GLFWwindow *window);
-	void createImageViews();
+	void Create(VkSurfaceKHR surface, GLFWwindow *window);
+	void CreateImageViews();
 
-	VkSwapchainKHR getSwapChain() {
+	VkSwapchainKHR GetSwapChain() {
 		return swapChain;
 	}
 
-	const std::vector<VkImage>& getSwapChainImages() const {
+	const std::vector<VkImage>& GetSwapChainImages() const {
 		return swapChainImages;
 	}
 
-	const std::vector<VkImageView>& getSwapChainImageViews() const {
+	const std::vector<VkImageView>& GetSwapChainImageViews() const {
 		return swapChainImageViews;
 	}
 
-	VkFormat getSwapChainImageFormat() {
+	VkFormat GetSwapChainImageFormat() {
 		return swapChainImageFormat;
 	}
 
-	VkExtent2D getSwapChainExtent() {
+	VkExtent2D GetSwapChainExtent() {
 		return swapChainExtent;
 	}
 
@@ -47,9 +47,9 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
-	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
-	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>
+	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
+	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>
 		availablePresentModes);
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
+	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
 		GLFWwindow *window);
 };

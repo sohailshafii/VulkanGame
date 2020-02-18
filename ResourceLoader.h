@@ -19,12 +19,12 @@ public:
 	ResourceLoader();
 	~ResourceLoader();
 
-	std::shared_ptr<ShaderLoader> getShader(std::string path, VkDevice device);
-	std::shared_ptr<ImageTextureLoader> getTexture(const std::string& path,
+	std::shared_ptr<ShaderLoader> GetShader(std::string path, VkDevice device);
+	std::shared_ptr<ImageTextureLoader> GetTexture(const std::string& path,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 		VkCommandPool commandPool);
-	std::shared_ptr<Model> getModel(const std::string& path);
+	std::shared_ptr<Model> GetModel(const std::string& path);
 
 private:
 	std::map<std::string, std::shared_ptr<ShaderLoader>> shadersLoaded;

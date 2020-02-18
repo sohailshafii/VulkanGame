@@ -22,7 +22,7 @@ RenderPassModule::RenderPassModule(VkDevice device, VkPhysicalDevice physicalDev
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 	VkAttachmentDescription depthAttachment = {};
-	depthAttachment.format = Common::findDepthFormat(physicalDevice);
+	depthAttachment.format = Common::FindDepthFormat(physicalDevice);
 	depthAttachment.samples = msaaSamples;
 	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;

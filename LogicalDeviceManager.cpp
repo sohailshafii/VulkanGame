@@ -8,7 +8,7 @@ LogicalDeviceManager::LogicalDeviceManager(const GfxDeviceManager *gfxDeviceMana
 	const std::vector<const char*>& deviceExtensions,
 	bool enableValidationLayers) {
 	GfxDeviceManager::QueueFamilyIndices indices =
-		gfxDeviceManager->findQueueFamilies(surface);
+		gfxDeviceManager->FindQueueFamilies(surface);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(),
@@ -49,7 +49,7 @@ LogicalDeviceManager::LogicalDeviceManager(const GfxDeviceManager *gfxDeviceMana
 		createInfo.enabledLayerCount = 0;
 	}
 
-	if (vkCreateDevice(gfxDeviceManager->getPhysicalDevice(), &createInfo, nullptr, &device)
+	if (vkCreateDevice(gfxDeviceManager->GetPhysicalDevice(), &createInfo, nullptr, &device)
 		!= VK_SUCCESS) {
 		throw std::runtime_error("Failed to create logic device!");
 	}

@@ -14,9 +14,8 @@ public:
 		std::optional<uint32_t> graphicsFamily;
 		std::optional<uint32_t> presentFamily;
 //#endif
-		
 
-		bool isComplete() {
+		bool IsComplete() {
 			return graphicsFamily.has_value() &&
 				presentFamily.has_value();
 		}
@@ -32,30 +31,30 @@ public:
 		VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
 	~GfxDeviceManager();
 
-	QueueFamilyIndices findQueueFamilies(VkSurfaceKHR surface) const;
-	SwapChainSupportDetails querySwapChainSupport(VkSurfaceKHR surface) const;
+	QueueFamilyIndices FindQueueFamilies(VkSurfaceKHR surface) const;
+	SwapChainSupportDetails QuerySwapChainSupport(VkSurfaceKHR surface) const;
 
-	VkPhysicalDevice getPhysicalDevice() const {
+	VkPhysicalDevice GetPhysicalDevice() const {
 		return physicalDevice;
 	}
 
-	VkSampleCountFlagBits getMSAASamples() const {
+	VkSampleCountFlagBits GetMSAASamples() const {
 		return msaaSamples;
 	}
 private:
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,
+	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device,
 		VkSurfaceKHR surface) const;
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
+	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device,
 		VkSurfaceKHR surface) const;
 
-	void pickPhysicalDevice(const VkInstance& vkInstance,
+	void PickPhysicalDevice(const VkInstance& vkInstance,
 		VkSurfaceKHR surface, const std::vector<const char*>& deviceExtensions);
-	bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
+	bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
 		const std::vector<const char*>& deviceExtensions);
 
-	bool checkDeviceExtensionSupport(VkPhysicalDevice device,
+	bool CheckDeviceExtensionSupport(VkPhysicalDevice device,
 		const std::vector<const char*>& deviceExtensions);
-	VkSampleCountFlagBits getMaxUsableSampleCount(VkPhysicalDevice device);
+	VkSampleCountFlagBits GetMaxUsableSampleCount(VkPhysicalDevice device);
 
 	VkPhysicalDevice physicalDevice;
 	VkSampleCountFlagBits msaaSamples;

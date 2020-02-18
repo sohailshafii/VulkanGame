@@ -13,20 +13,20 @@ SwapChainManager::SwapChainManager(GfxDeviceManager* gfxDeviceManager,
 
 SwapChainManager::~SwapChainManager() {
 	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-		vkDestroyImageView(logicalDeviceManager->getDevice(), swapChainImageViews[i], nullptr);
+		vkDestroyImageView(logicalDeviceManager->GetDevice(), swapChainImageViews[i], nullptr);
 	}
-	vkDestroySwapchainKHR(logicalDeviceManager->getDevice(), swapChain, nullptr);
+	vkDestroySwapchainKHR(logicalDeviceManager->GetDevice(), swapChain, nullptr);
 }
 
-void SwapChainManager::create(VkSurfaceKHR surface, GLFWwindow *window) {
+void SwapChainManager::Create(VkSurfaceKHR surface, GLFWwindow *window) {
 	GfxDeviceManager::SwapChainSupportDetails swapChainSupport =
-		gfxDeviceManager->querySwapChainSupport(surface);
+		gfxDeviceManager->QuerySwapChainSupport(surface);
 
-	VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(
+	VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(
 		swapChainSupport.formats);
-	VkPresentModeKHR presentMode = chooseSwapPresentMode(
+	VkPresentModeKHR presentMode = ChooseSwapPresentMode(
 		swapChainSupport.presentModes);
-	VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities,
+	VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities,
 		window);
 
 	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
@@ -46,7 +46,7 @@ void SwapChainManager::create(VkSurfaceKHR surface, GLFWwindow *window) {
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	GfxDeviceManager::QueueFamilyIndices indices = gfxDeviceManager->findQueueFamilies(
+	GfxDeviceManager::QueueFamilyIndices indices = gfxDeviceManager->FindQueueFamilies(
 		surface);
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(),
 		indices.presentFamily.value() };
@@ -65,30 +65,30 @@ void SwapChainManager::create(VkSurfaceKHR surface, GLFWwindow *window) {
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (vkCreateSwapchainKHR(logicalDeviceManager->getDevice(), &createInfo, nullptr,
+	if (vkCreateSwapchainKHR(logicalDeviceManager->GetDevice(), &createInfo, nullptr,
 		&swapChain) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create swap chain!");
 	}
 
-	vkGetSwapchainImagesKHR(logicalDeviceManager->getDevice(), swapChain, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(logicalDeviceManager->GetDevice(), swapChain, &imageCount, nullptr);
 	swapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(logicalDeviceManager->getDevice(), swapChain, &imageCount, swapChainImages.data());
+	vkGetSwapchainImagesKHR(logicalDeviceManager->GetDevice(), swapChain, &imageCount, swapChainImages.data());
 
 	swapChainImageFormat = surfaceFormat.format;
 	swapChainExtent = extent;
 }
 
-void SwapChainManager::createImageViews() {
-	auto swapChainImageFormat = getSwapChainImageFormat();
+void SwapChainManager::CreateImageViews() {
+	auto swapChainImageFormat = GetSwapChainImageFormat();
 	swapChainImageViews.resize(swapChainImages.size());
 	for (size_t i = 0; i < swapChainImages.size(); i++) {
-		swapChainImageViews[i] = Common::createImageView(
+		swapChainImageViews[i] = Common::CreateImageView(
 			swapChainImages[i], swapChainImageFormat,
 			VK_IMAGE_ASPECT_COLOR_BIT, 1, logicalDeviceManager);
 	}
 }
 
-VkSurfaceFormatKHR SwapChainManager::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
+VkSurfaceFormatKHR SwapChainManager::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
 	// special case where vulkan tells us no preferred format exists
 	if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED) {
 		return { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
@@ -104,7 +104,7 @@ VkSurfaceFormatKHR SwapChainManager::chooseSwapSurfaceFormat(const std::vector<V
 	return availableFormats[0];
 }
 
-VkPresentModeKHR SwapChainManager::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>
+VkPresentModeKHR SwapChainManager::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>
 	availablePresentModes) {
 	VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
 
@@ -121,7 +121,7 @@ VkPresentModeKHR SwapChainManager::chooseSwapPresentMode(const std::vector<VkPre
 	return bestMode;
 }
 
-VkExtent2D SwapChainManager::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
+VkExtent2D SwapChainManager::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
 	GLFWwindow *window) {
 	// if uint32_t max is not used, just return what capabilities gives us
 	if (capabilities.currentExtent.width !=

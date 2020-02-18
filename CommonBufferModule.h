@@ -9,7 +9,7 @@ public:
 		VkDevice logicalDevice, VkCommandPool commandPool);
 	~CommandBufferModule();
 
-	std::vector<VkCommandBuffer>& getCommandBuffers() {
+	std::vector<VkCommandBuffer>& GetCommandBuffers() {
 		return commandBuffers;
 	}
 

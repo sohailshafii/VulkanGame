@@ -3,7 +3,7 @@
 #include "GfxDeviceManager.h"
 #include <stdexcept>
 
-VkImageView Common::createImageView(VkImage image, VkFormat format,
+VkImageView Common::CreateImageView(VkImage image, VkFormat format,
 	VkImageAspectFlags aspectFlags, uint32_t mipLevels,
 	LogicalDeviceManager* logicalDeviceManager) {
 	VkImageViewCreateInfo viewInfo = {};
@@ -18,7 +18,7 @@ VkImageView Common::createImageView(VkImage image, VkFormat format,
 	viewInfo.subresourceRange.layerCount = 1;
 
 	VkImageView imageView;
-	if (vkCreateImageView(logicalDeviceManager->getDevice(), &viewInfo, nullptr,
+	if (vkCreateImageView(logicalDeviceManager->GetDevice(), &viewInfo, nullptr,
 		&imageView) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create texture image view!");
 	}
@@ -26,7 +26,7 @@ VkImageView Common::createImageView(VkImage image, VkFormat format,
 	return imageView;
 }
 
-VkFormat Common::findSupportedFormat(const std::vector<VkFormat>&
+VkFormat Common::FindSupportedFormat(const std::vector<VkFormat>&
 	candidates, VkImageTiling tiling, VkFormatFeatureFlags
 	features, VkPhysicalDevice physicalDevice) {
 	for (VkFormat format : candidates) {
@@ -46,14 +46,14 @@ VkFormat Common::findSupportedFormat(const std::vector<VkFormat>&
 	throw std::runtime_error("Failed to find supported format!");
 }
 
-VkFormat Common::findDepthFormat(VkPhysicalDevice physicalDevice) {
-	return findSupportedFormat(
+VkFormat Common::FindDepthFormat(VkPhysicalDevice physicalDevice) {
+	return FindSupportedFormat(
 		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT,
 		VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL,
 		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, physicalDevice);
 }
 
-VkCommandBuffer Common::beginSingleTimeCommands(VkCommandPool commandPool,
+VkCommandBuffer Common::BeginSingleTimeCommands(VkCommandPool commandPool,
 	LogicalDeviceManager *logicalDeviceManager) {
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -62,7 +62,7 @@ VkCommandBuffer Common::beginSingleTimeCommands(VkCommandPool commandPool,
 	allocInfo.commandBufferCount = 1;
 
 	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(logicalDeviceManager->getDevice(), &allocInfo, &commandBuffer);
+	vkAllocateCommandBuffers(logicalDeviceManager->GetDevice(), &allocInfo, &commandBuffer);
 
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -75,7 +75,7 @@ VkCommandBuffer Common::beginSingleTimeCommands(VkCommandPool commandPool,
 
 // TODO: it's often better to set up commands, and submit them to the
 // queue asynchronously as opposed to waiting like this
-void Common::endSingleTimeCommands(VkCommandBuffer commandBuffer, VkCommandPool commandPool,
+void Common::EndSingleTimeCommands(VkCommandBuffer commandBuffer, VkCommandPool commandPool,
 	LogicalDeviceManager* logicalDeviceManager) {
 	vkEndCommandBuffer(commandBuffer);
 
@@ -84,16 +84,16 @@ void Common::endSingleTimeCommands(VkCommandBuffer commandBuffer, VkCommandPool 
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
-	vkQueueSubmit(logicalDeviceManager->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(logicalDeviceManager->getGraphicsQueue());
+	vkQueueSubmit(logicalDeviceManager->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(logicalDeviceManager->GetGraphicsQueue());
 
-	vkFreeCommandBuffers(logicalDeviceManager->getDevice(), commandPool, 1, &commandBuffer);
+	vkFreeCommandBuffers(logicalDeviceManager->GetDevice(), commandPool, 1, &commandBuffer);
 }
 
-void Common::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout,
+void Common::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout,
 	VkImageLayout newLayout, uint32_t mipLevels, VkCommandPool commandPool,
 	LogicalDeviceManager *logicalDeviceManager) {
-	VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
+	VkCommandBuffer commandBuffer = Common::BeginSingleTimeCommands(commandPool,
 		logicalDeviceManager);
 
 	VkImageMemoryBarrier barrier = {};
@@ -107,7 +107,7 @@ void Common::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout
 	if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
-		if (hasStencilComponent(format)) {
+		if (HasStencilComponent(format)) {
 			barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
 		}
 	}
@@ -168,15 +168,15 @@ void Common::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout
 		1, &barrier
 	);
 
-	Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
+	Common::EndSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
 }
 
-bool Common::hasStencilComponent(VkFormat format) {
+bool Common::HasStencilComponent(VkFormat format) {
 	return format == VK_FORMAT_D32_SFLOAT_S8_UINT ||
 		format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-void Common::createImage(uint32_t width, uint32_t height, uint32_t mipLevels,
+void Common::CreateImage(uint32_t width, uint32_t height, uint32_t mipLevels,
 	VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling,
 	VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
 	VkDeviceMemory& imageMemory, LogicalDeviceManager *logicalDeviceManager,
@@ -198,32 +198,32 @@ void Common::createImage(uint32_t width, uint32_t height, uint32_t mipLevels,
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	imageInfo.flags = 0;
 
-	if (vkCreateImage(logicalDeviceManager->getDevice(), &imageInfo, nullptr, &image)
+	if (vkCreateImage(logicalDeviceManager->GetDevice(), &imageInfo, nullptr, &image)
 		!= VK_SUCCESS) {
 		throw std::runtime_error("Failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(logicalDeviceManager->getDevice(), image, &memRequirements);
+	vkGetImageMemoryRequirements(logicalDeviceManager->GetDevice(), image, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits,
+	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits,
 		properties, gfxDeviceManager);
 
-	if (vkAllocateMemory(logicalDeviceManager->getDevice(), &allocInfo, nullptr, &imageMemory)
+	if (vkAllocateMemory(logicalDeviceManager->GetDevice(), &allocInfo, nullptr, &imageMemory)
 		!= VK_SUCCESS) {
 		throw std::runtime_error("Failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(logicalDeviceManager->getDevice(), image, imageMemory, 0);
+	vkBindImageMemory(logicalDeviceManager->GetDevice(), image, imageMemory, 0);
 }
 
-uint32_t Common::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
+uint32_t Common::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties,
 	GfxDeviceManager *gfxDeviceManager) {
 	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(gfxDeviceManager->getPhysicalDevice(), &memProperties);
+	vkGetPhysicalDeviceMemoryProperties(gfxDeviceManager->GetPhysicalDevice(), &memProperties);
 
 	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
 		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags
@@ -235,7 +235,7 @@ uint32_t Common::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 	throw std::runtime_error("Failed to find suitable memory type!");
 }
 
-void Common::createBuffer(LogicalDeviceManager* logicalDeviceManager,
+void Common::CreateBuffer(LogicalDeviceManager* logicalDeviceManager,
 	GfxDeviceManager* gfxDeviceManager, VkDeviceSize size, VkBufferUsageFlags usage,
 	VkMemoryPropertyFlags properties,VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
 	VkBufferCreateInfo bufferInfo = {};
@@ -244,29 +244,29 @@ void Common::createBuffer(LogicalDeviceManager* logicalDeviceManager,
 	bufferInfo.usage = usage;
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateBuffer(logicalDeviceManager->getDevice(), &bufferInfo, nullptr,
+	if (vkCreateBuffer(logicalDeviceManager->GetDevice(), &bufferInfo, nullptr,
 		&buffer) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create buffer!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(logicalDeviceManager->getDevice(), buffer, &memRequirements);
+	vkGetBufferMemoryRequirements(logicalDeviceManager->GetDevice(), buffer, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = Common::findMemoryType(memRequirements.memoryTypeBits,
+	allocInfo.memoryTypeIndex = Common::FindMemoryType(memRequirements.memoryTypeBits,
 		properties, gfxDeviceManager);
 
-	if (vkAllocateMemory(logicalDeviceManager->getDevice(), &allocInfo, nullptr, &bufferMemory) !=
+	if (vkAllocateMemory(logicalDeviceManager->GetDevice(), &allocInfo, nullptr, &bufferMemory) !=
 		VK_SUCCESS) {
 		throw std::runtime_error("Failed to allocate vertex buffer memory!");
 	}
-	vkBindBufferMemory(logicalDeviceManager->getDevice(), buffer, bufferMemory, 0);
+	vkBindBufferMemory(logicalDeviceManager->GetDevice(), buffer, bufferMemory, 0);
 }
 
-void Common::copyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-	VkCommandBuffer commandBuffer = Common::beginSingleTimeCommands(commandPool,
+void Common::CopyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+	VkCommandBuffer commandBuffer = Common::BeginSingleTimeCommands(commandPool,
 		logicalDeviceManager);
 
 	VkBufferCopy copyRegion = {};
@@ -275,5 +275,5 @@ void Common::copyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPoo
 	copyRegion.size = size;
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-	Common::endSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
+	Common::EndSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
 }

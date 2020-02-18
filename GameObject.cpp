@@ -21,30 +21,30 @@ void GameObject::CreateVertexBuffer(const std::vector<Vertex>& vertices,
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
+	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void*data;
-	vkMapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory);
 
-	Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
+	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	Common::copyBuffer(logicalDeviceManager.get(), commandPool, stagingBuffer, vertexBuffer, bufferSize);
+	Common::CopyBuffer(logicalDeviceManager.get(), commandPool, stagingBuffer, vertexBuffer, bufferSize);
 
-	vkDestroyBuffer(logicalDeviceManager->getDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(logicalDeviceManager->GetDevice(), stagingBuffer, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, nullptr);
 }
 
 GameObject::~GameObject() {
-	vkDestroyBuffer(logicalDeviceManager->getDevice(), indexBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->getDevice(), indexBufferMemory, nullptr);
-	vkDestroyBuffer(logicalDeviceManager->getDevice(), vertexBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->getDevice(), vertexBufferMemory, nullptr);
+	vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexBuffer, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), indexBufferMemory, nullptr);
+	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexBuffer, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), vertexBufferMemory, nullptr);
 	CleanUpUniformBuffers();
 	CleanUpDescriptorPool();
 }
@@ -56,23 +56,23 @@ void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
+	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(logicalDeviceManager->getDevice(), stagingBufferMemory);
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory);
 
-	Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
+	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-	Common::copyBuffer(logicalDeviceManager.get(), commandPool, stagingBuffer, indexBuffer, bufferSize);
+	Common::CopyBuffer(logicalDeviceManager.get(), commandPool, stagingBuffer, indexBuffer, bufferSize);
 
-	vkDestroyBuffer(logicalDeviceManager->getDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->getDevice(), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(logicalDeviceManager->GetDevice(), stagingBuffer, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, nullptr);
 }
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
@@ -81,7 +81,7 @@ void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t
 	uniformBuffers.resize(numSwapChainImages);
 	uniformBuffersMemory.resize(numSwapChainImages);
 	for (size_t i = 0; i < numSwapChainImages; i++) {
-		Common::createBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
+		Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 	}
@@ -90,8 +90,8 @@ void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t
 void GameObject::CleanUpUniformBuffers() {
 	size_t numBuffers = uniformBuffers.size();
 	for (size_t i = 0; i < numBuffers; i++) {
-		vkDestroyBuffer(logicalDeviceManager->getDevice(), uniformBuffers[i], nullptr);
-		vkFreeMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[i], nullptr);
+		vkDestroyBuffer(logicalDeviceManager->GetDevice(), uniformBuffers[i], nullptr);
+		vkFreeMemory(logicalDeviceManager->GetDevice(), uniformBuffersMemory[i], nullptr);
 	}
 	uniformBuffers.clear();
 }
@@ -124,10 +124,10 @@ void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewM
 	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 	void* data;
-	vkMapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[imageIndex], 0,
+	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersMemory[imageIndex], 0,
 		sizeof(ubo), 0, &data);
 	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(logicalDeviceManager->getDevice(), uniformBuffersMemory[imageIndex]);
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersMemory[imageIndex]);
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
@@ -143,7 +143,7 @@ void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
 	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = static_cast<uint32_t>(numSwapChainImages);
 
-	if (vkCreateDescriptorPool(logicalDeviceManager->getDevice(), &poolInfo,
+	if (vkCreateDescriptorPool(logicalDeviceManager->GetDevice(), &poolInfo,
 		nullptr, &descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
@@ -161,7 +161,7 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 	allocInfo.pSetLayouts = layouts.data();
 
 	descriptorSets.resize(numSwapChainImages);
-	if (vkAllocateDescriptorSets(logicalDeviceManager->getDevice(), &allocInfo,
+	if (vkAllocateDescriptorSets(logicalDeviceManager->GetDevice(), &allocInfo,
 		descriptorSets.data()) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to allocate descriptor sets!");
 	}
@@ -194,7 +194,7 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 		descriptorWrites[1].descriptorCount = 1;
 		descriptorWrites[1].pImageInfo = &imageInfo;
 
-		vkUpdateDescriptorSets(logicalDeviceManager->getDevice(), static_cast<uint32_t>(descriptorWrites.size()),
+		vkUpdateDescriptorSets(logicalDeviceManager->GetDevice(), static_cast<uint32_t>(descriptorWrites.size()),
 			descriptorWrites.data(), 0,
 			nullptr);
 	}
@@ -202,7 +202,7 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 
 void GameObject::CleanUpDescriptorPool() {
 	if (descriptorPool != nullptr) {
-		vkDestroyDescriptorPool(logicalDeviceManager->getDevice(), descriptorPool, nullptr);
+		vkDestroyDescriptorPool(logicalDeviceManager->GetDevice(), descriptorPool, nullptr);
 		descriptorPool = nullptr;
 	}
 }

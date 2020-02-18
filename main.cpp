@@ -48,14 +48,14 @@
 class HelloTriangleApplication {
 public:
 	void run() {
-		initWindow();
-		initVulkan();
-		mainLoop();
-		cleanUp();
+		InitWindow();
+		InitVulkan();
+		MainLoop();
+		CleanUp();
 	}
 
-	static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-	static void processInput(GLFWwindow* window, float frameTime);
+	static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+	static void ProcessInput(GLFWwindow* window, float frameTime);
 
 private:
 	GLFWwindow *window;
@@ -117,7 +117,7 @@ private:
 	static float lastX, lastY;
 	static float lastFrameTime;
 
-	void initWindow() {
+	void InitWindow() {
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -125,65 +125,65 @@ private:
 
 		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
-		glfwSetCursorPosCallback(window, mouse_callback);
+		glfwSetCursorPosCallback(window, MouseCallback);
 		// for fps mode we want to capture the mouse
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+		glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 	}
 
-	static void framebufferResizeCallback(GLFWwindow* window, int width,
+	static void FramebufferResizeCallback(GLFWwindow* window, int width,
 		int height) {
 		auto app = reinterpret_cast<HelloTriangleApplication*>
 			(glfwGetWindowUserPointer(window));
 		app->framebufferResized = true;
 	}
 
-	void createInstance() {
+	void CreateInstance() {
 		instance = new VulkanInstance(enableValidationLayers);
 
-		if (!instance->createdSuccesfully()) {
-			std::cout << "Return value: " << instance->getCreationResult() << std::endl;
+		if (!instance->CreatedSuccesfully()) {
+			std::cout << "Return value: " << instance->GetCreationResult() << std::endl;
 			throw std::runtime_error("failed to create instance! ");
 		}
 	}
 
-	void pickPhysicalDevice() {
-		gfxDeviceManager = new GfxDeviceManager(instance->getVkInstance(), surface,
+	void PickPhysicalDevice() {
+		gfxDeviceManager = new GfxDeviceManager(instance->GetVkInstance(), surface,
 			deviceExtensions);
 	}
 
-	void initVulkan() {
-		createInstance();
-		createSurface();
-		pickPhysicalDevice();
-		createLogicalDevice();
-		createDescriptorSetLayout();
-		createCommandPool();
+	void InitVulkan() {
+		CreateInstance();
+		CreateSurface();
+		PickPhysicalDevice();
+		CreateLogicalDevice();
+		CreateDescriptorSetLayout();
+		CreateCommandPool();
 
 		resourceLoader = new ResourceLoader();
 	
-		createGameObjects();
+		CreateGameObjects();
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
-			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
+			resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 			gameObjects);
 
-		createSyncObjects();
+		CreateSyncObjects();
 	}
 
-	void createSurface() {
-		if (glfwCreateWindowSurface(instance->getVkInstance(), window, nullptr, &surface) != VK_SUCCESS) {
+	void CreateSurface() {
+		if (glfwCreateWindowSurface(instance->GetVkInstance(), window, nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
 		}
 	}
 
-	void createLogicalDevice() {
+	void CreateLogicalDevice() {
 		logicalDeviceManager = std::make_shared<LogicalDeviceManager>(gfxDeviceManager,
 			instance, surface, deviceExtensions, enableValidationLayers);
 	}
 
-	void recreateSwapChain() {
+	void RecreateSwapChain() {
 		int width = 0, height = 0;
 		// in case window is minimized; wait for it
 		// to come back up again
@@ -192,16 +192,16 @@ private:
 			glfwWaitEvents();
 		}
 
-		vkDeviceWaitIdle(logicalDeviceManager->getDevice());
+		vkDeviceWaitIdle(logicalDeviceManager->GetDevice());
 
 		delete graphicsEngine;
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, descriptorSetLayout, commandPool,
-			resourceLoader->getTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
+			resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 			gameObjects);
 	}
 
-	void createDescriptorSetLayout() {
+	void CreateDescriptorSetLayout() {
 		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
 		uboLayoutBinding.binding = 0;
 		uboLayoutBinding.descriptorCount = 1;
@@ -223,33 +223,33 @@ private:
 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 		layoutInfo.pBindings = bindings.data();
 
-		if (vkCreateDescriptorSetLayout(logicalDeviceManager->getDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+		if (vkCreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
 	}
 
-	void createCommandPool() {
+	void CreateCommandPool() {
 		GfxDeviceManager::QueueFamilyIndices queueFamilyIndices = gfxDeviceManager->
-			findQueueFamilies(surface);
+			FindQueueFamilies(surface);
 
 		VkCommandPoolCreateInfo poolInfo = {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 		poolInfo.flags = 0;
 
-		if (vkCreateCommandPool(logicalDeviceManager->getDevice(), &poolInfo, nullptr,
+		if (vkCreateCommandPool(logicalDeviceManager->GetDevice(), &poolInfo, nullptr,
 			&commandPool) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create command pool!");
 		}
 	}
 
-	void createGameObjects() {
-		std::shared_ptr<GameObject> houseObj = std::make_shared<GameObject>(resourceLoader->getModel(MODEL_PATH),
+	void CreateGameObjects() {
+		std::shared_ptr<GameObject> houseObj = std::make_shared<GameObject>(resourceLoader->GetModel(MODEL_PATH),
 										gfxDeviceManager, logicalDeviceManager,
 										commandPool);
 		
 		std::shared_ptr<GameObject> cubeObj =
-		std::make_shared<GameObject>(resourceLoader->getModel(CUBE_MODEL_PATH),
+		std::make_shared<GameObject>(resourceLoader->GetModel(CUBE_MODEL_PATH),
 									 gfxDeviceManager, logicalDeviceManager,
 									 commandPool);
 	
@@ -257,7 +257,7 @@ private:
 		gameObjects.push_back(cubeObj);
 	}
 
-	void createSyncObjects() {
+	void CreateSyncObjects() {
 		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -270,20 +270,20 @@ private:
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			if (vkCreateSemaphore(logicalDeviceManager->getDevice(), &semaphoreInfo, nullptr,
+			if (vkCreateSemaphore(logicalDeviceManager->GetDevice(), &semaphoreInfo, nullptr,
 				&imageAvailableSemaphores[i])
 				!= VK_SUCCESS ||
-				vkCreateSemaphore(logicalDeviceManager->getDevice(), &semaphoreInfo, nullptr,
+				vkCreateSemaphore(logicalDeviceManager->GetDevice(), &semaphoreInfo, nullptr,
 				&renderFinishedSemaphores[i])
 				!= VK_SUCCESS ||
-				vkCreateFence(logicalDeviceManager->getDevice(), &fenceInfo, nullptr,
+				vkCreateFence(logicalDeviceManager->GetDevice(), &fenceInfo, nullptr,
 					&inFlightFences[i]) != VK_SUCCESS) {
 				throw std::runtime_error("Failed to create a semaphore for a frame!");
 			}
 		}
 	}
 
-	void mainLoop() {
+	void MainLoop() {
 		lastFrameTime = glfwGetTime();
 		float lastFrameReportTime = lastFrameTime;
 		
@@ -291,12 +291,12 @@ private:
 			float currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
-			HelloTriangleApplication::processInput(window, deltaTime);
+			HelloTriangleApplication::ProcessInput(window, deltaTime);
 			
 			uint32_t imageIndex;
-			if (canAcquireNextPresentableImageIndex(imageIndex)) {
-				updateGameState(deltaTime, imageIndex);
-				drawFrame(imageIndex);
+			if (CanAcquireNextPresentableImageIndex(imageIndex)) {
+				UpdateGameState(deltaTime, imageIndex);
+				DrawFrame(imageIndex);
 			}
 			
 			if ((currentFrameTime - lastFrameReportTime)
@@ -310,18 +310,18 @@ private:
 		}
 
 		// wait for all operations to finish before cleaning up
-		vkDeviceWaitIdle(logicalDeviceManager->getDevice());
+		vkDeviceWaitIdle(logicalDeviceManager->GetDevice());
 	}
 	
-	bool canAcquireNextPresentableImageIndex(uint32_t& imageIndex) {
-		vkWaitForFences(logicalDeviceManager->getDevice(), 1, &inFlightFences[currentFrame], VK_TRUE,
+	bool CanAcquireNextPresentableImageIndex(uint32_t& imageIndex) {
+		vkWaitForFences(logicalDeviceManager->GetDevice(), 1, &inFlightFences[currentFrame], VK_TRUE,
 			std::numeric_limits<uint64_t>::max());
 
-		VkResult result = vkAcquireNextImageKHR(logicalDeviceManager->getDevice(),
-			graphicsEngine->GetSwapChainManager()->getSwapChain(), std::numeric_limits<uint64_t>::max(),
+		VkResult result = vkAcquireNextImageKHR(logicalDeviceManager->GetDevice(),
+			graphicsEngine->GetSwapChainManager()->GetSwapChain(), std::numeric_limits<uint64_t>::max(),
 			imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-			recreateSwapChain();
+			RecreateSwapChain();
 			return false;
 		}
 		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -336,15 +336,15 @@ private:
 	// get model transform
 	// get command buffers per model
 	// wait on those buffers
-	void updateGameState(float deltaTime, uint32_t imageIndex) {
+	void UpdateGameState(float deltaTime, uint32_t imageIndex) {
 		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
 			gameObject->UpdateUniformBuffer(imageIndex,
-											HelloTriangleApplication::mainCamera.constructViewMatrix(),
-											graphicsEngine->GetSwapChainManager()->getSwapChainExtent());
+											HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
+											graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 		}
 	}
 
-	void drawFrame(uint32_t imageIndex) {
+	void DrawFrame(uint32_t imageIndex) {
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -355,15 +355,15 @@ private:
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &(graphicsEngine->GetCommandBufferModule()->getCommandBuffers()[imageIndex]);
+		submitInfo.pCommandBuffers = &(graphicsEngine->GetCommandBufferModule()->GetCommandBuffers()[imageIndex]);
 
 		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		vkResetFences(logicalDeviceManager->getDevice(), 1, &inFlightFences[currentFrame]);
+		vkResetFences(logicalDeviceManager->GetDevice(), 1, &inFlightFences[currentFrame]);
 
-		if (vkQueueSubmit(logicalDeviceManager->getGraphicsQueue(), 1, &submitInfo,
+		if (vkQueueSubmit(logicalDeviceManager->GetGraphicsQueue(), 1, &submitInfo,
 			inFlightFences[currentFrame]) !=
 			VK_SUCCESS) {
 			throw std::runtime_error("Failed to submit draw command buffer!");
@@ -375,19 +375,19 @@ private:
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
-		VkSwapchainKHR swapChains[] = { graphicsEngine->GetSwapChainManager()->getSwapChain() };
+		VkSwapchainKHR swapChains[] = { graphicsEngine->GetSwapChainManager()->GetSwapChain() };
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &imageIndex;
 
 		presentInfo.pResults = nullptr;
 
-		VkResult result = vkQueuePresentKHR(logicalDeviceManager->getPresentQueue(), &presentInfo);
+		VkResult result = vkQueuePresentKHR(logicalDeviceManager->GetPresentQueue(), &presentInfo);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result ==
 			VK_SUBOPTIMAL_KHR || framebufferResized) {
 			framebufferResized = false;
-			recreateSwapChain();
+			RecreateSwapChain();
 		}
 		else if (result != VK_SUCCESS) {
 			throw std::runtime_error("Failed to present swap chain image!");
@@ -396,7 +396,7 @@ private:
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void cleanUp() {
+	void CleanUp() {
 		delete resourceLoader;
 
 		delete graphicsEngine;
@@ -404,18 +404,18 @@ private:
 		// kill game objects before device manager is removed
 		gameObjects.clear();
 
-		vkDestroyDescriptorSetLayout(logicalDeviceManager->getDevice(), descriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(logicalDeviceManager->getDevice(), renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(logicalDeviceManager->getDevice(), imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(logicalDeviceManager->getDevice(), inFlightFences[i], nullptr);
+			vkDestroySemaphore(logicalDeviceManager->GetDevice(), renderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(logicalDeviceManager->GetDevice(), imageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(logicalDeviceManager->GetDevice(), inFlightFences[i], nullptr);
 		}
-		vkDestroyCommandPool(logicalDeviceManager->getDevice(), commandPool, nullptr);
+		vkDestroyCommandPool(logicalDeviceManager->GetDevice(), commandPool, nullptr);
 
 		logicalDeviceManager.reset();
 
-		vkDestroySurfaceKHR(instance->getVkInstance(), surface, nullptr);
+		vkDestroySurfaceKHR(instance->GetVkInstance(), surface, nullptr);
 
 		delete gfxDeviceManager;
 
@@ -435,7 +435,7 @@ float HelloTriangleApplication::lastX = 0.0f;
 float HelloTriangleApplication::lastY = 0.0f;
 float HelloTriangleApplication::lastFrameTime = 0.0f;
 
-void HelloTriangleApplication::mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void HelloTriangleApplication::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
 	{
@@ -451,22 +451,22 @@ void HelloTriangleApplication::mouse_callback(GLFWwindow* window, double xpos, d
 	
 	float currentFrameTime = glfwGetTime();
 	float deltaTime = currentFrameTime - lastFrameTime;
-	HelloTriangleApplication::mainCamera.processMouse(deltaTime*xoffset,
+	HelloTriangleApplication::mainCamera.ProcessMouse(deltaTime*xoffset,
 													  deltaTime*yoffset);
 }
 
-void HelloTriangleApplication::processInput(GLFWwindow* window, float frameTime) {
+void HelloTriangleApplication::ProcessInput(GLFWwindow* window, float frameTime) {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.moveForward(frameTime);
+		HelloTriangleApplication::mainCamera.MoveForward(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.moveBackward(frameTime);
+		HelloTriangleApplication::mainCamera.MoveBackward(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.moveLeft(frameTime);
+		HelloTriangleApplication::mainCamera.MoveLeft(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.moveRight(frameTime);
+		HelloTriangleApplication::mainCamera.MoveRight(frameTime);
 	}
 }
 

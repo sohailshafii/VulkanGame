@@ -9,16 +9,16 @@ public:
 	VulkanInstance(bool enableValidationLayers);
 	~VulkanInstance();
 
-	bool createdSuccesfully() const {
+	bool CreatedSuccesfully() const {
 		return creationResult == VK_SUCCESS;
 	}
 
-	VkResult getCreationResult() const {
+	VkResult GetCreationResult() const {
 		return creationResult;
 	}
 
 	// TODO: return ref?
-	VkInstance& getVkInstance() {
+	VkInstance& GetVkInstance() {
 		return vkInstance;
 	}
 
@@ -37,17 +37,17 @@ public:
 	};
 
 private:
-	bool checkValidationLayerSupport();
-	std::vector<const char*> getRequiredExtensions(bool enableValidationLayers);
-	void setupDebugMessenger(bool enableValidationLayers);
+	bool CheckValidationLayerSupport();
+	std::vector<const char*> GetRequiredExtensions(bool enableValidationLayers);
+	void SetupDebugMessenger(bool enableValidationLayers);
 
-	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&
+	void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&
 		createInfo);
-	VkResult createDebugUtilsMessengerEXT(VkInstance instance,
+	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 		const VkAllocationCallbacks* pAllocator,
 		VkDebugUtilsMessengerEXT* pDebugMessenger);
-	void destroyDebugUtilsMessengerEXT(VkInstance instance,
+	void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 		VkDebugUtilsMessengerEXT debugMessenger,
 		const VkAllocationCallbacks* pAllocator);
 

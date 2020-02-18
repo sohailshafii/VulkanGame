@@ -15,30 +15,30 @@ public:
 		VkCommandPool commandPool);
 	~ImageTextureLoader();
 
-	VkDeviceMemory getTextureImageMemory() {
+	VkDeviceMemory GetTextureImageMemory() {
 		return textureImageMemory;
 	}
 
-	VkImageView getTextureImageView() {
+	VkImageView GetTextureImageView() {
 		return textureImageView;
 	}
 
-	VkSampler getTextureImageSampler() {
+	VkSampler GetTextureImageSampler() {
 		return textureSampler;
 	}
 
 private:
-	void createTextureImage(const std::string& path,
+	void CreateTextureImage(const std::string& path,
 		GfxDeviceManager* gfxDeviceManager,
 		VkCommandPool commandPool);
-	void generateMipmaps(GfxDeviceManager* gfxDeviceManager,
+	void GenerateMipmaps(GfxDeviceManager* gfxDeviceManager,
 		VkCommandPool commandPool, VkImage image, VkFormat imageFormat,
 		uint32_t texWidth, uint32_t texHeight, uint32_t mipLevel);
-	void copyBufferToImage(VkCommandPool commandPool, VkBuffer buffer,
+	void CopyBufferToImage(VkCommandPool commandPool, VkBuffer buffer,
 		VkImage image, uint32_t width, uint32_t height);
 
-	void createTextureImageView();
-	void createTextureSampler();
+	void CreateTextureImageView();
+	void CreateTextureSampler();
 
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	uint32_t mipLevels;

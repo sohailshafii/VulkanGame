@@ -6,30 +6,30 @@ Camera::Camera(const glm::vec3& position,
 	float mouseSensitivity) : position(position),
 	forward(forwardVector), worldUp(upVector), yaw(yaw), pitch(pitch),
 	movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity) {
-	updateCoordinateSystem();
+	UpdateCoordinateSystem();
 }
 
-glm::mat4 Camera::constructViewMatrix() const {
+glm::mat4 Camera::ConstructViewMatrix() const {
 	return glm::lookAt(position, position + forward, up);
 }
 
-void Camera::moveForward(float deltaTime) {
+void Camera::MoveForward(float deltaTime) {
 	position += forward * movementSpeed * deltaTime;
 }
 
-void Camera::moveBackward(float deltaTime) {
+void Camera::MoveBackward(float deltaTime) {
 	position -= forward * movementSpeed * deltaTime;
 }
 
-void Camera::moveRight(float deltaTime) {
+void Camera::MoveRight(float deltaTime) {
 	position += right * movementSpeed * deltaTime;
 }
 
-void Camera::moveLeft(float deltaTime) {
+void Camera::MoveLeft(float deltaTime) {
 	position -= right * movementSpeed * deltaTime;
 }
 
-void Camera::processMouse(float mouseXMovement, float mouseYMovement) {
+void Camera::ProcessMouse(float mouseXMovement, float mouseYMovement) {
 	mouseXMovement *= mouseSensitivity;
 	mouseYMovement *= mouseSensitivity;
 
@@ -43,10 +43,10 @@ void Camera::processMouse(float mouseXMovement, float mouseYMovement) {
 		pitch = -89.0f;
 	}
 
-	updateCoordinateSystem();
+	UpdateCoordinateSystem();
 }
 
-void Camera::updateCoordinateSystem() {
+void Camera::UpdateCoordinateSystem() {
 	glm::vec3 newForward;
 	newForward.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	newForward.y = sin(glm::radians(pitch));
