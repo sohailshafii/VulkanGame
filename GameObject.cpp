@@ -115,9 +115,7 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages,
 void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
 									 VkExtent2D swapChainExtent) {
 	UniformBufferObject ubo = {};
-	ubo.model = glm::rotate(glm::mat4(1.0f),
-		glm::radians(-90.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f));
+	ubo.model = modelMatrix;
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
 		(float)swapChainExtent.height, 0.1f, 10.0f);

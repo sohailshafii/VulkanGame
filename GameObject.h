@@ -26,11 +26,11 @@ public:
 	}
 	
 	glm::mat4 GetModelTransform() const {
-		return model;
+		return modelMatrix;
 	}
 	
 	void SetModelTransform(const glm::mat4& model) {
-		this->model = model;
+		this->modelMatrix = model;
 	}
 	
 	VkBuffer GetVertexBuffer() const {
@@ -68,7 +68,7 @@ private:
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 	
-	glm::mat4 model;
+	glm::mat4 modelMatrix;
 	
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	
