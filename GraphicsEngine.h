@@ -19,10 +19,10 @@ class ResourceLoader;
 class GraphicsEngine {
 public:
 	GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
-		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
-		ResourceLoader* resourceLoader, VkSurfaceKHR surface,
-		GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-		VkCommandPool commandPool, std::shared_ptr<ImageTextureLoader> imageTexture, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+				   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+				   ResourceLoader *resourceLoader, VkSurfaceKHR surface,
+				   GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
+				   VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	~GraphicsEngine();
 
@@ -68,7 +68,6 @@ private:
 							  std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	void CreateDescriptorPoolAndSets(VkDescriptorSetLayout descriptorSetLayout,
-									 VkImageView textureImageView, VkSampler textureSampler,
 									 std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateCommandBuffers(VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 };

@@ -9,14 +9,17 @@ class Model;
 struct Vertex;
 class GfxDeviceManager;
 class LogicalDeviceManager;
+class ImageTextureLoader;
 
 // game object with its own transform
 // class will grow over time to include other relevant meta data
 class GameObject {
 public:
+	// TODO: verify usage of shared_ptr -- should it be referenced here?
 	GameObject(std::shared_ptr<Model> model,
 			   GfxDeviceManager *gfxDeviceManager,
 			   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+			   std::shared_ptr<ImageTextureLoader> textureLoader,
 			   VkCommandPool commandPool);
 	
 	~GameObject();
@@ -55,14 +58,15 @@ public:
 								size_t numSwapChainImages);
 	
 	void CreateDescriptorPoolAndSets(size_t numSwapChainImages,
-									 VkDescriptorSetLayout descriptorSetLayout,
-									 VkImageView textureImageView, VkSampler textureSampler);
+									 VkDescriptorSetLayout descriptorSetLayout);
 	
 	void UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
 							 VkExtent2D swapChainExtent);
 	
 private:
 	std::shared_ptr<Model> objModel;
+	std::shared_ptr<ImageTextureLoader> textureLoader;
+	
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
@@ -91,7 +95,6 @@ private:
 	
 	void CreateDescriptorPool(size_t numSwapChainImages);
 	void CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
-							  VkImageView textureImageView, VkSampler textureSampler,
 							  size_t numSwapChainImages);
 	void CleanUpDescriptorPool();
 	

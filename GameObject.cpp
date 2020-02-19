@@ -4,12 +4,15 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "Common.h"
+#include "ImageTextureLoader.h"
 
 GameObject::GameObject(std::shared_ptr<Model> model,
 					   GfxDeviceManager *gfxDeviceManager,
 					   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+					   std::shared_ptr<ImageTextureLoader> textureLoader,
 					   VkCommandPool commandPool) :
-	objModel(model), logicalDeviceManager(logicalDeviceManager), descriptorPool(nullptr) {
+	objModel(model), textureLoader(textureLoader), logicalDeviceManager(logicalDeviceManager),
+	descriptorPool(nullptr) {
 	CreateVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
@@ -25,7 +28,7 @@ void GameObject::CreateVertexBuffer(const std::vector<Vertex>& vertices,
 		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-	void*data;
+	void *data;
 	vkMapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, vertices.data(), (size_t)bufferSize);
 	vkUnmapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory);
@@ -103,12 +106,10 @@ void GameObject::CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
 }
 
 void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages,
-								 VkDescriptorSetLayout descriptorSetLayout,
-								 VkImageView textureImageView, VkSampler textureSampler) {
+								 VkDescriptorSetLayout descriptorSetLayout) {
 	CleanUpDescriptorPool();
 	CreateDescriptorPool(numSwapChainImages);
-	CreateDescriptorSets(descriptorSetLayout, textureImageView, textureSampler,
-						 numSwapChainImages);
+	CreateDescriptorSets(descriptorSetLayout, numSwapChainImages);
 }
 
 // TODO: use push constants, more efficient
@@ -148,7 +149,6 @@ void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
 }
 
 void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
-	VkImageView textureImageView, VkSampler textureSampler,
 	size_t numSwapChainImages) {
 	std::vector<VkDescriptorSetLayout> layouts(numSwapChainImages,
 		descriptorSetLayout);
@@ -172,8 +172,8 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = textureImageView;
-		imageInfo.sampler = textureSampler;
+		imageInfo.imageView = textureLoader->GetTextureImageView();
+		imageInfo.sampler = textureLoader->GetTextureImageSampler();
 
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
