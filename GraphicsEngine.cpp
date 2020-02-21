@@ -56,9 +56,13 @@ void GraphicsEngine::CleanUpSwapChain() {
 		delete commandBufferModule;
 	}
 
-	if (graphicsPipelineModule != nullptr) {
-		delete graphicsPipelineModule;
+	for(auto graphicsPipelineModule : graphicsPipelineModules) {
+		if (graphicsPipelineModule != nullptr) {
+			delete graphicsPipelineModule;
+		}
 	}
+	graphicsPipelineModules.clear();
+	
 	if (renderPassModule != nullptr) {
 		delete renderPassModule;
 	}
@@ -86,10 +90,10 @@ void GraphicsEngine::CreateRenderPassModule(GfxDeviceManager* gfxDeviceManager) 
 
 void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout) {
-	graphicsPipelineModule = new PipelineModule("UnlitTintedTexturedVert.spv",
+	graphicsPipelineModules.push_back(new PipelineModule("UnlitTintedTexturedVert.spv",
 		"UnlitTintedTexturedFrag.spv", logicalDeviceManager->GetDevice(),
 		swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
-		resourceLoader, descriptorSetLayout, renderPassModule->GetRenderPass());
+		resourceLoader, descriptorSetLayout, renderPassModule->GetRenderPass()));
 }
 
 void GraphicsEngine::CreateColorResources(GfxDeviceManager* gfxDeviceManager,
@@ -208,8 +212,9 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
 			VK_SUBPASS_CONTENTS_INLINE);
 
+		// TODO: bind graphics pipeline to specific game objects
 		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-			graphicsPipelineModule->GetPipeline());
+			graphicsPipelineModules[0]->GetPipeline());
 
 		for (const auto& gameObject : gameObjects) {
 			// bind our vertex buffers
@@ -220,7 +225,7 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 			vkCmdBindIndexBuffer(commandBuffers[i], gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-									graphicsPipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(i), 0, nullptr);
+									graphicsPipelineModules[0]->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(i), 0, nullptr);
 			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
 							 1, 0, 0, 0);
 		}

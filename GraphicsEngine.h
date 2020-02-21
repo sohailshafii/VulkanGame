@@ -28,7 +28,7 @@ public:
 
 	SwapChainManager* GetSwapChainManager() { return swapChainManager; }
 	RenderPassModule* GetRenderPassModule() { return renderPassModule; }
-	PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
+	//PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
 	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
 
 private:
@@ -37,7 +37,7 @@ private:
 
 	SwapChainManager* swapChainManager;
 	RenderPassModule* renderPassModule;
-	PipelineModule* graphicsPipelineModule;
+	std::vector<PipelineModule*> graphicsPipelineModules;
 
 	VkImage colorImage;
 	VkDeviceMemory colorImageMemory;
