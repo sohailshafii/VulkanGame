@@ -8,8 +8,8 @@ class ResourceLoader;
 
 class PipelineModule {
 public:
-	PipelineModule(const std::string& vertShaderPath,
-		const std::string& fragShaderPath, VkDevice device,
+	PipelineModule(const std::string& vertShaderName,
+		const std::string& fragShaderName, VkDevice device,
 		VkExtent2D swapChainExtent, GfxDeviceManager *gfxDeviceManager,
 		ResourceLoader *resourceLoader,
 		VkDescriptorSetLayout descriptorSetLayout,

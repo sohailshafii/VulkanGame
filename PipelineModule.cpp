@@ -4,8 +4,8 @@
 #include "Common.h"
 #include "Vertex.h"
 
-PipelineModule::PipelineModule(const std::string& vertShaderPath,
-	const std::string& fragShaderPath, VkDevice device,
+PipelineModule::PipelineModule(const std::string& vertShaderName,
+	const std::string& fragShaderName, VkDevice device,
 	VkExtent2D swapChainExtent, GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader,
 	VkDescriptorSetLayout descriptorSetLayout,
@@ -15,14 +15,14 @@ PipelineModule::PipelineModule(const std::string& vertShaderPath,
 	// on Windows
 #if __APPLE__
 	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->GetShader(
-	"../../shaders/vert.spv", device);
+	"../../shaders/" + vertShaderName, device);
 std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
-	"../../shaders/frag.spv", device);
+	"../../shaders/" + fragShaderName, device);
 #else
 	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->getShader(
-		"../shaders/vert.spv", device);
+		"../shaders/" + vertShaderName, device);
 	std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
-		"../shaders/frag.spv", device);
+		"../shaders/" + fragShaderName, device);
 
 #endif
 	

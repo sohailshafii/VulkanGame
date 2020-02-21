@@ -1,3 +1,3 @@
-glslc.exe ./triangle.vert -o ./vert.spv
-glslc.exe ./triangle.frag -o ./frag.spv
+glslc.exe ./UnlitTintedTextured.vert -o ./UnlitTintedTexturedVert.spv
+glslc.exe ./UnlitTintedTextured.frag -o ./UnlitTintedTexturedFrag.spv
 pause

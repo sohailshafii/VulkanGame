@@ -24,7 +24,8 @@ std::vector<char> ShaderLoader::ReadFile(const std::string& path) {
 	std::ifstream file(path, std::ios::ate | std::ios::binary);
 
 	if (!file.is_open()) {
-		throw std::runtime_error("Failed to open shader file!");
+		throw std::runtime_error("Failed to open shader file: " +
+								 path + "!");
 	}
 
 	size_t fileSize = (size_t)file.tellg();

@@ -86,8 +86,8 @@ void GraphicsEngine::CreateRenderPassModule(GfxDeviceManager* gfxDeviceManager) 
 
 void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout) {
-	graphicsPipelineModule = new PipelineModule("shaders/vert.spv",
-		"shaders/frag.spv", logicalDeviceManager->GetDevice(),
+	graphicsPipelineModule = new PipelineModule("UnlitTintedTexturedVert.spv",
+		"UnlitTintedTexturedFrag.spv", logicalDeviceManager->GetDevice(),
 		swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
 		resourceLoader, descriptorSetLayout, renderPassModule->GetRenderPass());
 }
