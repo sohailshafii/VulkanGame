@@ -10,8 +10,11 @@ GameObject::GameObject(std::shared_ptr<Model> model,
 					   GfxDeviceManager *gfxDeviceManager,
 					   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 					   std::shared_ptr<ImageTextureLoader> textureLoader,
+					   const std::string& vertexShaderName,
+					   const std::string& fragmentShaderName,
 					   VkCommandPool commandPool) :
-	objModel(model), textureLoader(textureLoader), logicalDeviceManager(logicalDeviceManager),
+	objModel(model), textureLoader(textureLoader), vertexShaderName(vertexShaderName),
+	fragmentShaderName(fragmentShaderName), logicalDeviceManager(logicalDeviceManager),
 	descriptorPool(nullptr) {
 	CreateVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);

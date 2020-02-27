@@ -53,7 +53,8 @@ private:
 
 	void CleanUpSwapChain();
 	void CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout);
+		ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout,
+		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
 		VkSurfaceKHR surface, GLFWwindow* window);
 	void CreateSwapChainImageViews();
