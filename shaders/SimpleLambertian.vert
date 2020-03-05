@@ -23,7 +23,7 @@ void main() {
 	fragColor = inColor;
 	fragTexCoord = inTexCoord;
 	
-    worldPos = vec3(ubo.model * vec4(aPos, 1.0));
-	worldNormal = mat3(ubo.model) * aNormal;
+    worldPos = vec3(ubo.model * vec4(inPosition, 1.0));
+	worldNormal = mat3(ubo.model) * inNormal;
 }
 
