@@ -245,6 +245,8 @@ private:
 		std::shared_ptr<GameObject> houseObj = std::make_shared<GameObject>(resourceLoader->GetModel(MODEL_PATH),
 										gfxDeviceManager, logicalDeviceManager,
 										resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
+										"UnlitTintedTexturedVert.spv",
+										"UnlitTintedTexturedFrag.spv",
 										commandPool);
 		glm::mat4 rotateAroundX = glm::rotate(glm::mat4(1.0f),
 											glm::radians(-90.0f),
@@ -255,6 +257,8 @@ private:
 		std::make_shared<GameObject>(resourceLoader->GetModel(CUBE_MODEL_PATH),
 									 gfxDeviceManager, logicalDeviceManager,
 									 resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
+									 "UnlitTintedTexturedVert.spv",
+									 "UnlitTintedTexturedFrag.spv",
 									 commandPool);
 		
 		glm::mat4 translateInZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
