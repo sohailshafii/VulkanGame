@@ -24,7 +24,8 @@ public:
 			   std::shared_ptr<ImageTextureLoader> textureLoader,
 			   const std::string& vertexShaderName,
 			   const std::string& fragmentShaderName,
-			   VkCommandPool commandPool);
+			   VkCommandPool commandPool,
+			   VkDescriptorSetLayout descriptorSetLayout);
 	
 	~GameObject();
 	
@@ -66,11 +67,14 @@ public:
 		return &descriptorSets[index];
 	}
 	
+	VkDescriptorSetLayout GetDescriptorSetLayout() const {
+		return descriptorSetLayout;
+	}
+	
 	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
 								size_t numSwapChainImages);
 	
-	void CreateDescriptorPoolAndSets(size_t numSwapChainImages,
-									 VkDescriptorSetLayout descriptorSetLayout);
+	void CreateDescriptorPoolAndSets(size_t numSwapChainImages);
 	
 	void UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
 							 VkExtent2D swapChainExtent);
@@ -94,6 +98,7 @@ private:
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	
 	VkDescriptorPool descriptorPool;
+	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkDescriptorSet> descriptorSets;
 	
 	void CreateVertexBuffer(const std::vector<Vertex>& vertices,

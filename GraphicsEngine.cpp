@@ -15,22 +15,21 @@
 GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 	ResourceLoader *resourceLoader, VkSurfaceKHR surface,
-	GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-	VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	GLFWwindow* window, VkCommandPool commandPool,
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	this->logicalDeviceManager = logicalDeviceManager;
 	CreateSwapChain(gfxDeviceManager, surface,
 		window);
 	CreateSwapChainImageViews();
 	CreateRenderPassModule(gfxDeviceManager);
-	CreateGraphicsPipeline(gfxDeviceManager, resourceLoader, descriptorSetLayout,
-						   gameObjects);
+	CreateGraphicsPipeline(gfxDeviceManager, resourceLoader, gameObjects);
 
 	CreateColorResources(gfxDeviceManager, commandPool); // 5
 	CreateDepthResources(gfxDeviceManager, commandPool); // 6
 	CreateFramebuffers(); // 7
 	CreateUniformBuffers(gfxDeviceManager, gameObjects); // 8
 	
-	CreateDescriptorPoolAndSets(descriptorSetLayout, gameObjects);
+	CreateDescriptorPoolAndSets(gameObjects);
 	CreateCommandBuffers(commandPool, gameObjects);
 }
 
@@ -90,13 +89,12 @@ void GraphicsEngine::CreateRenderPassModule(GfxDeviceManager* gfxDeviceManager) 
 }
 
 void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-	ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout,
-	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	for(auto& gameObject : gameObjects) {
 		graphicsPipelineModules.push_back(new PipelineModule(gameObject->GetVertexShaderName(),
 															 gameObject->GetFragmentShaderName(), logicalDeviceManager->GetDevice(),
 															 swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
-															 resourceLoader, descriptorSetLayout, renderPassModule->GetRenderPass()));
+															 resourceLoader, gameObject->GetDescriptorSetLayout(), renderPassModule->GetRenderPass()));
 	}
 }
 
@@ -169,12 +167,12 @@ void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 	}
 }
 
-void GraphicsEngine::CreateDescriptorPoolAndSets(VkDescriptorSetLayout descriptorSetLayout,
-								 std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+void GraphicsEngine::CreateDescriptorPoolAndSets(std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
-		gameObject->CreateDescriptorPoolAndSets(numSwapChainImages, descriptorSetLayout);
+		// TODO: make descriptor set more configurable
+		gameObject->CreateDescriptorPoolAndSets(numSwapChainImages);
 	}
 }
 

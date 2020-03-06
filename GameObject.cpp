@@ -12,10 +12,11 @@ GameObject::GameObject(std::shared_ptr<Model> model,
 					   std::shared_ptr<ImageTextureLoader> textureLoader,
 					   const std::string& vertexShaderName,
 					   const std::string& fragmentShaderName,
-					   VkCommandPool commandPool) :
+					   VkCommandPool commandPool,
+					   VkDescriptorSetLayout descriptorSetLayout) :
 	objModel(model), textureLoader(textureLoader), vertexShaderName(vertexShaderName),
 	fragmentShaderName(fragmentShaderName), logicalDeviceManager(logicalDeviceManager),
-	descriptorPool(nullptr) {
+	descriptorPool(nullptr), descriptorSetLayout(descriptorSetLayout) {
 	CreateVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
@@ -51,6 +52,7 @@ GameObject::~GameObject() {
 	vkFreeMemory(logicalDeviceManager->GetDevice(), indexBufferMemory, nullptr);
 	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexBuffer, nullptr);
 	vkFreeMemory(logicalDeviceManager->GetDevice(), vertexBufferMemory, nullptr);
+	vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
 	CleanUpUniformBuffers();
 	CleanUpDescriptorPool();
 }
@@ -108,8 +110,7 @@ void GameObject::CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
 	CreateUniformBuffers(gfxDeviceManager, numSwapChainImages);
 }
 
-void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages,
-								 VkDescriptorSetLayout descriptorSetLayout) {
+void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 	CleanUpDescriptorPool();
 	CreateDescriptorPool(numSwapChainImages);
 	CreateDescriptorSets(descriptorSetLayout, numSwapChainImages);

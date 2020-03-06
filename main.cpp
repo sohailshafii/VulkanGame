@@ -44,6 +44,7 @@
 #include "Camera.h"
 
 #include "GameObject.h"
+#include "DescriptorSetFunctions.h"
 
 class HelloTriangleApplication {
 public:
@@ -89,8 +90,6 @@ private:
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 
 	VkSurfaceKHR surface;
-
-	VkDescriptorSetLayout descriptorSetLayout;
 
 	GraphicsEngine* graphicsEngine;
 
@@ -157,7 +156,6 @@ private:
 		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
-		CreateDescriptorSetLayout();
 		CreateCommandPool();
 
 		resourceLoader = new ResourceLoader();
@@ -165,8 +163,7 @@ private:
 		CreateGameObjects();
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-			resourceLoader, surface, window, descriptorSetLayout, commandPool,
-			gameObjects);
+			resourceLoader, surface, window, commandPool, gameObjects);
 
 		CreateSyncObjects();
 	}
@@ -195,35 +192,7 @@ private:
 
 		delete graphicsEngine;
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-			resourceLoader, surface, window, descriptorSetLayout, commandPool,
-			gameObjects);
-	}
-
-	void CreateDescriptorSetLayout() {
-		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings
-			= { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-		layoutInfo.pBindings = bindings.data();
-
-		if (vkCreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create descriptor set layout!");
-		}
+			resourceLoader, surface, window, commandPool, gameObjects);
 	}
 
 	void CreateCommandPool() {
@@ -247,7 +216,7 @@ private:
 										resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 										"UnlitTintedTexturedVert.spv",
 										"UnlitTintedTexturedFrag.spv",
-										commandPool);
+										commandPool, DescriptorSetFunctions::CreateUnlitTintedTexturedDescriptorSetLayout(logicalDeviceManager->GetDevice()));
 		glm::mat4 rotateAroundX = glm::rotate(glm::mat4(1.0f),
 											glm::radians(-90.0f),
 											glm::vec3(1.0f, 0.0f, 0.0f));
@@ -259,7 +228,8 @@ private:
 									 resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 									 "UnlitTintedTexturedVert.spv",
 									 "UnlitTintedTexturedFrag.spv",
-									 commandPool);
+									 commandPool,
+									 DescriptorSetFunctions::CreateUnlitTintedTexturedDescriptorSetLayout(logicalDeviceManager->GetDevice()));
 		
 		glm::mat4 translateInZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
 		cubeObj->SetModelTransform(translateInZ);
@@ -267,7 +237,7 @@ private:
 		gameObjects.push_back(houseObj);
 		gameObjects.push_back(cubeObj);
 	}
-
+	
 	void CreateSyncObjects() {
 		imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -414,8 +384,6 @@ private:
 		
 		// kill game objects before device manager is removed
 		gameObjects.clear();
-
-		vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(logicalDeviceManager->GetDevice(), renderFinishedSemaphores[i], nullptr);

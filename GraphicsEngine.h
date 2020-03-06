@@ -21,8 +21,8 @@ public:
 	GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 				   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 				   ResourceLoader *resourceLoader, VkSurfaceKHR surface,
-				   GLFWwindow* window, VkDescriptorSetLayout descriptorSetLayout,
-				   VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+				   GLFWwindow* window, VkCommandPool commandPool,
+				   std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	~GraphicsEngine();
 
@@ -53,8 +53,7 @@ private:
 
 	void CleanUpSwapChain();
 	void CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, VkDescriptorSetLayout descriptorSetLayout,
-		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+		ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
 		VkSurfaceKHR surface, GLFWwindow* window);
 	void CreateSwapChainImageViews();
@@ -68,7 +67,6 @@ private:
 	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 							  std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
-	void CreateDescriptorPoolAndSets(VkDescriptorSetLayout descriptorSetLayout,
-									 std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void CreateDescriptorPoolAndSets(std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateCommandBuffers(VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 };
