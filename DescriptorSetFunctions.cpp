@@ -2,6 +2,38 @@
 #include <array>
 #include <stdexcept>
 
+VkDescriptorSetLayout DescriptorSetFunctions::CreateDescriptorSetLayout(VkDevice device,
+												MaterialType materialType) {
+	VkDescriptorSetLayout descriptorSetLayout = nullptr;
+	switch (materialType) {
+		case MaterialType::UnlitTintedTextured:
+			descriptorSetLayout = CreateUnlitTintedTexturedDescriptorSetLayout(device);
+			break;
+		case MaterialType::SimpleLambertian:
+			// TODO
+			break;
+	}
+	return descriptorSetLayout;
+}
+
+void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
+												 MaterialType materialType,
+												 VkDescriptorSet descriptorSet,
+												 VkImageView textureImageView,
+												 VkSampler textureSampler,
+												 VkDescriptorBufferInfo* bufferInfo) {
+	switch (materialType) {
+		case MaterialType::UnlitTintedTextured:
+			UpdateDescriptorSetUnlitTintedTextured(device, descriptorSet,
+												   textureImageView, textureSampler,
+												   bufferInfo);
+			break;
+		case MaterialType::SimpleLambertian:
+			// TODO
+			break;
+	}
+}
+
 VkDescriptorSetLayout DescriptorSetFunctions::CreateUnlitTintedTexturedDescriptorSetLayout(VkDevice device)
 {
 	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
@@ -32,4 +64,37 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateUnlitTintedTexturedDescripto
 		throw std::runtime_error("Failed to create descriptor set layout!");
 	}
 	return descriptorSetLayout;
+}
+
+void DescriptorSetFunctions::UpdateDescriptorSetUnlitTintedTextured(VkDevice device,
+											VkDescriptorSet descriptorSet,
+											VkImageView textureImageView,
+											VkSampler textureSampler,
+											VkDescriptorBufferInfo* bufferInfo)
+{
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = textureImageView;
+	imageInfo.sampler = textureSampler;
+
+	std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[0].dstSet = descriptorSet;
+	descriptorWrites[0].dstBinding = 0;
+	descriptorWrites[0].dstArrayElement = 0;
+	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[0].descriptorCount = 1;
+	descriptorWrites[0].pBufferInfo = bufferInfo;
+
+	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[1].dstSet = descriptorSet;
+	descriptorWrites[1].dstBinding = 1;
+	descriptorWrites[1].dstArrayElement = 0;
+	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descriptorWrites[1].descriptorCount = 1;
+	descriptorWrites[1].pImageInfo = &imageInfo;
+
+	vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()),
+		descriptorWrites.data(), 0,
+		nullptr);
 }

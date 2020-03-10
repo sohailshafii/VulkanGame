@@ -5,6 +5,7 @@
 #include <string>
 #include "vulkan/vulkan.h"
 #include <glm/glm.hpp>
+#include "DescriptorSetFunctions.h"
 
 class Model;
 struct Vertex;
@@ -25,7 +26,7 @@ public:
 			   const std::string& vertexShaderName,
 			   const std::string& fragmentShaderName,
 			   VkCommandPool commandPool,
-			   VkDescriptorSetLayout descriptorSetLayout);
+			   DescriptorSetFunctions::MaterialType materialType);
 	
 	~GameObject();
 	
@@ -98,6 +99,7 @@ private:
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	
 	VkDescriptorPool descriptorPool;
+	DescriptorSetFunctions::MaterialType materialType;
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkDescriptorSet> descriptorSets;
 	

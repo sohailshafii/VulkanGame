@@ -13,10 +13,11 @@ GameObject::GameObject(std::shared_ptr<Model> model,
 					   const std::string& vertexShaderName,
 					   const std::string& fragmentShaderName,
 					   VkCommandPool commandPool,
-					   VkDescriptorSetLayout descriptorSetLayout) :
+					   DescriptorSetFunctions::MaterialType materialType) :
 	objModel(model), textureLoader(textureLoader), vertexShaderName(vertexShaderName),
 	fragmentShaderName(fragmentShaderName), logicalDeviceManager(logicalDeviceManager),
-	descriptorPool(nullptr), descriptorSetLayout(descriptorSetLayout) {
+	descriptorPool(nullptr), materialType(materialType) {
+		descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
 	CreateVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
@@ -117,6 +118,8 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 }
 
 // TODO: use push constants, more efficient
+// this assumes every shader has the same type of uniform buffer for
+// transformations
 void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
 									 VkExtent2D swapChainExtent) {
 	UniformBufferObject ubo = {};
@@ -174,31 +177,12 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
-		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = textureLoader->GetTextureImageView();
-		imageInfo.sampler = textureLoader->GetTextureImageSampler();
-
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = descriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
-
-		vkUpdateDescriptorSets(logicalDeviceManager->GetDevice(), static_cast<uint32_t>(descriptorWrites.size()),
-			descriptorWrites.data(), 0,
-			nullptr);
+		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
+													materialType,
+													descriptorSets[i],
+													textureLoader->GetTextureImageView(),
+													textureLoader->GetTextureImageSampler(),
+													&bufferInfo);
 	}
 }
 

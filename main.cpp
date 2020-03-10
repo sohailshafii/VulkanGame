@@ -216,7 +216,7 @@ private:
 										resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 										"UnlitTintedTexturedVert.spv",
 										"UnlitTintedTexturedFrag.spv",
-										commandPool, DescriptorSetFunctions::CreateUnlitTintedTexturedDescriptorSetLayout(logicalDeviceManager->GetDevice()));
+										commandPool, DescriptorSetFunctions::MaterialType::UnlitTintedTextured);
 		glm::mat4 rotateAroundX = glm::rotate(glm::mat4(1.0f),
 											glm::radians(-90.0f),
 											glm::vec3(1.0f, 0.0f, 0.0f));
@@ -229,7 +229,7 @@ private:
 									 "UnlitTintedTexturedVert.spv",
 									 "UnlitTintedTexturedFrag.spv",
 									 commandPool,
-									 DescriptorSetFunctions::CreateUnlitTintedTexturedDescriptorSetLayout(logicalDeviceManager->GetDevice()));
+									 DescriptorSetFunctions::MaterialType::UnlitTintedTextured);
 		
 		glm::mat4 translateInZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
 		cubeObj->SetModelTransform(translateInZ);
