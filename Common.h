@@ -46,11 +46,5 @@ public:
 	static void CopyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 };
 
-// we have to make sure everything is aligned properly
-// so make sure their offsets are properly divisible
-struct UniformBufferObject {
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
-};
+
 

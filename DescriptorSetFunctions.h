@@ -1,6 +1,15 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
+
+// we have to make sure everything is aligned properly
+// so make sure their offsets are properly divisible
+struct UniformBufferObject {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
+};
 
 // Defines descriptor sets for different, pre-defined materials
 class DescriptorSetFunctions
