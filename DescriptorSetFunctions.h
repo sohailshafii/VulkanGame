@@ -5,10 +5,14 @@
 
 // we have to make sure everything is aligned properly
 // so make sure their offsets are properly divisible
-struct UniformBufferObject {
+struct UniformBufferObjectVert {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+};
+
+struct UniformBufferObjectLighting {
+	alignas(16) glm::vec3 lightPosition;
 };
 
 // Defines descriptor sets for different, pre-defined materials

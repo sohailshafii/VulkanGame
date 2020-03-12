@@ -85,12 +85,13 @@ void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,
 }
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	VkDeviceSize bufferSizeVert = sizeof(UniformBufferObjectVert);
+	VkDeviceSize bufferSizeLighting = sizeof(UniformBufferObjectLighting);
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
-		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSize));
+		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSizeVert));
 		// TODO: fix frag
-		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSize));
+		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSizeLighting));
 	}
 }
 
@@ -125,7 +126,7 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 // transformations
 void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
 									 VkExtent2D swapChainExtent) {
-	UniformBufferObject ubo = {};
+	UniformBufferObjectVert ubo = {};
 	ubo.model = modelMatrix;
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
@@ -178,12 +179,12 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 		VkDescriptorBufferInfo bufferInfoVert = {};
 		bufferInfoVert.buffer = uniformBuffersVert[i]->GetUniformBuffer();
 		bufferInfoVert.offset = 0;
-		bufferInfoVert.range = sizeof(UniformBufferObject);
+		bufferInfoVert.range = sizeof(UniformBufferObjectVert);
 		
 		VkDescriptorBufferInfo bufferInfoFrag = {};
 		bufferInfoFrag.buffer = uniformBuffersVert[i]->GetUniformBuffer();
 		bufferInfoFrag.offset = 0;
-		bufferInfoFrag.range = sizeof(UniformBufferObject); // TODO: fix
+		bufferInfoFrag.range = sizeof(UniformBufferObjectLighting); // TODO: fix
 
 		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
 													materialType,
