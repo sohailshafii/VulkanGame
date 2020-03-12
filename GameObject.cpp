@@ -87,22 +87,25 @@ void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
 	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 	
-	uniformBuffers.resize(numSwapChainImages);
-	uniformBuffersMemory.resize(numSwapChainImages);
 	for (size_t i = 0; i < numSwapChainImages; i++) {
-		Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSize));
+		// TODO: fix frag
+		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSize));
 	}
 }
 
 void GameObject::CleanUpUniformBuffers() {
-	size_t numBuffers = uniformBuffers.size();
-	for (size_t i = 0; i < numBuffers; i++) {
-		vkDestroyBuffer(logicalDeviceManager->GetDevice(), uniformBuffers[i], nullptr);
-		vkFreeMemory(logicalDeviceManager->GetDevice(), uniformBuffersMemory[i], nullptr);
+	size_t numBuffers = uniformBuffersVert.size();
+	
+	for (size_t bufferIndex = 0; bufferIndex < numBuffers;
+		 bufferIndex++)
+	{
+		delete uniformBuffersVert[bufferIndex];
+		delete uniformBuffersFrag[bufferIndex];
 	}
-	uniformBuffers.clear();
+	
+	uniformBuffersVert.clear();
+	uniformBuffersFrag.clear();
 }
 
 void GameObject::CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
@@ -130,10 +133,10 @@ void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewM
 	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersMemory[imageIndex], 0,
+	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
 		sizeof(ubo), 0, &data);
 	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersMemory[imageIndex]);
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
@@ -172,17 +175,23 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 	}
 	
 	for (size_t i = 0; i < numSwapChainImages; ++i) {
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = GetUniformBuffer(i);
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		VkDescriptorBufferInfo bufferInfoVert = {};
+		bufferInfoVert.buffer = uniformBuffersVert[i]->GetUniformBuffer();
+		bufferInfoVert.offset = 0;
+		bufferInfoVert.range = sizeof(UniformBufferObject);
+		
+		VkDescriptorBufferInfo bufferInfoFrag = {};
+		bufferInfoFrag.buffer = uniformBuffersVert[i]->GetUniformBuffer();
+		bufferInfoFrag.offset = 0;
+		bufferInfoFrag.range = sizeof(UniformBufferObject); // TODO: fix
 
 		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
 													materialType,
 													descriptorSets[i],
 													textureLoader->GetTextureImageView(),
 													textureLoader->GetTextureImageSampler(),
-													&bufferInfo);
+													&bufferInfoVert,
+													&bufferInfoFrag);
 	}
 }
 

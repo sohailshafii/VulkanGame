@@ -4,7 +4,7 @@
 layout(binding = 1) uniform sampler2D texSampler;
 
 // TODO: put other variables here for lambertian
-layout(binding = 0) uniform UniformBufferObject {
+layout(binding = 2) uniform UniformBufferObject {
 	vec3 lightPosition;
 } ubo;
 

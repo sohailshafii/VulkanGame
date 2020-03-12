@@ -25,13 +25,23 @@ public:
 									VkDescriptorSet descriptorSet,
 									VkImageView textureImageView,
 									VkSampler textureSampler,
-									VkDescriptorBufferInfo* bufferInfo);
+									VkDescriptorBufferInfo* bufferInfoVert,
+									VkDescriptorBufferInfo* bufferInfoFrag);
 	
 	static VkDescriptorSetLayout CreateUnlitTintedTexturedDescriptorSetLayout(VkDevice device);
 	static void UpdateDescriptorSetUnlitTintedTextured(VkDevice device,
 													   VkDescriptorSet descriptorSet,
 													   VkImageView textureImageView,
 													   VkSampler textureSampler,
-													   VkDescriptorBufferInfo* bufferInfo);
+													   VkDescriptorBufferInfo* bufferInfoVert);
+	
+	static VkDescriptorSetLayout CreateSimpleLambertianDescriptorSetLayout(VkDevice
+																		   device);
+	static void UpdateDescriptorSetSimpleLambertian(VkDevice device,
+													VkDescriptorSet descriptorSet,
+													VkImageView textureImageView,
+													VkSampler textureSampler,
+													VkDescriptorBufferInfo *bufferInfoVert,
+													VkDescriptorBufferInfo *bufferInfoFrag);
 };
 

@@ -6,6 +6,7 @@
 #include "vulkan/vulkan.h"
 #include <glm/glm.hpp>
 #include "DescriptorSetFunctions.h"
+#include "GameObjectUniformBufferObj.h"
 
 class Model;
 struct Vertex;
@@ -58,11 +59,21 @@ public:
 		return indexBuffer;
 	}
 	
-	VkBuffer GetUniformBuffer(size_t index) const {
-		return uniformBuffers[index];
+	VkBuffer GetUniformBufferVert(size_t index) const {
+		return uniformBuffersVert[index]->GetUniformBuffer();
 	}
 	
-	std::vector<VkDeviceMemory>& GetUniformBuffersMemory() { return uniformBuffersMemory; }
+	VkBuffer GetUniformBufferFrag(size_t index) const {
+		return uniformBuffersFrag[index]->GetUniformBuffer();
+	}
+	
+	VkDeviceMemory GetUniformBufferMemoryVert(size_t index) {
+		return uniformBuffersVert[index]->GetUniformBufferMemory();
+	}
+	
+	VkDeviceMemory GetUniformBufferMemoryFrag(size_t index) {
+		return uniformBuffersFrag[index]->GetUniformBufferMemory();
+	}
 	
 	VkDescriptorSet* GetDescriptorSetPtr(size_t index) {
 		return &descriptorSets[index];
@@ -95,8 +106,7 @@ private:
 	
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<GameObjectUniformBufferObj*> uniformBuffersVert, uniformBuffersFrag;
 	
 	VkDescriptorPool descriptorPool;
 	DescriptorSetFunctions::MaterialType materialType;
