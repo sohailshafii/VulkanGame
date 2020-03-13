@@ -10,14 +10,12 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 					   GfxDeviceManager *gfxDeviceManager,
 					   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 					   std::shared_ptr<ImageTextureLoader> const& textureLoader,
-					   const std::string& vertexShaderName,
-					   const std::string& fragmentShaderName,
 					   VkCommandPool commandPool,
 					   DescriptorSetFunctions::MaterialType materialType) :
-	objModel(model), textureLoader(textureLoader), vertexShaderName(vertexShaderName),
-	fragmentShaderName(fragmentShaderName), logicalDeviceManager(logicalDeviceManager),
+	objModel(model), textureLoader(textureLoader), logicalDeviceManager(logicalDeviceManager),
 	descriptorPool(nullptr), materialType(materialType) {
-		descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
+	SetupShaderNames();
+	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
 	CreateVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
@@ -56,6 +54,18 @@ GameObject::~GameObject() {
 	vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
 	CleanUpUniformBuffers();
 	CleanUpDescriptorPool();
+}
+
+void GameObject::SetupShaderNames() {
+	switch (materialType) {
+		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+			vertexShaderName = "UnlitTintedTexturedVert.spv";
+			fragmentShaderName = "UnlitTintedTexturedFrag.spv";
+			break;
+		case DescriptorSetFunctions::SimpleLambertian:
+			// TODO
+			break;
+	}
 }
 
 void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,

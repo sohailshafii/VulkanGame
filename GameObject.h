@@ -23,8 +23,6 @@ public:
 			   GfxDeviceManager *gfxDeviceManager,
 			   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 			   std::shared_ptr<ImageTextureLoader> const& textureLoader,
-			   const std::string& vertexShaderName,
-			   const std::string& fragmentShaderName,
 			   VkCommandPool commandPool,
 			   DescriptorSetFunctions::MaterialType materialType);
 	
@@ -111,6 +109,8 @@ private:
 	DescriptorSetFunctions::MaterialType materialType;
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkDescriptorSet> descriptorSets;
+	
+	void SetupShaderNames();
 	
 	void CreateVertexBuffer(const std::vector<Vertex>& vertices,
 							GfxDeviceManager *gfxDeviceManager,
