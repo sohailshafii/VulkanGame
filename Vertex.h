@@ -4,6 +4,13 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+// TODO: need different versions of vertex:
+// one with just pos
+// one with pos and color
+// one with pos and tex
+// one with pos and normal
+// one with pos, normal and tex
+
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 color;

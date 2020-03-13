@@ -63,7 +63,8 @@ void GameObject::SetupShaderNames() {
 			fragmentShaderName = "UnlitTintedTexturedFrag.spv";
 			break;
 		case DescriptorSetFunctions::SimpleLambertian:
-			// TODO
+			vertexShaderName = "SimpleLambertianVert.spv";
+			fragmentShaderName = "SimpleLambertianFrag.spv";
 			break;
 	}
 }
