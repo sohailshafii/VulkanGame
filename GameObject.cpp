@@ -6,10 +6,10 @@
 #include "Common.h"
 #include "ImageTextureLoader.h"
 
-GameObject::GameObject(std::shared_ptr<Model> model,
+GameObject::GameObject(std::shared_ptr<Model> const& model,
 					   GfxDeviceManager *gfxDeviceManager,
-					   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
-					   std::shared_ptr<ImageTextureLoader> textureLoader,
+					   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+					   std::shared_ptr<ImageTextureLoader> const& textureLoader,
 					   const std::string& vertexShaderName,
 					   const std::string& fragmentShaderName,
 					   VkCommandPool commandPool,

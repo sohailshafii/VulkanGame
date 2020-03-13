@@ -18,12 +18,11 @@ class ImageTextureLoader;
 // class will grow over time to include other relevant meta data
 class GameObject {
 public:
-	// TODO: verify usage of shared_ptr -- should it be referenced here?
 	// TODO: material class
-	GameObject(std::shared_ptr<Model> model,
+	GameObject(std::shared_ptr<Model> const& model,
 			   GfxDeviceManager *gfxDeviceManager,
-			   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
-			   std::shared_ptr<ImageTextureLoader> textureLoader,
+			   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+			   std::shared_ptr<ImageTextureLoader> const& textureLoader,
 			   const std::string& vertexShaderName,
 			   const std::string& fragmentShaderName,
 			   VkCommandPool commandPool,
