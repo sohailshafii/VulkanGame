@@ -42,8 +42,9 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 			vertShaderStageInfo, fragShaderStageInfo
 	};
 
-	auto bindingDescription = Vertex::getBindingDescription();
-	auto attributeDescriptions = Vertex::getAttributeDescriptions();
+	// TODO: modify based on vert type
+	auto bindingDescription = VertexPosColorTexCoord::GetBindingDescription();
+	auto attributeDescriptions = VertexPosColorTexCoord::GetAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

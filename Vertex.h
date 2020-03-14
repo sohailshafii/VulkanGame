@@ -128,6 +128,44 @@ struct VertexPosNormal {
 	}
 };
 
+struct VertexPosNormalTexCoord {
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec2 texCoord;
+	
+	bool operator==(const VertexPosNormalTexCoord& other) const {
+		return pos == other.pos && normal == other.normal
+			&& texCoord == other.texCoord;
+	}
+	
+	static VkVertexInputBindingDescription GetBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(VertexPosNormalTexCoord);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescription;
+	}
+	
+	static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(VertexPosNormalTexCoord, pos);
+		
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(VertexPosNormalTexCoord, normal);
+		
+		attributeDescriptions[2].binding = 0;
+		attributeDescriptions[2].location = 2;
+		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[2].offset = offsetof(VertexPosNormalTexCoord, texCoord);
+		return attributeDescriptions;
+	}
+};
+
 struct VertexPosColorTexCoord {
 	glm::vec3 pos;
 	glm::vec3 color;
@@ -167,6 +205,52 @@ struct VertexPosColorTexCoord {
 	}
 };
 
+struct VertexPosNormalColorTexCoord {
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec3 color;
+	glm::vec2 texCoord;
+
+	bool operator==(const VertexPosNormalColorTexCoord& other) const {
+		return pos == other.pos && normal == other.normal
+			&& color == other.color
+			&& texCoord == other.texCoord;
+	}
+
+	static VkVertexInputBindingDescription GetBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(VertexPosNormalColorTexCoord);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescription;
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions = {};
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(VertexPosNormalColorTexCoord, pos);
+		
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(VertexPosNormalColorTexCoord, normal);
+
+		attributeDescriptions[2].binding = 0;
+		attributeDescriptions[2].location = 2;
+		attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[2].offset = offsetof(VertexPosNormalColorTexCoord, color);
+
+		attributeDescriptions[3].binding = 0;
+		attributeDescriptions[3].location = 3;
+		attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[3].offset = offsetof(VertexPosNormalColorTexCoord, texCoord);
+
+		return attributeDescriptions;
+	}
+};
+
 namespace std {
 	template<> struct hash<VertexPos> {
 		size_t operator()(VertexPos const& vertex) const {
@@ -188,11 +272,28 @@ namespace std {
 		}
 	};
 
+	template<> struct hash<VertexPosNormalTexCoord> {
+		size_t operator()(VertexPosNormalTexCoord const& vertex) const {
+			return ((hash<glm::vec3>()(vertex.pos) ^
+					(hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^
+					(hash<glm::vec2>()(vertex.texCoord) << 1);
+		}
+	};
+
 	template<> struct hash<VertexPosColorTexCoord> {
 		size_t operator()(VertexPosColorTexCoord const& vertex) const {
 			return ((hash<glm::vec3>()(vertex.pos) ^
 				(hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
 				(hash<glm::vec2>()(vertex.texCoord) << 1);
+		}
+	};
+
+	template<> struct hash<VertexPosNormalColorTexCoord> {
+		size_t operator()(VertexPosNormalColorTexCoord const& vertex) const {
+			return (((hash<glm::vec3>()(vertex.pos) ^
+					(hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^
+					(hash<glm::vec3>()(vertex.color) << 1) >> 1) ^
+					(hash<glm::vec2>()(vertex.texCoord) << 1);
 		}
 	};
 }

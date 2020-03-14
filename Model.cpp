@@ -15,11 +15,11 @@ Model::Model(const std::string& modelPath) {
 		&err, modelPath.c_str())) {
 		throw std::runtime_error(warn + err);
 	}
-
-	std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
+	// TODO allow one to specify vertex type
+	std::unordered_map<VertexPosColorTexCoord, uint32_t> uniqueVertices = {};
 	for (const auto& shape : shapes) {
 		for (const auto& index : shape.mesh.indices) {
-			Vertex vertex = {};
+			VertexPosColorTexCoord vertex = {};
 			vertex.pos = {
 				attrib.vertices[3 * index.vertex_index + 0],
 				attrib.vertices[3 * index.vertex_index + 1],
@@ -44,7 +44,7 @@ Model::Model(const std::string& modelPath) {
 	}
 }
 
-Model::Model(const std::vector<Vertex>& vertices,
+Model::Model(const std::vector<VertexPosColorTexCoord>& vertices,
 	  const std::vector<uint32_t>& indices) : vertices(vertices),
 	indices(indices) {
 }

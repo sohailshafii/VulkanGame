@@ -9,7 +9,7 @@
 #include "GameObjectUniformBufferObj.h"
 
 class Model;
-struct Vertex;
+struct VertexPosColorTexCoord;
 class GfxDeviceManager;
 class LogicalDeviceManager;
 class ImageTextureLoader;
@@ -112,7 +112,7 @@ private:
 	
 	void SetupShaderNames();
 	
-	void CreateVertexBuffer(const std::vector<Vertex>& vertices,
+	void CreateVertexBuffer(const std::vector<VertexPosColorTexCoord>& vertices,
 							GfxDeviceManager *gfxDeviceManager,
 							VkCommandPool commandPool);
 	void CreateIndexBuffer(const std::vector<uint32_t>& indices,

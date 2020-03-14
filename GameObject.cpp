@@ -20,7 +20,8 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
 
-void GameObject::CreateVertexBuffer(const std::vector<Vertex>& vertices,
+// TODO: allow custom verts
+void GameObject::CreateVertexBuffer(const std::vector<VertexPosColorTexCoord>& vertices,
 									GfxDeviceManager *gfxDeviceManager,
 									VkCommandPool commandPool) {
 	VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();

@@ -9,13 +9,13 @@
 class Model {
 public:
 	Model(const std::string& modelPath);
-	Model(const std::vector<Vertex>& vertices,
+	Model(const std::vector<VertexPosColorTexCoord>& vertices,
 		  const std::vector<uint32_t>& indices);
 	~Model();
 	
 	static std::shared_ptr<Model> CreateCube();
 
-	const std::vector<Vertex>& GetVertices() {
+	const std::vector<VertexPosColorTexCoord>& GetVertices() {
 		return vertices;
 	}
 
@@ -24,7 +24,7 @@ public:
 	}
 
 private:
-	std::vector<Vertex> vertices;
+	std::vector<VertexPosColorTexCoord> vertices;
 	std::vector<uint32_t> indices;
 };
 
