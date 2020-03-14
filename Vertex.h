@@ -5,54 +5,191 @@
 #include <glm/gtx/hash.hpp>
 
 // TODO: need different versions of vertex:
-// one with just pos
-// one with pos and color
-// one with pos and tex
-// one with pos and normal
-// one with pos, normal and tex
+// one with pos, color, normal and tex
 
-struct Vertex {
+// We could probably have a one-size-fits-all struct that accomodates
+// different vertex data. but we won't over-engineer for now
+
+struct VertexPos {
+	glm::vec3 pos;
+	
+	bool operator==(const VertexPos& other) const {
+		return pos == other.pos;
+	}
+	
+	static VkVertexInputBindingDescription GetBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(VertexPos);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescription;
+	}
+	
+	static std::array<VkVertexInputAttributeDescription, 1> GetAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions = {};
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(VertexPos, pos);
+		return attributeDescriptions;
+	}
+};
+
+struct VertexPosColor {
+	glm::vec3 pos;
+	glm::vec3 color;
+	
+	bool operator==(const VertexPosColor& other) const {
+		return pos == other.pos && color == other.color;
+	}
+	
+	static VkVertexInputBindingDescription GetBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(VertexPosColor);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescription;
+	}
+	
+	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(VertexPosColor, pos);
+		
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(VertexPosColor, color);
+		return attributeDescriptions;
+	}
+};
+
+struct VertexPosTex {
+	glm::vec3 pos;
+	glm::vec2 texCoord;
+	
+	bool operator==(const VertexPosTex& other) const {
+		return pos == other.pos && texCoord == other.texCoord;
+	}
+	
+	static VkVertexInputBindingDescription GetBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(VertexPosTex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescription;
+	}
+	
+	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(VertexPosTex, pos);
+		
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(VertexPosTex, texCoord);
+		return attributeDescriptions;
+	}
+};
+
+struct VertexPosNormal {
+	glm::vec3 pos;
+	glm::vec3 normal;
+	
+	bool operator==(const VertexPosNormal& other) const {
+		return pos == other.pos && normal == other.normal;
+	}
+	
+	static VkVertexInputBindingDescription GetBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(VertexPosNormal);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescription;
+	}
+	
+	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(VertexPosNormal, pos);
+		
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(VertexPosNormal, normal);
+		return attributeDescriptions;
+	}
+};
+
+struct VertexPosColorTexCoord {
 	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 texCoord;
 
-	bool operator==(const Vertex& other) const {
+	bool operator==(const VertexPosColorTexCoord& other) const {
 		return pos == other.pos && color == other.color
 			&& texCoord == other.texCoord;
 	}
 
-	static VkVertexInputBindingDescription getBindingDescription() {
+	static VkVertexInputBindingDescription GetBindingDescription() {
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
-		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.stride = sizeof(VertexPosColorTexCoord);
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 		return bindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+	static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions() {
 		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
 		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[0].offset = offsetof(Vertex, pos);
+		attributeDescriptions[0].offset = offsetof(VertexPosColorTexCoord, pos);
 
 		attributeDescriptions[1].binding = 0;
 		attributeDescriptions[1].location = 1;
 		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[1].offset = offsetof(Vertex, color);
+		attributeDescriptions[1].offset = offsetof(VertexPosColorTexCoord, color);
 
 		attributeDescriptions[2].binding = 0;
 		attributeDescriptions[2].location = 2;
 		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+		attributeDescriptions[2].offset = offsetof(VertexPosColorTexCoord, texCoord);
 
 		return attributeDescriptions;
 	}
 };
 
 namespace std {
-	template<> struct hash<Vertex> {
-		size_t operator()(Vertex const& vertex) const {
+	template<> struct hash<VertexPos> {
+		size_t operator()(VertexPos const& vertex) const {
+			return hash<glm::vec3>()(vertex.pos);
+		}
+	};
+
+	template<> struct hash<VertexPosColor> {
+		size_t operator()(VertexPosColor const& vertex) const {
+			return hash<glm::vec3>()(vertex.pos) ^
+				(hash<glm::vec3>()(vertex.color) << 1);
+		}
+	};
+
+	template<> struct hash<VertexPosTex> {
+		size_t operator()(VertexPosTex const& vertex) const {
+			return hash<glm::vec3>()(vertex.pos) ^
+				(hash<glm::vec2>()(vertex.texCoord) << 1);;
+		}
+	};
+
+	template<> struct hash<VertexPosColorTexCoord> {
+		size_t operator()(VertexPosColorTexCoord const& vertex) const {
 			return ((hash<glm::vec3>()(vertex.pos) ^
 				(hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
 				(hash<glm::vec2>()(vertex.texCoord) << 1);
