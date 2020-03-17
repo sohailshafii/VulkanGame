@@ -16,7 +16,7 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	descriptorPool(nullptr), materialType(materialType) {
 	SetupShaderNames();
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
-	CreateVertexBuffer(model->GetVertices(), gfxDeviceManager, commandPool);
+	CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager, commandPool);
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
 

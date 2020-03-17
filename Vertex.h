@@ -13,6 +13,8 @@
 struct VertexPos {
 	glm::vec3 pos;
 	
+	VertexPos(const glm::vec3& pos) : pos(pos) { }
+	
 	bool operator==(const VertexPos& other) const {
 		return pos == other.pos;
 	}
@@ -38,6 +40,9 @@ struct VertexPos {
 struct VertexPosColor {
 	glm::vec3 pos;
 	glm::vec3 color;
+	
+	VertexPosColor(const glm::vec3& pos, const glm::vec3& color) :
+		pos(pos), color(color) { }
 	
 	bool operator==(const VertexPosColor& other) const {
 		return pos == other.pos && color == other.color;
@@ -70,6 +75,9 @@ struct VertexPosTex {
 	glm::vec3 pos;
 	glm::vec2 texCoord;
 	
+	VertexPosTex(const glm::vec3& pos, const glm::vec2& texCoord) :
+		pos(pos), texCoord(texCoord) { }
+	
 	bool operator==(const VertexPosTex& other) const {
 		return pos == other.pos && texCoord == other.texCoord;
 	}
@@ -100,6 +108,9 @@ struct VertexPosTex {
 struct VertexPosNormal {
 	glm::vec3 pos;
 	glm::vec3 normal;
+	
+	VertexPosNormal(const glm::vec3& pos, const glm::vec3& normal) :
+		pos(pos), normal(normal) { }
 	
 	bool operator==(const VertexPosNormal& other) const {
 		return pos == other.pos && normal == other.normal;
@@ -132,6 +143,10 @@ struct VertexPosNormalTexCoord {
 	glm::vec3 pos;
 	glm::vec3 normal;
 	glm::vec2 texCoord;
+	
+	VertexPosNormalTexCoord(const glm::vec3& pos, const glm::vec3& normal,
+							const glm::vec2& texCoord) :
+		pos(pos), normal(normal), texCoord(texCoord) { }
 	
 	bool operator==(const VertexPosNormalTexCoord& other) const {
 		return pos == other.pos && normal == other.normal
@@ -170,6 +185,10 @@ struct VertexPosColorTexCoord {
 	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 texCoord;
+	
+	VertexPosColorTexCoord(const glm::vec3& pos, const glm::vec3& color,
+						const glm::vec2& texCoord) :
+		pos(pos), color(color), texCoord(texCoord) { }
 
 	bool operator==(const VertexPosColorTexCoord& other) const {
 		return pos == other.pos && color == other.color
@@ -210,6 +229,12 @@ struct VertexPosNormalColorTexCoord {
 	glm::vec3 normal;
 	glm::vec3 color;
 	glm::vec2 texCoord;
+	
+	VertexPosNormalColorTexCoord(const glm::vec3& pos,
+								 const glm::vec3& normal,
+								 const glm::vec3& color,
+								 const glm::vec2& texCoord) :
+		pos(pos), normal(normal), color(color), texCoord(texCoord) { }
 
 	bool operator==(const VertexPosNormalColorTexCoord& other) const {
 		return pos == other.pos && normal == other.normal
