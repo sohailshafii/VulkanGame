@@ -20,7 +20,7 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
 
-// TODO: allow custom verts
+// TODO (!!!!!!): allow custom verts
 void GameObject::CreateVertexBuffer(const std::vector<VertexPosColorTexCoord>& vertices,
 									GfxDeviceManager *gfxDeviceManager,
 									VkCommandPool commandPool) {
@@ -102,7 +102,7 @@ void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
 		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSizeVert));
-		// TODO: fix frag
+		// TODO: fix frag to allow different buffer types
 		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSizeLighting));
 	}
 }

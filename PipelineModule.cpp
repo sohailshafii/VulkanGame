@@ -42,7 +42,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 			vertShaderStageInfo, fragShaderStageInfo
 	};
 
-	// TODO: modify based on vert type
+	// TODO (!!!!!!): modify based on vert type
 	auto bindingDescription = VertexPosColorTexCoord::GetBindingDescription();
 	auto attributeDescriptions = VertexPosColorTexCoord::GetAttributeDescriptions();
 
