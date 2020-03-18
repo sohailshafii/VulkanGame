@@ -116,9 +116,11 @@ private:
 	
 	void SetupShaderNames();
 	
-	void CreateVertexBuffer(const std::vector<VertexPosColorTexCoord>& vertices,
+	template<typename VertexType>
+	void CreateVertexBuffer(const std::vector<VertexType>& vertices,
 							GfxDeviceManager *gfxDeviceManager,
 							VkCommandPool commandPool);
+	
 	void CreateIndexBuffer(const std::vector<uint32_t>& indices,
 						   GfxDeviceManager *gfxDeviceManager,
 						   VkCommandPool commandPool);

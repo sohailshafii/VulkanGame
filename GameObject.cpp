@@ -16,12 +16,21 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	descriptorPool(nullptr), materialType(materialType) {
 	SetupShaderNames();
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
-	CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager, commandPool);
+	
+	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
+		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
+						   commandPool);
+	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::SimpleLambertian){
+		CreateVertexBuffer(model->BuildAndReturnVertsPosNormalColorTexCoord(), gfxDeviceManager,
+						   commandPool);
+	}
+	
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
 }
 
-// TODO (!!!!!!): allow custom verts
-void GameObject::CreateVertexBuffer(const std::vector<VertexPosColorTexCoord>& vertices,
+template<typename VertexType>
+void GameObject::CreateVertexBuffer(const std::vector<VertexType>& vertices,
 									GfxDeviceManager *gfxDeviceManager,
 									VkCommandPool commandPool) {
 	VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
