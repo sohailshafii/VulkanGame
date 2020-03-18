@@ -94,7 +94,8 @@ void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 		graphicsPipelineModules.push_back(new PipelineModule(gameObject->GetVertexShaderName(),
 															 gameObject->GetFragmentShaderName(), logicalDeviceManager->GetDevice(),
 															 swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
-															 resourceLoader, gameObject->GetDescriptorSetLayout(), renderPassModule->GetRenderPass()));
+															 resourceLoader, gameObject->GetDescriptorSetLayout(), renderPassModule->GetRenderPass(),
+															 gameObject->GetMaterialType()));
 	}
 }
 

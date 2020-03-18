@@ -2,6 +2,7 @@
 
 #include "vulkan/vulkan.h"
 #include "GfxDeviceManager.h"
+#include "DescriptorSetFunctions.h"
 #include <string>
 
 class ResourceLoader;
@@ -13,7 +14,8 @@ public:
 		VkExtent2D swapChainExtent, GfxDeviceManager *gfxDeviceManager,
 		ResourceLoader *resourceLoader,
 		VkDescriptorSetLayout descriptorSetLayout,
-		VkRenderPass renderPass);
+		VkRenderPass renderPass,
+		DescriptorSetFunctions::MaterialType materialType);
 	~PipelineModule();
 
 	VkPipelineLayout GetLayout() {

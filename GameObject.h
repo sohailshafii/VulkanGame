@@ -80,6 +80,10 @@ public:
 		return descriptorSetLayout;
 	}
 	
+	DescriptorSetFunctions::MaterialType GetMaterialType() const {
+		return materialType;
+	}
+	
 	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
 								size_t numSwapChainImages);
 	

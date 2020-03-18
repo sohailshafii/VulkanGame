@@ -9,7 +9,8 @@ PipelineModule::PipelineModule(const std::string& vertShaderName,
 	VkExtent2D swapChainExtent, GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader,
 	VkDescriptorSetLayout descriptorSetLayout,
-	VkRenderPass renderPass) {
+	VkRenderPass renderPass,
+	DescriptorSetFunctions::MaterialType materialType) {
 	this->device = device;
 	// TODO: use first set of paths when completely switched to cmake
 	// on Windows
@@ -42,17 +43,37 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 			vertShaderStageInfo, fragShaderStageInfo
 	};
 
-	// TODO (!!!!!!): modify based on vert type
-	auto bindingDescription = VertexPosColorTexCoord::GetBindingDescription();
-	auto attributeDescriptions = VertexPosColorTexCoord::GetAttributeDescriptions();
-
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
+	VkVertexInputBindingDescription bindingDescription;
+	VkVertexInputAttributeDescription *attribDescriptionArray = nullptr;
+	uint32_t numAttrib = 0;
+	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
+		bindingDescription = VertexPosColorTexCoord::GetBindingDescription();
+		auto attributeDescriptions = VertexPosColorTexCoord::GetAttributeDescriptions();
+		numAttrib = attributeDescriptions.size();
+		attribDescriptionArray = new VkVertexInputAttributeDescription[
+			numAttrib];
+		for (size_t i = 0; i < numAttrib; i++) {
+			attribDescriptionArray[i] = attributeDescriptions[i];
+		}
+	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::SimpleLambertian) {
+		bindingDescription = VertexPosNormalColorTexCoord::GetBindingDescription();
+		auto attributeDescriptions = VertexPosNormalColorTexCoord::GetAttributeDescriptions();
+		numAttrib = attributeDescriptions.size();
+		attribDescriptionArray = new VkVertexInputAttributeDescription[
+			numAttrib];
+		for (size_t i = 0; i < numAttrib; i++) {
+			attribDescriptionArray[i] = attributeDescriptions[i];
+		}
+	}
+	
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
-	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.vertexAttributeDescriptionCount = numAttrib;
 	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+	vertexInputInfo.pVertexAttributeDescriptions = attribDescriptionArray;
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -180,6 +201,10 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
 		&pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create graphics pipeline!");
+	}
+	
+	if (attribDescriptionArray != nullptr) {
+		delete [] attribDescriptionArray;
 	}
 }
 
