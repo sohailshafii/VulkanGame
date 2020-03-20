@@ -1,4 +1,5 @@
 #include "DescriptorSetFunctions.h"
+#include "LogicalDeviceManager.h"
 #include <array>
 #include <stdexcept>
 
@@ -33,6 +34,23 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 			UpdateDescriptorSetSimpleLambertian(device, descriptorSet, textureImageView, textureSampler, bufferInfoVert, bufferInfoFrag);
 			break;
 	}
+}
+
+VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPool(VkDevice device, MaterialType materialType,
+												  size_t numSwapChainImages)
+{
+	VkDescriptorPool descriptorPool = nullptr;
+	switch (materialType) {
+		case MaterialType::UnlitTintedTextured:
+			descriptorPool = CreateDescriptorPoolUnlitTintedTextured(device,
+																	 numSwapChainImages);
+			break;
+		case MaterialType::SimpleLambertian:
+			descriptorPool = CreateDescriptorPoolSimpleLambertian(device,
+																	   numSwapChainImages);
+			break;
+	}
+	return descriptorPool;
 }
 
 VkDescriptorSetLayout DescriptorSetFunctions::CreateUnlitTintedTexturedDescriptorSetLayout(VkDevice device)
@@ -98,6 +116,29 @@ void DescriptorSetFunctions::UpdateDescriptorSetUnlitTintedTextured(VkDevice dev
 	vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()),
 		descriptorWrites.data(), 0,
 		nullptr);
+}
+
+VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPoolUnlitTintedTextured(VkDevice device,
+   size_t numSwapChainImages)
+{
+	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
+
+	VkDescriptorPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.pPoolSizes = poolSizes.data();
+	poolInfo.maxSets = static_cast<uint32_t>(numSwapChainImages);
+
+	VkDescriptorPool descriptorPool;
+	if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor pool!");
+	}
+	
+	return descriptorPool;
 }
 
 VkDescriptorSetLayout DescriptorSetFunctions::CreateSimpleLambertianDescriptorSetLayout(VkDevice device)
@@ -167,13 +208,40 @@ void DescriptorSetFunctions::UpdateDescriptorSetSimpleLambertian(VkDevice device
 	descriptorWrites[1].descriptorCount = 1;
 	descriptorWrites[1].pImageInfo = &imageInfo;
 	
-	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrites[1].dstSet = descriptorSet;
-	descriptorWrites[1].dstBinding = 2;
-	descriptorWrites[1].dstArrayElement = 0;
-	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	descriptorWrites[1].descriptorCount = 1;
-	descriptorWrites[1].pBufferInfo = bufferInfoFrag;
+	descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[2].dstSet = descriptorSet;
+	descriptorWrites[2].dstBinding = 2;
+	descriptorWrites[2].dstArrayElement = 0;
+	descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[2].descriptorCount = 1;
+	descriptorWrites[2].pBufferInfo = bufferInfoFrag;
 	
 	vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+}
+
+VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPoolSimpleLambertian(
+																			  VkDevice device,
+															 
+																			  size_t numSwapChainImages)
+{
+	std::array<VkDescriptorPoolSize, 3> poolSizes = {};
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
+	poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[2].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
+
+	VkDescriptorPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.pPoolSizes = poolSizes.data();
+	poolInfo.maxSets = static_cast<uint32_t>(numSwapChainImages);
+
+	VkDescriptorPool descriptorPool;
+	if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor pool!");
+	}
+	
+	return descriptorPool;
 }

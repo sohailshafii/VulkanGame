@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <memory>
 #include <vulkan/vulkan.h>
 
 // we have to make sure everything is aligned properly
@@ -14,6 +15,8 @@ struct UniformBufferObjectVert {
 struct UniformBufferObjectLighting {
 	alignas(16) glm::vec3 lightPosition;
 };
+
+class LogicalDeviceManager;
 
 // Defines descriptor sets for different, pre-defined materials
 class DescriptorSetFunctions
@@ -32,12 +35,17 @@ public:
 									VkDescriptorBufferInfo* bufferInfoVert,
 									VkDescriptorBufferInfo* bufferInfoFrag);
 	
+	static VkDescriptorPool CreateDescriptorPool(VkDevice device, MaterialType materialType,
+									 size_t numSwapChainImages);
+	
 	static VkDescriptorSetLayout CreateUnlitTintedTexturedDescriptorSetLayout(VkDevice device);
 	static void UpdateDescriptorSetUnlitTintedTextured(VkDevice device,
 													   VkDescriptorSet descriptorSet,
 													   VkImageView textureImageView,
 													   VkSampler textureSampler,
 													   VkDescriptorBufferInfo* bufferInfoVert);
+	static VkDescriptorPool CreateDescriptorPoolUnlitTintedTextured(VkDevice device,
+																   size_t numSwapChainImages);
 	
 	static VkDescriptorSetLayout CreateSimpleLambertianDescriptorSetLayout(VkDevice
 																		   device);
@@ -47,5 +55,7 @@ public:
 													VkSampler textureSampler,
 													VkDescriptorBufferInfo *bufferInfoVert,
 													VkDescriptorBufferInfo *bufferInfoFrag);
+	static VkDescriptorPool CreateDescriptorPoolSimpleLambertian(VkDevice device,
+																 size_t numSwapChainImages);
 };
 

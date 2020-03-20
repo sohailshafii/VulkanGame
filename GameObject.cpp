@@ -162,22 +162,9 @@ void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewM
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
-	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
-	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[0].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
-	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
-
-	VkDescriptorPoolCreateInfo poolInfo = {};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(numSwapChainImages);
-
-	if (vkCreateDescriptorPool(logicalDeviceManager->GetDevice(), &poolInfo,
-		nullptr, &descriptorPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor pool!");
-	}
+	descriptorPool = DescriptorSetFunctions::CreateDescriptorPool(logicalDeviceManager->GetDevice(),
+																  materialType,
+																  numSwapChainImages);
 }
 
 void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
