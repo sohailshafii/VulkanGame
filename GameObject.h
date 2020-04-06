@@ -130,8 +130,7 @@ private:
 	void CleanUpUniformBuffers();
 	
 	void CreateDescriptorPool(size_t numSwapChainImages);
-	void CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
-							  size_t numSwapChainImages);
+	void CreateDescriptorSets(size_t numSwapChainImages);
 	void CleanUpDescriptorPool();
 	
 };

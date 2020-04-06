@@ -215,11 +215,14 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
 			VK_SUBPASS_CONTENTS_INLINE);
 
-		// TODO: bind graphics pipeline to specific game objects
-		vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-			graphicsPipelineModules[0]->GetPipeline());
-
-		for (const auto& gameObject : gameObjects) {
+		size_t numGameObjects = gameObjects.size();
+		for (size_t objectIndex = 0; objectIndex < numGameObjects;
+			 objectIndex++) {
+			auto& gameObject = gameObjects[objectIndex];
+			PipelineModule* pipelineModule = graphicsPipelineModules[objectIndex];
+			
+			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelineModule->GetPipeline());
 			// bind our vertex buffers
 			VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
 			VkDeviceSize offsets[] = { 0 };
@@ -228,7 +231,7 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 			vkCmdBindIndexBuffer(commandBuffers[i], gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-									graphicsPipelineModules[0]->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(i), 0, nullptr);
+									pipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(i), 0, nullptr);
 			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
 							 1, 0, 0, 0);
 		}

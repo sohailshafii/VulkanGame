@@ -225,7 +225,7 @@ private:
 									 gfxDeviceManager, logicalDeviceManager,
 									 resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 									 commandPool,
-									 DescriptorSetFunctions::MaterialType::UnlitTintedTextured);
+									 DescriptorSetFunctions::MaterialType::SimpleLambertian);
 		
 		glm::mat4 translateInZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
 		cubeObj->SetModelTransform(translateInZ);

@@ -153,14 +153,14 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateSimpleLambertianDescriptorSe
 	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 	samplerLayoutBinding.binding = 1;
 	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	
 	VkDescriptorSetLayoutBinding fragmentUniformBuffer = {};
 	fragmentUniformBuffer.binding = 2;
 	fragmentUniformBuffer.descriptorCount = 1;
-	fragmentUniformBuffer.descriptorCount = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	fragmentUniformBuffer.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	fragmentUniformBuffer.pImmutableSamplers = nullptr;
 	fragmentUniformBuffer.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	
@@ -190,6 +190,7 @@ void DescriptorSetFunctions::UpdateDescriptorSetSimpleLambertian(VkDevice device
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.sampler = textureSampler;
+	imageInfo.imageView = textureImageView;
 	
 	std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
 	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

@@ -6,6 +6,8 @@
 #include "Common.h"
 #include "ImageTextureLoader.h"
 
+#include <iostream>
+
 GameObject::GameObject(std::shared_ptr<Model> const& model,
 					   GfxDeviceManager *gfxDeviceManager,
 					   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -16,7 +18,8 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	descriptorPool(nullptr), materialType(materialType) {
 	SetupShaderNames();
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
-	
+	std::cout << descriptorSetLayout << " assoc with "
+		<< materialType << std::endl;
 	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
 						   commandPool);
@@ -139,7 +142,7 @@ void GameObject::CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
 void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 	CleanUpDescriptorPool();
 	CreateDescriptorPool(numSwapChainImages);
-	CreateDescriptorSets(descriptorSetLayout, numSwapChainImages);
+	CreateDescriptorSets(numSwapChainImages);
 }
 
 // TODO: use push constants, more efficient
@@ -165,10 +168,11 @@ void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
 	descriptorPool = DescriptorSetFunctions::CreateDescriptorPool(logicalDeviceManager->GetDevice(),
 																  materialType,
 																  numSwapChainImages);
+	std::cout << descriptorPool << " belongs to "
+	<< materialType << ", with layout " << std::endl;
 }
 
-void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
-	size_t numSwapChainImages) {
+void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 	std::vector<VkDescriptorSetLayout> layouts(numSwapChainImages,
 		descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
@@ -176,6 +180,9 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 	allocInfo.descriptorPool = descriptorPool;
 	allocInfo.descriptorSetCount = static_cast<uint32_t>(numSwapChainImages);
 	allocInfo.pSetLayouts = layouts.data();
+	
+	std::cout << "about to allocate descriptor sets for pool "
+	<< descriptorPool << ", with layout " << descriptorSetLayout << ", material: " << materialType << std::endl;
 
 	descriptorSets.resize(numSwapChainImages);
 	if (vkAllocateDescriptorSets(logicalDeviceManager->GetDevice(), &allocInfo,
@@ -190,7 +197,7 @@ void GameObject::CreateDescriptorSets(VkDescriptorSetLayout descriptorSetLayout,
 		bufferInfoVert.range = sizeof(UniformBufferObjectVert);
 		
 		VkDescriptorBufferInfo bufferInfoFrag = {};
-		bufferInfoFrag.buffer = uniformBuffersVert[i]->GetUniformBuffer();
+		bufferInfoFrag.buffer = uniformBuffersFrag[i]->GetUniformBuffer();
 		bufferInfoFrag.offset = 0;
 		bufferInfoFrag.range = sizeof(UniformBufferObjectLighting); // TODO: fix
 
