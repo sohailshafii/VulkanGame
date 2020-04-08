@@ -113,9 +113,11 @@ void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t
 	VkDeviceSize bufferSizeLighting = sizeof(UniformBufferObjectLighting);
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
-		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSizeVert));
+		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager,
+			(int)bufferSizeVert));
 		// TODO: fix frag to allow different buffer types
-		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager, bufferSizeLighting));
+		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager,
+			(int)bufferSizeLighting));
 	}
 }
 

@@ -261,11 +261,11 @@ private:
 	}
 
 	void MainLoop() {
-		lastFrameTime = glfwGetTime();
+		lastFrameTime = (float)glfwGetTime();
 		float lastFrameReportTime = lastFrameTime;
 		
 		while (!glfwWindowShouldClose(window)) {
-			float currentFrameTime = glfwGetTime();
+			float currentFrameTime = (float)glfwGetTime();
 			float deltaTime = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 			HelloTriangleApplication::ProcessInput(window, deltaTime);
@@ -414,20 +414,19 @@ void HelloTriangleApplication::MouseCallback(GLFWwindow* window, double xpos, do
 {
 	if (firstMouse)
 	{
-		lastX = xpos;
-		lastY = ypos;
+		lastX = (float)xpos;
+		lastY = (float)ypos;
 		firstMouse = false;
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-	lastX = xpos;
-	lastY = ypos;
+	float xoffset = (float)xpos - lastX;
+	float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
+	lastX = (float)xpos;
+	lastY = (float)ypos;
 	
-	float currentFrameTime = glfwGetTime();
-	float deltaTime = currentFrameTime - lastFrameTime;
-	HelloTriangleApplication::mainCamera.ProcessMouse(deltaTime*xoffset,
-													  deltaTime*yoffset);
+	//float currentFrameTime = glfwGetTime();
+	//float deltaTime = currentFrameTime - lastFrameTime;
+	HelloTriangleApplication::mainCamera.ProcessMouse(xoffset*0.01f, yoffset*0.01f);
 }
 
 void HelloTriangleApplication::ProcessInput(GLFWwindow* window, float frameTime) {

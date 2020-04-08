@@ -21,30 +21,30 @@ Model::Model(const std::string& modelPath) {
 		for (const auto& index : shape.mesh.indices) {
 			ModelVert vertex = {};
 			vertex.position = {
-				attrib.vertices[3 * index.vertex_index + 0],
-				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
+				attrib.vertices[3 * (size_t)index.vertex_index],
+				attrib.vertices[3 * (size_t)index.vertex_index + 1],
+				attrib.vertices[3 * (size_t)index.vertex_index + 2]
 			};
 
 			if (attrib.texcoords.size() > 0) {
 				vertex.texCoord = {
-					attrib.texcoords[2 * index.texcoord_index + 0],
+					attrib.texcoords[2 * (size_t)index.texcoord_index],
 					// vulkan is top to bottom for texture
-					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+					1.0f - attrib.texcoords[2 * (size_t)index.texcoord_index + 1]
 				};
 			}
 
 			if (attrib.colors.size() > 0) {
-				vertex.color = { attrib.colors[3 * index.vertex_index + 0],
-					attrib.colors[3 * index.vertex_index + 1],
-					attrib.colors[3 * index.vertex_index + 2]
+				vertex.color = { attrib.colors[3 * (size_t)index.vertex_index],
+					attrib.colors[3 * (size_t)index.vertex_index + 1],
+					attrib.colors[3 * (size_t)index.vertex_index + 2]
 				};
 			}
 			
 			if (attrib.normals.size() > 0) {
-				vertex.normal = { attrib.normals[3 * index.vertex_index + 0],
-					attrib.normals[3 * index.vertex_index + 1],
-					attrib.normals[3 * index.vertex_index + 2]
+				vertex.normal = { attrib.normals[3 * (size_t)index.normal_index],
+					attrib.normals[3 * (size_t)index.normal_index + 1],
+					attrib.normals[3 * (size_t)index.normal_index + 2]
 				};
 			}
 

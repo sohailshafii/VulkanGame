@@ -20,9 +20,9 @@ PipelineModule::PipelineModule(const std::string& vertShaderName,
 std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	"../../shaders/" + fragShaderName, device);
 #else
-	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->getShader(
+	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->GetShader(
 		"../shaders/" + vertShaderName, device);
-	std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->getShader(
+	std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 		"../shaders/" + fragShaderName, device);
 
 #endif
@@ -48,7 +48,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 
 	VkVertexInputBindingDescription bindingDescription;
 	VkVertexInputAttributeDescription *attribDescriptionArray = nullptr;
-	uint32_t numAttrib = 0;
+	size_t numAttrib = 0;
 	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		bindingDescription = VertexPosColorTexCoord::GetBindingDescription();
 		auto attributeDescriptions = VertexPosColorTexCoord::GetAttributeDescriptions();
@@ -71,7 +71,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	}
 	
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
-	vertexInputInfo.vertexAttributeDescriptionCount = numAttrib;
+	vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)numAttrib;
 	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 	vertexInputInfo.pVertexAttributeDescriptions = attribDescriptionArray;
 
