@@ -1,4 +1,6 @@
 #include "Scene.h"
 
-// TODO
+// used to load beach scene
+
+
 

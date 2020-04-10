@@ -25,6 +25,7 @@ target_link_libraries(VulkanGame ${GLFW_LIBRARY})
 target_include_directories(VulkanGame
 	PRIVATE
 		"${PROJECT_BINARY_DIR}"
-		"${PROJECT_SOURCE_DIR}")
+		"${PROJECT_SOURCE_DIR}"
+		"${PROJECT_SOURCE_DIR}/ThirdParty/nlohmann")
 
 

@@ -44,7 +44,8 @@
 #include "Camera.h"
 
 #include "GameObject.h"
-#include "DescriptorSetFunctions.h"
+#include "Scene.h"
+#include "SceneLoader.h"
 
 class HelloTriangleApplication {
 public:
@@ -102,12 +103,8 @@ private:
 
 	bool framebufferResized = false;
 
-	/*VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;*/
-
 	ResourceLoader* resourceLoader;
+	Scene* mainGameScene;
 	std::vector<std::shared_ptr<GameObject>> gameObjects;
 
 	// need to be static for cursor callback function to work
@@ -211,6 +208,15 @@ private:
 	}
 
 	void CreateGameObjects() {
+#if __APPLE__
+		std::string scenePath = "../../mainGameScene.json";
+#else
+		std::string scenePath = "../mainGameScene.json";
+#endif
+		mainGameScene = new Scene();
+		SceneLoader::DeserializeJSONFileIntoScen(mainGameScene,
+			scenePath);
+
 		std::shared_ptr<GameObject> houseObj = std::make_shared<GameObject>(resourceLoader->GetModel(MODEL_PATH),
 										gfxDeviceManager, logicalDeviceManager,
 										resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
@@ -378,6 +384,8 @@ private:
 
 		delete graphicsEngine;
 		
+		delete mainGameScene;
+
 		// kill game objects before device manager is removed
 		gameObjects.clear();
 
