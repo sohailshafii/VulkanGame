@@ -4,6 +4,30 @@
 	},
 	"objects":
 	[
+		{
+			"model":"Procedural:Ocean",
+			"type":"Stationary",
+			"position":[0.0, 0.0,-3.0],
+			"material":"SimpleLambertian"
+		},
+		{
+			"model":"None",
+			"type":"Player",
+			"position":[0.0, 0.0, 0.0],
+			"material":"UnlitTintedTextured"
+		},
+		{
+			"model":"Procedural:Sand",
+			"type":"Stationary",
+			"position":[0.0, 0.0,0.0],
+			"material":"SimpleLambertian"
+		},
+		{
+			"model":"Rock",
+			"type":"Stationary",
+			"position":[1.0, 1.0,-2.0],
+			"material":"SimpleLambertian"
+		}
 	],
 	"lights":
 	[
