@@ -2,7 +2,7 @@
 	"scene_settings":
 	{
 	},
-	"objects":
+	"game_objects":
 	[
 		{
 			"model":"Procedural:Ocean",
