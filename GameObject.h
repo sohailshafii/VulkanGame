@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include "DescriptorSetFunctions.h"
 #include "GameObjectUniformBufferObj.h"
+#include "GameObjectBehavior.h"
 
 class Model;
 struct VertexPosColorTexCoord;
@@ -14,11 +15,19 @@ class GfxDeviceManager;
 class LogicalDeviceManager;
 class ImageTextureLoader;
 
+enum GameObjectType
+{
+	Player = 0, Stationary, AI
+};
+
 // game object with its own transform
 // class will grow over time to include other relevant meta data
+// Game Object has an associated behavior class, which
+// depends on its type -- stationary, AI (enemy), or player
 class GameObject {
 public:
 	// TODO: material class
+	// TODO: pass in unique ptr to game object behavior here
 	GameObject(std::shared_ptr<Model> const& model,
 			   GfxDeviceManager *gfxDeviceManager,
 			   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -95,6 +104,7 @@ public:
 private:
 	std::shared_ptr<Model> objModel;
 	std::shared_ptr<ImageTextureLoader> textureLoader;
+	//std::unique_ptr<GameObjectBehavior> gameObjectBehavior;
 	std::string vertexShaderName;
 	std::string fragmentShaderName;
 	

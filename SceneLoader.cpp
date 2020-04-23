@@ -21,7 +21,7 @@ void SceneLoader::DeserializeJSONFileIntoScen(
 		nlohmann::json gameObjects = jsonObject["game_objects"];
 		for (auto& element : gameObjects.items()) {
 			std::shared_ptr<GameObject> constructedGameObject;
-			SetUpGameObject(element, constructedGameObject);
+			SetUpGameObject(element.value(), constructedGameObject);
 		}
 	}
 	catch (const std::exception& e) {
@@ -45,11 +45,19 @@ static inline nlohmann::json SafeGetToken(const nlohmann::json& jsonObj,
 
 static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<GameObject>& constructedGameObject) {
-	//std::string modelType = SafeGetToken(jsonObj, "model");
-	//std::string objectType = SafeGetToken(jsonObj, "type");
-	//auto objectPosition = SafeGetToken(jsonObj, "position");
-	//std::string materialType = SafeGetToken(jsonObj, "material");
-	// TODO: finish
+	std::string modelType = SafeGetToken(jsonObj, "model");
+	std::string objectType = SafeGetToken(jsonObj, "type");
+	auto objectPosition = SafeGetToken(jsonObj, "position");
+	std::string materialType = SafeGetToken(jsonObj, "material");
+	/*GameObjectType gameObjectType = Stationary;
+	if (objectType == "Player")
+	{
+		gameObjectType = Player;
+	}
+	else if (objectType == "AI")
+	{
+		gameObjectType = AI;
+	}*/
 }
 
 
