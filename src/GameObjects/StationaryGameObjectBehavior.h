@@ -15,5 +15,7 @@ public:
 
 	}
 
+	virtual void UpdateSelf() override;
+
 private:
 };

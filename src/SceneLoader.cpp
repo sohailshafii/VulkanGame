@@ -1,5 +1,8 @@
 #include "SceneLoader.h"
-#include "GameObject.h"
+#include "GameObjects/GameObject.h"
+#include "GameObjects/AIGameObjectBehavior.h"
+#include "GameObjects/PlayerGameObjectBehavior.h"
+#include "GameObjects/StationaryGameObjectBehavior.h"
 #include "nlohmann/json.hpp"
 #include <exception>
 #include <iostream>
@@ -49,15 +52,20 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::string objectType = SafeGetToken(jsonObj, "type");
 	auto objectPosition = SafeGetToken(jsonObj, "position");
 	std::string materialType = SafeGetToken(jsonObj, "material");
-	/*GameObjectType gameObjectType = Stationary;
+
+	std::shared_ptr<GameObjectBehavior> GameObjectBehavior;
 	if (objectType == "Player")
 	{
-		gameObjectType = Player;
+		GameObjectBehavior = std::make_shared<PlayerGameObjectBehavior>();
 	}
 	else if (objectType == "AI")
 	{
-		gameObjectType = AI;
-	}*/
+		GameObjectBehavior = std::make_shared<AIGameObjectBehavior>();
+	}
+	else
+	{
+		GameObjectBehavior = std::make_shared<StationaryGameObjectBehavior>();
+	}
 }
 
 

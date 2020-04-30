@@ -29,11 +29,12 @@ public:
 	// TODO: material class
 	// TODO: pass in unique ptr to game object behavior here
 	GameObject(std::shared_ptr<Model> const& model,
-			   GfxDeviceManager *gfxDeviceManager,
-			   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-			   std::shared_ptr<ImageTextureLoader> const& textureLoader,
-			   VkCommandPool commandPool,
-			   DescriptorSetFunctions::MaterialType materialType);
+		//std::unique_ptr<GameObjectBehavior> behavior,
+		GfxDeviceManager *gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+		std::shared_ptr<ImageTextureLoader> const& textureLoader,
+		VkCommandPool commandPool,
+		DescriptorSetFunctions::MaterialType materialType);
 	
 	~GameObject();
 	
@@ -104,7 +105,7 @@ public:
 private:
 	std::shared_ptr<Model> objModel;
 	std::shared_ptr<ImageTextureLoader> textureLoader;
-	// std::unique_ptr<GameObjectBehavior> gameObjectBehavior;
+	std::unique_ptr<GameObjectBehavior> gameObjectBehavior;
 	std::string vertexShaderName;
 	std::string fragmentShaderName;
 	

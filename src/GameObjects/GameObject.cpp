@@ -9,12 +9,16 @@
 #include <iostream>
 
 GameObject::GameObject(std::shared_ptr<Model> const& model,
-					   GfxDeviceManager *gfxDeviceManager,
-					   std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-					   std::shared_ptr<ImageTextureLoader> const& textureLoader,
-					   VkCommandPool commandPool,
-					   DescriptorSetFunctions::MaterialType materialType) :
-	objModel(model), textureLoader(textureLoader), logicalDeviceManager(logicalDeviceManager),
+	//std::unique_ptr<GameObjectBehavior> behavior,
+	GfxDeviceManager *gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	std::shared_ptr<ImageTextureLoader> const& textureLoader,
+	VkCommandPool commandPool,
+	DescriptorSetFunctions::MaterialType materialType) :
+	objModel(model),
+	//gameObjectBehavior(std::move(behavior)),
+	textureLoader(textureLoader),
+	logicalDeviceManager(logicalDeviceManager),
 	descriptorPool(nullptr), materialType(materialType) {
 	SetupShaderNames();
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
