@@ -104,7 +104,7 @@ public:
 private:
 	std::shared_ptr<Model> objModel;
 	std::shared_ptr<ImageTextureLoader> textureLoader;
-	//std::unique_ptr<GameObjectBehavior> gameObjectBehavior;
+	// std::unique_ptr<GameObjectBehavior> gameObjectBehavior;
 	std::string vertexShaderName;
 	std::string fragmentShaderName;
 	

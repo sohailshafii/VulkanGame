@@ -13,5 +13,7 @@ public:
 
 	}
 
+	virtual void UpdateSelf() = 0;
+
 private:
 };

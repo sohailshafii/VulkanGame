@@ -3,7 +3,7 @@
 #include "vulkan/vulkan.h"
 #include "Common.h"
 #include "Model.h"
-#include "GameObject.h"
+#include "GameObjects/GameObject.h"
 #include <vector>
 
 class SwapChainManager;

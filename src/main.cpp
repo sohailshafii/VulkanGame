@@ -43,7 +43,7 @@
 #include "Model.h"
 #include "Camera.h"
 
-#include "GameObject.h"
+#include "GameObjects/GameObject.h"
 #include "Scene.h"
 #include "SceneLoader.h"
 

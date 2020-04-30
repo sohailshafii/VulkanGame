@@ -1,6 +1,6 @@
 #include "SceneLoader.h"
 #include "GameObject.h"
-#include "ThirdParty/nlohmann/json.hpp"
+#include "nlohmann/json.hpp"
 #include <exception>
 #include <iostream>
 #include <fstream>

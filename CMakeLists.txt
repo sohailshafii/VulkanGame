@@ -5,8 +5,9 @@ set (CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-set(SOURCE_FILES ${PROJECT_SOURCE_DIR}/main.cpp)
-AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR} SOURCE_FILES) 
+set(SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/main.cpp)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src SOURCE_FILES) 
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/GameObjects SOURCE_FILES) 
 
 add_executable(VulkanGame ${SOURCE_FILES})
 
@@ -25,7 +26,8 @@ target_link_libraries(VulkanGame ${GLFW_LIBRARY})
 target_include_directories(VulkanGame
 	PRIVATE
 		"${PROJECT_BINARY_DIR}"
-		"${PROJECT_SOURCE_DIR}"
-		"${PROJECT_SOURCE_DIR}/ThirdParty/nlohmann")
+		"${PROJECT_SOURCE_DIR}/src/"
+		"${PROJECT_SOURCE_DIR}/src/GameObjects"
+		"${PROJECT_SOURCE_DIR}/src/ThirdParty")
 
 
