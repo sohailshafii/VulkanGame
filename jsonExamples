@@ -1,0 +1,19 @@
+
+		{
+			"model":"Procedural:Ocean",
+			"type":"Stationary",
+			"position":[0.0, 0.0,-3.0],
+			"material":"SimpleLambertian"
+		},
+		{
+			"model":"Procedural:Sand",
+			"type":"Stationary",
+			"position":[0.0, 0.0,0.0],
+			"material":"SimpleLambertian"
+		},
+		{
+			"model":"Procedural:Icosahedron",
+			"type":"Stationary",
+			"position":[1.0, 1.0,-2.0],
+			"material":"SimpleLambertian"
+		}

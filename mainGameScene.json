@@ -5,28 +5,23 @@
 	"game_objects":
 	[
 		{
-			"model":"Procedural:Ocean",
-			"type":"Stationary",
-			"position":[0.0, 0.0,-3.0],
-			"material":"SimpleLambertian"
-		},
-		{
 			"model":"None",
 			"type":"Player",
 			"position":[0.0, 0.0, 0.0],
-			"material":"None"
+			"material":
+			{
+				"type":"None"
+			}
 		},
 		{
-			"model":"Procedural:Sand",
+			"model":"cube",
 			"type":"Stationary",
-			"position":[0.0, 0.0,0.0],
-			"material":"SimpleLambertian"
-		},
-		{
-			"model":"Procedural:Icosahedron",
-			"type":"Stationary",
-			"position":[1.0, 1.0,-2.0],
-			"material":"SimpleLambertian"
+			"position":[0.0, 0.0, 3.0],
+			"material":
+			{
+				"type":"SimpleLambertian",
+				"main_texture":"chalet.jpg"
+			}
 		}
 	],
 	"lights":

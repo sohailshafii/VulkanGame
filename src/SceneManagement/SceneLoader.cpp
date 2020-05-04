@@ -14,6 +14,8 @@
 static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<GameObject>& constructedGameObject);
 
+static void SetupMaterial(const nlohmann::json& materialNode);
+
 void SceneLoader::DeserializeJSONFileIntoScen(
 	Scene* scene,
 	const std::string& jsonFilePath) {
@@ -54,7 +56,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::string modelType = SafeGetToken(jsonObj, "model");
 	std::string objectType = SafeGetToken(jsonObj, "type");
 	auto objectPosition = SafeGetToken(jsonObj, "position");
-	std::string materialType = SafeGetToken(jsonObj, "material");
+	auto materialNode = SafeGetToken(jsonObj, "material");
 
 	std::shared_ptr<GameObjectBehavior> GameObjectBehavior;
 	if (objectType == "Player") {
@@ -66,7 +68,18 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	else {
 		GameObjectBehavior = std::make_shared<StationaryGameObjectBehavior>();
 	}
+	
+	SetupMaterial(materialNode); // TODO: pass in material argument
 }
 
-
+static void SetupMaterial(const nlohmann::json& materialNode) {
+	std::string materialType = SafeGetToken(materialNode, "type");
+	if (materialType == "None")
+	{
+		// break out early as this doesn't require rendering
+		return;
+	}
+	
+	std::string mainTexture = SafeGetToken(materialNode, "main_texture");
+}
 
