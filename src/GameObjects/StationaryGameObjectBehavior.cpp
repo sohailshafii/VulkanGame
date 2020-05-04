@@ -1,7 +1,6 @@
 #include "StationaryGameObjectBehavior.h"
 
-void StationaryGameObjectBehavior::UpdateSelf()
-{
+void StationaryGameObjectBehavior::UpdateSelf() {
 
 }
 

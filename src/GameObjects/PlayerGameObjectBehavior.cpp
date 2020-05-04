@@ -1,7 +1,6 @@
 #include "PlayerGameObjectBehavior.h"
 
-void PlayerGameObjectBehavior::UpdateSelf()
-{
+void PlayerGameObjectBehavior::UpdateSelf() {
 
 }
 

@@ -1,6 +1,5 @@
 #include "AIGameObjectBehavior.h"
 
-void AIGameObjectBehavior::UpdateSelf()
-{
+void AIGameObjectBehavior::UpdateSelf() {
 
 }

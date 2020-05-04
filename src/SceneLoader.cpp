@@ -1,8 +1,10 @@
 #include "SceneLoader.h"
+
 #include "GameObjects/GameObject.h"
 #include "GameObjects/AIGameObjectBehavior.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
 #include "GameObjects/StationaryGameObjectBehavior.h"
+#include "Scene.h"
 #include "nlohmann/json.hpp"
 #include <exception>
 #include <iostream>
@@ -13,7 +15,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<GameObject>& constructedGameObject);
 
 void SceneLoader::DeserializeJSONFileIntoScen(
-	class Scene* scene,
+	Scene* scene,
 	const std::string& jsonFilePath) {
 	try {
 		std::ifstream jsonFile(jsonFilePath);
@@ -25,6 +27,7 @@ void SceneLoader::DeserializeJSONFileIntoScen(
 		for (auto& element : gameObjects.items()) {
 			std::shared_ptr<GameObject> constructedGameObject;
 			SetUpGameObject(element.value(), constructedGameObject);
+			scene->AddGameObject(constructedGameObject);
 		}
 	}
 	catch (const std::exception& e) {
@@ -54,16 +57,13 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::string materialType = SafeGetToken(jsonObj, "material");
 
 	std::shared_ptr<GameObjectBehavior> GameObjectBehavior;
-	if (objectType == "Player")
-	{
+	if (objectType == "Player") {
 		GameObjectBehavior = std::make_shared<PlayerGameObjectBehavior>();
 	}
-	else if (objectType == "AI")
-	{
+	else if (objectType == "AI") {
 		GameObjectBehavior = std::make_shared<AIGameObjectBehavior>();
 	}
-	else
-	{
+	else {
 		GameObjectBehavior = std::make_shared<StationaryGameObjectBehavior>();
 	}
 }
