@@ -93,7 +93,7 @@ void ImageTextureLoader::GenerateMipmaps(GfxDeviceManager* gfxDeviceManager,
 
 	if (!(formatProperties.optimalTilingFeatures &&
 		VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-		throw std::runtime_error("Texture image format does not support linear blitting!");
+		throw std::runtime_error("Texture image format does not support linear filtering!");
 	}
 
 	VkCommandBuffer commandBuffer = Common::BeginSingleTimeCommands(commandPool,

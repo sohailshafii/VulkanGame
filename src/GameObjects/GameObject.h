@@ -6,8 +6,9 @@
 #include "vulkan/vulkan.h"
 #include <glm/glm.hpp>
 #include "DescriptorSetFunctions.h"
-#include "GameObjectUniformBufferObj.h"
-#include "GameObjectBehavior.h"
+#include "GameObjects/GameObjectUniformBufferObj.h"
+#include "GameObjects/GameObjectBehavior.h"
+#include "Resources/Material.h"
 
 class Model;
 struct VertexPosColorTexCoord;
@@ -29,12 +30,11 @@ public:
 	// TODO: material class
 	// TODO: pass in unique ptr to game object behavior here
 	GameObject(std::shared_ptr<Model> const& model,
+		std::shared_ptr<Material> const& material,
 		//std::unique_ptr<GameObjectBehavior> behavior,
 		GfxDeviceManager *gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-		std::shared_ptr<ImageTextureLoader> const& textureLoader,
-		VkCommandPool commandPool,
-		DescriptorSetFunctions::MaterialType materialType);
+		VkCommandPool commandPool);
 	
 	~GameObject();
 	
@@ -91,7 +91,7 @@ public:
 	}
 	
 	DescriptorSetFunctions::MaterialType GetMaterialType() const {
-		return materialType;
+		return material->GetMaterialType();
 	}
 	
 	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
@@ -104,8 +104,9 @@ public:
 	
 private:
 	std::shared_ptr<Model> objModel;
-	std::shared_ptr<ImageTextureLoader> textureLoader;
+	std::shared_ptr<Material> material;
 	std::unique_ptr<GameObjectBehavior> gameObjectBehavior;
+	
 	std::string vertexShaderName;
 	std::string fragmentShaderName;
 	
@@ -121,7 +122,6 @@ private:
 	std::vector<GameObjectUniformBufferObj*> uniformBuffersVert, uniformBuffersFrag;
 	
 	VkDescriptorPool descriptorPool;
-	DescriptorSetFunctions::MaterialType materialType;
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkDescriptorSet> descriptorSets;
 	

@@ -9,26 +9,25 @@
 #include <iostream>
 
 GameObject::GameObject(std::shared_ptr<Model> const& model,
+	std::shared_ptr<Material> const& material,
 	//std::unique_ptr<GameObjectBehavior> behavior,
 	GfxDeviceManager *gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-	std::shared_ptr<ImageTextureLoader> const& textureLoader,
-	VkCommandPool commandPool,
-	DescriptorSetFunctions::MaterialType materialType) :
+	VkCommandPool commandPool) :
 	objModel(model),
+	material(material),
 	//gameObjectBehavior(std::move(behavior)),
-	textureLoader(textureLoader),
 	logicalDeviceManager(logicalDeviceManager),
-	descriptorPool(nullptr), materialType(materialType) {
+	descriptorPool(nullptr) {
 	SetupShaderNames();
-	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), materialType);
+	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), material->GetMaterialType());
 	std::cout << descriptorSetLayout << " assoc with "
-		<< materialType << std::endl;
-	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
+		<< material->GetMaterialType() << std::endl;
+	if (material->GetMaterialType() == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
 						   commandPool);
 	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::SimpleLambertian){
+	else if (material->GetMaterialType() == DescriptorSetFunctions::MaterialType::SimpleLambertian){
 		CreateVertexBuffer(model->BuildAndReturnVertsPosNormalColorTexCoord(), gfxDeviceManager,
 						   commandPool);
 	}
@@ -74,7 +73,7 @@ GameObject::~GameObject() {
 }
 
 void GameObject::SetupShaderNames() {
-	switch (materialType) {
+	switch (material->GetMaterialType()) {
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
 			vertexShaderName = "UnlitTintedTexturedVert.spv";
 			fragmentShaderName = "UnlitTintedTexturedFrag.spv";
@@ -172,10 +171,10 @@ void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewM
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
 	descriptorPool = DescriptorSetFunctions::CreateDescriptorPool(logicalDeviceManager->GetDevice(),
-																  materialType,
+																  material->GetMaterialType(),
 																  numSwapChainImages);
 	std::cout << descriptorPool << " belongs to "
-	<< materialType << ", with layout " << std::endl;
+	<< material->GetMaterialType() << ", with layout " << std::endl;
 }
 
 void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
@@ -188,7 +187,7 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 	allocInfo.pSetLayouts = layouts.data();
 	
 	std::cout << "about to allocate descriptor sets for pool "
-	<< descriptorPool << ", with layout " << descriptorSetLayout << ", material: " << materialType << std::endl;
+	<< descriptorPool << ", with layout " << descriptorSetLayout << ", material: " << material->GetMaterialType() << std::endl;
 
 	descriptorSets.resize(numSwapChainImages);
 	if (vkAllocateDescriptorSets(logicalDeviceManager->GetDevice(), &allocInfo,
@@ -208,10 +207,10 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 		bufferInfoFrag.range = sizeof(UniformBufferObjectLighting); // TODO: fix
 
 		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
-													materialType,
+													material->GetMaterialType(),
 													descriptorSets[i],
-													textureLoader->GetTextureImageView(),
-													textureLoader->GetTextureImageSampler(),
+													material->GetTextureLoader()->GetTextureImageView(),
+													material->GetTextureLoader()->GetTextureImageSampler(),
 													&bufferInfoVert,
 													&bufferInfoFrag);
 	}
