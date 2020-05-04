@@ -8,6 +8,7 @@
 			"model":"None",
 			"type":"Player",
 			"position":[0.0, 0.0, 0.0],
+			"rotation":[-90.0, 1.0, 0.0, 0.0],
 			"material":
 			{
 				"type":"None"

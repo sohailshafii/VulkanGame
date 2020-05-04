@@ -214,8 +214,9 @@ private:
 		std::string scenePath = "../mainGameScene.json";
 #endif
 		mainGameScene = new Scene();
-		SceneLoader::DeserializeJSONFileIntoScen(mainGameScene,
-			scenePath);
+		SceneLoader::DeserializeJSONFileIntoScene(
+			resourceLoader, gfxDeviceManager, logicalDeviceManager,
+			commandPool, mainGameScene, scenePath);
 		std::shared_ptr<Material> firstMaterial = std::make_shared<Material>(resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 																			 DescriptorSetFunctions::MaterialType::UnlitTintedTextured);
 		

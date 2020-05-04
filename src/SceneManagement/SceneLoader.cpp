@@ -4,6 +4,10 @@
 #include "GameObjects/AIGameObjectBehavior.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
 #include "GameObjects/StationaryGameObjectBehavior.h"
+#include "Resources/ResourceLoader.h"
+#include "GfxDeviceManager.h"
+#include "LogicalDeviceManager.h"
+#include "Resources/Material.h"
 #include "Scene.h"
 #include "nlohmann/json.hpp"
 #include <exception>
@@ -14,9 +18,14 @@
 static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<GameObject>& constructedGameObject);
 
-static void SetupMaterial(const nlohmann::json& materialNode);
+static void SetupMaterial(const nlohmann::json& materialNode,
+						  std::shared_ptr<Material>& material);
 
-void SceneLoader::DeserializeJSONFileIntoScen(
+void SceneLoader::DeserializeJSONFileIntoScene(
+	ResourceLoader* resourceLoader,
+	GfxDeviceManager *gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	VkCommandPool commandPool,
 	Scene* scene,
 	const std::string& jsonFilePath) {
 	try {
@@ -40,9 +49,14 @@ void SceneLoader::DeserializeJSONFileIntoScen(
 	}
 }
 
+static bool ContainsToken(const nlohmann::json& jsonObj,
+						  const std::string& key) {
+	return (jsonObj.find(key) != jsonObj.end());
+}
+
 static inline nlohmann::json SafeGetToken(const nlohmann::json& jsonObj,
 	const std::string& key) {
-	if (jsonObj.find(key) != jsonObj.end()) {
+	if (ContainsToken(jsonObj, key)) {
 		return jsonObj[key];
 	}
 	std::stringstream exceptionMsg;
@@ -69,10 +83,12 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		GameObjectBehavior = std::make_shared<StationaryGameObjectBehavior>();
 	}
 	
-	SetupMaterial(materialNode); // TODO: pass in material argument
+	std::shared_ptr<Material> newMaterial;
+	SetupMaterial(materialNode, newMaterial);
 }
 
-static void SetupMaterial(const nlohmann::json& materialNode) {
+static void SetupMaterial(const nlohmann::json& materialNode,
+						  std::shared_ptr<Material>& material) {
 	std::string materialType = SafeGetToken(materialNode, "type");
 	if (materialType == "None")
 	{
@@ -81,5 +97,6 @@ static void SetupMaterial(const nlohmann::json& materialNode) {
 	}
 	
 	std::string mainTexture = SafeGetToken(materialNode, "main_texture");
+	//material = std::make_shared<Material>()
 }
 
