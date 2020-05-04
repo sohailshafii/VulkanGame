@@ -1,4 +1,4 @@
-#include "SceneLoader.h"
+#include "SceneManagement/SceneLoader.h"
 
 #include "GameObjects/GameObject.h"
 #include "GameObjects/AIGameObjectBehavior.h"

@@ -14,7 +14,7 @@
 			"model":"None",
 			"type":"Player",
 			"position":[0.0, 0.0, 0.0],
-			"material":"UnlitTintedTextured"
+			"material":"None"
 		},
 		{
 			"model":"Procedural:Sand",

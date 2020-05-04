@@ -44,8 +44,8 @@
 #include "Camera.h"
 
 #include "GameObjects/GameObject.h"
-#include "Scene.h"
-#include "SceneLoader.h"
+#include "SceneManagement/Scene.h"
+#include "SceneManagement/SceneLoader.h"
 
 class HelloTriangleApplication {
 public:
