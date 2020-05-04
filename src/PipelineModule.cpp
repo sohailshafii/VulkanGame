@@ -1,6 +1,6 @@
 #include "PipelineModule.h"
 #include "ShaderLoader.h"
-#include "ResourceLoader.h"
+#include "Resources/ResourceLoader.h"
 #include "Common.h"
 #include "Vertex.h"
 

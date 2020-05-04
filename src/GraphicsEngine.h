@@ -2,7 +2,7 @@
 
 #include "vulkan/vulkan.h"
 #include "Common.h"
-#include "Model.h"
+#include "Resources/Model.h"
 #include "GameObjects/GameObject.h"
 #include <vector>
 

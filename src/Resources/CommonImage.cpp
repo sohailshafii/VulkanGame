@@ -1,4 +1,4 @@
-#include "CommonImage.h"
+#include "Resources/CommonImage.h"
 
 CommonImage::CommonImage() {
 

@@ -1,10 +1,10 @@
 #include "GameObject.h"
-#include "Model.h"
+#include "Resources/Model.h"
 #include "Vertex.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "Common.h"
-#include "ImageTextureLoader.h"
+#include "Resources/ImageTextureLoader.h"
 
 #include <iostream>
 

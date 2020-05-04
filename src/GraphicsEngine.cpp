@@ -6,8 +6,8 @@
 #include "RenderPassModule.h"
 #include "PipelineModule.h"
 #include "CommonBufferModule.h"
-#include "ImageTextureLoader.h"
-#include "ResourceLoader.h"
+#include "Resources/ImageTextureLoader.h"
+#include "Resources/ResourceLoader.h"
 
 // TODO renaming this to something else..it's not really a graphics engine, but 
 // something that gets recreated when something like the window or parts of the pipeline

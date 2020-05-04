@@ -1,10 +1,10 @@
 
-#include "ResourceLoader.h"
-#include "ShaderLoader.h"
-#include "ImageTextureLoader.h"
+#include "Resources/ResourceLoader.h"
+#include "Resources/ShaderLoader.h"
+#include "Resources/ImageTextureLoader.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
-#include "Model.h"
+#include "Resources/Model.h"
 
 ResourceLoader::ResourceLoader() {
 
