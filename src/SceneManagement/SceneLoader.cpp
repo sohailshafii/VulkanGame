@@ -8,6 +8,7 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "Resources/Material.h"
+#include "Resources/ImageTextureLoader.h"
 #include "Scene.h"
 #include "nlohmann/json.hpp"
 #include <exception>
@@ -16,10 +17,18 @@
 #include <sstream>
 
 static void SetUpGameObject(const nlohmann::json& jsonObj,
-	std::shared_ptr<GameObject>& constructedGameObject);
+	std::shared_ptr<GameObject>& constructedGameObject,
+	ResourceLoader* resourceLoader,
+	GfxDeviceManager *gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	VkCommandPool commandPool);
 
 static void SetupMaterial(const nlohmann::json& materialNode,
-						  std::shared_ptr<Material>& material);
+						  std::shared_ptr<Material>& material,
+						  ResourceLoader* resourceLoader,
+						  GfxDeviceManager *gfxDeviceManager,
+						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+						  VkCommandPool commandPool);
 
 void SceneLoader::DeserializeJSONFileIntoScene(
 	ResourceLoader* resourceLoader,
@@ -37,7 +46,9 @@ void SceneLoader::DeserializeJSONFileIntoScene(
 		nlohmann::json gameObjects = jsonObject["game_objects"];
 		for (auto& element : gameObjects.items()) {
 			std::shared_ptr<GameObject> constructedGameObject;
-			SetUpGameObject(element.value(), constructedGameObject);
+			SetUpGameObject(element.value(), constructedGameObject,
+							resourceLoader, gfxDeviceManager,
+							logicalDeviceManager, commandPool);
 			scene->AddGameObject(constructedGameObject);
 		}
 	}
@@ -66,7 +77,11 @@ static inline nlohmann::json SafeGetToken(const nlohmann::json& jsonObj,
 }
 
 static void SetUpGameObject(const nlohmann::json& jsonObj,
-	std::shared_ptr<GameObject>& constructedGameObject) {
+	std::shared_ptr<GameObject>& constructedGameObject,
+	ResourceLoader* resourceLoader,
+	GfxDeviceManager *gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	VkCommandPool commandPool) {
 	std::string modelType = SafeGetToken(jsonObj, "model");
 	std::string objectType = SafeGetToken(jsonObj, "type");
 	auto objectPosition = SafeGetToken(jsonObj, "position");
@@ -84,19 +99,41 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	}
 	
 	std::shared_ptr<Material> newMaterial;
-	SetupMaterial(materialNode, newMaterial);
+	SetupMaterial(materialNode, newMaterial, resourceLoader,
+				  gfxDeviceManager, logicalDeviceManager,
+				  commandPool);
 }
 
 static void SetupMaterial(const nlohmann::json& materialNode,
-						  std::shared_ptr<Material>& material) {
-	std::string materialType = SafeGetToken(materialNode, "type");
-	if (materialType == "None")
+						  std::shared_ptr<Material>& material,
+						  ResourceLoader* resourceLoader,
+						  GfxDeviceManager *gfxDeviceManager,
+						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager, VkCommandPool commandPool) {
+	std::string materialToken = SafeGetToken(materialNode, "type");
+	if (materialToken == "None")
 	{
 		// break out early as this doesn't require rendering
 		return;
 	}
 	
-	std::string mainTexture = SafeGetToken(materialNode, "main_texture");
-	//material = std::make_shared<Material>()
+	std::string mainTextureName = SafeGetToken(materialNode, "main_texture");
+	
+	#if __APPLE__
+		const std::string texturePathPrefix = "../../textures/";
+	#else
+		const std::string texturePathPrefix = "../textures/";
+	#endif
+	std::string texturePath = texturePathPrefix + mainTextureName;
+	
+	std::shared_ptr<ImageTextureLoader> mainTexture = resourceLoader->GetTexture(texturePath, gfxDeviceManager, logicalDeviceManager, commandPool);
+	DescriptorSetFunctions::MaterialType materialEnumType =
+	DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
+	if (materialToken == "SimpleLambertian")
+	{
+		materialEnumType = DescriptorSetFunctions::MaterialType::SimpleLambertian;
+	}
+	
+	material = std::make_shared<Material>(mainTexture,
+										  materialEnumType);
 }
 
