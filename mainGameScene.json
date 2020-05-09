@@ -5,23 +5,32 @@
 	"game_objects":
 	[
 		{
-			"model":"None",
+			"model":"cube.obj",
 			"type":"Player",
 			"position":[0.0, 0.0, 0.0],
 			"rotation":[-90.0, 1.0, 0.0, 0.0],
 			"material":
 			{
-				"type":"None"
+				"type":"SimpleLambertian",
+				"main_texture":"texture.jpg"
+			},
+			"transformation":
+			{
+				"position":[0.0, 0.0, 3.0]
 			}
 		},
 		{
-			"model":"cube",
+			"model":"cube.obj",
 			"type":"Stationary",
 			"position":[0.0, 0.0, 3.0],
 			"material":
 			{
 				"type":"SimpleLambertian",
-				"main_texture":"chalet.jpg"
+				"main_texture":"texture.jpg"
+			},
+			"transformation":
+			{
+				"rotation":[-90.0, 0.0, 0.0]
 			}
 		}
 	],

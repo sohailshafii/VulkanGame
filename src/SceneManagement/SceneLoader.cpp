@@ -11,6 +11,11 @@
 #include "Resources/ImageTextureLoader.h"
 #include "Scene.h"
 #include "nlohmann/json.hpp"
+#include <glm/glm.hpp>
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <exception>
 #include <iostream>
 #include <fstream>
@@ -102,6 +107,26 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	SetupMaterial(materialNode, newMaterial, resourceLoader,
 				  gfxDeviceManager, logicalDeviceManager,
 				  commandPool);
+
+	#if __APPLE__
+		const std::string modelPathPrefix = "../../models/";
+	#else
+		const std::string modelPathPrefix = "../models/";
+	#endif
+	std::string modelPath = modelPathPrefix;
+	if (modelType != "None")
+	{
+		modelPath += modelType;
+	}
+	
+	// TODO: allow having no model
+	constructedGameObject  =
+		std::make_shared<GameObject>(resourceLoader->GetModel(modelPath),
+									 newMaterial, gfxDeviceManager,
+									 logicalDeviceManager, commandPool);
+	
+	glm::mat4 translateInZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
+	constructedGameObject->SetModelTransform(translateInZ);
 }
 
 static void SetupMaterial(const nlohmann::json& materialNode,
@@ -110,6 +135,7 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 						  GfxDeviceManager *gfxDeviceManager,
 						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager, VkCommandPool commandPool) {
 	std::string materialToken = SafeGetToken(materialNode, "type");
+	// TODO: make material optional
 	if (materialToken == "None")
 	{
 		// break out early as this doesn't require rendering

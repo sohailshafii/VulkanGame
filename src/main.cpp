@@ -105,7 +105,6 @@ private:
 
 	ResourceLoader* resourceLoader;
 	Scene* mainGameScene;
-	std::vector<std::shared_ptr<GameObject>> gameObjects;
 
 	// need to be static for cursor callback function to work
 	static Camera mainCamera;
@@ -160,7 +159,8 @@ private:
 		CreateGameObjects();
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-			resourceLoader, surface, window, commandPool, gameObjects);
+			resourceLoader, surface, window, commandPool,
+			mainGameScene->GetGameObjects());
 
 		CreateSyncObjects();
 	}
@@ -189,7 +189,7 @@ private:
 
 		delete graphicsEngine;
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-			resourceLoader, surface, window, commandPool, gameObjects);
+			resourceLoader, surface, window, commandPool, mainGameScene->GetGameObjects());
 	}
 
 	void CreateCommandPool() {
@@ -217,7 +217,7 @@ private:
 		SceneLoader::DeserializeJSONFileIntoScene(
 			resourceLoader, gfxDeviceManager, logicalDeviceManager,
 			commandPool, mainGameScene, scenePath);
-		std::shared_ptr<Material> firstMaterial = std::make_shared<Material>(resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
+		/*std::shared_ptr<Material> firstMaterial = std::make_shared<Material>(resourceLoader->GetTexture(TEXTURE_PATH, gfxDeviceManager, logicalDeviceManager, commandPool),
 																			 DescriptorSetFunctions::MaterialType::UnlitTintedTextured);
 		
 		std::shared_ptr<GameObject> houseObj = std::make_shared<GameObject>(resourceLoader->GetModel(MODEL_PATH), firstMaterial, gfxDeviceManager, logicalDeviceManager,
@@ -235,10 +235,10 @@ private:
 			commandPool);
 		
 		glm::mat4 translateInZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
-		cubeObj->SetModelTransform(translateInZ);
+		cubeObj->SetModelTransform(translateInZ);*/
 	
-		gameObjects.push_back(houseObj);
-		gameObjects.push_back(cubeObj);
+		//gameObjects.push_back(houseObj);
+		//gameObjects.push_back(cubeObj);
 	}
 	
 	void CreateSyncObjects() {
@@ -321,6 +321,7 @@ private:
 	// get command buffers per model
 	// wait on those buffers
 	void UpdateGameState(float deltaTime, uint32_t imageIndex) {
+		auto& gameObjects = mainGameScene->GetGameObjects();
 		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
 			gameObject->UpdateUniformBuffer(imageIndex,
 											HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
@@ -385,10 +386,8 @@ private:
 
 		delete graphicsEngine;
 		
+		// delete game obejcts before main game scene is removed
 		delete mainGameScene;
-
-		// kill game objects before device manager is removed
-		gameObjects.clear();
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(logicalDeviceManager->GetDevice(), renderFinishedSemaphores[i], nullptr);
