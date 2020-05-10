@@ -35,6 +35,9 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 						  VkCommandPool commandPool);
 
+static void SetupTransformation(const nlohmann::json& transformNode,
+								glm::mat4& normalTransform);
+
 void SceneLoader::DeserializeJSONFileIntoScene(
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager *gfxDeviceManager,
@@ -89,7 +92,6 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	VkCommandPool commandPool) {
 	std::string modelType = SafeGetToken(jsonObj, "model");
 	std::string objectType = SafeGetToken(jsonObj, "type");
-	auto objectPosition = SafeGetToken(jsonObj, "position");
 	auto materialNode = SafeGetToken(jsonObj, "material");
 
 	std::shared_ptr<GameObjectBehavior> GameObjectBehavior;
@@ -114,8 +116,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		const std::string modelPathPrefix = "../models/";
 	#endif
 	std::string modelPath = modelPathPrefix;
-	if (modelType != "None")
-	{
+	if (modelType != "None") {
 		modelPath += modelType;
 	}
 	
@@ -125,8 +126,10 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 									 newMaterial, gfxDeviceManager,
 									 logicalDeviceManager, commandPool);
 	
-	glm::mat4 translateInZ = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 3.0f));
-	constructedGameObject->SetModelTransform(translateInZ);
+	auto transformationNode = SafeGetToken(jsonObj, "transformation");
+	glm::mat4 localToWorldTranfsorm(1.0f);
+	SetupTransformation(transformationNode, localToWorldTranfsorm);
+	constructedGameObject->SetModelTransform(localToWorldTranfsorm);
 }
 
 static void SetupMaterial(const nlohmann::json& materialNode,
@@ -136,8 +139,7 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager, VkCommandPool commandPool) {
 	std::string materialToken = SafeGetToken(materialNode, "type");
 	// TODO: make material optional
-	if (materialToken == "None")
-	{
+	if (materialToken == "None") {
 		// break out early as this doesn't require rendering
 		return;
 	}
@@ -154,8 +156,7 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	std::shared_ptr<ImageTextureLoader> mainTexture = resourceLoader->GetTexture(texturePath, gfxDeviceManager, logicalDeviceManager, commandPool);
 	DescriptorSetFunctions::MaterialType materialEnumType =
 	DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
-	if (materialToken == "SimpleLambertian")
-	{
+	if (materialToken == "SimpleLambertian") {
 		materialEnumType = DescriptorSetFunctions::MaterialType::SimpleLambertian;
 	}
 	
@@ -163,3 +164,30 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 										  materialEnumType);
 }
 
+static void SetupTransformation(const nlohmann::json& transformNode,
+								glm::mat4& normalTransform) {
+	normalTransform = glm::mat4(1.0f);
+	if (ContainsToken(transformNode, "position")) {
+		auto positionNode = SafeGetToken(transformNode, "position");
+		normalTransform = glm::translate(normalTransform,
+										 glm::vec3((float)positionNode[0], (float)positionNode[1], (float)positionNode[2]));
+	}
+	if (ContainsToken(transformNode, "rotation")) {
+		auto rotationNode = SafeGetToken(transformNode, "rotation");
+		normalTransform = glm::rotate(normalTransform,
+									  glm::radians((float)rotationNode[0]),
+									  glm::vec3(1.0f, 0.0f, 0.0f));
+		normalTransform = glm::rotate(normalTransform,
+									  glm::radians((float)rotationNode[1]),
+									  glm::vec3(0.0f, 1.0f, 0.0f));
+		normalTransform = glm::rotate(normalTransform,
+									  glm::radians((float)rotationNode[2]),
+									  glm::vec3(0.0f, 0.0f, 1.0f));
+		
+	}
+	if (ContainsToken(transformNode, "scale")) {
+		auto scaleNode = SafeGetToken(transformNode, "scale");
+		normalTransform = glm::scale(normalTransform,
+										 glm::vec3((float)scaleNode[0], (float)scaleNode[1], (float)scaleNode[2]));
+	}
+}
