@@ -67,3 +67,13 @@ Model::~Model() {
 
 }
 
+std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
+	const glm::vec3& side1Vec, const glm::vec3& side2Vec,
+	float numSide1Points, float numSide2Points)
+{
+	std::vector<ModelVert> vertices;
+	std::vector<uint32_t> indices;
+
+	return std::make_shared<Model>(vertices, indices);
+}
+

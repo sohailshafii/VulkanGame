@@ -41,12 +41,15 @@ public:
 		glm::vec2 texCoord;
 	};
 	
+	Model() {}
 	Model(const std::string& modelPath);
 	Model(const std::vector<ModelVert>& vertices,
 		  const std::vector<uint32_t>& indices);
 	~Model();
 	
-	static std::shared_ptr<Model> CreateCube();
+	static std::shared_ptr<Model> CreateQuad(const glm::vec3& lowerLeft,
+		const glm::vec3& side1Vec, const glm::vec3& side2Vec,
+		float numSide1Points, float numSide2Points);
 	
 	const std::vector<VertexPos> BuildAndReturnVertsPos() {
 		auto vertsToBuild = std::vector<VertexPos>();
