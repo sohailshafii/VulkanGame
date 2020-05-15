@@ -12,6 +12,8 @@
 
 class Model {
 public:
+	enum TopologyType { TriangleList = 0, TriangleStrip };
+
 	struct ModelVert {
 		ModelVert() { }
 		ModelVert(const glm::vec3& position) :
@@ -44,12 +46,13 @@ public:
 	Model() {}
 	Model(const std::string& modelPath);
 	Model(const std::vector<ModelVert>& vertices,
-		  const std::vector<uint32_t>& indices);
+		  const std::vector<uint32_t>& indices,
+		TopologyType modelTopology);
 	~Model();
 	
 	static std::shared_ptr<Model> CreateQuad(const glm::vec3& lowerLeft,
 		const glm::vec3& side1Vec, const glm::vec3& side2Vec,
-		float numSide1Points, float numSide2Points);
+		uint32_t numSide1Points, uint32_t numSide2Points);
 	
 	const std::vector<VertexPos> BuildAndReturnVertsPos() {
 		auto vertsToBuild = std::vector<VertexPos>();
@@ -116,6 +119,7 @@ public:
 private:
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
+	TopologyType modelTopology;
 };
 
 namespace std {

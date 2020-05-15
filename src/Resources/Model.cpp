@@ -4,6 +4,7 @@
 #include <unordered_map>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+#include <iostream>
 
 Model::Model(const std::string& modelPath) {
 	tinyobj::attrib_t attrib;
@@ -56,11 +57,14 @@ Model::Model(const std::string& modelPath) {
 			indices.push_back(uniqueVertices[vertex]);
 		}
 	}
+
+	modelTopology = TopologyType::TriangleList;
 }
 
 Model::Model(const std::vector<ModelVert>& vertices,
-	  const std::vector<uint32_t>& indices) : vertices(vertices),
-	indices(indices) {
+	  const std::vector<uint32_t>& indices,
+		TopologyType modelTopology) : vertices(vertices),
+	indices(indices), modelTopology(modelTopology) {
 }
 
 Model::~Model() {
@@ -69,11 +73,56 @@ Model::~Model() {
 
 std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
 	const glm::vec3& side1Vec, const glm::vec3& side2Vec,
-	float numSide1Points, float numSide2Points)
+	uint32_t numSide1Points, uint32_t numSide2Points)
 {
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
 
-	return std::make_shared<Model>(vertices, indices);
+	// make sure side1 and side2 are perpendicular
+	if (fabs(glm::dot(side1Vec, side2Vec)) > 0.0f)
+	{
+		std::cerr << "Side vectors are not perpendicular; "
+			<< "cannot create quad.\n";
+		return nullptr;
+	}
+
+	glm::vec3 quadPoint;
+	// if there are n points, there are (n-1) divisions
+	glm::vec3 side1Div = side1Vec / (float)(numSide1Points + 1);
+	glm::vec3 side2Div = side2Vec / (float)(numSide2Points + 1);
+
+	// for each piece in side 1 (row)
+	for (uint32_t side1Index = 0; side1Index < numSide1Points;
+		side1Index++)
+	{
+		quadPoint = (float)side1Index * side1Div;
+		// for each piece in side 2 (column)
+		for (uint32_t side2Index = 0; side2Index < numSide2Points;
+			side2Index++)
+		{
+			quadPoint += (float)side2Index * side2Div;
+			vertices.push_back(quadPoint);
+		}
+	}
+
+	for (uint32_t side1Index = 0; side1Index < numSide1Points - 1;
+		side1Index++)
+	{
+		uint32_t nextSide1Index = side1Index + 1;
+		for (uint32_t side2Index = 0; side2Index < numSide2Points;
+			side2Index++)
+		{
+			// add bottom and top index of triangle strip each time
+			uint32_t oneDimIndexBottom = side1Index * numSide1Points
+				+ side2Index;
+			uint32_t oneDimIndexTop = nextSide1Index * numSide1Points
+				+ side2Index;
+			indices.push_back(oneDimIndexBottom);
+			indices.push_back(oneDimIndexTop);
+		}
+	}
+
+	return std::make_shared<Model>(vertices, indices,
+		TopologyType::TriangleStrip);
 }
 
