@@ -92,10 +92,11 @@ void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	for(auto& gameObject : gameObjects) {
 		graphicsPipelineModules.push_back(new PipelineModule(gameObject->GetVertexShaderName(),
-															 gameObject->GetFragmentShaderName(), logicalDeviceManager->GetDevice(),
-															 swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
-															 resourceLoader, gameObject->GetDescriptorSetLayout(), renderPassModule->GetRenderPass(),
-															 gameObject->GetMaterialType()));
+			gameObject->GetFragmentShaderName(), logicalDeviceManager->GetDevice(),
+			swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
+			 resourceLoader, gameObject->GetDescriptorSetLayout(), renderPassModule->GetRenderPass(),
+			gameObject->GetMaterialType(),
+			gameObject->GetPrimitiveTopology()));
 	}
 }
 

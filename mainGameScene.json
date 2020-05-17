@@ -18,6 +18,28 @@
 			}
 		},
 		{
+			"model":"Procedural",
+			"type":"Stationary",
+			"material":
+			{
+				"type":"SimpleLambertian",
+				"main_texture":"texture.jpg"
+			},
+			"transformation":
+			{
+				"position":[0.0, 0.0, 6.0]
+			},
+			"meta_data":
+			{
+				"primitive_type":"quad",
+				"lower_left":[-2.0, 0.0, -2.0],
+				"side_1_vec":[4.0, 0.0, 0.0],
+				"side_2_vec":[0.0, 0.0, 4.0],
+				"num_side_1_points":4,
+				"num_side_2_points":4
+			}
+		},
+		{
 			"model":"cube.obj",
 			"type":"Stationary",
 			"material":

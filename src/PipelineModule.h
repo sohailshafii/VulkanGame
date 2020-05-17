@@ -15,7 +15,8 @@ public:
 		ResourceLoader *resourceLoader,
 		VkDescriptorSetLayout descriptorSetLayout,
 		VkRenderPass renderPass,
-		DescriptorSetFunctions::MaterialType materialType);
+		DescriptorSetFunctions::MaterialType materialType,
+		VkPrimitiveTopology primitiveTopology);
 	~PipelineModule();
 
 	VkPipelineLayout GetLayout() {

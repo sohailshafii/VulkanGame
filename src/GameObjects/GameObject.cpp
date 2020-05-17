@@ -159,7 +159,7 @@ void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewM
 	ubo.model = modelMatrix;
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 10.0f);
+		(float)swapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 	void* data;

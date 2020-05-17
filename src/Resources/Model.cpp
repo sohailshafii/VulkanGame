@@ -88,8 +88,8 @@ std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
 
 	glm::vec3 quadPoint;
 	// if there are n points, there are (n-1) divisions
-	glm::vec3 side1Div = side1Vec / (float)(numSide1Points + 1);
-	glm::vec3 side2Div = side2Vec / (float)(numSide2Points + 1);
+	glm::vec3 side1Div = side1Vec / (float)(numSide1Points - 1);
+	glm::vec3 side2Div = side2Vec / (float)(numSide2Points - 1);
 
 	// for each piece in side 1 (row)
 	for (uint32_t side1Index = 0; side1Index < numSide1Points;
@@ -113,12 +113,12 @@ std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
 			side2Index++)
 		{
 			// add bottom and top index of triangle strip each time
-			uint32_t oneDimIndexBottom = side1Index * numSide1Points
+			uint32_t oneDimIndexBottom = side1Index * numSide2Points
 				+ side2Index;
-			uint32_t oneDimIndexTop = nextSide1Index * numSide1Points
+			uint32_t oneDimIndexTop = nextSide1Index * numSide2Points
 				+ side2Index;
-			indices.push_back(oneDimIndexBottom);
 			indices.push_back(oneDimIndexTop);
+			indices.push_back(oneDimIndexBottom);
 		}
 	}
 

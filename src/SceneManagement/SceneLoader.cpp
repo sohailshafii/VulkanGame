@@ -9,6 +9,7 @@
 #include "LogicalDeviceManager.h"
 #include "Resources/Material.h"
 #include "Resources/ImageTextureLoader.h"
+#include "Resources/Model.h"
 #include "Scene.h"
 #include "nlohmann/json.hpp"
 #include <glm/glm.hpp>
@@ -116,13 +117,29 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		const std::string modelPathPrefix = "../models/";
 	#endif
 	std::string modelPath = modelPathPrefix;
-	if (modelType != "None") {
+	std::shared_ptr<Model> gameObjectModel;
+	// TODO: allow having no model
+	if (modelType.find("Procedural") != std::string::npos)
+	{
+		auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
+		auto lowerLeftPos = SafeGetToken(metaDataNode, "lower_left");
+		auto side1Vec = SafeGetToken(metaDataNode, "side_1_vec");
+		auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
+		unsigned int numSide1Pnts = SafeGetToken(metaDataNode, "num_side_1_points");
+		unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
+		gameObjectModel = Model::CreateQuad(
+			glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
+			glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
+			glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
+			numSide1Pnts, numSide2Pnts);
+	}
+	else if (modelType != "None") {
 		modelPath += modelType;
+		gameObjectModel = resourceLoader->GetModel(modelPath);
 	}
 	
-	// TODO: allow having no model
 	constructedGameObject  =
-		std::make_shared<GameObject>(resourceLoader->GetModel(modelPath),
+		std::make_shared<GameObject>(gameObjectModel,
 									 newMaterial, gfxDeviceManager,
 									 logicalDeviceManager, commandPool);
 	

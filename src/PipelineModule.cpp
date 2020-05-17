@@ -10,7 +10,8 @@ PipelineModule::PipelineModule(const std::string& vertShaderName,
 	ResourceLoader* resourceLoader,
 	VkDescriptorSetLayout descriptorSetLayout,
 	VkRenderPass renderPass,
-	DescriptorSetFunctions::MaterialType materialType) {
+	DescriptorSetFunctions::MaterialType materialType,
+	VkPrimitiveTopology primitiveTopology) {
 	this->device = device;
 	// TODO: use first set of paths when completely switched to cmake
 	// on Windows
@@ -77,7 +78,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	inputAssembly.topology = primitiveTopology;
 	inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 	VkViewport viewport = {};

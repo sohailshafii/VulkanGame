@@ -9,8 +9,8 @@
 #include "GameObjects/GameObjectUniformBufferObj.h"
 #include "GameObjects/GameObjectBehavior.h"
 #include "Resources/Material.h"
+#include "Resources/Model.h"
 
-class Model;
 struct VertexPosColorTexCoord;
 class GfxDeviceManager;
 class LogicalDeviceManager;
@@ -92,6 +92,12 @@ public:
 	
 	DescriptorSetFunctions::MaterialType GetMaterialType() const {
 		return material->GetMaterialType();
+	}
+
+	VkPrimitiveTopology GetPrimitiveTopology() const {
+		return objModel->GetTopologyType() == Model::TopologyType::TriangleList
+			? VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST :
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 	}
 	
 	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,

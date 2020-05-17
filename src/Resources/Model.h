@@ -116,6 +116,10 @@ public:
 		return indices;
 	}
 
+	TopologyType GetTopologyType() const {
+		return modelTopology;
+	}
+
 private:
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
