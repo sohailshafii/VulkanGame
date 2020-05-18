@@ -10,8 +10,8 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateDescriptorSetLayout(VkDevice
 		case MaterialType::UnlitTintedTextured:
 			descriptorSetLayout = CreateUnlitTintedTexturedDescriptorSetLayout(device);
 			break;
-		case MaterialType::SimpleLambertian:
-			descriptorSetLayout = CreateSimpleLambertianDescriptorSetLayout(device);
+		case MaterialType::WavySurface:
+			descriptorSetLayout = CreateWavySurfaceDescriptorSetLayout(device);
 			break;
 	}
 	return descriptorSetLayout;
@@ -30,8 +30,8 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 												   textureImageView, textureSampler,
 												   bufferInfoVert);
 			break;
-		case MaterialType::SimpleLambertian:
-			UpdateDescriptorSetSimpleLambertian(device, descriptorSet, textureImageView, textureSampler, bufferInfoVert, bufferInfoFrag);
+		case MaterialType::WavySurface:
+			UpdateDescriptorSetWavySurface(device, descriptorSet, textureImageView, textureSampler, bufferInfoVert);
 			break;
 	}
 }
@@ -43,11 +43,11 @@ VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPool(VkDevice device, M
 	switch (materialType) {
 		case MaterialType::UnlitTintedTextured:
 			descriptorPool = CreateDescriptorPoolUnlitTintedTextured(device,
-																	 numSwapChainImages);
+																numSwapChainImages);
 			break;
-		case MaterialType::SimpleLambertian:
-			descriptorPool = CreateDescriptorPoolSimpleLambertian(device,
-																	   numSwapChainImages);
+		case MaterialType::WavySurface:
+			descriptorPool = CreateDescriptorPoolWavySurface(device,
+															numSwapChainImages);
 			break;
 	}
 	return descriptorPool;
@@ -141,7 +141,8 @@ VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPoolUnlitTintedTextured
 	return descriptorPool;
 }
 
-VkDescriptorSetLayout DescriptorSetFunctions::CreateSimpleLambertianDescriptorSetLayout(VkDevice device)
+VkDescriptorSetLayout DescriptorSetFunctions::CreateWavySurfaceDescriptorSetLayout(
+	VkDevice device)
 {
 	VkDescriptorSetLayoutBinding uboLayoutBindingVertexShader = {};
 	uboLayoutBindingVertexShader.binding = 0;
@@ -157,15 +158,8 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateSimpleLambertianDescriptorSe
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	
-	VkDescriptorSetLayoutBinding fragmentUniformBuffer = {};
-	fragmentUniformBuffer.binding = 2;
-	fragmentUniformBuffer.descriptorCount = 1;
-	fragmentUniformBuffer.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	fragmentUniformBuffer.pImmutableSamplers = nullptr;
-	fragmentUniformBuffer.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	
-	std::array<VkDescriptorSetLayoutBinding, 3> bindings =
-		{ uboLayoutBindingVertexShader, samplerLayoutBinding, fragmentUniformBuffer};
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings =
+		{ uboLayoutBindingVertexShader, samplerLayoutBinding};
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -175,24 +169,23 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateSimpleLambertianDescriptorSe
 	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout)
 		!= VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create descriptor set layout for lambertian!");
+		throw std::runtime_error("Failed to create descriptor set layout for wavy surface!");
 	}
 	return descriptorSetLayout;
 }
 
-void DescriptorSetFunctions::UpdateDescriptorSetSimpleLambertian(VkDevice device,
+void DescriptorSetFunctions::UpdateDescriptorSetWavySurface(VkDevice device,
 										 VkDescriptorSet descriptorSet,
 										 VkImageView textureImageView,
 										 VkSampler textureSampler,
-										 VkDescriptorBufferInfo *bufferInfoVert,
-										 VkDescriptorBufferInfo *bufferInfoFrag)
+										 VkDescriptorBufferInfo *bufferInfoVert)
 {
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.sampler = textureSampler;
 	imageInfo.imageView = textureImageView;
 	
-	std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
+	std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
 	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptorWrites[0].dstSet = descriptorSet;
 	descriptorWrites[0].dstBinding = 0;
@@ -209,29 +202,17 @@ void DescriptorSetFunctions::UpdateDescriptorSetSimpleLambertian(VkDevice device
 	descriptorWrites[1].descriptorCount = 1;
 	descriptorWrites[1].pImageInfo = &imageInfo;
 	
-	descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descriptorWrites[2].dstSet = descriptorSet;
-	descriptorWrites[2].dstBinding = 2;
-	descriptorWrites[2].dstArrayElement = 0;
-	descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	descriptorWrites[2].descriptorCount = 1;
-	descriptorWrites[2].pBufferInfo = bufferInfoFrag;
-	
 	vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 }
 
-VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPoolSimpleLambertian(
-																			  VkDevice device,
-															 
-																			  size_t numSwapChainImages)
+VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPoolWavySurface(
+						VkDevice device, size_t numSwapChainImages)
 {
-	std::array<VkDescriptorPoolSize, 3> poolSizes = {};
+	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[1].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
-	poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[2].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
 
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;

@@ -3,6 +3,7 @@
 #include "Resources/ResourceLoader.h"
 #include "Common.h"
 #include "Vertex.h"
+#include <iostream>
 
 PipelineModule::PipelineModule(const std::string& vertShaderName,
 	const std::string& fragShaderName, VkDevice device,
@@ -60,7 +61,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 			attribDescriptionArray[i] = attributeDescriptions[i];
 		}
 	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::SimpleLambertian) {
+	else if (materialType == DescriptorSetFunctions::MaterialType::WavySurface) {
 		bindingDescription = VertexPosNormalColorTexCoord::GetBindingDescription();
 		auto attributeDescriptions = VertexPosNormalColorTexCoord::GetAttributeDescriptions();
 		numAttrib = attributeDescriptions.size();
@@ -199,8 +200,10 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 	pipelineInfo.basePipelineIndex = -1;
 
-	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
-		&pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+	VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
+		&pipelineInfo, nullptr, &graphicsPipeline);
+	std::cout << "Pipeline result " << result << std::endl;
+	if (result != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create graphics pipeline!");
 	}
 	

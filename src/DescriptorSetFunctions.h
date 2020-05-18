@@ -23,7 +23,7 @@ class DescriptorSetFunctions
 {
 public:
 	enum MaterialType { UnlitTintedTextured = 0,
-		SimpleLambertian };
+		WavySurface };
 	
 	static VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,
 														   MaterialType materialType);
@@ -47,15 +47,14 @@ public:
 	static VkDescriptorPool CreateDescriptorPoolUnlitTintedTextured(VkDevice device,
 																   size_t numSwapChainImages);
 	
-	static VkDescriptorSetLayout CreateSimpleLambertianDescriptorSetLayout(VkDevice
-																		   device);
-	static void UpdateDescriptorSetSimpleLambertian(VkDevice device,
-													VkDescriptorSet descriptorSet,
-													VkImageView textureImageView,
-													VkSampler textureSampler,
-													VkDescriptorBufferInfo *bufferInfoVert,
-													VkDescriptorBufferInfo *bufferInfoFrag);
-	static VkDescriptorPool CreateDescriptorPoolSimpleLambertian(VkDevice device,
-																 size_t numSwapChainImages);
+	static VkDescriptorSetLayout CreateWavySurfaceDescriptorSetLayout(VkDevice
+																		device);
+	static void UpdateDescriptorSetWavySurface(VkDevice device,
+												VkDescriptorSet descriptorSet,
+												VkImageView textureImageView,
+												VkSampler textureSampler,
+												VkDescriptorBufferInfo *bufferInfoVert);
+	static VkDescriptorPool CreateDescriptorPoolWavySurface(VkDevice device,
+															size_t numSwapChainImages);
 };
 

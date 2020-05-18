@@ -27,7 +27,8 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
 						   commandPool);
 	}
-	else if (material->GetMaterialType() == DescriptorSetFunctions::MaterialType::SimpleLambertian){
+	else if (material->GetMaterialType() ==
+		DescriptorSetFunctions::MaterialType::WavySurface){
 		CreateVertexBuffer(model->BuildAndReturnVertsPosNormalColorTexCoord(), gfxDeviceManager,
 						   commandPool);
 	}
@@ -78,9 +79,9 @@ void GameObject::SetupShaderNames() {
 			vertexShaderName = "UnlitTintedTexturedVert.spv";
 			fragmentShaderName = "UnlitTintedTexturedFrag.spv";
 			break;
-		case DescriptorSetFunctions::SimpleLambertian:
-			vertexShaderName = "SimpleLambertianVert.spv";
-			fragmentShaderName = "SimpleLambertianFrag.spv";
+		case DescriptorSetFunctions::MaterialType::WavySurface:
+			vertexShaderName = "WavySurfaceVert.spv";
+			fragmentShaderName = "WavySurfaceFrag.spv";
 			break;
 	}
 }

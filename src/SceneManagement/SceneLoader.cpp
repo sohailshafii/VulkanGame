@@ -173,8 +173,8 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	std::shared_ptr<ImageTextureLoader> mainTexture = resourceLoader->GetTexture(texturePath, gfxDeviceManager, logicalDeviceManager, commandPool);
 	DescriptorSetFunctions::MaterialType materialEnumType =
 	DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
-	if (materialToken == "SimpleLambertian") {
-		materialEnumType = DescriptorSetFunctions::MaterialType::SimpleLambertian;
+	if (materialToken == "WavySurface") {
+		materialEnumType = DescriptorSetFunctions::MaterialType::WavySurface;
 	}
 	
 	material = std::make_shared<Material>(mainTexture,

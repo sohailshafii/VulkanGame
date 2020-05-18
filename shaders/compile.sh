@@ -1,5 +1,5 @@
 glslc ./UnlitTintedTextured.vert -o ./UnlitTintedTexturedVert.spv
 glslc ./UnlitTintedTextured.frag -o ./UnlitTintedTexturedFrag.spv
 
-glslc ./SimpleLambertian.vert -o ./SimpleLambertianVert.spv
-glslc ./SimpleLambertian.frag -o ./SimpleLambertianFrag.spv
+glslc ./WavySurface.vert -o ./WavySurfaceVert.spv
+glslc ./WavySurface.frag -o ./WavySurfaceFrag.spv
