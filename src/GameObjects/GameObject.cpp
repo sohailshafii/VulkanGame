@@ -260,6 +260,7 @@ void GameObject::UpdateUniformBufferGerstner(uint32_t imageIndex,
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
 		(float)swapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
+	ubo.time = time;
 
 	void* data;
 	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,

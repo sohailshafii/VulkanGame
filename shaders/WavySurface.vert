@@ -47,12 +47,27 @@ vec3 GerstnerWave (vec4 wave, vec3 p, inout vec3 tangent, inout vec3 binormal)
 }
 
 void main() {
+	vec3 gridPoint = inPosition;
+	vec3 tangent = vec3(1, 0, 0);
+	vec3 binormal = vec3(0, 0, 1);
+	vec3 p = gridPoint;
+
+	// dir, steepness, wavelength
+	vec4 waveA = vec4(1.0, 0.0, 0.5, 10.0);
+	vec4 waveB = vec4(0, 1.0, 0.25, 20.0);
+	vec4 waveC = vec4(1, 1, 0.15, 10);
+	p += GerstnerWave(waveA, gridPoint, tangent, binormal);
+	p += GerstnerWave(waveB, gridPoint, tangent, binormal);
+	p += GerstnerWave(waveC, gridPoint, tangent, binormal);
+	vec3 normalVec = normalize(cross(binormal, tangent));
+
+
 	gl_Position = ubo.proj * ubo.view *
-		ubo.model * vec4(inPosition, 1.0);
+		ubo.model * vec4(p, 1.0);
 	fragColor = inColor;
 	fragTexCoord = inTexCoord;
 
-	worldPos = vec3(ubo.model * vec4(inPosition, 1.0));
-	worldNormal = mat3(ubo.model) * inNormal;
+	worldPos = vec3(ubo.model * vec4(p, 1.0));
+	worldNormal = mat3(ubo.model) * normalVec;
 }
 
