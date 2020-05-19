@@ -257,7 +257,7 @@ private:
 			
 			uint32_t imageIndex;
 			if (CanAcquireNextPresentableImageIndex(imageIndex)) {
-				UpdateGameState(deltaTime, imageIndex);
+				UpdateGameState(currentFrameTime, deltaTime, imageIndex);
 				DrawFrame(imageIndex);
 			}
 			
@@ -294,16 +294,12 @@ private:
 	}
 	
 
-	// TODO: loop over models. per model do:
-	// get model transform
-	// get command buffers per model
-	// wait on those buffers
-	void UpdateGameState(float deltaTime, uint32_t imageIndex) {
+	void UpdateGameState(float time, float deltaTime, uint32_t imageIndex) {
 		auto& gameObjects = mainGameScene->GetGameObjects();
 		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
 			gameObject->UpdateUniformBuffer(imageIndex,
 											HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
-											graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
+											time, graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 		}
 	}
 

@@ -113,7 +113,7 @@ void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,
 }
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
-	VkDeviceSize bufferSizeVert = sizeof(UniformBufferObjectVert);
+	VkDeviceSize bufferSizeVert = GetMaterialUniformBufferSizeVert();
 	VkDeviceSize bufferSizeLighting = sizeof(UniformBufferObjectLighting);
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
@@ -152,22 +152,19 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 }
 
 // TODO: use push constants, more efficient
-// this assumes every shader has the same type of uniform buffer for
-// transformations
 void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
-									 VkExtent2D swapChainExtent) {
-	UniformBufferObjectVert ubo = {};
-	ubo.model = modelMatrix;
-	ubo.view = viewMatrix;
-	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 100.0f);
-	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
-
-	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
-		sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
+									float time, VkExtent2D swapChainExtent) {
+	switch (material->GetMaterialType())
+	{
+		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+			UpdateUniformBufferUnlitTintedTextured(imageIndex, viewMatrix,
+				time, swapChainExtent);
+			break;
+		default:
+			UpdateUniformBufferGerstner(imageIndex, viewMatrix,
+				time, swapChainExtent);
+			break;
+	}
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
@@ -200,7 +197,7 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 		VkDescriptorBufferInfo bufferInfoVert = {};
 		bufferInfoVert.buffer = uniformBuffersVert[i]->GetUniformBuffer();
 		bufferInfoVert.offset = 0;
-		bufferInfoVert.range = sizeof(UniformBufferObjectVert);
+		bufferInfoVert.range = GetMaterialUniformBufferSizeVert();
 		
 		VkDescriptorBufferInfo bufferInfoFrag = {};
 		bufferInfoFrag.buffer = uniformBuffersFrag[i]->GetUniformBuffer();
@@ -222,4 +219,51 @@ void GameObject::CleanUpDescriptorPool() {
 		vkDestroyDescriptorPool(logicalDeviceManager->GetDevice(), descriptorPool, nullptr);
 		descriptorPool = nullptr;
 	}
+}
+
+VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
+{
+	switch (material->GetMaterialType())
+	{
+		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+			return sizeof(UniformBufferObjectUnlitTintedTexVert);
+			break;
+		default:
+			return sizeof(UniformBufferObjectGerstnerVert);
+			break;
+	}
+}
+
+void GameObject::UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
+	const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent)
+{
+	UniformBufferObjectUnlitTintedTexVert ubo = {};
+	ubo.model = modelMatrix;
+	ubo.view = viewMatrix;
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
+		(float)swapChainExtent.height, 0.1f, 100.0f);
+	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
+
+	void* data;
+	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
+		sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
+}
+
+void GameObject::UpdateUniformBufferGerstner(uint32_t imageIndex,
+	const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent)
+{
+	UniformBufferObjectGerstnerVert ubo = {};
+	ubo.model = modelMatrix;
+	ubo.view = viewMatrix;
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
+		(float)swapChainExtent.height, 0.1f, 100.0f);
+	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
+
+	void* data;
+	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
+		sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 }

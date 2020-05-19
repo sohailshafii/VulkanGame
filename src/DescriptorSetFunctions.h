@@ -6,10 +6,17 @@
 
 // we have to make sure everything is aligned properly
 // so make sure their offsets are properly divisible
-struct UniformBufferObjectVert {
+struct UniformBufferObjectUnlitTintedTexVert {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+};
+
+struct UniformBufferObjectGerstnerVert {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
+	alignas(16) float time;
 };
 
 struct UniformBufferObjectLighting {

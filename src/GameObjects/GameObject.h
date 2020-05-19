@@ -106,7 +106,7 @@ public:
 	void CreateDescriptorPoolAndSets(size_t numSwapChainImages);
 	
 	void UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
-							 VkExtent2D swapChainExtent);
+							float time, VkExtent2D swapChainExtent);
 	
 private:
 	std::shared_ptr<Model> objModel;
@@ -150,4 +150,9 @@ private:
 	void CreateDescriptorSets(size_t numSwapChainImages);
 	void CleanUpDescriptorPool();
 	
+	VkDeviceSize GetMaterialUniformBufferSizeVert();
+	void UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
+		const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent);
+	void UpdateUniformBufferGerstner(uint32_t imageIndex,
+		const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent);
 };
