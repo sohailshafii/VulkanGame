@@ -27,7 +27,6 @@ vec3 GerstnerWave (vec4 wave, vec3 p, inout vec3 tangent, inout vec3 binormal)
 	float c = sqrt(9.8/k);
 	vec2 d = normalize(wave.xy);
 	float f = k*(dot(d, p.xz) - c * ubo.time);
-
 	float a = steepness / k;
 
 	tangent += vec3(
@@ -52,15 +51,21 @@ void main() {
 	vec3 binormal = vec3(0, 0, 1);
 	vec3 p = gridPoint;
 
-	// dir, steepness, wavelength
-	vec4 waveA = vec4(1.0, 0.0, 0.5, 10.0);
-	vec4 waveB = vec4(0, 1.0, 0.25, 20.0);
-	vec4 waveC = vec4(1, 1, 0.15, 10);
+	// dir (x, y), steepness, wavelength
+	vec4 waveA = vec4(1.0, 1.0, 0.25, 60.0);
+	vec4 waveB = vec4(1, 0.6, 0.25, 31.0);
+	vec4 waveC = vec4(1, 1.3, 0.25, 18);
+
+	// normalize steepness
+	float sumSteepness = waveA.z + waveB.z + waveC.z;
+	waveA.z /= sumSteepness;
+	waveB.z /= sumSteepness;
+	waveC.z /= sumSteepness;
+
 	p += GerstnerWave(waveA, gridPoint, tangent, binormal);
 	p += GerstnerWave(waveB, gridPoint, tangent, binormal);
 	p += GerstnerWave(waveC, gridPoint, tangent, binormal);
 	vec3 normalVec = normalize(cross(binormal, tangent));
-
 
 	gl_Position = ubo.proj * ubo.view *
 		ubo.model * vec4(p, 1.0);

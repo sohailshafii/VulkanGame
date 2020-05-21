@@ -384,8 +384,8 @@ private:
 	}
 };
 
-Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 0.0f, 0.0f),
-	glm::vec3(0.0f, 0.0f,-1.0f), glm::vec3(0.0f, 1.0f, 0.0f), 90.0f, 0.0f, 4.5f,
+Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 1.0f, 50.0f),
+	glm::vec3(0.0f, 0.0f,-1.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 14.5f,
 	3.5f);
 bool HelloTriangleApplication::firstMouse = false;
 float HelloTriangleApplication::lastX = 0.0f;

@@ -11,6 +11,6 @@ layout(location = 3) in vec3 worldPos;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-	outColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);//vec4(
+	outColor = vec4(0.68f, 0.85f, 0.90f, 1.0f);//vec4(
 		//fragColor*texture(texSampler, fragTexCoord).rgb, 1.0);
 }

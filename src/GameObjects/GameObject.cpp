@@ -241,7 +241,7 @@ void GameObject::UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
 	ubo.model = modelMatrix;
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 100.0f);
+		(float)swapChainExtent.height, 0.1f, 1000.0f);
 	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 	void* data;
@@ -258,7 +258,7 @@ void GameObject::UpdateUniformBufferGerstner(uint32_t imageIndex,
 	ubo.model = modelMatrix;
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 100.0f);
+		(float)swapChainExtent.height, 0.1f, 1000.0f);
 	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 	ubo.time = time;
 
