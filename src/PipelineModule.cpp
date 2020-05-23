@@ -61,7 +61,8 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 			attribDescriptionArray[i] = attributeDescriptions[i];
 		}
 	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::WavySurface) {
+	else if (materialType == DescriptorSetFunctions::MaterialType::WavySurface ||
+		materialType == DescriptorSetFunctions::MaterialType::BumpySurface) {
 		bindingDescription = VertexPosNormalColorTexCoord::GetBindingDescription();
 		auto attributeDescriptions = VertexPosNormalColorTexCoord::GetAttributeDescriptions();
 		numAttrib = attributeDescriptions.size();

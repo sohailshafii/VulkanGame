@@ -30,7 +30,7 @@ class DescriptorSetFunctions
 {
 public:
 	enum MaterialType { UnlitTintedTextured = 0,
-		WavySurface };
+		WavySurface, BumpySurface };
 	
 	static VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,
 														   MaterialType materialType);
@@ -63,5 +63,15 @@ public:
 												VkDescriptorBufferInfo *bufferInfoVert);
 	static VkDescriptorPool CreateDescriptorPoolWavySurface(VkDevice device,
 															size_t numSwapChainImages);
+
+	static VkDescriptorSetLayout DescriptorSetFunctions::CreateBumpySurfaceDescriptorSetLayout(
+		VkDevice device);
+	static void UpdateDescriptorSetBumpySurface(VkDevice device,
+		VkDescriptorSet descriptorSet,
+		VkImageView textureImageView,
+		VkSampler textureSampler,
+		VkDescriptorBufferInfo* bufferInfoVert);
+	static VkDescriptorPool CreateDescriptorPoolBumpySurface(VkDevice device,
+		size_t numSwapChainImages);
 };
 

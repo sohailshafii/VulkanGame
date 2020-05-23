@@ -176,6 +176,9 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	if (materialToken == "WavySurface") {
 		materialEnumType = DescriptorSetFunctions::MaterialType::WavySurface;
 	}
+	else if (materialToken == "BumpySurface") {
+		materialEnumType = DescriptorSetFunctions::MaterialType::BumpySurface;
+	}
 	
 	material = std::make_shared<Material>(mainTexture,
 										  materialEnumType);

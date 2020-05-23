@@ -21,16 +21,19 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	descriptorPool(nullptr) {
 	SetupShaderNames();
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), material->GetMaterialType());
-	std::cout << descriptorSetLayout << " assoc with "
-		<< material->GetMaterialType() << std::endl;
-	if (material->GetMaterialType() == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
+
+	auto materialType = material->GetMaterialType();
+	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
-						   commandPool);
+							commandPool);
 	}
-	else if (material->GetMaterialType() ==
-		DescriptorSetFunctions::MaterialType::WavySurface){
+	else if (materialType == DescriptorSetFunctions::MaterialType::WavySurface) {
 		CreateVertexBuffer(model->BuildAndReturnVertsPosNormalColorTexCoord(), gfxDeviceManager,
-						   commandPool);
+							commandPool);
+	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::BumpySurface) {
+		CreateVertexBuffer(model->BuildAndReturnVertsPosNormalColorTexCoord(),
+			gfxDeviceManager, commandPool);
 	}
 	
 	CreateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
@@ -82,6 +85,10 @@ void GameObject::SetupShaderNames() {
 		case DescriptorSetFunctions::MaterialType::WavySurface:
 			vertexShaderName = "WavySurfaceVert.spv";
 			fragmentShaderName = "WavySurfaceFrag.spv";
+			break;
+		case DescriptorSetFunctions::MaterialType::BumpySurface:
+			vertexShaderName = "BumpySurfaceVert.spv";
+			fragmentShaderName = "BumpySurfaceFrag.spv";
 			break;
 	}
 }

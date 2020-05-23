@@ -3,3 +3,6 @@ glslc ./UnlitTintedTextured.frag -o ./UnlitTintedTexturedFrag.spv
 
 glslc ./WavySurface.vert -o ./WavySurfaceVert.spv
 glslc ./WavySurface.frag -o ./WavySurfaceFrag.spv
+
+glslc ./BumpySurface.vert -o ./BumpySurfaceVert.spv
+glslc ./BumpySurface.frag -o ./BumpySurfaceFrag.spv
