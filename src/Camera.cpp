@@ -1,11 +1,16 @@
 #include "Camera.h"
 
 Camera::Camera(const glm::vec3& position, 
-	const glm::vec3& forwardVector, const glm::vec3& upVector,
 	float yaw, float pitch, float movementSpeed,
 	float mouseSensitivity) : position(position),
-	forward(forwardVector), worldUp(upVector), yaw(yaw), pitch(pitch),
+	worldUp(glm::vec3(0.0f, 1.0f, 0.0f)), yaw(yaw), pitch(pitch),
 	movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity) {
+	if (pitch > 89.0f) {
+		pitch = 89.0f;
+	}
+	if (pitch < -89.0f) {
+		pitch = -89.0f;
+	}
 	UpdateCoordinateSystem();
 }
 

@@ -7,10 +7,8 @@
 
 class Camera {
 public:
-	Camera(const glm::vec3& position,
-		const glm::vec3& forwardVector, const glm::vec3& upVector,
-		float yaw, float pitch, float movementSpeed,
-		float mouseSensitivity);
+	Camera(const glm::vec3& position, float yaw, float pitch,
+		float movementSpeed, float mouseSensitivity);
 
 	glm::mat4 ConstructViewMatrix() const;
 

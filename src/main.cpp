@@ -61,8 +61,8 @@ public:
 
 private:
 	GLFWwindow *window;
-	const int WIDTH = 800;
-	const int HEIGHT = 600;
+	const int WIDTH = 1024;
+	const int HEIGHT = 768;
 
 #if __APPLE__
 	const std::string MODEL_PATH = "../../models/chalet.obj";
@@ -384,9 +384,8 @@ private:
 	}
 };
 
-Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 1.0f, 50.0f),
-	glm::vec3(0.0f, 0.0f,-1.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 14.5f,
-	3.5f);
+Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 2.0f, 100.0f),
+	-90.0f, 0.0f, 14.5f, 3.5f);
 bool HelloTriangleApplication::firstMouse = false;
 float HelloTriangleApplication::lastX = 0.0f;
 float HelloTriangleApplication::lastY = 0.0f;
@@ -406,8 +405,6 @@ void HelloTriangleApplication::MouseCallback(GLFWwindow* window, double xpos, do
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 	
-	//float currentFrameTime = glfwGetTime();
-	//float deltaTime = currentFrameTime - lastFrameTime;
 	HelloTriangleApplication::mainCamera.ProcessMouse(xoffset*0.01f, yoffset*0.01f);
 }
 

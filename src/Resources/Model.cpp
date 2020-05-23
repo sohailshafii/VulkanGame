@@ -99,7 +99,7 @@ std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
 	for (uint32_t side1Index = 0; side1Index < numSide1Points;
 		side1Index++)
 	{
-		quadPoint = (float)side1Index * side1Div;
+		quadPoint = (float)side1Index * side1Div + lowerLeft;
 		texCoord = glm::vec2((float)side1Index * uDiv, 0.0f);
 		// for each piece in side 2 (column)
 		for (uint32_t side2Index = 0; side2Index < numSide2Points;

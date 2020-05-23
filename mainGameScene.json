@@ -27,12 +27,12 @@
 			},
 			"transformation":
 			{
-				"position":[0.0, 1.0, 0.0]
+				"position":[0.0, 1.0,1500.0]
 			},
 			"meta_data":
 			{
 				"primitive_type":"quad",
-				"lower_left":[-1500.0, 0.0,0.0],
+				"lower_left":[-1500.0, 0.0,-1500.0],
 				"side_1_vec":[3000.0, 0.0, 0.0],
 				"side_2_vec":[0.0, 0.0, 3000.0],
 				"num_side_1_points":1000,
@@ -49,7 +49,7 @@
 			},
 			"transformation":
 			{
-				"position":[0.0, -1.0,-3000.0]
+				"position":[0.0,-1.0,-1500.0]
 			},
 			"meta_data":
 			{
