@@ -61,7 +61,7 @@ public:
 
 private:
 	GLFWwindow *window;
-	const int WIDTH = 1024;
+	const int WIDTH = 1366;
 	const int HEIGHT = 768;
 
 #if __APPLE__
@@ -385,7 +385,7 @@ private:
 };
 
 Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 2.0f, 100.0f),
-	-90.0f, 0.0f, 14.5f, 3.5f);
+	-90.0f, 0.0f, 14.5f, 3.5f); // 0.01f
 bool HelloTriangleApplication::firstMouse = false;
 float HelloTriangleApplication::lastX = 0.0f;
 float HelloTriangleApplication::lastY = 0.0f;
