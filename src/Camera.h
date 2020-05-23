@@ -10,6 +10,10 @@ public:
 	Camera(const glm::vec3& position, float yaw, float pitch,
 		float movementSpeed, float mouseSensitivity);
 
+	void InitializeCameraSystem(const glm::vec3& position,
+		float yaw, float pitch, float movementSpeed,
+		float mouseSensitivity);
+
 	glm::mat4 ConstructViewMatrix() const;
 
 	void MoveForward(float deltaTime);
@@ -21,6 +25,7 @@ public:
 
 private:
 	void UpdateCoordinateSystem();
+	void UpdateAndClampPitch(float newValue);
 
 	glm::vec3 position;
 	glm::vec3 forward, up, right;

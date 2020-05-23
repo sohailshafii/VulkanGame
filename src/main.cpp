@@ -214,9 +214,14 @@ private:
 		std::string scenePath = "../mainGameScene.json";
 #endif
 		mainGameScene = new Scene();
+		SceneLoader::SceneSettings sceneSettings;
+
 		SceneLoader::DeserializeJSONFileIntoScene(
 			resourceLoader, gfxDeviceManager, logicalDeviceManager,
-			commandPool, mainGameScene, scenePath);
+			commandPool, mainGameScene, sceneSettings, scenePath);
+		mainCamera.InitializeCameraSystem(sceneSettings.cameraPosition,
+			sceneSettings.cameraYaw, sceneSettings.cameraPitch,
+			sceneSettings.cameraMovementSpeed, sceneSettings.cameraMouseSensitivity);
 	}
 	
 	void CreateSyncObjects() {
@@ -385,7 +390,7 @@ private:
 };
 
 Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 2.0f, 100.0f),
-	-90.0f, 0.0f, 14.5f, 3.5f); // 0.01f
+	-90.0f, 0.0f, 14.5f, 0.035f);
 bool HelloTriangleApplication::firstMouse = false;
 float HelloTriangleApplication::lastX = 0.0f;
 float HelloTriangleApplication::lastY = 0.0f;
@@ -405,7 +410,7 @@ void HelloTriangleApplication::MouseCallback(GLFWwindow* window, double xpos, do
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 	
-	HelloTriangleApplication::mainCamera.ProcessMouse(xoffset*0.01f, yoffset*0.01f);
+	HelloTriangleApplication::mainCamera.ProcessMouse(xoffset, yoffset);
 }
 
 void HelloTriangleApplication::ProcessInput(GLFWwindow* window, float frameTime) {

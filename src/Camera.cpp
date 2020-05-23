@@ -1,16 +1,20 @@
 #include "Camera.h"
 
-Camera::Camera(const glm::vec3& position, 
+Camera::Camera(const glm::vec3& position, float yaw, float pitch,
+	float movementSpeed, float mouseSensitivity) {
+	worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	InitializeCameraSystem(position, yaw, pitch,
+		movementSpeed, mouseSensitivity);
+}
+
+void Camera::InitializeCameraSystem(const glm::vec3& position,
 	float yaw, float pitch, float movementSpeed,
-	float mouseSensitivity) : position(position),
-	worldUp(glm::vec3(0.0f, 1.0f, 0.0f)), yaw(yaw), pitch(pitch),
-	movementSpeed(movementSpeed), mouseSensitivity(mouseSensitivity) {
-	if (pitch > 89.0f) {
-		pitch = 89.0f;
-	}
-	if (pitch < -89.0f) {
-		pitch = -89.0f;
-	}
+	float mouseSensitivity) {
+	this->position = position;
+	this->yaw = yaw;
+	UpdateAndClampPitch(pitch);
+	this->movementSpeed = movementSpeed;
+	this->mouseSensitivity = mouseSensitivity;
 	UpdateCoordinateSystem();
 }
 
@@ -39,14 +43,7 @@ void Camera::ProcessMouse(float mouseXMovement, float mouseYMovement) {
 	mouseYMovement *= mouseSensitivity;
 
 	yaw += mouseXMovement;
-	pitch += mouseYMovement;
-
-	if (pitch > 89.0f) {
-		pitch = 89.0f;
-	}
-	if (pitch < -89.0f) {
-		pitch = -89.0f;
-	}
+	UpdateAndClampPitch(pitch + mouseYMovement);
 
 	UpdateCoordinateSystem();
 }
@@ -59,4 +56,15 @@ void Camera::UpdateCoordinateSystem() {
 	forward = glm::normalize(newForward);
 	right = glm::normalize(glm::cross(forward, worldUp));
 	up = glm::normalize(glm::cross(right, forward));
+}
+
+void Camera::UpdateAndClampPitch(float newValue) {
+	pitch = newValue;
+
+	if (pitch > 80.0f) {
+		pitch = 80.0f;
+	}
+	if (pitch < -80.0f) {
+		pitch = -80.0f;
+	}
 }

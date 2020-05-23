@@ -22,6 +22,9 @@
 #include <fstream>
 #include <sstream>
 
+static void AdjustSceneSettings(const nlohmann::json& jsonObj,
+	SceneLoader::SceneSettings& sceneSettings);
+
 static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<GameObject>& constructedGameObject,
 	ResourceLoader* resourceLoader,
@@ -45,12 +48,16 @@ void SceneLoader::DeserializeJSONFileIntoScene(
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool,
 	Scene* scene,
+	SceneSettings& sceneSettings,
 	const std::string& jsonFilePath) {
 	try {
 		std::ifstream jsonFile(jsonFilePath);
 		nlohmann::json jsonObject;
 
 		jsonFile >> jsonObject;
+
+		nlohmann::json sceneSettingsNode = jsonObject["scene_settings"];
+		AdjustSceneSettings(sceneSettingsNode, sceneSettings);
 
 		nlohmann::json gameObjects = jsonObject["game_objects"];
 		for (auto& element : gameObjects.items()) {
@@ -83,6 +90,24 @@ static inline nlohmann::json SafeGetToken(const nlohmann::json& jsonObj,
 	exceptionMsg << "Could not find key: " << key
 		<< " in JSON object: " << jsonObj << ".\n";
 	throw exceptionMsg;
+}
+
+void AdjustSceneSettings(const nlohmann::json& jsonObj,
+	SceneLoader::SceneSettings& sceneSettings) {
+	auto cameraNode = jsonObj["camera"];
+
+	auto cameraPosition = cameraNode["position"];
+	float cameraYaw = cameraNode["yaw"];
+	float cameraPitch = cameraNode["pitch"];
+	float cameraMovementSpeed = cameraNode["movement_speed"];
+	float cameraMouseSensitivity = cameraNode["mouse_sensitivity"];
+
+	sceneSettings.cameraPosition = glm::vec3((float)cameraPosition[0], (float)cameraPosition[1],
+		(float)cameraPosition[2]);
+	sceneSettings.cameraYaw = cameraYaw;
+	sceneSettings.cameraPitch = cameraPitch;
+	sceneSettings.cameraMovementSpeed = cameraMovementSpeed;
+	sceneSettings.cameraMouseSensitivity = cameraMouseSensitivity;
 }
 
 static void SetUpGameObject(const nlohmann::json& jsonObj,
