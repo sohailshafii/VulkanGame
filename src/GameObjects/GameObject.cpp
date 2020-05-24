@@ -158,22 +158,24 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 	CreateDescriptorSets(numSwapChainImages);
 }
 
-void GameObject::UpdateState() {
-	gameObjectBehavior->UpdateSelf();
+void GameObject::UpdateState(float time, float deltaTime) {
+	gameObjectBehavior->UpdateSelf(time, deltaTime);
 }
 
 // TODO: use push constants, more efficient
-void GameObject::UpdateVisualState(uint32_t imageIndex, const glm::mat4& viewMatrix,
-									float time, VkExtent2D swapChainExtent) {
+void GameObject::UpdateVisualState(uint32_t imageIndex,
+								   const glm::mat4& viewMatrix,
+								   float time, float deltaTime,
+								   VkExtent2D swapChainExtent) {
 	switch (material->GetMaterialType())
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
 			UpdateUniformBufferUnlitTintedTextured(imageIndex, viewMatrix,
-				time, swapChainExtent);
+												   time, deltaTime, swapChainExtent);
 			break;
 		default:
 			UpdateUniformBufferGerstner(imageIndex, viewMatrix,
-				time, swapChainExtent);
+										time, deltaTime, swapChainExtent);
 			break;
 	}
 }
@@ -246,7 +248,10 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 }
 
 void GameObject::UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
-	const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent)
+														const glm::mat4& viewMatrix,
+														float time,
+														float deltaTime,
+														VkExtent2D swapChainExtent)
 {
 	UniformBufferObjectUnlitTintedTexVert ubo = {};
 	ubo.model = gameObjectBehavior->GetModelMatrix();
@@ -263,7 +268,9 @@ void GameObject::UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
 }
 
 void GameObject::UpdateUniformBufferGerstner(uint32_t imageIndex,
-	const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent)
+											 const glm::mat4& viewMatrix,
+											 float time, float deltaTime,
+											 VkExtent2D swapChainExtent)
 {
 	UniformBufferObjectGerstnerVert ubo = {};
 	ubo.model = gameObjectBehavior->GetModelMatrix();

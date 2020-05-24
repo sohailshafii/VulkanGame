@@ -302,10 +302,10 @@ private:
 	void UpdateGameState(float time, float deltaTime, uint32_t imageIndex) {
 		auto& gameObjects = mainGameScene->GetGameObjects();
 		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
-			gameObject->UpdateState();
+			gameObject->UpdateState(time, deltaTime);
 			gameObject->UpdateVisualState(imageIndex,
 										  HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
-										  time,
+										  time, deltaTime,
 										  graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 		}
 	}

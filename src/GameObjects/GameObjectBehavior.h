@@ -15,7 +15,7 @@ public:
 
 	}
 
-	virtual void UpdateSelf() = 0;
+	virtual void UpdateSelf(float time, float deltaTime) = 0;
 	
 	void SetModelMatrix(glm::mat4 const & modelMatrix) {
 		this->modelMatrix = modelMatrix;
@@ -25,6 +25,6 @@ public:
 		return modelMatrix;
 	}
 
-private:
+protected:
 	glm::mat4 modelMatrix;
 };

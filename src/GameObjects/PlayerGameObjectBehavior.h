@@ -15,7 +15,7 @@ public:
 
 	}
 
-	virtual void UpdateSelf() override;
+	virtual void UpdateSelf(float time, float deltaTime) override;
 
 private:
 };
