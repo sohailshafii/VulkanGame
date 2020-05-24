@@ -245,7 +245,7 @@ void GameObject::UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
 	const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent)
 {
 	UniformBufferObjectUnlitTintedTexVert ubo = {};
-	ubo.model = modelMatrix;
+	ubo.model = gameObjectBehavior->GetModelMatrix();
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
 		(float)swapChainExtent.height, 0.1f, 1000.0f);
@@ -262,7 +262,7 @@ void GameObject::UpdateUniformBufferGerstner(uint32_t imageIndex,
 	const glm::mat4& viewMatrix, float time, VkExtent2D swapChainExtent)
 {
 	UniformBufferObjectGerstnerVert ubo = {};
-	ubo.model = modelMatrix;
+	ubo.model = gameObjectBehavior->GetModelMatrix();
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
 		(float)swapChainExtent.height, 0.1f, 1000.0f);

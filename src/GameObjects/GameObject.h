@@ -28,7 +28,6 @@ enum GameObjectType
 class GameObject {
 public:
 	// TODO: material class
-	// TODO: pass in unique ptr to game object behavior here
 	GameObject(std::shared_ptr<Model> const& model,
 		std::shared_ptr<Material> const& material,
 		std::unique_ptr<GameObjectBehavior> behavior,
@@ -50,12 +49,12 @@ public:
 		return fragmentShaderName;
 	}
 	
-	glm::mat4 GetModelTransform() const {
-		return modelMatrix;
+	glm::mat4 const & GetModelTransform() const {
+		return gameObjectBehavior->GetModelMatrix();
 	}
 	
 	void SetModelTransform(const glm::mat4& model) {
-		this->modelMatrix = model;
+		gameObjectBehavior->SetModelMatrix(model);
 	}
 	
 	VkBuffer GetVertexBuffer() const {
@@ -120,8 +119,6 @@ private:
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
-	
-	glm::mat4 modelMatrix;
 	
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	

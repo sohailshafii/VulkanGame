@@ -1,6 +1,6 @@
 // https://github.com/sol-prog/Perlin_Noise/blob/master/PerlinNoise.h
 // https://www.scratchapixel.com/code.php?id=57&origin=/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2
-// will re-do later; using github version for now
+// TODO: re-write, this code has bugs!!!
 #pragma once
 
 #include "NoiseGenerator.h"
