@@ -39,12 +39,14 @@
 			},
 			"meta_data":
 			{
-				"primitive_type":"quad",
+				"primitive_type":"noisy_quad",
 				"lower_left":[-1500.0, 0.0,-1500.0],
 				"side_1_vec":[3000.0, 0.0, 0.0],
 				"side_2_vec":[0.0, 0.0, 3000.0],
 				"num_side_1_points":1000,
-				"num_side_2_points":1000
+				"num_side_2_points":1000,
+				"noise_type":"perlin",
+				"num_noise_layers":1
 			}
 		},
 		{

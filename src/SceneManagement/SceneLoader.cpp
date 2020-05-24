@@ -154,12 +154,38 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
 		unsigned int numSide1Pnts = SafeGetToken(metaDataNode, "num_side_1_points");
 		unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
-		gameObjectModel = Model::CreatePlane(
+		std::string primitiveType = SafeGetToken(metaDataNode, "primitive_type");
+		
+		if (primitiveType == "quad") {
+			gameObjectModel = Model::CreatePlane(
 			glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
 			glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
 			glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
 			numSide1Pnts, numSide2Pnts,
 			NoiseGeneratorType::None);
+		}
+		else if (primitiveType == "noisy_quad") {
+			std::string noiseType = SafeGetToken(metaDataNode, "noise_type");
+			if (noiseType == "perlin") {
+				uint32_t numNoiseLayers = SafeGetToken(metaDataNode, "num_noise_layers");
+				gameObjectModel = Model::CreatePlane(
+				glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
+				glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
+				glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
+				numSide1Pnts, numSide2Pnts,
+				NoiseGeneratorType::Perlin, numNoiseLayers);
+			}
+			else {
+				std::stringstream exceptionMsg;
+				exceptionMsg << "Don't understand noise type: " << noiseType;
+				throw exceptionMsg;
+			}
+		}
+		else {
+			std::stringstream exceptionMsg;
+			exceptionMsg << "Don't understand primitive type: " << primitiveType;
+			throw exceptionMsg;
+		}
 	}
 	else if (modelType != "None") {
 		modelPath += modelType;
