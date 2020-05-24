@@ -86,7 +86,16 @@ float PerlinNoise::Eval(const glm::vec3 & p, glm::vec3 & derivs) const {
 
 uint8_t PerlinNoise::Hash(const int x, const int y,
 	const int z) const {
-	return permutationTable[permutationTable[permutationTable[x] + y] + z];
+	auto indexOne = permutationTable[x] + y;
+	// this is stupid; real perlin code would not have this bug
+	if (indexOne > 255) {
+		indexOne = 255;
+	}
+	auto indexTwo = permutationTable[indexOne] + z;
+	if (indexTwo > 255) {
+		indexTwo = 255;
+	}
+	return permutationTable[indexTwo];
 }
 
 float PerlinNoise::GradientDotV(uint8_t perm, // a value between 0 and 255 

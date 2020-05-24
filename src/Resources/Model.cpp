@@ -117,10 +117,11 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 			side2Index++, oneDimIndex++)
 		{
 			quadPoint += side2Div;
-			quadPoint += noiseValues[oneDimIndex];
-			// TODO: normals!!!!!
+			auto displacedPnt = quadPoint;
+			auto noiseValue = noiseValues[oneDimIndex];
+			//displacedPnt.y += noiseValue;
 			texCoord.y = 1.0f - (float)side2Index * vDiv;
-			vertices.push_back(Model::ModelVert(quadPoint,
+			vertices.push_back(Model::ModelVert(displacedPnt,
 												normValues[oneDimIndex],
 												glm::vec3(1.0f, 1.0f, 1.0f),
 												texCoord));
@@ -193,7 +194,8 @@ void Model::GenerateNoiseAndDerivatives(float** noiseValues,
 				float amplitude = 1.0f;
 				for (uint32_t layerIndex = 0; layerIndex < numNoiseLayers; layerIndex++) {
 					glm::vec3 deriv;
-					fractal += noiseGenerator->Eval(quadPoint, deriv) * 0.5f * amplitude;
+					// TODO: this perlin code is crap. replace because it has bugs
+					fractal += (1.0f + noiseGenerator->Eval(quadPoint, deriv)) * 0.5f * amplitude;
 					quadPoint *= 2.0f;
 					amplitude *= 0.5f;
 					derivValues[oneDimIndex] = deriv;
@@ -203,6 +205,7 @@ void Model::GenerateNoiseAndDerivatives(float** noiseValues,
 					maxVal = fractal;
 				}
 				noiseValuesPtr[oneDimIndex] = fractal;
+				//std::cout << "fractal " << fractal << std::endl;
 				derivValues[oneDimIndex] = glm::normalize(derivValues[oneDimIndex]);
 				
 				auto derivativeVal = derivValues[oneDimIndex];
