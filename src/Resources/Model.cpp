@@ -5,6 +5,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 #include <iostream>
+#include "Math/NoiseGenerator.h"
 #include "Math/PerlinNoise.h"
 
 Model::Model(const std::string& modelPath) {
@@ -76,8 +77,7 @@ Model::~Model() {
 std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 	const glm::vec3& side1Vec, const glm::vec3& side2Vec,
 	uint32_t numSide1Points, uint32_t numSide2Points,
-	NoiseGenerator& noiseGenerator,
-	bool generateNoise,
+	NoiseGeneratorType noiseGeneratorType,
 	uint32_t numNoiseLayers)
 {
 	std::vector<ModelVert> vertices;
@@ -97,47 +97,12 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 	glm::vec3 side2Div = side2Vec / (float)(numSide2Points - 1);
 
 	// generate noise, if applicable
-	uint32_t numTotalPoints = numSide1Points * numSide1Points;
-	float* noiseValues = new float[numTotalPoints];
-	glm::vec3* derivValues = new glm::vec3[numTotalPoints];
-	for (uint32_t i = 0; i < numTotalPoints; i++) {
-		noiseValues[i] = 0.0f;
-		derivValues[i] = glm::vec3(0.0f, 0.0f, 0.0f);
-	}
-	if (generateNoise) {
-		// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/perlin-noise-terrain-mesh
-		// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/perlin-noise-computing-derivatives
-		float maxVal = 0;
-		for (uint32_t side1Index = 0, oneDimIndex = 0; side1Index < numSide1Points;
-			side1Index++)
-		{
-			quadPoint = (float)side1Index * side1Div + lowerLeft;
-			for (uint32_t side2Index = 0; side2Index < numSide2Points;
-				side2Index++, oneDimIndex++)
-			{
-				quadPoint += side2Div;
-				float fractal = 0.0f;
-				float amplitude = 1.0f;
-				glm::vec3 point(0.0f, 0.0f, 0.0f);
-				for (uint32_t layerIndex = 0; layerIndex < numNoiseLayers; layerIndex++) {
-					glm::vec3 deriv;
-					fractal += noiseGenerator.Eval(quadPoint, deriv) * 0.5f * amplitude;
-					quadPoint *= 2.0f;
-					amplitude *= 0.5f;
-					derivValues[oneDimIndex] = deriv;
-				}
-
-				if (fractal > maxVal) {
-					maxVal = fractal;
-				}
-				noiseValues[oneDimIndex] = fractal;
-				derivValues[oneDimIndex] = glm::normalize(derivValues[oneDimIndex]);
-			}
-		}
-		for (uint32_t i = 0; i < numTotalPoints; i++) {
-			noiseValues[i] /= maxVal;
-		}
-	}
+	float* noiseValues;
+	glm::vec3* derivValues;
+	GenerateNoiseAndDerivatives(&noiseValues, &derivValues,
+								lowerLeft, side1Vec, side2Vec,
+								numSide1Points, numSide2Points,
+								noiseGeneratorType, numNoiseLayers);
 
 	// for each piece in side 1 (row)
 	glm::vec2 texCoord(0.0f, 0.0f);
@@ -185,3 +150,64 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 		TopologyType::TriangleStrip);
 }
 
+void Model::GenerateNoiseAndDerivatives(float** noiseValues,
+								 glm::vec3** derivValues,
+								 const glm::vec3& lowerLeft,
+								 const glm::vec3& side1Vec,
+								 const glm::vec3& side2Vec,
+								 uint32_t numSide1Points,
+								 uint32_t numSide2Points,
+								 NoiseGeneratorType noiseGeneratorType,
+								 uint32_t numNoiseLayers) {
+	uint32_t numTotalPoints = numSide1Points * numSide1Points;
+	*noiseValues = new float[numTotalPoints];
+	*derivValues = new glm::vec3[numTotalPoints];
+	
+	auto noiseValuesPtr = *noiseValues;
+	auto derivValuesPtr = *derivValues;
+	for (uint32_t i = 0; i < numTotalPoints; i++) {
+		noiseValuesPtr[i] = 0.0f;
+		derivValuesPtr[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+	}
+	if (noiseGeneratorType != NoiseGeneratorType::None) {
+		NoiseGenerator* noiseGenerator = new PerlinNoise();
+		
+		glm::vec3 quadPoint;
+		// if there are n points, there are (n-1) divisions
+		glm::vec3 side1Div = side1Vec / (float)(numSide1Points - 1);
+		glm::vec3 side2Div = side2Vec / (float)(numSide2Points - 1);
+		// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/perlin-noise-terrain-mesh
+		// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/perlin-noise-computing-derivatives
+		float maxVal = 0;
+		for (uint32_t side1Index = 0, oneDimIndex = 0; side1Index < numSide1Points;
+			side1Index++)
+		{
+			quadPoint = (float)side1Index * side1Div + lowerLeft;
+			for (uint32_t side2Index = 0; side2Index < numSide2Points;
+				side2Index++, oneDimIndex++)
+			{
+				quadPoint += side2Div;
+				float fractal = 0.0f;
+				float amplitude = 1.0f;
+				for (uint32_t layerIndex = 0; layerIndex < numNoiseLayers; layerIndex++) {
+					glm::vec3 deriv;
+					fractal += noiseGenerator->Eval(quadPoint, deriv) * 0.5f * amplitude;
+					quadPoint *= 2.0f;
+					amplitude *= 0.5f;
+					derivValuesPtr[oneDimIndex] = deriv;
+				}
+
+				if (fractal > maxVal) {
+					maxVal = fractal;
+				}
+				noiseValuesPtr[oneDimIndex] = fractal;
+				derivValuesPtr[oneDimIndex] = glm::normalize(derivValuesPtr[oneDimIndex]);
+			}
+		}
+		for (uint32_t i = 0; i < numTotalPoints; i++) {
+			noiseValuesPtr[i] /= maxVal;
+		}
+		
+		delete noiseGenerator;
+	}
+}

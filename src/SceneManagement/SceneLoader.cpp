@@ -13,7 +13,6 @@
 #include "Scene.h"
 #include "nlohmann/json.hpp"
 #include "Math/PerlinNoise.h"
-#include "Math/NoNoise.h"
 #include <glm/glm.hpp>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -160,7 +159,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 			glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
 			glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
 			numSide1Pnts, numSide2Pnts,
-			NoNoise());
+			NoiseGeneratorType::None);
 	}
 	else if (modelType != "None") {
 		modelPath += modelType;

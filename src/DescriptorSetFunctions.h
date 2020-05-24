@@ -64,7 +64,7 @@ public:
 	static VkDescriptorPool CreateDescriptorPoolWavySurface(VkDevice device,
 															size_t numSwapChainImages);
 
-	static VkDescriptorSetLayout DescriptorSetFunctions::CreateBumpySurfaceDescriptorSetLayout(
+	static VkDescriptorSetLayout CreateBumpySurfaceDescriptorSetLayout(
 		VkDevice device);
 	static void UpdateDescriptorSetBumpySurface(VkDevice device,
 		VkDescriptorSet descriptorSet,

@@ -54,8 +54,7 @@ public:
 	static std::shared_ptr<Model> CreatePlane(const glm::vec3& lowerLeft,
 		const glm::vec3& side1Vec, const glm::vec3& side2Vec,
 		uint32_t numSide1Points, uint32_t numSide2Points,
-		NoiseGenerator& noiseGenerator,
-		bool generateNoise = false,
+		NoiseGeneratorType noiseGeneratorType,
 		uint32_t numNoiseLayers = 0);
 	
 	const std::vector<VertexPos> BuildAndReturnVertsPos() {
@@ -128,6 +127,16 @@ private:
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
 	TopologyType modelTopology;
+	
+	static void GenerateNoiseAndDerivatives(float** noiseValues,
+									   glm::vec3** derivValues,
+									   const glm::vec3& lowerLeft,
+									   const glm::vec3& side1Vec,
+									   const glm::vec3& side2Vec,
+									   uint32_t numSide1Points,
+									   uint32_t numSide2Points,
+									   NoiseGeneratorType noiseGeneratorType,
+									   uint32_t numNoiseLayers);
 };
 
 namespace std {
