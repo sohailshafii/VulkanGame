@@ -73,7 +73,6 @@ Model::~Model() {
 
 }
 
-// TODO: pass in enum to construct noise generator type
 std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 	const glm::vec3& side1Vec, const glm::vec3& side2Vec,
 	uint32_t numSide1Points, uint32_t numSide2Points,
@@ -98,15 +97,14 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 
 	// generate noise, if applicable
 	float* noiseValues;
-	glm::vec3* derivValues;
-	GenerateNoiseAndDerivatives(&noiseValues, &derivValues,
+	glm::vec3* normValues;
+	GenerateNoiseAndDerivatives(&noiseValues, &normValues,
 								lowerLeft, side1Vec, side2Vec,
 								numSide1Points, numSide2Points,
 								noiseGeneratorType, numNoiseLayers);
 
 	// for each piece in side 1 (row)
 	glm::vec2 texCoord(0.0f, 0.0f);
-	glm::vec3 normal(0.0f, 1.0f, 0.0f);
 	float uDiv = 1.0f / (float)(numSide1Points - 1);
 	float vDiv = 1.0f / (float)(numSide2Points - 1);
 	for (uint32_t side1Index = 0, oneDimIndex = 0; side1Index < numSide1Points;
@@ -122,8 +120,10 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 			quadPoint += noiseValues[oneDimIndex];
 			// TODO: normals!!!!!
 			texCoord.y = 1.0f - (float)side2Index * vDiv;
-			vertices.push_back(Model::ModelVert(quadPoint, normal,
-				glm::vec3(1.0f, 1.0f, 1.0f), texCoord));
+			vertices.push_back(Model::ModelVert(quadPoint,
+												normValues[oneDimIndex],
+												glm::vec3(1.0f, 1.0f, 1.0f),
+												texCoord));
 		}
 	}
 
@@ -145,13 +145,13 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 	}
 
 	delete[] noiseValues;
-	delete[] derivValues;
+	delete[] normValues;
 	return std::make_shared<Model>(vertices, indices,
 		TopologyType::TriangleStrip);
 }
 
 void Model::GenerateNoiseAndDerivatives(float** noiseValues,
-								 glm::vec3** derivValues,
+								 glm::vec3** normals,
 								 const glm::vec3& lowerLeft,
 								 const glm::vec3& side1Vec,
 								 const glm::vec3& side2Vec,
@@ -161,13 +161,15 @@ void Model::GenerateNoiseAndDerivatives(float** noiseValues,
 								 uint32_t numNoiseLayers) {
 	uint32_t numTotalPoints = numSide1Points * numSide1Points;
 	*noiseValues = new float[numTotalPoints];
-	*derivValues = new glm::vec3[numTotalPoints];
+	*normals = new glm::vec3[numTotalPoints];
+	glm::vec3* derivValues = new glm::vec3[numTotalPoints];
 	
 	auto noiseValuesPtr = *noiseValues;
-	auto derivValuesPtr = *derivValues;
+	auto normalsPtr = *normals;
 	for (uint32_t i = 0; i < numTotalPoints; i++) {
 		noiseValuesPtr[i] = 0.0f;
-		derivValuesPtr[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+		derivValues[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+		derivValues[i] = glm::vec3(0.0f, 1.0f, 0.0f);
 	}
 	if (noiseGeneratorType != NoiseGeneratorType::None) {
 		NoiseGenerator* noiseGenerator = new PerlinNoise();
@@ -194,14 +196,14 @@ void Model::GenerateNoiseAndDerivatives(float** noiseValues,
 					fractal += noiseGenerator->Eval(quadPoint, deriv) * 0.5f * amplitude;
 					quadPoint *= 2.0f;
 					amplitude *= 0.5f;
-					derivValuesPtr[oneDimIndex] = deriv;
+					derivValues[oneDimIndex] = deriv;
 				}
 
 				if (fractal > maxVal) {
 					maxVal = fractal;
 				}
 				noiseValuesPtr[oneDimIndex] = fractal;
-				derivValuesPtr[oneDimIndex] = glm::normalize(derivValuesPtr[oneDimIndex]);
+				derivValues[oneDimIndex] = glm::normalize(derivValues[oneDimIndex]);
 			}
 		}
 		for (uint32_t i = 0; i < numTotalPoints; i++) {
@@ -209,5 +211,6 @@ void Model::GenerateNoiseAndDerivatives(float** noiseValues,
 		}
 		
 		delete noiseGenerator;
+		delete derivValues;
 	}
 }

@@ -129,14 +129,14 @@ private:
 	TopologyType modelTopology;
 	
 	static void GenerateNoiseAndDerivatives(float** noiseValues,
-									   glm::vec3** derivValues,
-									   const glm::vec3& lowerLeft,
-									   const glm::vec3& side1Vec,
-									   const glm::vec3& side2Vec,
-									   uint32_t numSide1Points,
-									   uint32_t numSide2Points,
-									   NoiseGeneratorType noiseGeneratorType,
-									   uint32_t numNoiseLayers);
+											glm::vec3** normals,
+											const glm::vec3& lowerLeft,
+											const glm::vec3& side1Vec,
+											const glm::vec3& side2Vec,
+											uint32_t numSide1Points,
+											uint32_t numSide2Points,
+											NoiseGeneratorType noiseGeneratorType,
+											uint32_t numNoiseLayers);
 };
 
 namespace std {
