@@ -5,6 +5,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 #include <iostream>
+#include "Math/PerlinNoise.h"
 
 Model::Model(const std::string& modelPath) {
 	tinyobj::attrib_t attrib;
@@ -71,9 +72,13 @@ Model::~Model() {
 
 }
 
-std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
+// TODO: pass in enum to construct noise generator type
+std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 	const glm::vec3& side1Vec, const glm::vec3& side2Vec,
-	uint32_t numSide1Points, uint32_t numSide2Points)
+	uint32_t numSide1Points, uint32_t numSide2Points,
+	NoiseGenerator& noiseGenerator,
+	bool generateNoise,
+	uint32_t numNoiseLayers)
 {
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
@@ -82,7 +87,7 @@ std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
 	if (fabs(glm::dot(side1Vec, side2Vec)) > 0.0f)
 	{
 		std::cerr << "Side vectors are not perpendicular; "
-			<< "cannot create quad.\n";
+			<< "cannot create plane.\n";
 		return nullptr;
 	}
 
@@ -91,21 +96,66 @@ std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
 	glm::vec3 side1Div = side1Vec / (float)(numSide1Points - 1);
 	glm::vec3 side2Div = side2Vec / (float)(numSide2Points - 1);
 
+	// generate noise, if applicable
+	uint32_t numTotalPoints = numSide1Points * numSide1Points;
+	float* noiseValues = new float[numTotalPoints];
+	glm::vec3* derivValues = new glm::vec3[numTotalPoints];
+	for (uint32_t i = 0; i < numTotalPoints; i++) {
+		noiseValues[i] = 0.0f;
+		derivValues[i] = glm::vec3(0.0f, 0.0f, 0.0f);
+	}
+	if (generateNoise) {
+		// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/perlin-noise-terrain-mesh
+		// https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2/perlin-noise-computing-derivatives
+		float maxVal = 0;
+		for (uint32_t side1Index = 0, oneDimIndex = 0; side1Index < numSide1Points;
+			side1Index++)
+		{
+			quadPoint = (float)side1Index * side1Div + lowerLeft;
+			for (uint32_t side2Index = 0; side2Index < numSide2Points;
+				side2Index++, oneDimIndex++)
+			{
+				quadPoint += side2Div;
+				float fractal = 0.0f;
+				float amplitude = 1.0f;
+				glm::vec3 point(0.0f, 0.0f, 0.0f);
+				for (uint32_t layerIndex = 0; layerIndex < numNoiseLayers; layerIndex++) {
+					glm::vec3 deriv;
+					fractal += noiseGenerator.Eval(quadPoint, deriv) * 0.5f * amplitude;
+					quadPoint *= 2.0f;
+					amplitude *= 0.5f;
+					derivValues[oneDimIndex] = deriv;
+				}
+
+				if (fractal > maxVal) {
+					maxVal = fractal;
+				}
+				noiseValues[oneDimIndex] = fractal;
+				derivValues[oneDimIndex] = glm::normalize(derivValues[oneDimIndex]);
+			}
+		}
+		for (uint32_t i = 0; i < numTotalPoints; i++) {
+			noiseValues[i] /= maxVal;
+		}
+	}
+
 	// for each piece in side 1 (row)
-	glm::vec3 normal(0.0f, 1.0f, 0.0f);
 	glm::vec2 texCoord(0.0f, 0.0f);
+	glm::vec3 normal(0.0f, 1.0f, 0.0f);
 	float uDiv = 1.0f / (float)(numSide1Points - 1);
 	float vDiv = 1.0f / (float)(numSide2Points - 1);
-	for (uint32_t side1Index = 0; side1Index < numSide1Points;
+	for (uint32_t side1Index = 0, oneDimIndex = 0; side1Index < numSide1Points;
 		side1Index++)
 	{
 		quadPoint = (float)side1Index * side1Div + lowerLeft;
 		texCoord = glm::vec2((float)side1Index * uDiv, 0.0f);
 		// for each piece in side 2 (column)
 		for (uint32_t side2Index = 0; side2Index < numSide2Points;
-			side2Index++)
+			side2Index++, oneDimIndex++)
 		{
 			quadPoint += side2Div;
+			quadPoint += noiseValues[oneDimIndex];
+			// TODO: normals!!!!!
 			texCoord.y = 1.0f - (float)side2Index * vDiv;
 			vertices.push_back(Model::ModelVert(quadPoint, normal,
 				glm::vec3(1.0f, 1.0f, 1.0f), texCoord));
@@ -129,6 +179,8 @@ std::shared_ptr<Model> Model::CreateQuad(const glm::vec3& lowerLeft,
 		}
 	}
 
+	delete[] noiseValues;
+	delete[] derivValues;
 	return std::make_shared<Model>(vertices, indices,
 		TopologyType::TriangleStrip);
 }

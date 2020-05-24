@@ -12,6 +12,8 @@
 #include "Resources/Model.h"
 #include "Scene.h"
 #include "nlohmann/json.hpp"
+#include "Math/PerlinNoise.h"
+#include "Math/NoNoise.h"
 #include <glm/glm.hpp>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -144,6 +146,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::string modelPath = modelPathPrefix;
 	std::shared_ptr<Model> gameObjectModel;
 	// TODO: allow having no model
+	// TODO: multiple model types
 	if (modelType.find("Procedural") != std::string::npos)
 	{
 		auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
@@ -152,11 +155,12 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
 		unsigned int numSide1Pnts = SafeGetToken(metaDataNode, "num_side_1_points");
 		unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
-		gameObjectModel = Model::CreateQuad(
+		gameObjectModel = Model::CreatePlane(
 			glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
 			glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
 			glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
-			numSide1Pnts, numSide2Pnts);
+			numSide1Pnts, numSide2Pnts,
+			NoNoise());
 	}
 	else if (modelType != "None") {
 		modelPath += modelType;

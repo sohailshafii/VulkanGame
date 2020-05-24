@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include "vulkan/vulkan.h"
 #include "Vertex.h"
+#include "Math/NoiseGenerator.h"
 
 class Model {
 public:
@@ -50,9 +51,12 @@ public:
 		TopologyType modelTopology);
 	~Model();
 	
-	static std::shared_ptr<Model> CreateQuad(const glm::vec3& lowerLeft,
+	static std::shared_ptr<Model> CreatePlane(const glm::vec3& lowerLeft,
 		const glm::vec3& side1Vec, const glm::vec3& side2Vec,
-		uint32_t numSide1Points, uint32_t numSide2Points);
+		uint32_t numSide1Points, uint32_t numSide2Points,
+		NoiseGenerator& noiseGenerator,
+		bool generateNoise = false,
+		uint32_t numNoiseLayers = 0);
 	
 	const std::vector<VertexPos> BuildAndReturnVertsPos() {
 		auto vertsToBuild = std::vector<VertexPos>();

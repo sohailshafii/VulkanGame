@@ -3,9 +3,9 @@
 // will re-do later; using github version for now
 #pragma once
 
-#include <glm/glm.hpp>
+#include "NoiseGenerator.h"
 
-class PerlinNoise {
+class PerlinNoise : public NoiseGenerator {
 public:
 	PerlinNoise(const unsigned int seed = 2016);
 
