@@ -1,6 +1,7 @@
 #include "SceneManagement/SceneLoader.h"
 
 #include "GameObjects/GameObject.h"
+#include "GameObjects/GameObjectBehavior.h"
 #include "GameObjects/AIGameObjectBehavior.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
 #include "GameObjects/StationaryGameObjectBehavior.h"
@@ -42,6 +43,8 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 
 static void SetupTransformation(const nlohmann::json& transformNode,
 								glm::mat4& localToWorld);
+
+static std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(const nlohmann::json& gameObjectNode);
 
 void SceneLoader::DeserializeJSONFileIntoScene(
 	ResourceLoader* resourceLoader,
@@ -191,11 +194,9 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		gameObjectModel = resourceLoader->GetModel(modelPath);
 	}
 	
-	std::unique_ptr<StationaryGameObjectBehavior> stationaryObject =
-		std::make_unique<StationaryGameObjectBehavior>();
 	constructedGameObject  =
 		std::make_shared<GameObject>(gameObjectModel, newMaterial,
-									 std::move(stationaryObject), gfxDeviceManager,
+									 SetupGameObjectBehavior(jsonObj), gfxDeviceManager,
 									 logicalDeviceManager, commandPool);
 	
 	auto transformationNode = SafeGetToken(jsonObj, "transformation");
@@ -269,4 +270,22 @@ static void SetupTransformation(const nlohmann::json& transformNode,
 											(float)scaleNode[1],
 											(float)scaleNode[2]));
 	}
+}
+
+std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(const nlohmann::json& gameObjectNode) {
+	std::string gameObjectBehaviorStr = gameObjectNode["type"];
+	std::unique_ptr<GameObjectBehavior> newGameObjBehavior;
+	if (gameObjectBehaviorStr == "Stationary") {
+		newGameObjBehavior = std::make_unique<StationaryGameObjectBehavior>();
+	}
+	else if (gameObjectBehaviorStr == "Player") {
+		newGameObjBehavior = std::make_unique<PlayerGameObjectBehavior>();
+	}
+	else {
+		std::stringstream exceptionMsg;
+		exceptionMsg << "Don't understand game object behavior type: " << gameObjectBehaviorStr;
+		throw exceptionMsg;
+	}
+	
+	return newGameObjBehavior;
 }
