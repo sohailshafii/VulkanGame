@@ -2,7 +2,7 @@
 
 #include "GameObjects/GameObject.h"
 #include "GameObjects/GameObjectBehavior.h"
-#include "GameObjects/AIGameObjectBehavior.h"
+#include "GameObjects/MothershipBehavior.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
 #include "GameObjects/StationaryGameObjectBehavior.h"
 #include "Resources/ResourceLoader.h"
@@ -129,7 +129,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		GameObjectBehavior = std::make_shared<PlayerGameObjectBehavior>();
 	}
 	else if (objectType == "AI") {
-		GameObjectBehavior = std::make_shared<AIGameObjectBehavior>();
+		GameObjectBehavior = std::make_shared<MothershipBehavior>();
 	}
 	else {
 		GameObjectBehavior = std::make_shared<StationaryGameObjectBehavior>();
@@ -280,6 +280,9 @@ std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(const nlohmann::json
 	}
 	else if (gameObjectBehaviorStr == "Player") {
 		newGameObjBehavior = std::make_unique<PlayerGameObjectBehavior>();
+	}
+	else if (gameObjectBehaviorStr == "Mothership") {
+		newGameObjBehavior = std::make_unique<MothershipBehavior>();
 	}
 	else {
 		std::stringstream exceptionMsg;

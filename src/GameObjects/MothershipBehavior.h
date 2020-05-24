@@ -2,15 +2,15 @@
 
 #include "GameObjectBehavior.h"
 
-class AIGameObjectBehavior : public GameObjectBehavior
+class MothershipBehavior : public GameObjectBehavior
 {
 public:
-	AIGameObjectBehavior()
+	MothershipBehavior()
 	{
 
 	}
 	
-	~AIGameObjectBehavior()
+	~MothershipBehavior()
 	{
 
 	}

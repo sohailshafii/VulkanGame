@@ -14,7 +14,7 @@
 	[
 		{
 			"model":"cube.obj",
-			"type":"Player",
+			"type":"Mothership",
 			"material":
 			{
 				"type":"UnlitTintedTextured",
@@ -22,7 +22,8 @@
 			},
 			"transformation":
 			{
-				"position":[0.0, 0.0, 3.0]
+				"position":[0.0, 0.0,-100.0],
+				"scale":[200.0, 200.0, 200.0]
 			}
 		},
 		{
