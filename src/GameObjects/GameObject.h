@@ -104,8 +104,9 @@ public:
 	
 	void CreateDescriptorPoolAndSets(size_t numSwapChainImages);
 	
-	void UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
-							float time, VkExtent2D swapChainExtent);
+	void UpdateState();
+	void UpdateVisualState(uint32_t imageIndex, const glm::mat4& viewMatrix,
+						   float time, VkExtent2D swapChainExtent);
 	
 private:
 	std::shared_ptr<Model> objModel;

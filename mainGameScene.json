@@ -70,19 +70,6 @@
 				"num_side_1_points":1000,
 				"num_side_2_points":1000
 			}
-		},
-		{
-			"model":"cube.obj",
-			"type":"Stationary",
-			"material":
-			{
-				"type":"UnlitTintedTextured",
-				"main_texture":"texture.jpg"
-			},
-			"transformation":
-			{
-				"rotation":[-45.0, 0.0, 0.0]
-			}
 		}
 	],
 	"lights":

@@ -158,8 +158,12 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 	CreateDescriptorSets(numSwapChainImages);
 }
 
+void GameObject::UpdateState() {
+	gameObjectBehavior->UpdateSelf();
+}
+
 // TODO: use push constants, more efficient
-void GameObject::UpdateUniformBuffer(uint32_t imageIndex, const glm::mat4& viewMatrix,
+void GameObject::UpdateVisualState(uint32_t imageIndex, const glm::mat4& viewMatrix,
 									float time, VkExtent2D swapChainExtent) {
 	switch (material->GetMaterialType())
 	{
