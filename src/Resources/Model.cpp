@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Math/NoiseGenerator.h"
 #include "Math/PerlinNoise.h"
+#include "Math/CommonMath.h"
 
 Model::Model(const std::string& modelPath) {
 	tinyobj::attrib_t attrib;
@@ -98,7 +99,7 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 	// generate noise, if applicable
 	float* noiseValues;
 	glm::vec3* normValues;
-	GenerateNoiseAndDerivatives(&noiseValues, &normValues,
+	GeneratePlaneNoiseAndDerivatives(&noiseValues, &normValues,
 								lowerLeft, side1Vec, side2Vec,
 								numSide1Points, numSide2Points,
 								noiseGeneratorType, numNoiseLayers);
@@ -151,7 +152,7 @@ std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 		TopologyType::TriangleStrip);
 }
 
-void Model::GenerateNoiseAndDerivatives(float** noiseValues,
+void Model::GeneratePlaneNoiseAndDerivatives(float** noiseValues,
 								 glm::vec3** normals,
 								 const glm::vec3& lowerLeft,
 								 const glm::vec3& side1Vec,

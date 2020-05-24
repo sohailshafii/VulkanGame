@@ -128,7 +128,7 @@ private:
 	std::vector<uint32_t> indices;
 	TopologyType modelTopology;
 	
-	static void GenerateNoiseAndDerivatives(float** noiseValues,
+	static void GeneratePlaneNoiseAndDerivatives(float** noiseValues,
 											glm::vec3** normals,
 											const glm::vec3& lowerLeft,
 											const glm::vec3& side1Vec,
