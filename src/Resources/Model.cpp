@@ -204,6 +204,13 @@ void Model::GenerateNoiseAndDerivatives(float** noiseValues,
 				}
 				noiseValuesPtr[oneDimIndex] = fractal;
 				derivValues[oneDimIndex] = glm::normalize(derivValues[oneDimIndex]);
+				
+				auto derivativeVal = derivValues[oneDimIndex];
+				glm::vec3 tangent(1.0f, derivativeVal[0], 0.0f);
+				glm::vec3 bitangent(0.0f, derivativeVal[2], 1.0f);
+				normalsPtr[oneDimIndex] = glm::normalize(glm::vec3(-derivativeVal[0],
+														 1.0f,
+														 -derivativeVal[2]));
 			}
 		}
 		for (uint32_t i = 0; i < numTotalPoints; i++) {
@@ -211,6 +218,6 @@ void Model::GenerateNoiseAndDerivatives(float** noiseValues,
 		}
 		
 		delete noiseGenerator;
-		delete derivValues;
+		delete [] derivValues;
 	}
 }
