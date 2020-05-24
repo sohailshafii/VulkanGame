@@ -192,9 +192,11 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		gameObjectModel = resourceLoader->GetModel(modelPath);
 	}
 	
+	std::unique_ptr<StationaryGameObjectBehavior> stationaryObject =
+		std::make_unique<StationaryGameObjectBehavior>();
 	constructedGameObject  =
-		std::make_shared<GameObject>(gameObjectModel,
-									 newMaterial, gfxDeviceManager,
+		std::make_shared<GameObject>(gameObjectModel, newMaterial,
+									 std::move(stationaryObject), gfxDeviceManager,
 									 logicalDeviceManager, commandPool);
 	
 	auto transformationNode = SafeGetToken(jsonObj, "transformation");

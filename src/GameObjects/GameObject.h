@@ -31,7 +31,7 @@ public:
 	// TODO: pass in unique ptr to game object behavior here
 	GameObject(std::shared_ptr<Model> const& model,
 		std::shared_ptr<Material> const& material,
-		//std::unique_ptr<GameObjectBehavior> behavior,
+		std::unique_ptr<GameObjectBehavior> behavior,
 		GfxDeviceManager *gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		VkCommandPool commandPool);
