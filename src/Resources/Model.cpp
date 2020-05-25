@@ -278,7 +278,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 							  secondIndex);
 	}
 	
-	uint32_t row2StartIndex = 6;
+	/*uint32_t row2StartIndex = 6;
 	// first row above pole
 	for (int i = 0; i < 5; i++) {
 		AddIcosahedronIndices(indices, row2StartIndex + i,
@@ -297,7 +297,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 		}
 		AddIcosahedronIndices(indices, 11, row2StartIndex + i,
 							  secondIndex);
-	}
+	}*/
 	
 	SubdivideIcosahedron(vertices, indices, numSubdivisions);
 	

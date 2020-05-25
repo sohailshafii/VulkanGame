@@ -150,14 +150,15 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	if (modelType.find("Procedural") != std::string::npos)
 	{
 		auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
-		auto lowerLeftPos = SafeGetToken(metaDataNode, "lower_left");
-		auto side1Vec = SafeGetToken(metaDataNode, "side_1_vec");
-		auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
-		unsigned int numSide1Pnts = SafeGetToken(metaDataNode, "num_side_1_points");
-		unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
 		std::string primitiveType = SafeGetToken(metaDataNode, "primitive_type");
 		
 		if (primitiveType == "quad") {
+			auto lowerLeftPos = SafeGetToken(metaDataNode, "lower_left");
+			auto side1Vec = SafeGetToken(metaDataNode, "side_1_vec");
+			auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
+			unsigned int numSide1Pnts = SafeGetToken(metaDataNode, "num_side_1_points");
+			unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
+			
 			gameObjectModel = Model::CreatePlane(
 			glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
 			glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
@@ -166,6 +167,13 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 			NoiseGeneratorType::None);
 		}
 		else if (primitiveType == "noisy_quad") {
+			auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
+			auto lowerLeftPos = SafeGetToken(metaDataNode, "lower_left");
+			auto side1Vec = SafeGetToken(metaDataNode, "side_1_vec");
+			auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
+			unsigned int numSide1Pnts = SafeGetToken(metaDataNode, "num_side_1_points");
+			unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
+			
 			std::string noiseType = SafeGetToken(metaDataNode, "noise_type");
 			if (noiseType == "perlin") {
 				uint32_t numNoiseLayers = SafeGetToken(metaDataNode, "num_noise_layers");
@@ -181,6 +189,14 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 				exceptionMsg << "Don't understand noise type: " << noiseType;
 				throw exceptionMsg;
 			}
+		}
+		else if (primitiveType == "icosahedron") {
+			auto origin = SafeGetToken(metaDataNode, "origin");
+			float radius = SafeGetToken(metaDataNode, "radius");
+			uint32_t numSubdiv = SafeGetToken(metaDataNode, "num_subdivisions");
+			gameObjectModel = Model::CreateIcosahedron(glm::vec3((float)origin[0],
+										(float)origin[1], (float)origin[2]),
+													   radius, numSubdiv);
 		}
 		else {
 			std::stringstream exceptionMsg;

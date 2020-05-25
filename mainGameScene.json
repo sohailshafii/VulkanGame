@@ -13,7 +13,7 @@
 	"game_objects":
 	[
 		{
-			"model":"cube.obj",
+			"model":"Procedural",
 			"type":"Mothership",
 			"material":
 			{
@@ -24,6 +24,13 @@
 			{
 				"position":[0.0, 0.0,-100.0],
 				"scale":[200.0, 200.0, 200.0]
+			},
+			"meta_data":
+			{
+				"primitive_type":"icosahedron",
+				"origin":[0.0, 0.0, 0.0],
+				"radius":1.0,
+				"num_subdivisions":10
 			}
 		},
 		{
