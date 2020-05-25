@@ -57,6 +57,10 @@ public:
 		NoiseGeneratorType noiseGeneratorType,
 		uint32_t numNoiseLayers = 0);
 	
+	static std::shared_ptr<Model> CreateIcosahedron(glm::vec3 const & origin,
+													float radius,
+													uint32_t numSubdivisions);
+	
 	const std::vector<VertexPos> BuildAndReturnVertsPos() {
 		auto vertsToBuild = std::vector<VertexPos>();
 		for (auto &modelVert : vertices) {
@@ -137,6 +141,14 @@ private:
 											uint32_t numSide2Points,
 											NoiseGeneratorType noiseGeneratorType,
 											uint32_t numNoiseLayers);
+	
+	static void AddIcosahedronIndices(std::vector<uint32_t>& indices,
+									  uint32_t index1, uint32_t index2,
+									  uint32_t index3);
+	
+	static void SubdivideIcosahedron(std::vector<ModelVert>& vertices,
+									 std::vector<uint32_t>& indices,
+									 uint32_t numSubdivisions);
 };
 
 namespace std {

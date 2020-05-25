@@ -225,3 +225,96 @@ void Model::GeneratePlaneNoiseAndDerivatives(float** noiseValues,
 		delete [] derivValues;
 	}
 }
+
+// based mostly on http://www.songho.ca/opengl/gl_sphere.html
+std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
+												float radius,
+												uint32_t numSubdivisions) {
+	const float circumDivAngle = 72.0f * M_PI / 180.0f;
+	const float verticalAngle = atanf(1.0f/2.0f);
+	
+	// 12 vertices to start with. one at each pole,
+	// six across at verticalAngle, and then another
+	// six across at -verticalAngle
+	std::vector<ModelVert> vertices(12);
+	std::vector<uint32_t> indices;
+	// start at -126 at 1st row, -90 on second row
+	float hAngle1 = -M_PI * 0.5f - circumDivAngle * 0.5f;
+	float hAngle2 = -M_PI * 0.5f;
+	
+	// top-most pole
+	vertices[0].position = glm::vec3(0.0f, radius, 0.0f);
+	
+	// ten verts on first and second rows
+	for (unsigned int row1 = 1; row1 <= 5; ++row1) {
+		// second row
+		unsigned int row2 = (row1 + 5);
+		
+		// compute elevation and length on plane
+		float z = radius * sinf(verticalAngle);
+		float xy = radius * cosf(verticalAngle);
+		
+		vertices[row1].position =
+			glm::vec3(xy * cosf(hAngle1), xy * sinf(hAngle1),
+					  z);
+		vertices[row2].position = glm::vec3(xy * cosf(hAngle2),
+											xy * sinf(hAngle2),
+											-z);
+		
+		hAngle1 += circumDivAngle;
+		hAngle2 += circumDivAngle;
+	}
+	
+	vertices[11].position = glm::vec3(0.0f, 0.0f,-radius);
+	
+	// top pole triangles
+	uint32_t row1StartIndex = 1;
+	for (int i = 0; i < 5; i++) {
+		uint32_t secondIndex = row1StartIndex + i + 1;
+		if (secondIndex > 4) {
+			secondIndex = row1StartIndex;
+		}
+		AddIcosahedronIndices(indices, row1StartIndex + i, 0,
+							  secondIndex);
+	}
+	
+	uint32_t row2StartIndex = 6;
+	// first row above pole
+	for (int i = 0; i < 5; i++) {
+		AddIcosahedronIndices(indices, row2StartIndex + i,
+							  row1StartIndex + i,
+							  row1StartIndex + i + 1);
+		AddIcosahedronIndices(indices, row2StartIndex + i,
+							  row1StartIndex + i + 1,
+							  row2StartIndex + i + 1);
+	}
+	
+	// bottom pole
+	for (int i = 0; i < 5; i++) {
+		uint32_t secondIndex = row2StartIndex + i + 1;
+		if (secondIndex > 4) {
+			secondIndex = row2StartIndex;
+		}
+		AddIcosahedronIndices(indices, 11, row2StartIndex + i,
+							  secondIndex);
+	}
+	
+	SubdivideIcosahedron(vertices, indices, numSubdivisions);
+	
+	return std::make_shared<Model>(vertices, indices,
+								   TopologyType::TriangleList);
+}
+
+void Model::AddIcosahedronIndices(std::vector<uint32_t>& indices,
+								  uint32_t index1, uint32_t index2,
+									uint32_t index3) {
+	indices.push_back(index1);
+	indices.push_back(index2);
+	indices.push_back(index3);
+}
+
+void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
+								 std::vector<uint32_t>& indices,
+								 uint32_t numSubdivisions) {
+	
+}
