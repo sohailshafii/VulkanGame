@@ -243,7 +243,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	float hAngle2 = -M_PI * 0.5f;
 	
 	// top-most pole
-	vertices[0].position = glm::vec3(0.0f, radius, 0.0f);
+	vertices[0].position = glm::vec3(0.0f, 0.0f, radius);
 	
 	// ten verts on first and second rows
 	for (unsigned int row1 = 1; row1 <= 5; ++row1) {
@@ -269,35 +269,41 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	
 	// top pole triangles
 	uint32_t row1StartIndex = 1;
-	for (int i = 0; i < 5; i++) {
+	for (uint32_t i = 0; i < 5; i++) {
 		uint32_t secondIndex = row1StartIndex + i + 1;
-		if (secondIndex > 4) {
+		if (secondIndex > 5) {
 			secondIndex = row1StartIndex;
 		}
-		AddIcosahedronIndices(indices, row1StartIndex + i, 0,
-							  secondIndex);
+		AddIcosahedronIndices(indices, 0,
+			row1StartIndex + i, secondIndex);
 	}
 	
-	/*uint32_t row2StartIndex = 6;
+	uint32_t row2StartIndex = 6;
 	// first row above pole
-	for (int i = 0; i < 5; i++) {
+	for (uint32_t i = 0; i < 5; i++) {
+		uint32_t secondRow1Index = row1StartIndex + i + 1;
+		uint32_t secondRow2Index = row2StartIndex + i + 1;
+		if (secondRow1Index > 5) {
+			secondRow1Index = row1StartIndex;
+		}
+		if (secondRow2Index > 10) {
+			secondRow2Index = row2StartIndex;
+		}
 		AddIcosahedronIndices(indices, row2StartIndex + i,
-							  row1StartIndex + i,
-							  row1StartIndex + i + 1);
-		AddIcosahedronIndices(indices, row2StartIndex + i,
-							  row1StartIndex + i + 1,
-							  row2StartIndex + i + 1);
+			secondRow1Index, row1StartIndex + i);
+		AddIcosahedronIndices(indices, secondRow1Index,
+			row2StartIndex + i, secondRow2Index);
 	}
 	
 	// bottom pole
 	for (int i = 0; i < 5; i++) {
 		uint32_t secondIndex = row2StartIndex + i + 1;
-		if (secondIndex > 4) {
+		if (secondIndex > 10) {
 			secondIndex = row2StartIndex;
 		}
-		AddIcosahedronIndices(indices, 11, row2StartIndex + i,
-							  secondIndex);
-	}*/
+		AddIcosahedronIndices(indices, 11, secondIndex,
+			row2StartIndex + i);
+	}
 	
 	SubdivideIcosahedron(vertices, indices, numSubdivisions);
 	
