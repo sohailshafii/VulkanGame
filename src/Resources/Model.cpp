@@ -233,75 +233,83 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	const float circumDivAngle = 72.0f * M_PI / 180.0f;
 	const float verticalAngle = atanf(1.0f/2.0f);
 	
-	// 12 vertices to start with. one at each pole,
+	// 22 vertices to start with. five at each pole,
 	// six across at verticalAngle, and then another
 	// six across at -verticalAngle
-	std::vector<ModelVert> vertices(12);
+	std::vector<ModelVert> vertices(22);
 	std::vector<uint32_t> indices;
 	// start at -126 at 1st row, -90 on second row
 	float hAngle1 = -M_PI * 0.5f - circumDivAngle * 0.5f;
 	float hAngle2 = -M_PI * 0.5f;
-	
-	// top-most pole
-	vertices[0].position = glm::vec3(0.0f, 0.0f, radius);
+	// 11 U divisions for texture coordinates
+	// see http://www.songho.ca/opengl/gl_sphere.html
+	float uDiv = 1.0f / 11.0f;
+	float vDiv = 1.0f / 3.0f;
+
+	// top-most pole has several verts, each with its own
+	// texture coordinate
+	for (unsigned int i = 0; i < 5; i++) {
+		vertices[i].position = glm::vec3(0.0f, 0.0f, radius);
+		vertices[i].texCoord = glm::vec2((1.0f + 2.0f * (float)i) * uDiv,
+			0.0f);
+	}
 	
 	// ten verts on first and second rows
-	for (unsigned int row1 = 1; row1 <= 5; ++row1) {
+	for (unsigned int row1Index = 5; row1Index <= 10; ++row1Index) {
 		// second row
-		unsigned int row2 = (row1 + 5);
+		unsigned int row2Index = (row1Index + 6);
+		unsigned int offsetIntoRow = (row1Index - 5);
 		
 		// compute elevation and length on plane
 		float z = radius * sinf(verticalAngle);
 		float xy = radius * cosf(verticalAngle);
 		
-		vertices[row1].position =
+		vertices[row1Index].position =
 			glm::vec3(xy * cosf(hAngle1), xy * sinf(hAngle1),
 					  z);
-		vertices[row2].position = glm::vec3(xy * cosf(hAngle2),
+		vertices[row1Index].texCoord = glm::vec2(
+			uDiv * (float)offsetIntoRow * 2.0f, vDiv);
+		vertices[row2Index].position = glm::vec3(xy * cosf(hAngle2),
 											xy * sinf(hAngle2),
 											-z);
+		vertices[row2Index].texCoord = glm::vec2(
+			uDiv * (1.0f + (float)offsetIntoRow * 2.0f), 2.0f * vDiv);
 		
 		hAngle1 += circumDivAngle;
 		hAngle2 += circumDivAngle;
 	}
 	
-	vertices[11].position = glm::vec3(0.0f, 0.0f,-radius);
-	
-	// top pole triangles
-	uint32_t row1StartIndex = 1;
-	for (uint32_t i = 0; i < 5; i++) {
-		uint32_t secondIndex = row1StartIndex + i + 1;
-		if (secondIndex > 5) {
-			secondIndex = row1StartIndex;
-		}
-		AddIcosahedronIndices(indices, 0,
-			row1StartIndex + i, secondIndex);
+	for (unsigned int i = 17; i < 22; i++) {
+		vertices[i].position = glm::vec3(0.0f, 0.0f,-radius);
+		vertices[i].texCoord = glm::vec2((2.0f * (float)i) * uDiv,
+			3.0f * vDiv);
 	}
 	
-	uint32_t row2StartIndex = 6;
+	// top pole triangles
+	uint32_t row1StartIndex = 5;
+	for (uint32_t i = 0; i < 5; i++) {
+		AddIcosahedronIndices(indices, i,
+			row1StartIndex + i, row1StartIndex + i + 1);
+	}
+	
+	uint32_t row2StartIndex = 11;
 	// first row above pole
 	for (uint32_t i = 0; i < 5; i++) {
-		uint32_t secondRow1Index = row1StartIndex + i + 1;
-		uint32_t secondRow2Index = row2StartIndex + i + 1;
-		if (secondRow1Index > 5) {
-			secondRow1Index = row1StartIndex;
-		}
-		if (secondRow2Index > 10) {
-			secondRow2Index = row2StartIndex;
-		}
-		AddIcosahedronIndices(indices, row2StartIndex + i,
-			secondRow1Index, row1StartIndex + i);
+		uint32_t firstRow1Index = row1StartIndex + i;
+		uint32_t secondRow1Index = firstRow1Index + 1;
+		uint32_t firstRow2Index = row2StartIndex + i;
+		uint32_t secondRow2Index = firstRow2Index + 1;
+		AddIcosahedronIndices(indices, firstRow2Index,
+			secondRow1Index, firstRow1Index);
 		AddIcosahedronIndices(indices, secondRow1Index,
-			row2StartIndex + i, secondRow2Index);
+			firstRow2Index, secondRow2Index);
 	}
 	
 	// bottom pole
-	for (int i = 0; i < 5; i++) {
-		uint32_t secondIndex = row2StartIndex + i + 1;
-		if (secondIndex > 10) {
-			secondIndex = row2StartIndex;
-		}
-		AddIcosahedronIndices(indices, 11, secondIndex,
+	uint32_t poleStartIndex = 17;
+	for (uint32_t i = 0; i < 5; i++) {
+		AddIcosahedronIndices(indices, poleStartIndex + i,
+			row2StartIndex + i + 1,
 			row2StartIndex + i);
 	}
 	
