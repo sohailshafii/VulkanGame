@@ -329,6 +329,8 @@ void Model::AddIcosahedronIndices(std::vector<uint32_t>& indices,
 	indices.push_back(index2);
 	indices.push_back(index3);
 	
+	// TODO: assign neighbors based on triangle topology
+	// not some unordered set!
 	vertexNeighbors[index1].insert(index2);
 	vertexNeighbors[index1].insert(index3);
 	
@@ -343,4 +345,22 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 								 std::vector<uint32_t>& indices,
 								 uint32_t numSubdivisions) {
 	
+}
+
+glm::vec3 Model::ComputeNormal(uint32_t vertexIndex,
+							   std::vector<ModelVert>& vertices,
+							   std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors) {
+	std::set<uint32_t> const & neighbors = vertexNeighbors[vertexIndex];
+	glm::vec3 normalVec(0.0f, 0.0f, 0.0f);
+	
+	glm::vec3 const & ourVertex = vertices[vertexIndex].position;
+	size_t numNeighbors = neighbors.size();
+	
+	/*uint32_t
+	for(uint32_t neighborIndex : neighbors) {
+		glm::vec3 neighbor = vertices[neighborIndex];
+		glm::vec3 vectorToNeighbor =
+	}*/
+	
+	return normalVec;
 }

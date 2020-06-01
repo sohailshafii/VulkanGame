@@ -152,6 +152,9 @@ private:
 	static void SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 									 std::vector<uint32_t>& indices,
 									 uint32_t numSubdivisions);
+	
+	glm::vec3 ComputeNormal(uint32_t vertexIndex, std::vector<ModelVert>& vertices,
+							std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors);
 };
 
 namespace std {
