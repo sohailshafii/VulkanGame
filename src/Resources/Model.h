@@ -6,6 +6,8 @@
 
 #include <vector>
 #include <array>
+#include <set>
+#include <unordered_map>
 #include <glm/glm.hpp>
 #include "vulkan/vulkan.h"
 #include "Vertex.h"
@@ -144,7 +146,8 @@ private:
 	
 	static void AddIcosahedronIndices(std::vector<uint32_t>& indices,
 									  uint32_t index1, uint32_t index2,
-									  uint32_t index3);
+									  uint32_t index3,
+									  std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors);
 	
 	static void SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 									 std::vector<uint32_t>& indices,

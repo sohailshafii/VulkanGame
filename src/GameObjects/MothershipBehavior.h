@@ -8,7 +8,7 @@ class MothershipBehavior : public GameObjectBehavior
 public:
 	MothershipBehavior()
 	{
-		axisOfRotation = glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f));
+		axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	
 	~MothershipBehavior()

@@ -1,10 +1,11 @@
 #include "Resources/Model.h"
 
 #include <string>
-#include <unordered_map>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 #include <iostream>
+#include <vector>
+#include <set>
 #include "Math/NoiseGenerator.h"
 #include "Math/PerlinNoise.h"
 #include "Math/CommonMath.h"
@@ -245,33 +246,35 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	// see http://www.songho.ca/opengl/gl_sphere.html
 	float uDiv = 1.0f / 11.0f;
 	float vDiv = 1.0f / 3.0f;
+	
+	std::unordered_map<uint32_t, std::set<uint32_t>> vertexNeighbors;
 
 	// top-most pole has several verts, each with its own
 	// texture coordinate
-	for (unsigned int i = 0; i < 5; i++) {
-		vertices[i].position = glm::vec3(0.0f, 0.0f, radius);
+	for (uint32_t i = 0; i < 5; i++) {
+		vertices[i].position = glm::vec3(0.0f, radius, 0.0f);
 		vertices[i].texCoord = glm::vec2((1.0f + 2.0f * (float)i) * uDiv,
 			0.0f);
 	}
 	
 	// ten verts on first and second rows
-	for (unsigned int row1Index = 5; row1Index <= 10; ++row1Index) {
+	for (uint32_t row1Index = 5; row1Index <= 10; ++row1Index) {
 		// second row
-		unsigned int row2Index = (row1Index + 6);
-		unsigned int offsetIntoRow = (row1Index - 5);
+		uint32_t row2Index = (row1Index + 6);
+		uint32_t offsetIntoRow = (row1Index - 5);
 		
 		// compute elevation and length on plane
-		float z = radius * sinf(verticalAngle);
-		float xy = radius * cosf(verticalAngle);
+		float y = radius * sinf(verticalAngle);
+		float xz = radius * cosf(verticalAngle);
 		
 		vertices[row1Index].position =
-			glm::vec3(xy * cosf(hAngle1), xy * sinf(hAngle1),
-					  z);
+			glm::vec3(xz * cosf(hAngle1), y, xz * sinf(hAngle1));
 		vertices[row1Index].texCoord = glm::vec2(
 			uDiv * (float)offsetIntoRow * 2.0f, vDiv);
-		vertices[row2Index].position = glm::vec3(xy * cosf(hAngle2),
-											xy * sinf(hAngle2),
-											-z);
+		
+		vertices[row2Index].position = glm::vec3(xz * cosf(hAngle2),
+												 -y,
+												 xz * sinf(hAngle2));
 		vertices[row2Index].texCoord = glm::vec2(
 			uDiv * (1.0f + (float)offsetIntoRow * 2.0f), 2.0f * vDiv);
 		
@@ -279,8 +282,8 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 		hAngle2 += circumDivAngle;
 	}
 	
-	for (unsigned int i = 17; i < 22; i++) {
-		vertices[i].position = glm::vec3(0.0f, 0.0f,-radius);
+	for (uint32_t i = 17; i < 22; i++) {
+		vertices[i].position = glm::vec3(0.0f,-radius, 0.0f);
 		vertices[i].texCoord = glm::vec2((2.0f * (float)i) * uDiv,
 			3.0f * vDiv);
 	}
@@ -289,7 +292,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	uint32_t row1StartIndex = 5;
 	for (uint32_t i = 0; i < 5; i++) {
 		AddIcosahedronIndices(indices, i,
-			row1StartIndex + i, row1StartIndex + i + 1);
+			row1StartIndex + i + 1, row1StartIndex + i, vertexNeighbors);
 	}
 	
 	uint32_t row2StartIndex = 11;
@@ -300,17 +303,17 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 		uint32_t firstRow2Index = row2StartIndex + i;
 		uint32_t secondRow2Index = firstRow2Index + 1;
 		AddIcosahedronIndices(indices, firstRow2Index,
-			secondRow1Index, firstRow1Index);
+			firstRow1Index, secondRow1Index, vertexNeighbors);
 		AddIcosahedronIndices(indices, secondRow1Index,
-			firstRow2Index, secondRow2Index);
+			secondRow2Index, firstRow2Index, vertexNeighbors);
 	}
 	
 	// bottom pole
 	uint32_t poleStartIndex = 17;
 	for (uint32_t i = 0; i < 5; i++) {
 		AddIcosahedronIndices(indices, poleStartIndex + i,
-			row2StartIndex + i + 1,
-			row2StartIndex + i);
+			row2StartIndex + i,
+			row2StartIndex + i + 1, vertexNeighbors);
 	}
 	
 	SubdivideIcosahedron(vertices, indices, numSubdivisions);
@@ -321,10 +324,19 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 
 void Model::AddIcosahedronIndices(std::vector<uint32_t>& indices,
 								  uint32_t index1, uint32_t index2,
-									uint32_t index3) {
+									uint32_t index3, std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors) {
 	indices.push_back(index1);
 	indices.push_back(index2);
 	indices.push_back(index3);
+	
+	vertexNeighbors[index1].insert(index2);
+	vertexNeighbors[index1].insert(index3);
+	
+	vertexNeighbors[index2].insert(index1);
+	vertexNeighbors[index2].insert(index3);
+	
+	vertexNeighbors[index3].insert(index1);
+	vertexNeighbors[index3].insert(index3);
 }
 
 void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
