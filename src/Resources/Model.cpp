@@ -231,7 +231,9 @@ void Model::GeneratePlaneNoiseAndDerivatives(float** noiseValues,
 std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 												float radius,
 												uint32_t numSubdivisions) {
+	// 360 degrees divided by 5 is 72.0 degrees
 	const float circumDivAngle = 72.0f * M_PI / 180.0f;
+	// 26.565 degrees for elevation angle
 	const float verticalAngle = atanf(1.0f/2.0f);
 	
 	// 22 vertices to start with. five at each pole,
@@ -284,7 +286,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	
 	for (uint32_t i = 17; i < 22; i++) {
 		vertices[i].position = glm::vec3(0.0f,-radius, 0.0f);
-		vertices[i].texCoord = glm::vec2((2.0f * (float)i) * uDiv,
+		vertices[i].texCoord = glm::vec2((2.0f * (float)(i - 17)) * uDiv,
 			3.0f * vDiv);
 	}
 	
