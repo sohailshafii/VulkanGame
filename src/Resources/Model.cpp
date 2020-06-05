@@ -233,12 +233,14 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 												uint32_t numSubdivisions) {
 	// 360 degrees divided by 5 is 72.0 degrees
 	const float circumDivAngle = 72.0f * M_PI / 180.0f;
-	// 26.565 degrees for elevation angle
-	const float verticalAngle = atanf(1.0f/2.0f);
+	// elevation angle, assuming vertex of icosahedron is
+	// 1 unit in y, 2 in x
+	const float verticalAngle = (90.0f * M_PI/180.0f) - atanf(1.0f/2.0f);
+	const float verticalAngle2 = (90.0f * M_PI / 180.0f) + atanf(1.0f / 2.0f);
 	
 	// 22 vertices to start with. five at each pole,
 	// six across at verticalAngle, and then another
-	// six across at -verticalAngle
+	// six across at 90 degrees + verticalAngle
 	std::vector<ModelVert> vertices(22);
 	std::vector<uint32_t> indices;
 	// start at -126 at 1st row, -90 on second row
@@ -260,23 +262,26 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	}
 	
 	// ten verts on first and second rows
+	// compute elevation and length on plane
+	float y = radius * cosf(verticalAngle);
+	float xz = radius * sinf(verticalAngle);
+	float y2 = radius * cosf(verticalAngle2);
+	float xz2 = radius * sinf(verticalAngle2);
 	for (uint32_t row1Index = 5; row1Index <= 10; ++row1Index) {
 		// second row
 		uint32_t row2Index = (row1Index + 6);
 		uint32_t offsetIntoRow = (row1Index - 5);
-		
-		// compute elevation and length on plane
-		float y = radius * sinf(verticalAngle);
-		float xz = radius * cosf(verticalAngle);
-		
+
 		vertices[row1Index].position =
-			glm::vec3(xz * cosf(hAngle1), y, xz * sinf(hAngle1));
+			glm::vec3(xz * sinf(hAngle1),
+					y,
+					xz * cosf(hAngle1));
 		vertices[row1Index].texCoord = glm::vec2(
 			uDiv * (float)offsetIntoRow * 2.0f, vDiv);
 		
-		vertices[row2Index].position = glm::vec3(xz * cosf(hAngle2),
-												 -y,
-												 xz * sinf(hAngle2));
+		vertices[row2Index].position = glm::vec3(xz2 * sinf(hAngle2),
+												y2,
+												 xz2 * cosf(hAngle2));
 		vertices[row2Index].texCoord = glm::vec2(
 			uDiv * (1.0f + (float)offsetIntoRow * 2.0f), 2.0f * vDiv);
 		
@@ -294,7 +299,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	uint32_t row1StartIndex = 5;
 	for (uint32_t i = 0; i < 5; i++) {
 		AddIcosahedronIndices(indices, i,
-			row1StartIndex + i + 1, row1StartIndex + i, vertexNeighbors);
+			row1StartIndex + i, row1StartIndex + i + 1, vertexNeighbors);
 	}
 	
 	uint32_t row2StartIndex = 11;
@@ -305,17 +310,17 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 		uint32_t firstRow2Index = row2StartIndex + i;
 		uint32_t secondRow2Index = firstRow2Index + 1;
 		AddIcosahedronIndices(indices, firstRow2Index,
-			firstRow1Index, secondRow1Index, vertexNeighbors);
+			secondRow1Index, firstRow1Index, vertexNeighbors);
 		AddIcosahedronIndices(indices, secondRow1Index,
-			secondRow2Index, firstRow2Index, vertexNeighbors);
+			firstRow2Index, secondRow2Index, vertexNeighbors);
 	}
 	
 	// bottom pole
 	uint32_t poleStartIndex = 17;
 	for (uint32_t i = 0; i < 5; i++) {
 		AddIcosahedronIndices(indices, poleStartIndex + i,
-			row2StartIndex + i,
-			row2StartIndex + i + 1, vertexNeighbors);
+			row2StartIndex + i + 1, row2StartIndex + i,
+			vertexNeighbors);
 	}
 	
 	SubdivideIcosahedron(vertices, indices, numSubdivisions);
@@ -333,6 +338,8 @@ void Model::AddIcosahedronIndices(std::vector<uint32_t>& indices,
 	
 	// TODO: assign neighbors based on triangle topology
 	// not some unordered set!
+	// for instance, index1 would need edges set; an edge to index2
+	// and then an edge to index3
 	vertexNeighbors[index1].insert(index2);
 	vertexNeighbors[index1].insert(index3);
 	

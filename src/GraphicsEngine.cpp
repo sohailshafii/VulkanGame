@@ -1,6 +1,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <stdexcept>
 #include "GraphicsEngine.h"
 #include "SwapChainManager.h"
 #include "RenderPassModule.h"
