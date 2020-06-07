@@ -248,6 +248,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	float hAngle2 = -(float)M_PI * 0.5f;
 	// 11 U divisions for texture coordinates
 	// see http://www.songho.ca/opengl/gl_sphere.html
+	// for original icosahedron code
 	float uDiv = 1.0f / 11.0f;
 	float vDiv = 1.0f / 3.0f;
 	
@@ -323,7 +324,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 			vertexNeighbors);
 	}
 	
-	SubdivideIcosahedron(vertices, indices, numSubdivisions);
+	//SubdivideIcosahedron(vertices, indices, numSubdivisions);
 
 	CalculateNormalVectors(vertices, vertexNeighbors);
 	
@@ -348,7 +349,51 @@ void Model::AddIcosahedronIndices(std::vector<uint32_t>& indices,
 void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 								 std::vector<uint32_t>& indices,
 								 uint32_t numSubdivisions) {
-	
+	std::vector<ModelVert> tmpVertices;
+	std::vector<uint32_t> tmpIndices;
+	ModelVert* v1, *v2, *v3;
+	ModelVert newV1, newV2, newV3;
+	uint32_t nextIndex;
+
+	for (uint32_t subDiv = 1; subDiv <= numSubdivisions; subDiv++) {
+		tmpVertices = vertices;
+		tmpIndices = indices;
+		vertices.clear();
+		indices.clear();
+		nextIndex = 0;
+
+		for (uint32_t index = 0; index < tmpIndices.size(); index += 3) {
+			v1 = &tmpVertices[tmpIndices[index]];
+			v2 = &tmpVertices[tmpIndices[index]];
+			v3 = &tmpVertices[tmpIndices[index]];
+
+			// split each half edge
+			//ComputeHalfVertex(v1, v2, newV1);
+			//ComputeHalfVertex(v2, v3, newV2);
+			//ComputeHalfVertex(v1, v3, newV3);
+
+			// add v1, newV1, newV3
+			// newV1, v2, newV2
+			// newV1, newV2, newV3
+			// newV3, newV2, v3
+
+			// add new indices as well
+			// index, index+1, index+2
+			// index+3, index+4, index+5
+			// index+6, index+7, index+8
+			// index+9, index+10, index+11
+			index += 12;
+		}
+	}
+}
+
+void Model::ComputeHalfVertex(glm::vec3 const& v1, glm::vec3 const& v2,
+	glm::vec3& halfVertex, float radius)
+{
+	halfVertex = v1 + v2;
+	// normalize vertex then scale it by radius
+	float scale = radius / halfVertex.length();
+	halfVertex *= scale;
 }
 
 void Model::CalculateNormalVectors(std::vector<ModelVert>& vertices,
