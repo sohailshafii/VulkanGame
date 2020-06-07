@@ -45,6 +45,21 @@ public:
 		glm::vec3 color;
 		glm::vec2 texCoord;
 	};
+
+	struct TriangleEdgeSet {
+		// first edge goes to point 1, second to point 2
+		uint32_t pointIndex1;
+		uint32_t pointIndex2;
+
+		TriangleEdgeSet(uint32_t index1, uint32_t index2) 
+			: pointIndex1(index1), pointIndex2(index2) {
+		}
+
+		bool operator<(TriangleEdgeSet const& b) const {
+			bool comp1 = pointIndex1 < b.pointIndex1;
+			return comp1 || (comp1 && pointIndex2 < b.pointIndex2);
+		}
+	};
 	
 	Model() {}
 	Model(const std::string& modelPath);
@@ -147,14 +162,17 @@ private:
 	static void AddIcosahedronIndices(std::vector<uint32_t>& indices,
 									  uint32_t index1, uint32_t index2,
 									  uint32_t index3,
-									  std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors);
+									  std::unordered_map<uint32_t,std::set<TriangleEdgeSet>> & vertexNeighbors);
 	
 	static void SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 									 std::vector<uint32_t>& indices,
 									 uint32_t numSubdivisions);
 	
-	glm::vec3 ComputeNormal(uint32_t vertexIndex, std::vector<ModelVert>& vertices,
-							std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors);
+	static void CalculateNormalVectors(std::vector<ModelVert>& vertices,
+		std::unordered_map<uint32_t, std::set<TriangleEdgeSet>>& vertexNeighbors);
+
+	static glm::vec3 ComputeNormal(uint32_t vertexIndex, std::vector<ModelVert>& vertices,
+							std::unordered_map<uint32_t,std::set<TriangleEdgeSet>> & vertexNeighbors);
 };
 
 namespace std {

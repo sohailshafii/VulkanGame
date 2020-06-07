@@ -232,11 +232,11 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 												float radius,
 												uint32_t numSubdivisions) {
 	// 360 degrees divided by 5 is 72.0 degrees
-	const float circumDivAngle = 72.0f * M_PI / 180.0f;
+	const float circumDivAngle = 72.0f * (float)M_PI / 180.0f;
 	// elevation angle, assuming vertex of icosahedron is
 	// 1 unit in y, 2 in x
-	const float verticalAngle = (90.0f * M_PI/180.0f) - atanf(1.0f/2.0f);
-	const float verticalAngle2 = (90.0f * M_PI / 180.0f) + atanf(1.0f / 2.0f);
+	const float verticalAngle = (90.0f * (float)M_PI / 180.0f) - atanf(1.0f / 2.0f);
+	const float verticalAngle2 = (90.0f * (float)M_PI / 180.0f) + atanf(1.0f / 2.0f);
 	
 	// 22 vertices to start with. five at each pole,
 	// six across at verticalAngle, and then another
@@ -244,14 +244,14 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	std::vector<ModelVert> vertices(22);
 	std::vector<uint32_t> indices;
 	// start at -126 at 1st row, -90 on second row
-	float hAngle1 = -M_PI * 0.5f - circumDivAngle * 0.5f;
-	float hAngle2 = -M_PI * 0.5f;
+	float hAngle1 = -(float)M_PI * 0.5f - circumDivAngle * 0.5f;
+	float hAngle2 = -(float)M_PI * 0.5f;
 	// 11 U divisions for texture coordinates
 	// see http://www.songho.ca/opengl/gl_sphere.html
 	float uDiv = 1.0f / 11.0f;
 	float vDiv = 1.0f / 3.0f;
 	
-	std::unordered_map<uint32_t, std::set<uint32_t>> vertexNeighbors;
+	std::unordered_map<uint32_t, std::set<TriangleEdgeSet>> vertexNeighbors;
 
 	// top-most pole has several verts, each with its own
 	// texture coordinate
@@ -324,30 +324,25 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	}
 	
 	SubdivideIcosahedron(vertices, indices, numSubdivisions);
+
+	CalculateNormalVectors(vertices, vertexNeighbors);
 	
 	return std::make_shared<Model>(vertices, indices,
 								   TopologyType::TriangleList);
 }
 
 void Model::AddIcosahedronIndices(std::vector<uint32_t>& indices,
-								  uint32_t index1, uint32_t index2,
-									uint32_t index3, std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors) {
+									uint32_t index1, uint32_t index2,
+									uint32_t index3,
+									std::unordered_map<uint32_t,std::set<TriangleEdgeSet>>
+									& vertexNeighbors) {
 	indices.push_back(index1);
 	indices.push_back(index2);
 	indices.push_back(index3);
 	
-	// TODO: assign neighbors based on triangle topology
-	// not some unordered set!
-	// for instance, index1 would need edges set; an edge to index2
-	// and then an edge to index3
-	vertexNeighbors[index1].insert(index2);
-	vertexNeighbors[index1].insert(index3);
-	
-	vertexNeighbors[index2].insert(index1);
-	vertexNeighbors[index2].insert(index3);
-	
-	vertexNeighbors[index3].insert(index1);
-	vertexNeighbors[index3].insert(index3);
+	vertexNeighbors[index1].insert(TriangleEdgeSet(index2, index3));
+	vertexNeighbors[index2].insert(TriangleEdgeSet(index3, index1));
+	vertexNeighbors[index3].insert(TriangleEdgeSet(index1, index2));
 }
 
 void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
@@ -356,20 +351,38 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 	
 }
 
+void Model::CalculateNormalVectors(std::vector<ModelVert>& vertices,
+	std::unordered_map<uint32_t, std::set<TriangleEdgeSet>>& vertexNeighbors) {
+	size_t numVertices = vertices.size();
+	for (size_t vertIndex = 0; vertIndex < numVertices; vertIndex++) {
+		ComputeNormal(vertIndex, vertices, vertexNeighbors);
+	}
+}
+
 glm::vec3 Model::ComputeNormal(uint32_t vertexIndex,
 							   std::vector<ModelVert>& vertices,
-							   std::unordered_map<uint32_t,std::set<uint32_t>> & vertexNeighbors) {
-	std::set<uint32_t> const & neighbors = vertexNeighbors[vertexIndex];
+							   std::unordered_map<uint32_t,std::set<TriangleEdgeSet>> & vertexNeighbors) {
+	std::set<TriangleEdgeSet> const & neighbors = vertexNeighbors[vertexIndex];
 	glm::vec3 normalVec(0.0f, 0.0f, 0.0f);
 	
 	glm::vec3 const & ourVertex = vertices[vertexIndex].position;
 	size_t numNeighbors = neighbors.size();
 	
-	/*uint32_t
-	for(uint32_t neighborIndex : neighbors) {
-		glm::vec3 neighbor = vertices[neighborIndex];
-		glm::vec3 vectorToNeighbor =
-	}*/
-	
+	for(TriangleEdgeSet const & triangleEdgeSet : neighbors) {
+		auto index1 = triangleEdgeSet.pointIndex1;
+		auto index2 = triangleEdgeSet.pointIndex2;
+		ModelVert const & point1 = vertices[index1];
+		ModelVert const& point2 = vertices[index2];
+
+		glm::vec3 vectorToPoint1 = (point1.position - ourVertex);
+		glm::normalize(vectorToPoint1);
+		glm::vec3 vectorToPoint2 = (point2.position - ourVertex);
+		glm::normalize(vectorToPoint2);
+
+		normalVec += glm::cross(vectorToPoint2, vectorToPoint1);
+	}
+
+	normalVec /= (float)numNeighbors;
+	glm::normalize(normalVec);
 	return normalVec;
 }
