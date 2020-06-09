@@ -365,6 +365,7 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 		tmpIndices = indices;
 		size_t numCurrentIndices = tmpIndices.size();
 		indices.clear();
+		vertexNeighbors.clear();
 		for (size_t index = 0; index < numCurrentIndices; index += 3) {
 			size_t oldIndex1 = tmpIndices[index],
 				oldIndex2 = tmpIndices[index + 1],
@@ -404,7 +405,7 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 void Model::ComputeHalfVertex(ModelVert const& v1, ModelVert const& v2,
 	ModelVert& halfVertex, float radius)
 {
-	glm::vec3 halfVertexPos = v1.position + v2.position;
+	glm::vec3 halfVertexPos = 0.5f*(v1.position + v2.position);
 	// normalize vertex then scale it by radius
 	float scale = radius / halfVertex.position.length();
 	halfVertexPos *= scale;
