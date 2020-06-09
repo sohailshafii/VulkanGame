@@ -166,10 +166,12 @@ private:
 	
 	static void SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 									 std::vector<uint32_t>& indices,
-									 uint32_t numSubdivisions);
+									 uint32_t numSubdivisions, float radius,
+									 std::unordered_map<uint32_t, std::set<TriangleEdgeSet>>
+									& vertexNeighbors);
 
-	static void ComputeHalfVertex(glm::vec3 const& v1, glm::vec3 const& v2,
-		glm::vec3& halfVertex, float radius);
+	static void ComputeHalfVertex(ModelVert const& v1, ModelVert const& v2,
+		ModelVert& halfVertex, float radius);
 	
 	static void CalculateNormalVectors(std::vector<ModelVert>& vertices,
 		std::unordered_map<uint32_t, std::set<TriangleEdgeSet>>& vertexNeighbors);

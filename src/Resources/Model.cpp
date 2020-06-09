@@ -324,7 +324,8 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 			vertexNeighbors);
 	}
 	
-	//SubdivideIcosahedron(vertices, indices, numSubdivisions);
+	//SubdivideIcosahedron(vertices, indices, numSubdivisions, radius,
+	//	vertexNeighbors);
 
 	CalculateNormalVectors(vertices, vertexNeighbors);
 	
@@ -348,52 +349,69 @@ void Model::AddIcosahedronIndices(std::vector<uint32_t>& indices,
 
 void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 								 std::vector<uint32_t>& indices,
-								 uint32_t numSubdivisions) {
-	std::vector<ModelVert> tmpVertices;
-	std::vector<uint32_t> tmpIndices;
-	ModelVert* v1, *v2, *v3;
+								 uint32_t numSubdivisions,
+								 float radius,
+								 std::unordered_map<uint32_t, std::set<TriangleEdgeSet>>
+								 & vertexNeighbors) {
 	ModelVert newV1, newV2, newV3;
 	uint32_t nextIndex;
+	std::vector<uint32_t> tmpIndices;
 
-	for (uint32_t subDiv = 1; subDiv <= numSubdivisions; subDiv++) {
-		tmpVertices = vertices;
-		tmpIndices = indices;
-		vertices.clear();
-		indices.clear();
+	vertexNeighbors.clear();
+
+	for (uint32_t subDiv = 0; subDiv < numSubdivisions; subDiv++) {
 		nextIndex = 0;
-
-		for (uint32_t index = 0; index < tmpIndices.size(); index += 3) {
-			v1 = &tmpVertices[tmpIndices[index]];
-			v2 = &tmpVertices[tmpIndices[index]];
-			v3 = &tmpVertices[tmpIndices[index]];
+		// build new indices by storing old indices into temp array
+		tmpIndices = indices;
+		size_t numCurrentIndices = tmpIndices.size();
+		indices.clear();
+		for (size_t index = 0; index < numCurrentIndices; index += 3) {
+			size_t oldIndex1 = tmpIndices[index],
+				oldIndex2 = tmpIndices[index + 1],
+				oldIndex3 = tmpIndices[index + 2];
+			ModelVert const & v1 = vertices[tmpIndices[oldIndex1]];
+			ModelVert const & v2 = vertices[tmpIndices[oldIndex2]];
+			ModelVert const & v3 = vertices[tmpIndices[oldIndex3]];
 
 			// split each half edge
-			//ComputeHalfVertex(v1, v2, newV1);
-			//ComputeHalfVertex(v2, v3, newV2);
-			//ComputeHalfVertex(v1, v3, newV3);
+			ComputeHalfVertex(v1, v2, newV1, radius);
+			ComputeHalfVertex(v2, v3, newV2, radius);
+			ComputeHalfVertex(v1, v3, newV3, radius);
 
-			// add v1, newV1, newV3
-			// newV1, v2, newV2
-			// newV1, newV2, newV3
-			// newV3, newV2, v3
+			uint32_t newV1Index = vertices.size();
+			vertices.push_back(newV1);
+			uint32_t newV2Index = vertices.size();
+			vertices.push_back(newV2);
+			uint32_t newV3Index = vertices.size();
+			vertices.push_back(newV3);
 
-			// add new indices as well
-			// index, index+1, index+2
-			// index+3, index+4, index+5
-			// index+6, index+7, index+8
-			// index+9, index+10, index+11
-			index += 12;
+			// topmost triangle in new subdiv
+			AddIcosahedronIndices(indices, oldIndex1,
+				newV1Index, newV3Index, vertexNeighbors);
+			// center triangle
+			AddIcosahedronIndices(indices, newV2Index,
+				newV3Index, newV1Index, vertexNeighbors);
+			// bottom left triangle
+			AddIcosahedronIndices(indices, newV1Index,
+				oldIndex2, newV2Index, vertexNeighbors);
+			// bottom right triangle
+			AddIcosahedronIndices(indices, newV3Index,
+				newV2Index, oldIndex3, vertexNeighbors);
 		}
 	}
 }
 
-void Model::ComputeHalfVertex(glm::vec3 const& v1, glm::vec3 const& v2,
-	glm::vec3& halfVertex, float radius)
+void Model::ComputeHalfVertex(ModelVert const& v1, ModelVert const& v2,
+	ModelVert& halfVertex, float radius)
 {
-	halfVertex = v1 + v2;
+	glm::vec3 halfVertexPos = v1.position + v2.position;
 	// normalize vertex then scale it by radius
-	float scale = radius / halfVertex.length();
-	halfVertex *= scale;
+	float scale = radius / halfVertex.position.length();
+	halfVertexPos *= scale;
+
+	halfVertex.position = halfVertexPos;
+	halfVertex.color = 0.5f * (v1.position + v2.position);
+	halfVertex.texCoord = 0.5f * (v1.texCoord + v2.texCoord);
 }
 
 void Model::CalculateNormalVectors(std::vector<ModelVert>& vertices,

@@ -30,7 +30,7 @@
 				"primitive_type":"icosahedron",
 				"origin":[0.0, 0.0, 0.0],
 				"radius":1.0,
-				"num_subdivisions":10
+				"num_subdivisions":1
 			}
 		},
 		{
