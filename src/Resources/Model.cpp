@@ -324,8 +324,8 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 			vertexNeighbors);
 	}
 	
-	//SubdivideIcosahedron(vertices, indices, numSubdivisions, radius,
-	//	vertexNeighbors);
+	SubdivideIcosahedron(vertices, indices, numSubdivisions, radius,
+		vertexNeighbors);
 
 	CalculateNormalVectors(vertices, vertexNeighbors);
 	
@@ -366,7 +366,7 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 		size_t numCurrentIndices = tmpIndices.size();
 		indices.clear();
 		vertexNeighbors.clear();
-		for (size_t index = 0; index < numCurrentIndices; index += 3) {
+		for (size_t index = 0; index < numCurrentIndices-3; index += 3) {
 			size_t oldIndex1 = tmpIndices[index],
 				oldIndex2 = tmpIndices[index + 1],
 				oldIndex3 = tmpIndices[index + 2];
@@ -405,13 +405,14 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 void Model::ComputeHalfVertex(ModelVert const& v1, ModelVert const& v2,
 	ModelVert& halfVertex, float radius)
 {
-	glm::vec3 halfVertexPos = 0.5f*(v1.position + v2.position);
+	// really half-vector
+	glm::vec3 halfVertexPos = (v1.position + v2.position);
 	// normalize vertex then scale it by radius
-	float scale = radius / halfVertex.position.length();
+	float scale = radius / halfVertexPos.length();
 	halfVertexPos *= scale;
 
 	halfVertex.position = halfVertexPos;
-	halfVertex.color = 0.5f * (v1.position + v2.position);
+	halfVertex.color = 0.5f * (v1.color + v2.color);
 	halfVertex.texCoord = 0.5f * (v1.texCoord + v2.texCoord);
 }
 
