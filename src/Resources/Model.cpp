@@ -258,6 +258,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	// texture coordinate
 	for (uint32_t i = 0; i < 5; i++) {
 		vertices[i].position = glm::vec3(0.0f, radius, 0.0f);
+		vertices[i].color = glm::vec3(0.0f, 1.0f, 0.0f);
 		vertices[i].texCoord = glm::vec2((1.0f + 2.0f * (float)i) * uDiv,
 			0.0f);
 	}
@@ -277,12 +278,16 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 			glm::vec3(xz * sinf(hAngle1),
 					y,
 					xz * cosf(hAngle1));
+		vertices[row1Index].color = glm::vec3((float)offsetIntoRow / 5.0f, 0.333f,
+			(float)offsetIntoRow / 5.0f);
 		vertices[row1Index].texCoord = glm::vec2(
 			uDiv * (float)offsetIntoRow * 2.0f, vDiv);
 		
 		vertices[row2Index].position = glm::vec3(xz2 * sinf(hAngle2),
 												y2,
 												 xz2 * cosf(hAngle2));
+		vertices[row2Index].color = glm::vec3((float)(row2Index - 11)/ 5.0f,
+			0.6667f, (float)(row2Index - 11) / 5.0f);
 		vertices[row2Index].texCoord = glm::vec2(
 			uDiv * (1.0f + (float)offsetIntoRow * 2.0f), 2.0f * vDiv);
 		
@@ -292,6 +297,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	
 	for (uint32_t i = 17; i < 22; i++) {
 		vertices[i].position = glm::vec3(0.0f,-radius, 0.0f);
+		vertices[i].color = glm::vec3(1.0f, 1.0f, 1.0f);
 		vertices[i].texCoord = glm::vec2((2.0f * (float)(i - 17)) * uDiv,
 			3.0f * vDiv);
 	}

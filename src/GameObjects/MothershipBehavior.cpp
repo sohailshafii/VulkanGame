@@ -4,5 +4,5 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
-	//modelMatrix = glm::rotate(modelMatrix, 0.8f*deltaTime, axisOfRotation);
+	modelMatrix = glm::rotate(modelMatrix, 0.8f*deltaTime, axisOfRotation);
 }
