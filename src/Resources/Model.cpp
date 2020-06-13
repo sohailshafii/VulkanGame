@@ -354,13 +354,11 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 								 std::unordered_map<uint32_t, std::set<TriangleEdgeSet>>
 								 & vertexNeighbors) {
 	ModelVert newV1, newV2, newV3;
-	uint32_t nextIndex;
 	std::vector<uint32_t> tmpIndices;
 
 	vertexNeighbors.clear();
 
 	for (uint32_t subDiv = 0; subDiv < numSubdivisions; subDiv++) {
-		nextIndex = 0;
 		// build new indices by storing old indices into temp array
 		tmpIndices = indices;
 		size_t numCurrentIndices = tmpIndices.size();
@@ -370,9 +368,9 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 			size_t oldIndex1 = tmpIndices[index],
 				oldIndex2 = tmpIndices[index + 1],
 				oldIndex3 = tmpIndices[index + 2];
-			ModelVert const & v1 = vertices[tmpIndices[oldIndex1]];
-			ModelVert const & v2 = vertices[tmpIndices[oldIndex2]];
-			ModelVert const & v3 = vertices[tmpIndices[oldIndex3]];
+			ModelVert const & v1 = vertices[oldIndex1];
+			ModelVert const & v2 = vertices[oldIndex2];
+			ModelVert const & v3 = vertices[oldIndex3];
 
 			// split each half edge
 			ComputeHalfVertex(v1, v2, newV1, radius);
@@ -405,10 +403,10 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 void Model::ComputeHalfVertex(ModelVert const& v1, ModelVert const& v2,
 	ModelVert& halfVertex, float radius)
 {
-	// really half-vector
+	// really half-vector -- make sure it matches radius
 	glm::vec3 halfVertexPos = (v1.position + v2.position);
 	// normalize vertex then scale it by radius
-	float scale = radius / halfVertexPos.length();
+	float scale = radius / glm::length(halfVertexPos);
 	halfVertexPos *= scale;
 
 	halfVertex.position = halfVertexPos;
