@@ -191,12 +191,9 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 			}
 		}
 		else if (primitiveType == "icosahedron") {
-			auto origin = SafeGetToken(metaDataNode, "origin");
 			float radius = SafeGetToken(metaDataNode, "radius");
 			uint32_t numSubdiv = SafeGetToken(metaDataNode, "num_subdivisions");
-			gameObjectModel = Model::CreateIcosahedron(glm::vec3((float)origin[0],
-										(float)origin[1], (float)origin[2]),
-													   radius, numSubdiv);
+			gameObjectModel = Model::CreateIcosahedron(radius, numSubdiv);
 		}
 		else {
 			std::stringstream exceptionMsg;

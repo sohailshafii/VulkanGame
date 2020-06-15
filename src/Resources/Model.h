@@ -74,8 +74,7 @@ public:
 		NoiseGeneratorType noiseGeneratorType,
 		uint32_t numNoiseLayers = 0);
 	
-	static std::shared_ptr<Model> CreateIcosahedron(glm::vec3 const & origin,
-													float radius,
+	static std::shared_ptr<Model> CreateIcosahedron(float radius,
 													uint32_t numSubdivisions);
 	
 	const std::vector<VertexPos> BuildAndReturnVertsPos() {

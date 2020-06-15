@@ -22,15 +22,14 @@
 			},
 			"transformation":
 			{
-				"position":[0.0, 0.0,30.0],
+				"position":[0.0, 0.0,-30.0],
 				"scale":[20.0, 20.0, 20.0]
 			},
 			"meta_data":
 			{
 				"primitive_type":"icosahedron",
-				"origin":[0.0, 0.0, -56.0],
-				"radius":2.0,
-				"num_subdivisions":2
+				"radius":5.0,
+				"num_subdivisions":3
 			}
 		},
 		{

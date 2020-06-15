@@ -228,8 +228,7 @@ void Model::GeneratePlaneNoiseAndDerivatives(float** noiseValues,
 }
 
 // based mostly on http://www.songho.ca/opengl/gl_sphere.html
-std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
-												float radius,
+std::shared_ptr<Model> Model::CreateIcosahedron(float radius,
 												uint32_t numSubdivisions) {
 	// 360 degrees divided by 5 is 72.0 degrees
 	const float circumDivAngle = 72.0f * (float)M_PI / 180.0f;
