@@ -373,7 +373,7 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 		indices.clear();
 		vertexNeighbors.clear();
 		vertices.clear();
-		for (size_t index = 0; index < numCurrentIndices-3; index += 3) {
+		for (size_t index = 0; index <= numCurrentIndices-3; index += 3) {
 			size_t oldIndex1 = tmpIndices[index],
 				oldIndex2 = tmpIndices[index + 1],
 				oldIndex3 = tmpIndices[index + 2];

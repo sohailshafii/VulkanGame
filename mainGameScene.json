@@ -30,7 +30,7 @@
 				"primitive_type":"icosahedron",
 				"origin":[0.0, 0.0, -56.0],
 				"radius":2.0,
-				"num_subdivisions":0
+				"num_subdivisions":2
 			}
 		},
 		{
@@ -51,8 +51,8 @@
 				"lower_left":[-1500.0, 0.0,-1500.0],
 				"side_1_vec":[3000.0, 0.0, 0.0],
 				"side_2_vec":[0.0, 0.0, 3000.0],
-				"num_side_1_points":1000,
-				"num_side_2_points":1000,
+				"num_side_1_points":100,
+				"num_side_2_points":100,
 				"noise_type":"perlin",
 				"num_noise_layers":1
 			}
