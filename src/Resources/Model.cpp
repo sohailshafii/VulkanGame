@@ -251,6 +251,8 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	// for original icosahedron code
 	float uDiv = 1.0f / 11.0f;
 	float vDiv = 1.0f / 3.0f;
+	glm::vec3 minColor = glm::vec3(0.1f, 0.1f, 0.1f),
+		maxColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	
 	std::unordered_map<uint32_t, std::set<TriangleEdgeSet>> vertexNeighbors;
 
@@ -258,7 +260,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	// texture coordinate
 	for (uint32_t i = 0; i < 5; i++) {
 		vertices[i].position = glm::vec3(0.0f, radius, 0.0f);
-		vertices[i].color = glm::vec3(0.0f, 1.0f, 0.0f);
+		vertices[i].color = maxColor;
 		vertices[i].texCoord = glm::vec2((1.0f + 2.0f * (float)i) * uDiv,
 			0.0f);
 	}
@@ -278,16 +280,14 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 			glm::vec3(xz * sinf(hAngle1),
 					y,
 					xz * cosf(hAngle1));
-		vertices[row1Index].color = glm::vec3((float)offsetIntoRow / 5.0f, 0.333f,
-			(float)offsetIntoRow / 5.0f);
+		vertices[row1Index].color = minColor*0.333f + maxColor*0.6667f;
 		vertices[row1Index].texCoord = glm::vec2(
 			uDiv * (float)offsetIntoRow * 2.0f, vDiv);
 		
 		vertices[row2Index].position = glm::vec3(xz2 * sinf(hAngle2),
 												y2,
 												 xz2 * cosf(hAngle2));
-		vertices[row2Index].color = glm::vec3((float)(row2Index - 11)/ 5.0f,
-			0.6667f, (float)(row2Index - 11) / 5.0f);
+		vertices[row2Index].color = minColor * 0.6667f + maxColor * 0.333f;
 		vertices[row2Index].texCoord = glm::vec2(
 			uDiv * (1.0f + (float)offsetIntoRow * 2.0f), 2.0f * vDiv);
 		
@@ -297,7 +297,7 @@ std::shared_ptr<Model> Model::CreateIcosahedron(glm::vec3 const & origin,
 	
 	for (uint32_t i = 17; i < 22; i++) {
 		vertices[i].position = glm::vec3(0.0f,-radius, 0.0f);
-		vertices[i].color = glm::vec3(1.0f, 1.0f, 1.0f);
+		vertices[i].color = minColor;
 		vertices[i].texCoord = glm::vec2((2.0f * (float)(i - 17)) * uDiv,
 			3.0f * vDiv);
 	}
@@ -361,22 +361,25 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 								 & vertexNeighbors) {
 	ModelVert newV1, newV2, newV3;
 	std::vector<uint32_t> tmpIndices;
+	std::vector<ModelVert> tmpVerts;
 
 	vertexNeighbors.clear();
 
 	for (uint32_t subDiv = 0; subDiv < numSubdivisions; subDiv++) {
 		// build new indices by storing old indices into temp array
 		tmpIndices = indices;
+		tmpVerts = vertices;
 		size_t numCurrentIndices = tmpIndices.size();
 		indices.clear();
 		vertexNeighbors.clear();
+		vertices.clear();
 		for (size_t index = 0; index < numCurrentIndices-3; index += 3) {
 			size_t oldIndex1 = tmpIndices[index],
 				oldIndex2 = tmpIndices[index + 1],
 				oldIndex3 = tmpIndices[index + 2];
-			ModelVert const & v1 = vertices[oldIndex1];
-			ModelVert const & v2 = vertices[oldIndex2];
-			ModelVert const & v3 = vertices[oldIndex3];
+			ModelVert const & v1 = tmpVerts[oldIndex1];
+			ModelVert const & v2 = tmpVerts[oldIndex2];
+			ModelVert const & v3 = tmpVerts[oldIndex3];
 
 			// split each half edge
 			ComputeHalfVertex(v1, v2, newV1, radius);
@@ -389,6 +392,12 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 			vertices.push_back(newV2);
 			uint32_t newV3Index = vertices.size();
 			vertices.push_back(newV3);
+			oldIndex1 = vertices.size();
+			vertices.push_back(v1);
+			oldIndex2 = vertices.size();
+			vertices.push_back(v2);
+			oldIndex3 = vertices.size();
+			vertices.push_back(v3);
 
 			// topmost triangle in new subdiv
 			AddIcosahedronIndices(indices, oldIndex1,
