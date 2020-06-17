@@ -50,7 +50,7 @@ void SceneLoader::DeserializeJSONFileIntoScene(
 	GfxDeviceManager *gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool,
-	Scene* scene,
+	Scene * const scene,
 	SceneSettings& sceneSettings,
 	const std::string& jsonFilePath) {
 	try {

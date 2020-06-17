@@ -1,6 +1,7 @@
 #include "RenderPassModule.h"
 #include "Common.h"
 #include <array>
+#include <stdexcept>
 
 RenderPassModule::RenderPassModule(VkDevice device, VkPhysicalDevice physicalDevice,
 	VkFormat swapChainImageFormat,

@@ -20,4 +20,11 @@ public:
 
 private:
 	glm::vec3 axisOfRotation;
+
+	enum ShipState {
+		Idle = 0,
+		FiringPawnsLevel1 = 0,
+		FiringPawnsLevel2 = 0,
+		FiringPawnsLevel3 = 0
+	};
 };

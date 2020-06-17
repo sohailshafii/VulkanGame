@@ -24,7 +24,7 @@ public:
 		GfxDeviceManager *gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager>const& logicalDeviceManager,
 		VkCommandPool commandPool,
-		class Scene* scene,
+		class Scene * const scene,
 		SceneSettings& sceneSettings,
 		const std::string& jsonFilePath);
 
