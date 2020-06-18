@@ -11,15 +11,9 @@ class MothershipBehavior : public GameObjectBehavior
 public:
 	typedef void (*SpawnedGameObjectDelegate) (std::shared_ptr<GameObject>const & );
 
-	MothershipBehavior()
-	{
-		axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-	}
+	MothershipBehavior();
 	
-	~MothershipBehavior()
-	{
-
-	}
+	~MothershipBehavior();
 
 	virtual void UpdateSelf(float time, float deltaTime) override;
 
@@ -28,14 +22,16 @@ public:
 	void ClearSpawnedGameObjectSubscribers();
 
 private:
+	enum class ShipState {
+		Idle,
+		FiringPawnsLevel1,
+		FiringPawnsLevel2,
+		FiringPawnsLevel3
+	};
+
+	ShipState CurrentShipState;
 	glm::vec3 axisOfRotation;
 	SpawnedGameObjectDelegate OnSpawnedGameObjectSubscriber;
 
-
-	enum ShipState {
-		Idle = 0,
-		FiringPawnsLevel1 = 0,
-		FiringPawnsLevel2 = 0,
-		FiringPawnsLevel3 = 0
-	};
+	void UpdateStateMachine();
 };
