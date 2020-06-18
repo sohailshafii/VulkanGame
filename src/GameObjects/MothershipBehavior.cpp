@@ -6,3 +6,12 @@
 void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
 	modelMatrix = glm::rotate(modelMatrix, 0.1f*deltaTime, axisOfRotation);
 }
+
+void MothershipBehavior::RegisterSpawnedGameObjectSubscriber(
+	SpawnedGameObjectDelegate Subscriber) {
+	OnSpawnedGameObjectSubscriber = Subscriber;
+}
+
+void MothershipBehavior::ClearSpawnedGameObjectSubscribers() {
+	OnSpawnedGameObjectSubscriber = nullptr;
+}
