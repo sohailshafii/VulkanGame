@@ -12,8 +12,6 @@ public:
 	typedef void (*SpawnedGameObjectDelegate) (std::shared_ptr<GameObject>const & );
 
 	MothershipBehavior();
-	
-	~MothershipBehavior();
 
 	virtual void UpdateSelf(float time, float deltaTime) override;
 
@@ -29,9 +27,16 @@ private:
 		FiringPawnsLevel3
 	};
 
-	ShipState CurrentShipState;
-	glm::vec3 axisOfRotation;
-	SpawnedGameObjectDelegate OnSpawnedGameObjectSubscriber;
+	ShipState currentShipState;
 
-	void UpdateStateMachine();
+
+	glm::vec3 axisOfRotation;
+	SpawnedGameObjectDelegate onSpawnedGameObjectSubscriber;
+
+	void UpdateStateMachine(float time, float deltaTime);
+
+	ShipState UpdateIdleAndGetNextState(float time, float deltaTime);
+	ShipState UpdateLevel1AndGetNextState(float time, float deltaTime);
+	ShipState UpdateLevel2AndGetNextState(float time, float deltaTime);
+	ShipState UpdateLevel3AndGetNextState(float time, float deltaTime);
 };
