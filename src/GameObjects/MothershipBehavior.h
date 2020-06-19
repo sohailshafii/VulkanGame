@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObjectBehavior.h"
+#include "ShipStateBehavior.h"
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -12,6 +13,7 @@ public:
 	typedef void (*SpawnedGameObjectDelegate) (std::shared_ptr<GameObject>const & );
 
 	MothershipBehavior();
+	~MothershipBehavior();
 
 	virtual void UpdateSelf(float time, float deltaTime) override;
 
@@ -20,23 +22,10 @@ public:
 	void ClearSpawnedGameObjectSubscribers();
 
 private:
-	enum class ShipState {
-		Idle,
-		FiringPawnsLevel1,
-		FiringPawnsLevel2,
-		FiringPawnsLevel3
-	};
-
-	ShipState currentShipState;
-
+	ShipStateBehavior *currentShipStateBehavior;
 
 	glm::vec3 axisOfRotation;
 	SpawnedGameObjectDelegate onSpawnedGameObjectSubscriber;
 
 	void UpdateStateMachine(float time, float deltaTime);
-
-	ShipState UpdateIdleAndGetNextState(float time, float deltaTime);
-	ShipState UpdateLevel1AndGetNextState(float time, float deltaTime);
-	ShipState UpdateLevel2AndGetNextState(float time, float deltaTime);
-	ShipState UpdateLevel3AndGetNextState(float time, float deltaTime);
 };
