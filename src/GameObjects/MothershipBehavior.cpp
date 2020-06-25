@@ -32,5 +32,9 @@ void MothershipBehavior::ClearSpawnedGameObjectSubscribers() {
 
 void MothershipBehavior::UpdateStateMachine(float time, float deltaTime) {
 	auto nextShipState = currentShipStateBehavior->UpdateAndGetNextState(time, deltaTime);
+	if (nextShipState != currentShipStateBehavior) {
+		delete currentShipStateBehavior;
+		currentShipStateBehavior = nextShipState;
+	}
 }
 

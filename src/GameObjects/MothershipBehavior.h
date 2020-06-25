@@ -28,4 +28,5 @@ private:
 	SpawnedGameObjectDelegate onSpawnedGameObjectSubscriber;
 
 	void UpdateStateMachine(float time, float deltaTime);
+	//ShipStateBehavior* GetNextStateBehavior();
 };

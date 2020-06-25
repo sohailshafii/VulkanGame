@@ -1,6 +1,21 @@
 #include "ShipIdleStateBehavior.h"
+#include "ShipFiringLevel1Behavior.h"
+#include <cstdlib>
 
-ShipStateBehavior::State ShipIdleStateBehavior::UpdateAndGetNextState(
+ShipIdleStateBehavior::ShipIdleStateBehavior() {
+	initialized = false;
+}
+
+ShipStateBehavior* ShipIdleStateBehavior::UpdateAndGetNextState(
 	float time, float deltaTime) {
-	return State::Idle;
+	if (!initialized) {
+		timeWhenFireStateBegins = time + rand() % 10;
+		initialized = true;
+	}
+
+	ShipStateBehavior* nextShipState = this;
+	if (timeWhenFireStateBegins < time) {
+		nextShipState = new ShipFiringLevel1Behavior();
+	}
+	return nextShipState;
 }

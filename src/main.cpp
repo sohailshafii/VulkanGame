@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <functional>
 #include <cstdlib>
+#include <ctime>
 #include <vector>
 #include <set>
 #include <cstring>
@@ -431,6 +432,9 @@ void HelloTriangleApplication::ProcessInput(GLFWwindow* window, float frameTime)
 }
 
 int main() {
+	// in case we use rand anywhere, set up seed here
+	srand(time(NULL));
+
 	HelloTriangleApplication app;
 
 	try {

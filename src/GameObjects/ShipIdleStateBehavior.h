@@ -4,5 +4,12 @@
 
 class ShipIdleStateBehavior : public ShipStateBehavior {
 public:
-	virtual State UpdateAndGetNextState(float time, float deltaTime) override;
+	ShipIdleStateBehavior();
+
+	virtual ShipStateBehavior* UpdateAndGetNextState(
+		float time, float deltaTime) override;
+
+private:
+	bool initialized;
+	float timeWhenFireStateBegins;
 };
