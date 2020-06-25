@@ -1,5 +1,6 @@
 #include "ShipIdleStateBehavior.h"
 #include "ShipFiringLevel1Behavior.h"
+#include "MothershipBehavior.h"
 #include <cstdlib>
 
 ShipIdleStateBehavior::ShipIdleStateBehavior() {
@@ -7,6 +8,7 @@ ShipIdleStateBehavior::ShipIdleStateBehavior() {
 }
 
 ShipStateBehavior* ShipIdleStateBehavior::UpdateAndGetNextState(
+	MothershipBehavior const& motherShip,
 	float time, float deltaTime) {
 	if (!initialized) {
 		timeWhenFireStateBegins = time + rand() % 10;

@@ -5,5 +5,6 @@
 class ShipFiringLevel2Behavior : public ShipStateBehavior {
 public:
 	virtual ShipStateBehavior* UpdateAndGetNextState(
+		MothershipBehavior const& motherShip,
 		float time, float deltaTime) override;
 };

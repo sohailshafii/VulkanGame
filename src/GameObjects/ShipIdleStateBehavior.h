@@ -7,6 +7,7 @@ public:
 	ShipIdleStateBehavior();
 
 	virtual ShipStateBehavior* UpdateAndGetNextState(
+		MothershipBehavior const& motherShip,
 		float time, float deltaTime) override;
 
 private:
