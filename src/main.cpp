@@ -217,6 +217,8 @@ private:
 		mainGameScene = new Scene();
 		SceneLoader::SceneSettings sceneSettings;
 
+		// TODO: hook up "spawned game object" delegate to a function
+		// here
 		SceneLoader::DeserializeJSONFileIntoScene(
 			resourceLoader, gfxDeviceManager, logicalDeviceManager,
 			commandPool, mainGameScene, sceneSettings, scenePath);

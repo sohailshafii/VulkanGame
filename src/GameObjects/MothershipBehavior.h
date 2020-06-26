@@ -10,22 +10,25 @@ class GameObject;
 class MothershipBehavior : public GameObjectBehavior
 {
 public:
-	typedef void (*SpawnedGameObjectDelegate) (std::shared_ptr<GameObject>const & );
+	typedef void (*SpawnedPawnDelegate) (
+		std::shared_ptr<GameObject>const & );
 
 	MothershipBehavior();
 	~MothershipBehavior();
 
 	virtual void UpdateSelf(float time, float deltaTime) override;
 
-	void RegisterSpawnedGameObjectSubscriber(SpawnedGameObjectDelegate Subscriber);
+	void RegisterSpawnedPawnSubscriber(SpawnedPawnDelegate Subscriber);
 	
-	void ClearSpawnedGameObjectSubscribers();
+	void ClearSpawnedPawnSubscribers();
+
+	void SpawnPawnObject() const;
 
 private:
 	ShipStateBehavior *currentShipStateBehavior;
 
 	glm::vec3 axisOfRotation;
-	SpawnedGameObjectDelegate onSpawnedGameObjectSubscriber;
+	SpawnedPawnDelegate onSpawnedPawnSubscriber;
 
 	void UpdateStateMachine(float time, float deltaTime);
 };

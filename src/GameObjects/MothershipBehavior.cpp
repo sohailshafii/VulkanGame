@@ -3,11 +3,12 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 MothershipBehavior::MothershipBehavior() {
 	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 	currentShipStateBehavior = new ShipIdleStateBehavior();
-	onSpawnedGameObjectSubscriber = nullptr;
+	onSpawnedPawnSubscriber = nullptr;
 }
 
 MothershipBehavior::~MothershipBehavior() {
@@ -21,20 +22,26 @@ void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
 	modelMatrix = glm::rotate(modelMatrix, 0.1f*deltaTime, axisOfRotation);
 }
 
-void MothershipBehavior::RegisterSpawnedGameObjectSubscriber(
-	SpawnedGameObjectDelegate Subscriber) {
-	onSpawnedGameObjectSubscriber = Subscriber;
+void MothershipBehavior::RegisterSpawnedPawnSubscriber(
+	SpawnedPawnDelegate Subscriber) {
+	onSpawnedPawnSubscriber = Subscriber;
 }
 
-void MothershipBehavior::ClearSpawnedGameObjectSubscribers() {
-	onSpawnedGameObjectSubscriber = nullptr;
+void MothershipBehavior::ClearSpawnedPawnSubscribers() {
+	onSpawnedPawnSubscriber = nullptr;
+}
+
+void MothershipBehavior::SpawnPawnObject() const {
+	// TODO
 }
 
 void MothershipBehavior::UpdateStateMachine(float time, float deltaTime) {
-	// TODO: expose create game object delegate here
 	auto nextShipState = currentShipStateBehavior->UpdateAndGetNextState(
 		*this, time, deltaTime);
 	if (nextShipState != currentShipStateBehavior) {
+		std::cout << "Switch state from " <<
+			currentShipStateBehavior->GetDescriptiveName() << " to "
+			<< nextShipState->GetDescriptiveName() << ".\n";
 		delete currentShipStateBehavior;
 		currentShipStateBehavior = nextShipState;
 	}
