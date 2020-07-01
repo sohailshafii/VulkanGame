@@ -5,10 +5,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-MothershipBehavior::MothershipBehavior() {
-	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-	currentShipStateBehavior = new ShipIdleStateBehavior();
-	onSpawnedPawnSubscriber = nullptr;
+MothershipBehavior::MothershipBehavior(Scene* const scene)
+	: GameObjectBehavior(scene) {
+	Initialize();
+}
+
+MothershipBehavior::MothershipBehavior()
+	: GameObjectBehavior()
+{
+	Initialize();
 }
 
 MothershipBehavior::~MothershipBehavior() {
@@ -32,7 +37,15 @@ void MothershipBehavior::ClearSpawnedPawnSubscribers() {
 }
 
 void MothershipBehavior::SpawnPawnObject() const {
-	// TODO
+	if (scene != nullptr) {
+		//scene->AddGameObject(/* TODO*/)
+	}
+}
+
+void MothershipBehavior::Initialize() {
+	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
+	currentShipStateBehavior = new ShipIdleStateBehavior();
+	onSpawnedPawnSubscriber = nullptr;
 }
 
 void MothershipBehavior::UpdateStateMachine(float time, float deltaTime) {

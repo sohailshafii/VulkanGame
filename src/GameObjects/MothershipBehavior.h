@@ -13,6 +13,7 @@ public:
 	typedef void (*SpawnedPawnDelegate) (
 		std::shared_ptr<GameObject>const & );
 
+	MothershipBehavior(Scene * const scene);
 	MothershipBehavior();
 	~MothershipBehavior();
 
@@ -30,5 +31,6 @@ private:
 	glm::vec3 axisOfRotation;
 	SpawnedPawnDelegate onSpawnedPawnSubscriber;
 
+	void Initialize();
 	void UpdateStateMachine(float time, float deltaTime);
 };

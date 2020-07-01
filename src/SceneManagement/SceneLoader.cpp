@@ -28,6 +28,7 @@ static void AdjustSceneSettings(const nlohmann::json& jsonObj,
 
 static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<GameObject>& constructedGameObject,
+	Scene* const scene,
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager *gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -66,7 +67,7 @@ void SceneLoader::DeserializeJSONFileIntoScene(
 		for (auto& element : gameObjects.items()) {
 			std::shared_ptr<GameObject> constructedGameObject;
 			SetUpGameObject(element.value(), constructedGameObject,
-							resourceLoader, gfxDeviceManager,
+							scene, resourceLoader, gfxDeviceManager,
 							logicalDeviceManager, commandPool);
 			scene->AddGameObject(constructedGameObject);
 		}
@@ -115,6 +116,7 @@ void AdjustSceneSettings(const nlohmann::json& jsonObj,
 
 static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<GameObject>& constructedGameObject,
+	Scene* const scene,
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager *gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,

@@ -1,11 +1,19 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "SceneManagement/Scene.h"
 
 class GameObjectBehavior
 {
 public:
+	GameObjectBehavior(Scene * const scene)
+		: scene(scene)
+	{
+
+	}
+
 	GameObjectBehavior()
+		: scene(nullptr)
 	{
 
 	}
@@ -27,4 +35,6 @@ public:
 
 protected:
 	glm::mat4 modelMatrix;
+	// we don't own this pointer; should be shared_ptr ideally
+	Scene * const scene;
 };

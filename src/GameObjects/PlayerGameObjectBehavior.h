@@ -5,9 +5,15 @@
 class PlayerGameObjectBehavior : public GameObjectBehavior
 {
 public:
-	PlayerGameObjectBehavior()
+	PlayerGameObjectBehavior(Scene * const scene)
+		: GameObjectBehavior(scene)
 	{
 
+	}
+
+	PlayerGameObjectBehavior()
+		: GameObjectBehavior()
+	{
 	}
 	
 	~PlayerGameObjectBehavior()

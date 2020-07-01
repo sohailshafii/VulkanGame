@@ -5,9 +5,15 @@
 class StationaryGameObjectBehavior : public GameObjectBehavior
 {
 public:
-	StationaryGameObjectBehavior()
+	StationaryGameObjectBehavior(Scene * const scene)
+		: GameObjectBehavior(scene)
 	{
 
+	}
+
+	StationaryGameObjectBehavior()
+		: GameObjectBehavior()
+	{
 	}
 	
 	~StationaryGameObjectBehavior()
