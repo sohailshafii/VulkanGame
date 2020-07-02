@@ -122,19 +122,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool) {
 	std::string modelType = SafeGetToken(jsonObj, "model");
-	std::string objectType = SafeGetToken(jsonObj, "type");
 	auto materialNode = SafeGetToken(jsonObj, "material");
-
-	std::shared_ptr<GameObjectBehavior> GameObjectBehavior;
-	if (objectType == "Player") {
-		GameObjectBehavior = std::make_shared<PlayerGameObjectBehavior>();
-	}
-	else if (objectType == "AI") {
-		GameObjectBehavior = std::make_shared<MothershipBehavior>();
-	}
-	else {
-		GameObjectBehavior = std::make_shared<StationaryGameObjectBehavior>();
-	}
 	
 	std::shared_ptr<Material> newMaterial;
 	SetupMaterial(materialNode, newMaterial, resourceLoader,
@@ -162,9 +150,9 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 			unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
 			
 			gameObjectModel = Model::CreatePlane(
-			glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
-			glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
-			glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
+				glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
+				glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
+				glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
 			numSide1Pnts, numSide2Pnts,
 			NoiseGeneratorType::None);
 		}
@@ -210,8 +198,9 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	
 	constructedGameObject  =
 		std::make_shared<GameObject>(gameObjectModel, newMaterial,
-									 SetupGameObjectBehavior(jsonObj), gfxDeviceManager,
-									 logicalDeviceManager, commandPool);
+									SetupGameObjectBehavior(jsonObj),
+									gfxDeviceManager,
+									logicalDeviceManager, commandPool);
 	
 	auto transformationNode = SafeGetToken(jsonObj, "transformation");
 	glm::mat4 localToWorldTranfsorm(1.0f);
