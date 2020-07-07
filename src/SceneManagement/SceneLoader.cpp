@@ -5,6 +5,7 @@
 #include "GameObjects/MothershipBehavior.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
 #include "GameObjects/StationaryGameObjectBehavior.h"
+#include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "Resources/ResourceLoader.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
@@ -129,12 +130,6 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 				  gfxDeviceManager, logicalDeviceManager,
 				  commandPool);
 
-	#if __APPLE__
-		const std::string modelPathPrefix = "../../models/";
-	#else
-		const std::string modelPathPrefix = "../models/";
-	#endif
-	std::string modelPath = modelPathPrefix;
 	std::shared_ptr<Model> gameObjectModel;
 	// TODO: allow having no model
 	if (modelType.find("Procedural") != std::string::npos)
@@ -192,20 +187,17 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 		}
 	}
 	else if (modelType != "None") {
-		modelPath += modelType;
-		gameObjectModel = resourceLoader->GetModel(modelPath);
+		gameObjectModel = GameObjectCreator::LoadModelFromName(
+			modelType, resourceLoader);
 	}
-	
-	constructedGameObject  =
-		std::make_shared<GameObject>(gameObjectModel, newMaterial,
-									SetupGameObjectBehavior(jsonObj),
-									gfxDeviceManager,
-									logicalDeviceManager, commandPool);
 	
 	auto transformationNode = SafeGetToken(jsonObj, "transformation");
 	glm::mat4 localToWorldTranfsorm(1.0f);
 	SetupTransformation(transformationNode, localToWorldTranfsorm);
-	constructedGameObject->SetModelTransform(localToWorldTranfsorm);
+	constructedGameObject = GameObjectCreator::CreateGameObject(
+		newMaterial, gameObjectModel, std::move(SetupGameObjectBehavior(jsonObj)),
+		localToWorldTranfsorm, resourceLoader, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
 }
 
 static void SetupMaterial(const nlohmann::json& materialNode,
@@ -222,14 +214,6 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	
 	std::string mainTextureName = SafeGetToken(materialNode, "main_texture");
 	
-	#if __APPLE__
-		const std::string texturePathPrefix = "../../textures/";
-	#else
-		const std::string texturePathPrefix = "../textures/";
-	#endif
-	std::string texturePath = texturePathPrefix + mainTextureName;
-	
-	std::shared_ptr<ImageTextureLoader> mainTexture = resourceLoader->GetTexture(texturePath, gfxDeviceManager, logicalDeviceManager, commandPool);
 	DescriptorSetFunctions::MaterialType materialEnumType =
 	DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
 	if (materialToken == "WavySurface") {
@@ -239,8 +223,9 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 		materialEnumType = DescriptorSetFunctions::MaterialType::BumpySurface;
 	}
 	
-	material = std::make_shared<Material>(mainTexture,
-										  materialEnumType);
+	material = GameObjectCreator::CreateMaterial(materialEnumType,
+		mainTextureName, resourceLoader, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
 }
 
 static void SetupTransformation(const nlohmann::json& transformNode,

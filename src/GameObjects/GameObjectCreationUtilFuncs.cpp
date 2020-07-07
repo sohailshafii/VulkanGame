@@ -7,22 +7,21 @@
 #include "LogicalDeviceManager.h"
 #include "Resources/Model.h"
 
-std::shared_ptr<GameObject> GameObjectCreator::CreateUpGameObject(
+std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 	std::shared_ptr<Material> const & material,
 	std::shared_ptr<Model> const & gameObjectModel,
 	std::unique_ptr<GameObjectBehavior> gameObjectBehavior,
-	glm::mat4 const & localToWorldTranfsorm,
+	glm::mat4 const & localToWorldTransform,
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool) {
 	std::shared_ptr<GameObject> constructedGameObject =
 		std::make_shared<GameObject>(gameObjectModel, material,
-			// TODO: verify usage of unique_ptr here!
 			std::move(gameObjectBehavior),
 			gfxDeviceManager,
 			logicalDeviceManager, commandPool);
-	constructedGameObject->SetModelTransform(localToWorldTranfsorm);
+	constructedGameObject->SetModelTransform(localToWorldTransform);
 
 	return constructedGameObject;
 }
@@ -49,15 +48,7 @@ std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 		materialEnumType);
 }
 
-std::shared_ptr<Model> GameObjectCreator::CreatePlane(glm::vec3 const& lowerLeft,
-	glm::vec3 const& side1Vec, glm::vec3 const& side2Vec,
-	unsigned int numSide1Pnts, unsigned int numSide2Pnts,
-	NoiseGeneratorType noiseGeneratorType) {
-	return Model::CreatePlane(lowerLeft, side1Vec, side2Vec,
-		numSide1Pnts, numSide2Pnts, noiseGeneratorType);
-}
-
-std::shared_ptr<Model> GameObjectCreator::LoadModelFromPath(
+std::shared_ptr<Model> GameObjectCreator::LoadModelFromName(
 	std::string const& modelName,
 	ResourceLoader* resourceLoader) {
 #if __APPLE__
