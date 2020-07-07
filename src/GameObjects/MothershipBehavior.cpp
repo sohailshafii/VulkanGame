@@ -37,8 +37,9 @@ void MothershipBehavior::ClearSpawnedPawnSubscribers() {
 }
 
 void MothershipBehavior::SpawnPawnObject() const {
-	if (scene != nullptr) {
-		//scene->AddGameObject(/* TODO*/)
+	if (onSpawnedPawnSubscriber != nullptr) {
+		// TODO
+		//onSpawnedPawnSubscriber();
 	}
 }
 

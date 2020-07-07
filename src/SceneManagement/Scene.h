@@ -28,5 +28,6 @@ public:
 private:
 	std::vector<std::shared_ptr<GameObject>> gameObjects;
 	
+	std::shared_ptr<GameObject> NewGameObject();
 };
 

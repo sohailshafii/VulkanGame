@@ -19,3 +19,7 @@ GameObject* Scene::GetGameObject(unsigned int index) {
 	}
 	return gameObjects[index].get();
 }
+
+std::shared_ptr<GameObject> Scene::NewGameObject() {
+	return nullptr;
+}
