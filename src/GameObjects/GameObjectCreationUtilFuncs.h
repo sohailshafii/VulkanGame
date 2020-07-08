@@ -6,6 +6,7 @@
 #include "vulkan/vulkan.h"
 #include "DescriptorSetFunctions.h"
 #include "NoiseGenerator.h"
+#include "DescriptorSetFunctions.h"
 
 class GameObject;
 class GameObjectBehavior;

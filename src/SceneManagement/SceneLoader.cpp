@@ -3,6 +3,7 @@
 #include "GameObjects/GameObject.h"
 #include "GameObjects/GameObjectBehavior.h"
 #include "GameObjects/MothershipBehavior.h"
+#include "GameObjects/PawnBehavior.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
 #include "GameObjects/StationaryGameObjectBehavior.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
@@ -271,6 +272,9 @@ std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(const nlohmann::json
 	}
 	else if (gameObjectBehaviorStr == "Mothership") {
 		newGameObjBehavior = std::make_unique<MothershipBehavior>();
+	}
+	else if (gameObjectBehaviorStr == "Pawn") {
+		newGameObjBehavior = std::make_unique<PawnBehavior>();
 	}
 	else {
 		std::stringstream exceptionMsg;

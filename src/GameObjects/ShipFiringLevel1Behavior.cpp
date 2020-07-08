@@ -31,7 +31,7 @@ void ShipFiringLevel1Behavior::SpawnPawnBasedOnTime(
 	MothershipBehavior const& motherShip,
 	float time) {
 	if (time > nextTimeToSpawnPawn) {
-		motherShip.SpawnPawnObject();
+		motherShip.SpawnGameObject();
 		nextTimeToSpawnPawn = time + (float)(rand() % 3) + 1.5f;
 		std::cout << "Spawned pawn at time: " << time << ".\n";
 	}

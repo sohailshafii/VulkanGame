@@ -1,5 +1,6 @@
 #include "MothershipBehavior.h"
 #include "ShipIdleStateBehavior.h"
+#include "GameObjectCreationUtilFuncs.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
@@ -27,26 +28,13 @@ void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
 	modelMatrix = glm::rotate(modelMatrix, 0.1f*deltaTime, axisOfRotation);
 }
 
-void MothershipBehavior::RegisterSpawnedPawnSubscriber(
-	SpawnedPawnDelegate Subscriber) {
-	onSpawnedPawnSubscriber = Subscriber;
-}
-
-void MothershipBehavior::ClearSpawnedPawnSubscribers() {
-	onSpawnedPawnSubscriber = nullptr;
-}
-
-void MothershipBehavior::SpawnPawnObject() const {
-	if (onSpawnedPawnSubscriber != nullptr) {
-		// TODO
-		//onSpawnedPawnSubscriber();
-	}
+void MothershipBehavior::SpawnGameObject() const {
+	scene->SpawnGameObject("Pawn");
 }
 
 void MothershipBehavior::Initialize() {
 	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 	currentShipStateBehavior = new ShipIdleStateBehavior();
-	onSpawnedPawnSubscriber = nullptr;
 }
 
 void MothershipBehavior::UpdateStateMachine(float time, float deltaTime) {
