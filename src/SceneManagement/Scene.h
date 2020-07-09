@@ -13,7 +13,10 @@ class LogicalDeviceManager;
 class Scene
 {
 public:
-	Scene();
+	Scene(ResourceLoader* resourceLoader,
+		GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+		VkCommandPool commandPool);
 	~Scene();
 	
 	void AddGameObject(std::shared_ptr<GameObject> const & newGameObject);

@@ -29,7 +29,9 @@ void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
 }
 
 void MothershipBehavior::SpawnGameObject() const {
-	scene->SpawnGameObject("Pawn");
+	if (scene != nullptr) {
+		scene->SpawnGameObject("Pawn");
+	}
 }
 
 void MothershipBehavior::Initialize() {

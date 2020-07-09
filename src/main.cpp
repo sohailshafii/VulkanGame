@@ -214,11 +214,10 @@ private:
 #else
 		std::string scenePath = "../mainGameScene.json";
 #endif
-		mainGameScene = new Scene();
+		mainGameScene = new Scene(resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool);
 		SceneLoader::SceneSettings sceneSettings;
 
-		// TODO: hook up "spawned game object" delegate to a function
-		// here
 		SceneLoader::DeserializeJSONFileIntoScene(
 			resourceLoader, gfxDeviceManager, logicalDeviceManager,
 			commandPool, mainGameScene, sceneSettings, scenePath);

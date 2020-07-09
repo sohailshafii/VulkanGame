@@ -46,7 +46,9 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 static void SetupTransformation(const nlohmann::json& transformNode,
 								glm::mat4& localToWorld);
 
-static std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(const nlohmann::json& gameObjectNode);
+static std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
+	const nlohmann::json& gameObjectNode,
+	Scene* const scene);
 
 void SceneLoader::DeserializeJSONFileIntoScene(
 	ResourceLoader* resourceLoader,
@@ -196,7 +198,8 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	glm::mat4 localToWorldTranfsorm(1.0f);
 	SetupTransformation(transformationNode, localToWorldTranfsorm);
 	constructedGameObject = GameObjectCreator::CreateGameObject(
-		newMaterial, gameObjectModel, std::move(SetupGameObjectBehavior(jsonObj)),
+		newMaterial, gameObjectModel,
+		std::move(SetupGameObjectBehavior(jsonObj, scene)),
 		localToWorldTranfsorm, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 }
@@ -261,7 +264,9 @@ static void SetupTransformation(const nlohmann::json& transformNode,
 	}
 }
 
-std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(const nlohmann::json& gameObjectNode) {
+std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
+	const nlohmann::json& gameObjectNode,
+	Scene* const scene) {
 	std::string gameObjectBehaviorStr = gameObjectNode["type"];
 	std::unique_ptr<GameObjectBehavior> newGameObjBehavior;
 	if (gameObjectBehaviorStr == "Stationary") {
@@ -271,7 +276,7 @@ std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(const nlohmann::json
 		newGameObjBehavior = std::make_unique<PlayerGameObjectBehavior>();
 	}
 	else if (gameObjectBehaviorStr == "Mothership") {
-		newGameObjBehavior = std::make_unique<MothershipBehavior>();
+		newGameObjBehavior = std::make_unique<MothershipBehavior>(scene);
 	}
 	else if (gameObjectBehaviorStr == "Pawn") {
 		newGameObjBehavior = std::make_unique<PawnBehavior>();
