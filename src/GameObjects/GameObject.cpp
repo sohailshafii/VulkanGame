@@ -18,7 +18,8 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	material(material),
 	gameObjectBehavior(std::move(behavior)),
 	logicalDeviceManager(logicalDeviceManager),
-	descriptorPool(nullptr) {
+	descriptorPool(nullptr),
+	initializedInEngine(false) {
 	SetupShaderNames();
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), material->GetMaterialType());
 

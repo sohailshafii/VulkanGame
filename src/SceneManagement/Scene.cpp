@@ -4,6 +4,7 @@
 #include "LogicalDeviceManager.h"
 #include "GameObjectCreationUtilFuncs.h"
 #include "PawnBehavior.h"
+#include "GameObject.h"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -30,17 +31,13 @@ GameObject* Scene::GetGameObject(unsigned int index) {
 	return gameObjects[index].get();
 }
 
-std::shared_ptr<GameObject> Scene::NewGameObject() {
-	return nullptr;
-}
-
 void  Scene::SpawnGameObject(std::string const& gameObjectName) {
 	std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
 		"texture.jpg", resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
-	// TODO: debug model loading
-	/*std::shared_ptr gameObjectModel = resourceLoader->GetModel("cube");
+	std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
+		"cube.obj", resourceLoader);
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
 		glm::vec3(0.0f, 0.0f, 4.0f));
 
@@ -49,6 +46,22 @@ void  Scene::SpawnGameObject(std::string const& gameObjectName) {
 			gameObjectModel, std::make_unique<PawnBehavior>(),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
-	AddGameObject(newGameObject);*/
-	std::cout << "spawned pawn!\n";
+	upcomingGameObjects.push_back(newGameObject);
+}
+
+void Scene::Update(float time, float deltaTime, uint32_t imageIndex,
+	glm::mat4 const & viewMatrix, VkExtent2D swapChainExtent) {
+	for (auto& gameObject : upcomingGameObjects) {
+		gameObjects.push_back(gameObject);
+	}
+	upcomingGameObjects.clear();
+
+	for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
+		if (!gameObject->GetInitializedInEngine()) {
+			continue;
+		}
+		gameObject->UpdateState(time, deltaTime);
+		gameObject->UpdateVisualState(imageIndex,
+			viewMatrix, time, deltaTime, swapChainExtent);
+	}
 }

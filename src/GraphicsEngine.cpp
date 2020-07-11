@@ -32,6 +32,10 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	
 	CreateDescriptorPoolAndSets(gameObjects);
 	CreateCommandBuffers(commandPool, gameObjects);
+
+	for (auto& gameObject : gameObjects) {
+		gameObject->SetInitializedInEngine(true);
+	}
 }
 
 GraphicsEngine::~GraphicsEngine() {

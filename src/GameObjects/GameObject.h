@@ -27,7 +27,6 @@ enum GameObjectType
 // depends on its type -- stationary, AI (enemy), or player
 class GameObject {
 public:
-	// TODO: material class
 	GameObject(std::shared_ptr<Model> const& model,
 		std::shared_ptr<Material> const& material,
 		std::unique_ptr<GameObjectBehavior> behavior,
@@ -98,6 +97,14 @@ public:
 			? VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST :
 			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 	}
+
+	bool GetInitializedInEngine() const {
+		return initializedInEngine;
+	}
+
+	void SetInitializedInEngine(bool value) {
+		initializedInEngine = value;
+	}
 	
 	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
 								size_t numSwapChainImages);
@@ -129,6 +136,8 @@ private:
 	VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkDescriptorSet> descriptorSets;
+
+	bool initializedInEngine;
 	
 	void SetupShaderNames();
 	

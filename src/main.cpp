@@ -302,14 +302,9 @@ private:
 	
 
 	void UpdateGameState(float time, float deltaTime, uint32_t imageIndex) {
-		auto& gameObjects = mainGameScene->GetGameObjects();
-		for (std::shared_ptr<GameObject>& gameObject : gameObjects) {
-			gameObject->UpdateState(time, deltaTime);
-			gameObject->UpdateVisualState(imageIndex,
-										  HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
-										  time, deltaTime,
-										  graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
-		}
+		mainGameScene->Update(time, deltaTime, imageIndex,
+			HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
+			graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 	}
 
 	void DrawFrame(uint32_t imageIndex) {

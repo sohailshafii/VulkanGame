@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 class GameObject;
 class ResourceLoader;
@@ -34,11 +36,13 @@ public:
 	}
 
 	void SpawnGameObject(std::string const& gameObjectName);
+
+	void Update(float time, float deltaTime, uint32_t imageIndex,
+		glm::mat4 const& viewMatrix, VkExtent2D swapChainExtent);
 	
 private:
 	std::vector<std::shared_ptr<GameObject>> gameObjects;
-	
-	std::shared_ptr<GameObject> NewGameObject();
+	std::vector<std::shared_ptr<GameObject>> upcomingGameObjects;
 
 	// we don't own these pointers; should be shared ptrs ideally
 	ResourceLoader* resourceLoader;
