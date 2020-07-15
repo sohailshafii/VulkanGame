@@ -23,6 +23,8 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 		window);
 	CreateSwapChainImageViews();
 	CreateRenderPassModule(gfxDeviceManager);
+	// TODO: need to create new pipelines at runtime based on new game objects,
+	// create new UBOs, descriptor pool and sets then command buffers 
 	CreateGraphicsPipeline(gfxDeviceManager, resourceLoader, gameObjects);
 
 	CreateColorResources(gfxDeviceManager, commandPool); // 5
@@ -183,8 +185,6 @@ void GraphicsEngine::CreateDescriptorPoolAndSets(std::vector<std::shared_ptr<Gam
 	}
 }
 
-// TODO: create command buffer module that encapsulates the allocate info, etc
-// TODO: it should be possible to have multiple pipelines/command buffers
 // per object. have a ubo per object, then update that ubo based on the matrices associated
 // move render logic to this class!
 void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,

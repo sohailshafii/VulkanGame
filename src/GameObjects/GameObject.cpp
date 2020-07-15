@@ -21,9 +21,11 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	descriptorPool(nullptr),
 	initializedInEngine(false) {
 	SetupShaderNames();
-	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(logicalDeviceManager->GetDevice(), material->GetMaterialType());
-
 	auto materialType = material->GetMaterialType();
+
+	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(
+		logicalDeviceManager->GetDevice(), materialType);
+
 	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
 							commandPool);
