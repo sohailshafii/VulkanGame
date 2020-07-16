@@ -32,7 +32,7 @@ public:
 	//PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
 	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
 
-	void AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+	void AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool,
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 private:

@@ -305,6 +305,24 @@ private:
 		mainGameScene->Update(time, deltaTime, imageIndex,
 			HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
 			graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
+
+		// TODO: make this event driven to force decoupling
+		auto& gameObjects = mainGameScene->GetGameObjects();
+		std::vector<std::shared_ptr<GameObject>> gameObjectsToInit;
+		for (auto& gameObject : gameObjects)
+		{
+			if (!gameObject->GetInitializedInEngine())
+			{
+				gameObjectsToInit.push_back(gameObject);
+			}
+		}
+		if (gameObjectsToInit.size() > 0)
+		{
+			// TODO: re-enable when this works
+			/*graphicsEngine->AddAndInitializeNewGameObjects(gfxDeviceManager,
+				resourceLoader, commandPool,
+				gameObjectsToInit);*/
+		}
 	}
 
 	void DrawFrame(uint32_t imageIndex) {

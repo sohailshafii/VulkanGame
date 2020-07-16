@@ -28,11 +28,11 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	CreateDepthResources(gfxDeviceManager, commandPool);
 	CreateFramebuffers();
 
-	AddNewGameObjects(gfxDeviceManager, resourceLoader, commandPool,
+	AddAndInitializeNewGameObjects(gfxDeviceManager, resourceLoader, commandPool,
 		gameObjects);
 }
 
-void GraphicsEngine::AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+void GraphicsEngine::AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool,
 	std::vector<std::shared_ptr<GameObject>>& gameObjects)
 {
