@@ -106,7 +106,7 @@ public:
 		initializedInEngine = value;
 	}
 	
-	void CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
+	void InitAndCreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 								size_t numSwapChainImages);
 	
 	void CreateDescriptorPoolAndSets(size_t numSwapChainImages);

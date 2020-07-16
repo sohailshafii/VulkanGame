@@ -5,6 +5,7 @@
 #include "Resources/Model.h"
 #include "GameObjects/GameObject.h"
 #include <vector>
+#include <map>
 
 class SwapChainManager;
 class GfxDeviceManager;
@@ -31,13 +32,16 @@ public:
 	//PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
 	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
 
+	void AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+		ResourceLoader* resourceLoader, VkCommandPool commandPool,
+		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 private:
 	// not owned by us
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 
 	SwapChainManager* swapChainManager;
 	RenderPassModule* renderPassModule;
-	std::vector<PipelineModule*> graphicsPipelineModules;
+	std::map<std::shared_ptr<GameObject>, PipelineModule*> gameObjectToPipelineModule;
 
 	VkImage colorImage;
 	VkDeviceMemory colorImageMemory;
@@ -52,8 +56,6 @@ private:
 	CommandBufferModule* commandBufferModule;
 
 	void CleanUpSwapChain();
-	void CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
 		VkSurfaceKHR surface, GLFWwindow* window);
 	void CreateSwapChainImageViews();
@@ -64,9 +66,13 @@ private:
 	void CreateDepthResources(GfxDeviceManager* gfxDeviceManager,
 		VkCommandPool commandPool);
 	void CreateFramebuffers();
-	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
-							  std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
-	void CreateDescriptorPoolAndSets(std::vector<std::shared_ptr<GameObject>>& gameObjects);
-	void CreateCommandBuffers(VkCommandPool commandPool, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDeviceManager,
+		ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
+		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void CreateDescriptorPoolAndSetsForGameObjects(
+		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void CreateCommandBuffersForGameObjects(VkCommandPool commandPool,
+		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 };

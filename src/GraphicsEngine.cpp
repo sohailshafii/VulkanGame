@@ -23,18 +23,23 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 		window);
 	CreateSwapChainImageViews();
 	CreateRenderPassModule(gfxDeviceManager);
-	// TODO: need to create new pipelines at runtime based on new game objects,
-	// create new UBOs, descriptor pool and sets then command buffers 
-	CreateGraphicsPipeline(gfxDeviceManager, resourceLoader, gameObjects);
 
-	CreateColorResources(gfxDeviceManager, commandPool); // 5
-	CreateDepthResources(gfxDeviceManager, commandPool); // 6
-	CreateFramebuffers(); // 7
-	CreateUniformBuffers(gfxDeviceManager, gameObjects); // 8
-	
-	CreateDescriptorPoolAndSets(gameObjects);
-	CreateCommandBuffers(commandPool, gameObjects);
+	CreateColorResources(gfxDeviceManager, commandPool);
+	CreateDepthResources(gfxDeviceManager, commandPool);
+	CreateFramebuffers();
 
+	AddNewGameObjects(gfxDeviceManager, resourceLoader, commandPool,
+		gameObjects);
+}
+
+void GraphicsEngine::AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+	ResourceLoader* resourceLoader, VkCommandPool commandPool,
+	std::vector<std::shared_ptr<GameObject>>& gameObjects)
+{
+	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, gameObjects);
+	CreateUniformBuffersForGameObjects(gfxDeviceManager, gameObjects);
+	CreateDescriptorPoolAndSetsForGameObjects(gameObjects);
+	CreateCommandBuffersForGameObjects(commandPool, gameObjects);
 	for (auto& gameObject : gameObjects) {
 		gameObject->SetInitializedInEngine(true);
 	}
@@ -63,12 +68,12 @@ void GraphicsEngine::CleanUpSwapChain() {
 		delete commandBufferModule;
 	}
 
-	for(auto graphicsPipelineModule : graphicsPipelineModules) {
-		if (graphicsPipelineModule != nullptr) {
-			delete graphicsPipelineModule;
+	for(auto pipelinePair : gameObjectToPipelineModule) {
+		if (pipelinePair.second != nullptr) {
+			delete pipelinePair.second;
 		}
 	}
-	graphicsPipelineModules.clear();
+	gameObjectToPipelineModule.clear();
 	
 	if (renderPassModule != nullptr) {
 		delete renderPassModule;
@@ -93,18 +98,6 @@ void GraphicsEngine::CreateRenderPassModule(GfxDeviceManager* gfxDeviceManager) 
 	renderPassModule = new RenderPassModule(logicalDeviceManager->GetDevice(),
 		gfxDeviceManager->GetPhysicalDevice(), swapChainManager->GetSwapChainImageFormat(),
 		gfxDeviceManager->GetMSAASamples());
-}
-
-void GraphicsEngine::CreateGraphicsPipeline(GfxDeviceManager* gfxDeviceManager,
-	ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects) {
-	for(auto& gameObject : gameObjects) {
-		graphicsPipelineModules.push_back(new PipelineModule(gameObject->GetVertexShaderName(),
-			gameObject->GetFragmentShaderName(), logicalDeviceManager->GetDevice(),
-			swapChainManager->GetSwapChainExtent(), gfxDeviceManager,
-			 resourceLoader, gameObject->GetDescriptorSetLayout(), renderPassModule->GetRenderPass(),
-			gameObject->GetMaterialType(),
-			gameObject->GetPrimitiveTopology()));
-	}
 }
 
 void GraphicsEngine::CreateColorResources(GfxDeviceManager* gfxDeviceManager,
@@ -167,16 +160,35 @@ void GraphicsEngine::CreateFramebuffers() {
 	}
 }
 
-void GraphicsEngine::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
+// TODO: group similar pipelines, if possible
+void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDeviceManager,
+	ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	for (auto& gameObject : gameObjects) {
+		if (gameObjectToPipelineModule.find(gameObject) !=
+			gameObjectToPipelineModule.end())
+		{
+			continue;
+		}
+		gameObjectToPipelineModule[gameObject] = new PipelineModule(
+			gameObject->GetVertexShaderName(), gameObject->GetFragmentShaderName(),
+			logicalDeviceManager->GetDevice(), swapChainManager->GetSwapChainExtent(),
+			gfxDeviceManager, resourceLoader, gameObject->GetDescriptorSetLayout(),
+			renderPassModule->GetRenderPass(), gameObject->GetMaterialType(),
+			gameObject->GetPrimitiveTopology());
+	}
+}
+
+void GraphicsEngine::CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
 										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
-		gameObject->CreateCommandBuffers(gfxDeviceManager, numSwapChainImages);
+		gameObject->InitAndCreateUniformBuffers(gfxDeviceManager, numSwapChainImages);
 	}
 }
 
-void GraphicsEngine::CreateDescriptorPoolAndSets(std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
@@ -187,7 +199,7 @@ void GraphicsEngine::CreateDescriptorPoolAndSets(std::vector<std::shared_ptr<Gam
 
 // per object. have a ubo per object, then update that ubo based on the matrices associated
 // move render logic to this class!
-void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
+void GraphicsEngine::CreateCommandBuffersForGameObjects(VkCommandPool commandPool,
 										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {	
 	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
 		logicalDeviceManager->GetDevice(), commandPool);
@@ -225,7 +237,7 @@ void GraphicsEngine::CreateCommandBuffers(VkCommandPool commandPool,
 		for (size_t objectIndex = 0; objectIndex < numGameObjects;
 			 objectIndex++) {
 			auto& gameObject = gameObjects[objectIndex];
-			PipelineModule* pipelineModule = graphicsPipelineModules[objectIndex];
+			PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject];
 			
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipelineModule->GetPipeline());

@@ -149,7 +149,7 @@ void GameObject::CleanUpUniformBuffers() {
 	uniformBuffersFrag.clear();
 }
 
-void GameObject::CreateCommandBuffers(GfxDeviceManager* gfxDeviceManager,
+void GameObject::InitAndCreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 							size_t numSwapChainImages) {
 	CleanUpUniformBuffers();
 	CreateUniformBuffers(gfxDeviceManager, numSwapChainImages);
