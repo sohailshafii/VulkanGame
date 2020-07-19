@@ -199,7 +199,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	SetupTransformation(transformationNode, localToWorldTranfsorm);
 	constructedGameObject = GameObjectCreator::CreateGameObject(
 		newMaterial, gameObjectModel,
-		std::move(SetupGameObjectBehavior(jsonObj, scene)),
+		SetupGameObjectBehavior(jsonObj, scene),
 		localToWorldTranfsorm, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 }

@@ -14,8 +14,6 @@ PipelineModule::PipelineModule(const std::string& vertShaderName,
 	DescriptorSetFunctions::MaterialType materialType,
 	VkPrimitiveTopology primitiveTopology) {
 	this->device = device;
-	// TODO: use first set of paths when completely switched to cmake
-	// on Windows
 #if __APPLE__
 	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->GetShader(
 	"../../shaders/" + vertShaderName, device);
@@ -107,6 +105,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_LINE; //VK_POLYGON_MODE_FILL;//
+	// TODO: revert. also need a device feature store to see what we can use
 	rasterizer.lineWidth = 2.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;

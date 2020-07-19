@@ -27,20 +27,38 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	CreateColorResources(gfxDeviceManager, commandPool);
 	CreateDepthResources(gfxDeviceManager, commandPool);
 	CreateFramebuffers();
+	
+	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
+		logicalDeviceManager->GetDevice(), commandPool);
 
-	AddAndInitializeNewGameObjects(gfxDeviceManager, resourceLoader, commandPool,
-		gameObjects);
+	AddAndInitializeNewGameObjects(gfxDeviceManager, resourceLoader,
+								   gameObjects);
+	
+	CreateCommandBuffersForGameObjects(gameObjects);
+	for (auto& gameObject : gameObjects) {
+		gameObject->SetInitializedInEngine(true);
+	}
 }
 
-void GraphicsEngine::AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
-	ResourceLoader* resourceLoader, VkCommandPool commandPool,
-	std::vector<std::shared_ptr<GameObject>>& gameObjects)
-{
+void GraphicsEngine::AddAndInitializeNewGameObjects(
+	GfxDeviceManager* gfxDeviceManager,
+	ResourceLoader* resourceLoader,
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, gameObjects);
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, gameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(gameObjects);
-	CreateCommandBuffersForGameObjects(commandPool, gameObjects);
-	for (auto& gameObject : gameObjects) {
+}
+
+void GraphicsEngine::AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+					   ResourceLoader* resourceLoader,
+					   std::vector<std::shared_ptr<GameObject>>& newGameObjects,
+					   std::vector<std::shared_ptr<GameObject>>& allGameObjects) {
+	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, newGameObjects);
+	CreateUniformBuffersForGameObjects(gfxDeviceManager, newGameObjects);
+	CreateDescriptorPoolAndSetsForGameObjects(newGameObjects);
+	
+	CreateCommandBuffersForGameObjects(allGameObjects);
+	for (auto& gameObject : newGameObjects) {
 		gameObject->SetInitializedInEngine(true);
 	}
 }
@@ -199,10 +217,9 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 
 // per object. have a ubo per object, then update that ubo based on the matrices associated
 // move render logic to this class!
-void GraphicsEngine::CreateCommandBuffersForGameObjects(VkCommandPool commandPool,
-										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {	
-	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
-		logicalDeviceManager->GetDevice(), commandPool);
+// TODO: wait for fence for existing command buffers if we are recording new ones
+void GraphicsEngine::CreateCommandBuffersForGameObjects(
+					std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	auto& commandBuffers = commandBufferModule->GetCommandBuffers();
 	for (size_t i = 0; i < commandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};

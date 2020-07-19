@@ -32,9 +32,11 @@ public:
 	//PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
 	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
 
-	void AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, VkCommandPool commandPool,
-		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+						   ResourceLoader* resourceLoader,
+						   std::vector<std::shared_ptr<GameObject>>& newGameObjects,
+						   std::vector<std::shared_ptr<GameObject>>& allGameObjects);
+	
 private:
 	// not owned by us
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
@@ -54,6 +56,10 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	CommandBufferModule* commandBufferModule;
+	
+	void AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+										ResourceLoader* resourceLoader,
+										std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	void CleanUpSwapChain();
 	void CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
@@ -73,6 +79,6 @@ private:
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateDescriptorPoolAndSetsForGameObjects(
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
-	void CreateCommandBuffersForGameObjects(VkCommandPool commandPool,
+	void CreateCommandBuffersForGameObjects(
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 };

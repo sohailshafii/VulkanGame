@@ -200,7 +200,8 @@ private:
 		VkCommandPoolCreateInfo poolInfo = {};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-		poolInfo.flags = 0;
+		// need to be able to re-record at some point
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
 		if (vkCreateCommandPool(logicalDeviceManager->GetDevice(), &poolInfo, nullptr,
 			&commandPool) != VK_SUCCESS) {
@@ -319,9 +320,8 @@ private:
 		if (gameObjectsToInit.size() > 0)
 		{
 			// TODO: re-enable when this works
-			/*graphicsEngine->AddAndInitializeNewGameObjects(gfxDeviceManager,
-				resourceLoader, commandPool,
-				gameObjectsToInit);*/
+			graphicsEngine->AddNewGameObjects(gfxDeviceManager,
+				resourceLoader, gameObjectsToInit, gameObjects);
 		}
 	}
 
