@@ -321,7 +321,7 @@ private:
 		{
 			// TODO: re-enable when this works
 			graphicsEngine->AddNewGameObjects(gfxDeviceManager,
-				resourceLoader, gameObjectsToInit, gameObjects);
+				resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
 		}
 	}
 

@@ -34,6 +34,7 @@ public:
 
 	void AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
 						   ResourceLoader* resourceLoader,
+						   std::vector<VkFence> const & inFlightFences,
 						   std::vector<std::shared_ptr<GameObject>>& newGameObjects,
 						   std::vector<std::shared_ptr<GameObject>>& allGameObjects);
 	

@@ -50,12 +50,17 @@ void GraphicsEngine::AddAndInitializeNewGameObjects(
 }
 
 void GraphicsEngine::AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
-					   ResourceLoader* resourceLoader,
+									   ResourceLoader* resourceLoader,
+									   std::vector<VkFence> const & inFlightFences,
 					   std::vector<std::shared_ptr<GameObject>>& newGameObjects,
 					   std::vector<std::shared_ptr<GameObject>>& allGameObjects) {
 	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, newGameObjects);
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, newGameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(newGameObjects);
+	
+	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
+					inFlightFences.data(), VK_TRUE,
+					std::numeric_limits<uint64_t>::max());
 	
 	CreateCommandBuffersForGameObjects(allGameObjects);
 	for (auto& gameObject : newGameObjects) {
