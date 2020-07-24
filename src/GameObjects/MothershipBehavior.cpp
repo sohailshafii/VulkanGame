@@ -2,7 +2,6 @@
 #include "ShipIdleStateBehavior.h"
 #include "GameObjectCreationUtilFuncs.h"
 #define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
@@ -25,7 +24,6 @@ MothershipBehavior::~MothershipBehavior() {
 
 void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
 	UpdateStateMachine(time, deltaTime);
-	modelMatrix = glm::rotate(modelMatrix, 0.1f*deltaTime, axisOfRotation);
 }
 
 void MothershipBehavior::SpawnGameObject() const {
@@ -35,7 +33,6 @@ void MothershipBehavior::SpawnGameObject() const {
 }
 
 void MothershipBehavior::Initialize() {
-	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 	currentShipStateBehavior = new ShipIdleStateBehavior();
 }
 

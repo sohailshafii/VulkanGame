@@ -25,6 +25,10 @@ public:
 
 	virtual void UpdateSelf(float time, float deltaTime) = 0;
 	
+	void MultiplyByMatrix(glm::mat4 const& newMatrix) {
+		this->modelMatrix *= newMatrix;
+	}
+
 	void SetModelMatrix(glm::mat4 const & modelMatrix) {
 		this->modelMatrix = modelMatrix;
 	}

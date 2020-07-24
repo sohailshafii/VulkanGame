@@ -21,8 +21,6 @@ public:
 private:
 	ShipStateBehavior *currentShipStateBehavior;
 
-	glm::vec3 axisOfRotation;
-
 	void Initialize();
 	void UpdateStateMachine(float time, float deltaTime);
 };

@@ -10,7 +10,7 @@ public:
 	}
 
 	virtual ShipStateBehavior* UpdateAndGetNextState(
-		MothershipBehavior const & motherShip,
+		MothershipBehavior & motherShip,
 		float time, float deltaTime) = 0;
 
 	virtual std::string GetDescriptiveName() const = 0;

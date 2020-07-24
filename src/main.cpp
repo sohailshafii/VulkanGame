@@ -319,7 +319,6 @@ private:
 		}
 		if (gameObjectsToInit.size() > 0)
 		{
-			// TODO: re-enable when this works
 			graphicsEngine->AddNewGameObjects(gfxDeviceManager,
 				resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
 		}
