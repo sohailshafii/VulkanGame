@@ -29,7 +29,7 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 												 VkDescriptorSet descriptorSet,
 												 VkImageView textureImageView,
 												 VkSampler textureSampler,
-												 const glm::vec4& tintColor,
+												 glm::vec4 const & tintColor,
 												 VkDescriptorBufferInfo* bufferInfoVert,
 												 VkDescriptorBufferInfo* bufferInfoFrag) {
 	switch (materialType) {

@@ -221,12 +221,13 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 		bufferInfoFrag.range = sizeof(UniformBufferObjectLighting); // TODO: fix
 
 		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
-													material->GetMaterialType(),
-													descriptorSets[i],
-													material->GetTextureLoader()->GetTextureImageView(),
-													material->GetTextureLoader()->GetTextureImageSampler(),
-													&bufferInfoVert,
-													&bufferInfoFrag);
+			material->GetMaterialType(),
+			descriptorSets[i],
+			material->GetTextureLoader()->GetTextureImageView(),
+			material->GetTextureLoader()->GetTextureImageSampler(),
+			material->GetTintColor(),
+			&bufferInfoVert,
+			&bufferInfoFrag);
 	}
 }
 
