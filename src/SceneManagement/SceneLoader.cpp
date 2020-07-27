@@ -272,9 +272,6 @@ std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
 	if (gameObjectBehaviorStr == "Stationary") {
 		newGameObjBehavior = std::make_unique<StationaryGameObjectBehavior>();
 	}
-	else if (gameObjectBehaviorStr == "Player") {
-		newGameObjBehavior = std::make_unique<PlayerGameObjectBehavior>();
-	}
 	else if (gameObjectBehaviorStr == "Mothership") {
 		newGameObjBehavior = std::make_unique<MothershipBehavior>(scene);
 	}

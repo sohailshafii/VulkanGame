@@ -1,3 +1,6 @@
+glslc.exe ./UnlitColor.vert -o ./UnlitColor.spv
+glslc.exe ./UnlitColor.frag -o ./UnlitColor.spv
+
 glslc.exe ./UnlitTintedTextured.vert -o ./UnlitTintedTexturedVert.spv
 glslc.exe ./UnlitTintedTextured.frag -o ./UnlitTintedTexturedFrag.spv
 

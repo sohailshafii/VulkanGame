@@ -29,7 +29,7 @@ class LogicalDeviceManager;
 class DescriptorSetFunctions
 {
 public:
-	enum MaterialType { UnlitTintedTextured = 0,
+	enum MaterialType { UnlitColor = 0, UnlitTintedTextured,
 		WavySurface, BumpySurface };
 	
 	static VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,
@@ -39,11 +39,22 @@ public:
 									VkDescriptorSet descriptorSet,
 									VkImageView textureImageView,
 									VkSampler textureSampler,
+									glm::vec4 const & tintColor,
 									VkDescriptorBufferInfo* bufferInfoVert,
 									VkDescriptorBufferInfo* bufferInfoFrag);
 	
 	static VkDescriptorPool CreateDescriptorPool(VkDevice device, MaterialType materialType,
 									 size_t numSwapChainImages);
+
+	static VkDescriptorSetLayout CreateUnlitColorDescriptorSetLayout(
+		VkDevice device);
+	static void UpdateDescriptorSetUnlitColor(VkDevice device,
+										VkDescriptorSet descriptorSet,
+										glm::vec4 const& tintColor,
+										VkDescriptorBufferInfo* bufferInfoVert,
+										VkDescriptorBufferInfo* bufferInfoFrag);
+	static VkDescriptorPool CreateDescriptorPoolUnlitColor(VkDevice device,
+														size_t numSwapChainImages);
 	
 	static VkDescriptorSetLayout CreateUnlitTintedTexturedDescriptorSetLayout(VkDevice device);
 	static void UpdateDescriptorSetUnlitTintedTextured(VkDevice device,

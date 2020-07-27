@@ -1,3 +1,6 @@
+glslc ./UnlitColor.vert -o ./UnlitColor.spv
+glslc ./UnlitColor.frag -o ./UnlitColor.spv
+
 glslc ./UnlitTintedTextured.vert -o ./UnlitTintedTexturedVert.spv
 glslc ./UnlitTintedTextured.frag -o ./UnlitTintedTexturedFrag.spv
 

@@ -45,6 +45,8 @@
 #include "Camera.h"
 
 #include "GameObjects/GameObject.h"
+#include "GameObjects/GameObjectCreationUtilFuncs.h"
+#include "GameObjects/PlayerGameObjectBehavior.h"
 #include "SceneManagement/Scene.h"
 #include "SceneManagement/SceneLoader.h"
 
@@ -163,7 +165,27 @@ private:
 			resourceLoader, surface, window, commandPool,
 			mainGameScene->GetGameObjects());
 
+		
+
 		CreateSyncObjects();
+	}
+
+	void CreatePlayerGameObject() {
+		// add player game object; this is necessary because enemies
+		// need to know where the player is
+		std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
+			DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
+			"texture.jpg", resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool);
+		std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
+			"cube.obj", resourceLoader);
+		glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
+			glm::vec3(0.0f, 0.0f, 4.0f));
+		std::shared_ptr<GameObject> newGameObject =
+			GameObjectCreator::CreateGameObject(gameObjectMaterial,
+				gameObjectModel, std::make_unique<PlayerGameObjectBehavior>(),
+				localToWorldTransform, resourceLoader, gfxDeviceManager,
+				logicalDeviceManager, commandPool);
 	}
 
 	void CreateSurface() {
