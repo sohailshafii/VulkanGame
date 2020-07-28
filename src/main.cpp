@@ -161,11 +161,12 @@ private:
 	
 		CreateGameObjects();
 
+		// TODO: enable when draw command buffer works for player object
+		//CreatePlayerGameObject();
+
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, commandPool,
 			mainGameScene->GetGameObjects());
-
-		
 
 		CreateSyncObjects();
 	}
@@ -185,6 +186,7 @@ private:
 				gameObjectModel, std::make_unique<PlayerGameObjectBehavior>(),
 				localToWorldTransform, resourceLoader, gfxDeviceManager,
 				logicalDeviceManager, commandPool);
+		mainGameScene->AddGameObject(newGameObject);
 	}
 
 	void CreateSurface() {

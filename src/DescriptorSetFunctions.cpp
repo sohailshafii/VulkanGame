@@ -36,6 +36,7 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 		case MaterialType::UnlitColor:
 			UpdateDescriptorSetUnlitColor(device, descriptorSet, tintColor,
 				bufferInfoVert, bufferInfoFrag);
+			break;
 		case MaterialType::UnlitTintedTextured:
 			UpdateDescriptorSetUnlitTintedTextured(device, descriptorSet,
 				imageTextureLoader->GetTextureImageView(),
@@ -99,7 +100,7 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateUnlitColorDescriptorSetLayou
 	std::array<VkDescriptorSetLayoutBinding, 2> bindings = {
 		uboLayoutBinding, uboLayoutBindingFrag
 	};
-	VkDescriptorSetLayoutCreateInfo layoutInfo;
+	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 	layoutInfo.pBindings = bindings.data();
@@ -108,7 +109,7 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateUnlitColorDescriptorSetLayou
 	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr,
 		&descriptorSetLayout) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create descriptor set layout \
-			got unlit color!");
+			for unlit color!");
 	}
 	return descriptorSetLayout;
 }

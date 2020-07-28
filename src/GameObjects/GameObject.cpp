@@ -26,7 +26,11 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(
 		logicalDeviceManager->GetDevice(), materialType);
 
-	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
+	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor) {
+		CreateVertexBuffer(model->BuildAndReturnVertsPos(), gfxDeviceManager,
+			commandPool);
+	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
 							commandPool);
 	}
@@ -81,6 +85,10 @@ GameObject::~GameObject() {
 
 void GameObject::SetupShaderNames() {
 	switch (material->GetMaterialType()) {
+		case DescriptorSetFunctions::MaterialType::UnlitColor:
+			vertexShaderName = "UnlitColorVert.spv";
+			fragmentShaderName = "UnlitColorFrag.spv";
+			break;
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
 			vertexShaderName = "UnlitTintedTexturedVert.spv";
 			fragmentShaderName = "UnlitTintedTexturedFrag.spv";
