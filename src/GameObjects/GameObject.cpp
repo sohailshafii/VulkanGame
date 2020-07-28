@@ -223,8 +223,7 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
 			material->GetMaterialType(),
 			descriptorSets[i],
-			material->GetTextureLoader()->GetTextureImageView(),
-			material->GetTextureLoader()->GetTextureImageSampler(),
+			material->GetTextureLoader(),
 			material->GetTintColor(),
 			&bufferInfoVert,
 			&bufferInfoFrag);

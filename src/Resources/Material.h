@@ -10,6 +10,9 @@ public:
 	Material(std::shared_ptr<ImageTextureLoader>const & texture,
 			DescriptorSetFunctions::MaterialType material,
 			glm::vec4 const & tintColor = glm::vec4(0.0f));
+
+	Material(DescriptorSetFunctions::MaterialType material,
+			glm::vec4 const& tintColor = glm::vec4(0.0f));
 	
 	ImageTextureLoader* GetTextureLoader() {
 		return textureLoader.get();

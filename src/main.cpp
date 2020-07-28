@@ -173,10 +173,9 @@ private:
 	void CreatePlayerGameObject() {
 		// add player game object; this is necessary because enemies
 		// need to know where the player is
-		std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
-			DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
-			"texture.jpg", resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
+		std::shared_ptr gameObjectMaterial =
+			std::make_shared<Material>(
+				DescriptorSetFunctions::MaterialType::UnlitColor);
 		std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
 			"cube.obj", resourceLoader);
 		glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),

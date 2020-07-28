@@ -1,5 +1,6 @@
 #include "DescriptorSetFunctions.h"
 #include "LogicalDeviceManager.h"
+#include "ImageTextureLoader.h"
 #include <array>
 #include <stdexcept>
 
@@ -27,8 +28,7 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateDescriptorSetLayout(VkDevice
 void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 												 MaterialType materialType,
 												 VkDescriptorSet descriptorSet,
-												 VkImageView textureImageView,
-												 VkSampler textureSampler,
+												 ImageTextureLoader* imageTextureLoader,
 												 glm::vec4 const & tintColor,
 												 VkDescriptorBufferInfo* bufferInfoVert,
 												 VkDescriptorBufferInfo* bufferInfoFrag) {
@@ -38,16 +38,21 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 				bufferInfoVert, bufferInfoFrag);
 		case MaterialType::UnlitTintedTextured:
 			UpdateDescriptorSetUnlitTintedTextured(device, descriptorSet,
-												   textureImageView, textureSampler,
-												   bufferInfoVert);
+				imageTextureLoader->GetTextureImageView(),
+				imageTextureLoader->GetTextureImageSampler(),
+				bufferInfoVert);
 			break;
 		case MaterialType::WavySurface:
 			UpdateDescriptorSetWavySurface(device, descriptorSet,
-				textureImageView, textureSampler, bufferInfoVert);
+				imageTextureLoader->GetTextureImageView(),
+				imageTextureLoader->GetTextureImageSampler(),
+				bufferInfoVert);
 			break;
 		case MaterialType::BumpySurface:
-			UpdateDescriptorSetBumpySurface(device, descriptorSet, textureImageView,
-				textureSampler, bufferInfoVert);
+			UpdateDescriptorSetBumpySurface(device, descriptorSet,
+				imageTextureLoader->GetTextureImageView(),
+				imageTextureLoader->GetTextureImageSampler(),
+				bufferInfoVert);
 	}
 }
 
