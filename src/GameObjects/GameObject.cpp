@@ -180,13 +180,14 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 								   VkExtent2D swapChainExtent) {
 	switch (material->GetMaterialType())
 	{
+		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-			UpdateUniformBufferUnlitTintedTextured(imageIndex, viewMatrix,
-												   time, deltaTime, swapChainExtent);
+			UpdateUniformBufferModelViewProj(imageIndex, viewMatrix,
+											time, deltaTime, swapChainExtent);
 			break;
 		default:
-			UpdateUniformBufferGerstner(imageIndex, viewMatrix,
-										time, deltaTime, swapChainExtent);
+			UpdateUniformBufferModelViewProjTime(imageIndex, viewMatrix,
+												time, deltaTime, swapChainExtent);
 			break;
 	}
 }
@@ -249,22 +250,23 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 {
 	switch (material->GetMaterialType())
 	{
+		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-			return sizeof(UniformBufferObjectUnlitTintedTexVert);
+			return sizeof(UniformBufferObjectModelViewProj);
 			break;
 		default:
-			return sizeof(UniformBufferObjectGerstnerVert);
+			return sizeof(UniformBufferObjectModelViewProjTime);
 			break;
 	}
 }
 
-void GameObject::UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
-														const glm::mat4& viewMatrix,
-														float time,
-														float deltaTime,
-														VkExtent2D swapChainExtent)
+void GameObject::UpdateUniformBufferModelViewProj(uint32_t imageIndex,
+												const glm::mat4& viewMatrix,
+												float time,
+												float deltaTime,
+												VkExtent2D swapChainExtent)
 {
-	UniformBufferObjectUnlitTintedTexVert ubo = {};
+	UniformBufferObjectModelViewProj ubo = {};
 	ubo.model = gameObjectBehavior->GetModelMatrix();
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
@@ -278,12 +280,12 @@ void GameObject::UpdateUniformBufferUnlitTintedTextured(uint32_t imageIndex,
 	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 }
 
-void GameObject::UpdateUniformBufferGerstner(uint32_t imageIndex,
-											 const glm::mat4& viewMatrix,
-											 float time, float deltaTime,
-											 VkExtent2D swapChainExtent)
+void GameObject::UpdateUniformBufferModelViewProjTime(uint32_t imageIndex,
+													const glm::mat4& viewMatrix,
+													float time, float deltaTime,
+													VkExtent2D swapChainExtent)
 {
-	UniformBufferObjectGerstnerVert ubo = {};
+	UniformBufferObjectModelViewProjTime ubo = {};
 	ubo.model = gameObjectBehavior->GetModelMatrix();
 	ubo.view = viewMatrix;
 	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /

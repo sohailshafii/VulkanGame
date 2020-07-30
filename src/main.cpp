@@ -162,7 +162,7 @@ private:
 		CreateGameObjects();
 
 		// TODO: enable when draw command buffer works for player object
-		//CreatePlayerGameObject();
+		CreatePlayerGameObject();
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, commandPool,
@@ -174,9 +174,12 @@ private:
 	void CreatePlayerGameObject() {
 		// add player game object; this is necessary because enemies
 		// need to know where the player is
-		std::shared_ptr gameObjectMaterial =
-			std::make_shared<Material>(
-				DescriptorSetFunctions::MaterialType::UnlitColor);
+		std::shared_ptr<Material> gameObjectMaterial =
+			GameObjectCreator::CreateMaterial(DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
+				"texture.jpg", resourceLoader, gfxDeviceManager,
+				logicalDeviceManager, commandPool);
+			//std::make_shared<Material>(
+			//	DescriptorSetFunctions::MaterialType::UnlitTintedTextured);
 		std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
 			"cube.obj", resourceLoader);
 		glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
@@ -366,9 +369,10 @@ private:
 
 		vkResetFences(logicalDeviceManager->GetDevice(), 1, &inFlightFences[currentFrame]);
 
-		if (vkQueueSubmit(logicalDeviceManager->GetGraphicsQueue(), 1, &submitInfo,
-			inFlightFences[currentFrame]) !=
-			VK_SUCCESS) {
+		VkResult submitResult = vkQueueSubmit(logicalDeviceManager->GetGraphicsQueue(),
+			1, &submitInfo, inFlightFences[currentFrame]);
+		if (submitResult != VK_SUCCESS) {
+			std::cerr << "Submit result: " << submitResult << std::endl;
 			throw std::runtime_error("Failed to submit draw command buffer!");
 		}
 

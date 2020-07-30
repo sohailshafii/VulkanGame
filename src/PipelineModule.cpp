@@ -49,6 +49,15 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	VkVertexInputBindingDescription bindingDescription;
 	VkVertexInputAttributeDescription *attribDescriptionArray = nullptr;
 	size_t numAttrib = 0;
+	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor) {
+		bindingDescription = VertexPos::GetBindingDescription();
+		auto attributeDescriptions = VertexPos::GetAttributeDescriptions();
+		numAttrib = attributeDescriptions.size();
+		attribDescriptionArray = new VkVertexInputAttributeDescription[numAttrib];
+		for (size_t i = 0; i < numAttrib; i++) {
+			attribDescriptionArray[i] = attributeDescriptions[i];
+		}
+	}
 	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		bindingDescription = VertexPosColorTexCoord::GetBindingDescription();
 		auto attributeDescriptions = VertexPosColorTexCoord::GetAttributeDescriptions();
