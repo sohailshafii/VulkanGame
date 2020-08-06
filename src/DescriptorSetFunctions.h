@@ -19,6 +19,10 @@ struct UniformBufferObjectModelViewProjTime {
 	alignas(16) float time;
 };
 
+struct UniformBufferFragUnlitColor {
+	alignas(16) glm::vec4 objectColor;
+};
+
 struct UniformBufferObjectLighting {
 	alignas(16) glm::vec3 lightPosition;
 };

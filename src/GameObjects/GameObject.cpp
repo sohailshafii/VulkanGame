@@ -132,12 +132,14 @@ void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
 	VkDeviceSize bufferSizeVert = GetMaterialUniformBufferSizeVert();
-	VkDeviceSize bufferSizeLighting = sizeof(UniformBufferObjectLighting);
+	VkDeviceSize bufferSizeLighting =
+		material->GetMaterialType() == DescriptorSetFunctions::MaterialType::UnlitColor ?
+		sizeof(UniformBufferFragUnlitColor) :
+		sizeof(UniformBufferObjectLighting);
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
 		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager,
 			(int)bufferSizeVert));
-		// TODO: fix frag to allow different buffer types
 		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager,
 			(int)bufferSizeLighting));
 	}
@@ -227,7 +229,7 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 		VkDescriptorBufferInfo bufferInfoFrag = {};
 		bufferInfoFrag.buffer = uniformBuffersFrag[i]->GetUniformBuffer();
 		bufferInfoFrag.offset = 0;
-		bufferInfoFrag.range = sizeof(UniformBufferObjectLighting); // TODO: fix
+		bufferInfoFrag.range = uniformBuffersFrag[i]->GetBufferSize();
 
 		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
 			material->GetMaterialType(),

@@ -91,7 +91,7 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateUnlitColorDescriptorSetLayou
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	VkDescriptorSetLayoutBinding uboLayoutBindingFrag = {};
-	uboLayoutBindingFrag.binding = 0;
+	uboLayoutBindingFrag.binding = 1;
 	uboLayoutBindingFrag.descriptorCount = 1;
 	uboLayoutBindingFrag.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	uboLayoutBindingFrag.pImmutableSamplers = nullptr;
@@ -130,7 +130,7 @@ void DescriptorSetFunctions::UpdateDescriptorSetUnlitColor(VkDevice device,
 
 	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptorWrites[1].dstSet = descriptorSet;
-	descriptorWrites[1].dstBinding = 0;
+	descriptorWrites[1].dstBinding = 1;
 	descriptorWrites[1].dstArrayElement = 0;
 	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	descriptorWrites[1].descriptorCount = 1;

@@ -161,7 +161,6 @@ private:
 	
 		CreateGameObjects();
 
-		// TODO: enable when draw command buffer works for player object
 		CreatePlayerGameObject();
 
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
@@ -175,11 +174,10 @@ private:
 		// add player game object; this is necessary because enemies
 		// need to know where the player is
 		std::shared_ptr<Material> gameObjectMaterial =
-			GameObjectCreator::CreateMaterial(DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
+			GameObjectCreator::CreateMaterial(
+				DescriptorSetFunctions::MaterialType::UnlitColor,
 				"texture.jpg", resourceLoader, gfxDeviceManager,
 				logicalDeviceManager, commandPool);
-			//std::make_shared<Material>(
-			//	DescriptorSetFunctions::MaterialType::UnlitTintedTextured);
 		std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
 			"cube.obj", resourceLoader);
 		glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),

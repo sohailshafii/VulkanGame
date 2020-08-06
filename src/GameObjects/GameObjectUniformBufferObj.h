@@ -12,7 +12,6 @@ public:
 		int bufferSize);
 	~GameObjectUniformBufferObj();
 
-
 	VkBuffer GetUniformBuffer() const {
 		return uniformBuffer;
 	}
@@ -21,8 +20,13 @@ public:
 		return uniformBufferMemory;
 	}
 
+	int GetBufferSize() const {
+		return bufferSize;
+	}
+
 private:
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	VkBuffer uniformBuffer;
 	VkDeviceMemory uniformBufferMemory;
+	int bufferSize;
 };

@@ -58,7 +58,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 			attribDescriptionArray[i] = attributeDescriptions[i];
 		}
 	}
-	if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
+	else if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
 		bindingDescription = VertexPosColorTexCoord::GetBindingDescription();
 		auto attributeDescriptions = VertexPosColorTexCoord::GetAttributeDescriptions();
 		numAttrib = attributeDescriptions.size();
