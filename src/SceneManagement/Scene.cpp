@@ -5,6 +5,7 @@
 #include "GameObjectCreationUtilFuncs.h"
 #include "PawnBehavior.h"
 #include "GameObject.h"
+#include "PlayerGameObjectBehavior.h"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -29,6 +30,22 @@ GameObject* Scene::GetGameObject(unsigned int index) {
 		return nullptr;
 	}
 	return gameObjects[index].get();
+}
+
+std::shared_ptr<GameObject> Scene::GetPlayerGameObject() {
+	std::shared_ptr<GameObject> foundPlayer = nullptr;
+
+	for (std::shared_ptr<GameObject> playerObj : gameObjects) {
+		auto objBehavior = playerObj->GetGameObjectBehavior();
+		auto asPlayerBehav =
+			dynamic_cast<PlayerGameObjectBehavior*>(objBehavior);
+		if (asPlayerBehav != nullptr) {
+			foundPlayer = playerObj;
+			break;
+		}
+	}
+
+	return foundPlayer;
 }
 
 void  Scene::SpawnGameObject(std::string const& gameObjectName) {

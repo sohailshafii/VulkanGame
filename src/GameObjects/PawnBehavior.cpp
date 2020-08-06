@@ -12,4 +12,6 @@ PawnBehavior::~PawnBehavior() {
 }
 
 void PawnBehavior::UpdateSelf(float time, float deltaTime) {
+	// 
+
 }

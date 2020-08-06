@@ -55,6 +55,10 @@ public:
 	void SetModelTransform(const glm::mat4& model) {
 		gameObjectBehavior->SetModelMatrix(model);
 	}
+
+	GameObjectBehavior* GetGameObjectBehavior() {
+		return gameObjectBehavior.get();
+	}
 	
 	VkBuffer GetVertexBuffer() const {
 		return vertexBuffer;

@@ -25,15 +25,15 @@ public:
 	
 	GameObject* GetGameObject(unsigned int index);
 	
-	void ClearGameObjects()
-	{
+	void ClearGameObjects() {
 		gameObjects.clear();
 	}
 	
-	std::vector<std::shared_ptr<GameObject>>& GetGameObjects()
-	{
+	std::vector<std::shared_ptr<GameObject>>& GetGameObjects() {
 		return gameObjects;
 	}
+
+	std::shared_ptr<GameObject> GetPlayerGameObject();
 
 	void SpawnGameObject(std::string const& gameObjectName);
 
