@@ -60,7 +60,7 @@ void  Scene::SpawnGameObject(std::string const& gameObjectName) {
 
 	std::shared_ptr<GameObject> newGameObject =
 		GameObjectCreator::CreateGameObject(gameObjectMaterial,
-			gameObjectModel, std::make_unique<PawnBehavior>(),
+			gameObjectModel, std::make_unique<PawnBehavior>(this),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	upcomingGameObjects.push_back(newGameObject);

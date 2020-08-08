@@ -1,12 +1,14 @@
 #pragma once
 
 #include "GameObjectBehavior.h"
+#include "SceneManagement/Scene.h"
 #include <glm/glm.hpp>
 
 class PawnBehavior : public GameObjectBehavior
 {
 public:
 	PawnBehavior();
+	PawnBehavior(Scene* const scene);
 	
 	~PawnBehavior();
 

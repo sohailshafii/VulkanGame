@@ -4,7 +4,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 PawnBehavior::PawnBehavior() {
-	
+}
+
+PawnBehavior::PawnBehavior(Scene* const scene) 
+	: GameObjectBehavior(scene) {
 }
 	
 PawnBehavior::~PawnBehavior() {
@@ -12,6 +15,10 @@ PawnBehavior::~PawnBehavior() {
 }
 
 void PawnBehavior::UpdateSelf(float time, float deltaTime) {
-	// 
-
+	if (scene != nullptr) {
+		auto playerGameObject = scene->GetPlayerGameObject();
+		if (playerGameObject != nullptr) {
+			// TODO
+		}
+	}
 }
