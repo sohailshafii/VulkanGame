@@ -51,6 +51,12 @@ public:
 	glm::mat4 const & GetModelTransform() const {
 		return gameObjectBehavior->GetModelMatrix();
 	}
+
+	glm::vec3 GetWorldPosition() const {
+		auto & modelMatrix = gameObjectBehavior->GetModelMatrix();
+		return glm::vec3(modelMatrix[0][3], modelMatrix[1][3],
+			modelMatrix[2][3]);
+	}
 	
 	void SetModelTransform(const glm::mat4& model) {
 		gameObjectBehavior->SetModelMatrix(model);

@@ -15,5 +15,8 @@ public:
 	virtual void UpdateSelf(float time, float deltaTime) override;
 
 private:
-	
+	static const float acceleration;
+	static const float maxVelocityMagnitude;
+
+	float currentVelocity;
 };
