@@ -48,7 +48,8 @@ std::shared_ptr<GameObject> Scene::GetPlayerGameObject() {
 	return foundPlayer;
 }
 
-void  Scene::SpawnGameObject(std::string const& gameObjectName) {
+void  Scene::SpawnGameObject(std::string const& gameObjectName,
+	glm::vec3 spawnPosition) {
 	std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
 		"texture.jpg", resourceLoader, gfxDeviceManager,
@@ -56,7 +57,7 @@ void  Scene::SpawnGameObject(std::string const& gameObjectName) {
 	std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
 		"cube.obj", resourceLoader);
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
-		glm::vec3(0.0f, 0.0f, 4.0f));
+		spawnPosition);
 
 	std::shared_ptr<GameObject> newGameObject =
 		GameObjectCreator::CreateGameObject(gameObjectMaterial,

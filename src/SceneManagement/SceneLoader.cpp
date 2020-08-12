@@ -276,7 +276,9 @@ std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
 		newGameObjBehavior = std::make_unique<StationaryGameObjectBehavior>();
 	}
 	else if (gameObjectBehaviorStr == "Mothership") {
-		newGameObjBehavior = std::make_unique<MothershipBehavior>(scene);
+		float shipRadius = gameObjectNode["ship_radius"];
+		newGameObjBehavior = std::make_unique<MothershipBehavior>(scene,
+			shipRadius);
 	}
 	else if (gameObjectBehaviorStr == "Pawn") {
 		newGameObjBehavior = std::make_unique<PawnBehavior>();

@@ -5,8 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 
-const float PawnBehavior::acceleration = 1.0f;
-const float PawnBehavior::maxVelocityMagnitude = 10.0f;
+const float PawnBehavior::acceleration = 0.1f;
+const float PawnBehavior::maxVelocityMagnitude = 2.0f;
 
 PawnBehavior::PawnBehavior() : currentVelocity(0.0f) {
 }

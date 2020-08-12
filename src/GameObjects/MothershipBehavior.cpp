@@ -4,9 +4,10 @@
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <cmath>
 
-MothershipBehavior::MothershipBehavior(Scene* const scene)
-	: GameObjectBehavior(scene) {
+MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
+	: GameObjectBehavior(scene), radius(radius) {
 	Initialize();
 }
 
@@ -28,7 +29,11 @@ void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
 
 void MothershipBehavior::SpawnGameObject() const {
 	if (scene != nullptr) {
-		scene->SpawnGameObject("Pawn");
+		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
+		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
+		glm::vec3 randomPos(radius * cos(randTheta) * sin(randPhi),
+			radius * sin(randTheta) * sin(randPhi), radius * cos(randPhi));
+		scene->SpawnGameObject("Pawn", randomPos);
 	}
 }
 

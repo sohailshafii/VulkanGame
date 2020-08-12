@@ -10,7 +10,7 @@ class GameObject;
 class MothershipBehavior : public GameObjectBehavior
 {
 public:
-	MothershipBehavior(Scene * const scene);
+	MothershipBehavior(Scene * const scene, float radius);
 	MothershipBehavior();
 	~MothershipBehavior();
 
@@ -20,6 +20,7 @@ public:
 
 private:
 	ShipStateBehavior *currentShipStateBehavior;
+	float radius;
 
 	void Initialize();
 	void UpdateStateMachine(float time, float deltaTime);

@@ -325,7 +325,6 @@ private:
 		return true;
 	}
 	
-
 	void UpdateGameState(float time, float deltaTime, uint32_t imageIndex) {
 		mainGameScene->Update(time, deltaTime, imageIndex,
 			HelloTriangleApplication::mainCamera.ConstructViewMatrix(),

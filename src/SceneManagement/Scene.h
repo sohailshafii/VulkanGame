@@ -35,7 +35,8 @@ public:
 
 	std::shared_ptr<GameObject> GetPlayerGameObject();
 
-	void SpawnGameObject(std::string const& gameObjectName);
+	void SpawnGameObject(std::string const& gameObjectName,
+		glm::vec3 spawnPosition);
 
 	void Update(float time, float deltaTime, uint32_t imageIndex,
 		glm::mat4 const& viewMatrix, VkExtent2D swapChainExtent);
