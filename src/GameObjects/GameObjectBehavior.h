@@ -37,6 +37,11 @@ public:
 		return modelMatrix;
 	}
 
+	glm::vec3 GetWorldPosition() const {
+		return glm::vec3(modelMatrix[3][0], modelMatrix[3][1],
+			modelMatrix[3][3]);
+	}
+
 protected:
 	glm::mat4 modelMatrix;
 	// we don't own this pointer; should be shared_ptr ideally

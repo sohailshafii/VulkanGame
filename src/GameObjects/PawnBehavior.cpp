@@ -26,8 +26,7 @@ void PawnBehavior::UpdateSelf(float time, float deltaTime) {
 		if (playerGameObject != nullptr) {
 			auto playerWorldPosition =
 				playerGameObject->GetWorldPosition();
-			glm::vec3 pawnPosition(modelMatrix[0][3], modelMatrix[1][3],
-				modelMatrix[2][3]);
+			glm::vec3 pawnPosition = GetWorldPosition();
 			auto vectorToPlayer = playerWorldPosition -
 				pawnPosition;
 			glm::normalize(vectorToPlayer);
@@ -41,9 +40,9 @@ void PawnBehavior::UpdateSelf(float time, float deltaTime) {
 				currentVelocity = -maxVelocityMagnitude;
 			}
 			pawnPosition += currentVelocity * vectorToPlayer;
-			modelMatrix[0][3] = pawnPosition[0];
-			modelMatrix[1][3] = pawnPosition[1];
-			modelMatrix[2][3] = pawnPosition[2];
+			modelMatrix[3][0] = pawnPosition[0];
+			modelMatrix[3][1] = pawnPosition[1];
+			modelMatrix[3][2] = pawnPosition[2];
 		}
 	}
 }
