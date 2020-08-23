@@ -16,6 +16,10 @@ public:
 
 	glm::mat4 ConstructViewMatrix() const;
 
+	glm::vec3 GetWorldPosition() const {
+		return position;
+	}
+
 	void MoveForward(float deltaTime);
 	void MoveBackward(float deltaTime);
 	void MoveRight(float deltaTime);

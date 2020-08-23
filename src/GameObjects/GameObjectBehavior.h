@@ -37,9 +37,15 @@ public:
 		return modelMatrix;
 	}
 
+	void SetWorldPosition(glm::vec3 const& worldPos) {
+		modelMatrix[3][0] = worldPos[0];
+		modelMatrix[3][1] = worldPos[1];
+		modelMatrix[3][2] = worldPos[2];
+	}
+
 	glm::vec3 GetWorldPosition() const {
 		return glm::vec3(modelMatrix[3][0], modelMatrix[3][1],
-			modelMatrix[3][3]);
+			modelMatrix[3][2]);
 	}
 
 protected:

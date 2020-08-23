@@ -110,7 +110,7 @@ private:
 	Scene* mainGameScene;
 
 	// need to be static for cursor callback function to work
-	static Camera mainCamera;
+	static std::shared_ptr<Camera> mainCamera;
 	static bool firstMouse;
 	static float lastX, lastY;
 	static float lastFrameTime;
@@ -161,8 +161,6 @@ private:
 	
 		CreateGameObjects();
 
-		CreatePlayerGameObject();
-
 		graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 			resourceLoader, surface, window, commandPool,
 			mainGameScene->GetGameObjects());
@@ -184,7 +182,8 @@ private:
 			glm::vec3(0.0f, 0.0f, 4.0f));
 		std::shared_ptr<GameObject> newGameObject =
 			GameObjectCreator::CreateGameObject(gameObjectMaterial,
-				gameObjectModel, std::make_unique<PlayerGameObjectBehavior>(),
+				gameObjectModel,
+				std::make_unique<PlayerGameObjectBehavior>(mainCamera),
 				localToWorldTransform, resourceLoader, gfxDeviceManager,
 				logicalDeviceManager, commandPool);
 		mainGameScene->AddGameObject(newGameObject);
@@ -246,9 +245,14 @@ private:
 		SceneLoader::DeserializeJSONFileIntoScene(
 			resourceLoader, gfxDeviceManager, logicalDeviceManager,
 			commandPool, mainGameScene, sceneSettings, scenePath);
-		mainCamera.InitializeCameraSystem(sceneSettings.cameraPosition,
+
+		mainCamera->InitializeCameraSystem(glm::vec3(0.0f, 2.0f, 100.0f),
+			-90.0f, 0.0f, 14.5f, 0.035f);
+		mainCamera->InitializeCameraSystem(sceneSettings.cameraPosition,
 			sceneSettings.cameraYaw, sceneSettings.cameraPitch,
-			sceneSettings.cameraMovementSpeed, sceneSettings.cameraMouseSensitivity);
+			sceneSettings.cameraMovementSpeed,
+			sceneSettings.cameraMouseSensitivity);
+		CreatePlayerGameObject();
 	}
 	
 	void CreateSyncObjects() {
@@ -327,7 +331,7 @@ private:
 	
 	void UpdateGameState(float time, float deltaTime, uint32_t imageIndex) {
 		mainGameScene->Update(time, deltaTime, imageIndex,
-			HelloTriangleApplication::mainCamera.ConstructViewMatrix(),
+			HelloTriangleApplication::mainCamera->ConstructViewMatrix(),
 			graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 
 		// TODO: make this event driven to force decoupling
@@ -429,7 +433,8 @@ private:
 	}
 };
 
-Camera HelloTriangleApplication::mainCamera = Camera(glm::vec3(0.0f, 2.0f, 100.0f),
+std::shared_ptr<Camera> HelloTriangleApplication::mainCamera = 
+	std::make_shared<Camera>(glm::vec3(0.0f, 2.0f, 100.0f),
 	-90.0f, 0.0f, 14.5f, 0.035f);
 bool HelloTriangleApplication::firstMouse = false;
 float HelloTriangleApplication::lastX = 0.0f;
@@ -450,21 +455,21 @@ void HelloTriangleApplication::MouseCallback(GLFWwindow* window, double xpos, do
 	lastX = (float)xpos;
 	lastY = (float)ypos;
 	
-	HelloTriangleApplication::mainCamera.ProcessMouse(xoffset, yoffset);
+	HelloTriangleApplication::mainCamera->ProcessMouse(xoffset, yoffset);
 }
 
 void HelloTriangleApplication::ProcessInput(GLFWwindow* window, float frameTime) {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.MoveForward(frameTime);
+		HelloTriangleApplication::mainCamera->MoveForward(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.MoveBackward(frameTime);
+		HelloTriangleApplication::mainCamera->MoveBackward(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.MoveLeft(frameTime);
+		HelloTriangleApplication::mainCamera->MoveLeft(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		HelloTriangleApplication::mainCamera.MoveRight(frameTime);
+		HelloTriangleApplication::mainCamera->MoveRight(frameTime);
 	}
 }
 
