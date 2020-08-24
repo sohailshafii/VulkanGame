@@ -346,7 +346,7 @@ private:
 		}
 		if (gameObjectsToInit.size() > 0)
 		{
-			graphicsEngine->AddNewGameObjects(gfxDeviceManager,
+			graphicsEngine->RecordCommandsForNewGameObjects(gfxDeviceManager,
 				resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
 		}
 	}

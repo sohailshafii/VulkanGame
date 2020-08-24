@@ -49,15 +49,16 @@ void GraphicsEngine::AddAndInitializeNewGameObjects(
 	CreateDescriptorPoolAndSetsForGameObjects(gameObjects);
 }
 
-void GraphicsEngine::AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
-									   ResourceLoader* resourceLoader,
-									   std::vector<VkFence> const & inFlightFences,
-					   std::vector<std::shared_ptr<GameObject>>& newGameObjects,
-					   std::vector<std::shared_ptr<GameObject>>& allGameObjects) {
+void GraphicsEngine::RecordCommandsForNewGameObjects(
+	GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
+	std::vector<VkFence> const & inFlightFences,
+	std::vector<std::shared_ptr<GameObject>>& newGameObjects,
+	std::vector<std::shared_ptr<GameObject>>& allGameObjects) {
 	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, newGameObjects);
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, newGameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(newGameObjects);
 	
+	// TODO: do this on a separate thread?
 	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
 					inFlightFences.data(), VK_TRUE,
 					std::numeric_limits<uint64_t>::max());
@@ -66,6 +67,19 @@ void GraphicsEngine::AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
 	for (auto& gameObject : newGameObjects) {
 		gameObject->SetInitializedInEngine(true);
 	}
+}
+
+void GraphicsEngine::RemoveCommandsForGameObjects(
+	std::vector<VkFence> const& inFlightFences,
+	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
+	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
+	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
+
+	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
+		inFlightFences.data(), VK_TRUE,
+		std::numeric_limits<uint64_t>::max());
+
+	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
 }
 
 GraphicsEngine::~GraphicsEngine() {
@@ -184,8 +198,10 @@ void GraphicsEngine::CreateFramebuffers() {
 }
 
 // TODO: group similar pipelines, if possible
-void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDeviceManager,
-	ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
+	GfxDeviceManager* gfxDeviceManager,
+	ResourceLoader* resourceLoader,
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	for (auto& gameObject : gameObjects) {
 		if (gameObjectToPipelineModule.find(gameObject) !=
 			gameObjectToPipelineModule.end())
@@ -198,6 +214,13 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDe
 			gfxDeviceManager, resourceLoader, gameObject->GetDescriptorSetLayout(),
 			renderPassModule->GetRenderPass(), gameObject->GetMaterialType(),
 			gameObject->GetPrimitiveTopology());
+	}
+}
+
+void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	for (auto& gameObject : gameObjects) {
+		gameObjectToPipelineModule.erase(gameObject);
 	}
 }
 

@@ -32,12 +32,16 @@ public:
 	//PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
 	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
 
-	void AddNewGameObjects(GfxDeviceManager* gfxDeviceManager,
-						   ResourceLoader* resourceLoader,
-						   std::vector<VkFence> const & inFlightFences,
-						   std::vector<std::shared_ptr<GameObject>>& newGameObjects,
-						   std::vector<std::shared_ptr<GameObject>>& allGameObjects);
+	void RecordCommandsForNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+		ResourceLoader* resourceLoader, std::vector<VkFence> const & inFlightFences,
+		std::vector<std::shared_ptr<GameObject>>& newGameObjects,
+		std::vector<std::shared_ptr<GameObject>>& allGameObjects);
 	
+	void RemoveCommandsForGameObjects(
+		std::vector<VkFence> const& inFlightFences,
+		std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
+
 private:
 	// not owned by us
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
@@ -75,7 +79,10 @@ private:
 	void CreateFramebuffers();
 
 	void AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+		ResourceLoader* resourceLoader,
+		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void RemoveGraphicsPipelinesFromGameObjects(
+		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateDescriptorPoolAndSetsForGameObjects(
