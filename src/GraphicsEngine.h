@@ -42,6 +42,11 @@ public:
 		std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
 		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
 
+	void RemoveCommandsForGameObjects(
+		std::vector<VkFence> const& inFlightFences,
+		std::vector<GameObject*>& gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
+
 private:
 	// not owned by us
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
@@ -83,6 +88,9 @@ private:
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void RemoveGraphicsPipelinesFromGameObjects(
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void RemoveGraphicsPipelinesFromGameObjects(
+		std::vector<GameObject*>& gameObjects);
+
 	void CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateDescriptorPoolAndSetsForGameObjects(

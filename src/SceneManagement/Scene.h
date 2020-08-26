@@ -33,6 +33,8 @@ public:
 		return gameObjects;
 	}
 
+	void RemoveGameObject(GameObject* gameObjectToRemove);
+
 	std::shared_ptr<GameObject> GetPlayerGameObject();
 
 	void SpawnGameObject(std::string const& gameObjectName,

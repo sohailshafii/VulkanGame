@@ -82,6 +82,19 @@ void GraphicsEngine::RemoveCommandsForGameObjects(
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
 }
 
+void GraphicsEngine::RemoveCommandsForGameObjects(
+	std::vector<VkFence> const& inFlightFences,
+	std::vector<GameObject*>& gameObjectsToRemove,
+	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
+	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
+
+	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
+		inFlightFences.data(), VK_TRUE,
+		std::numeric_limits<uint64_t>::max());
+
+	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
+}
+
 GraphicsEngine::~GraphicsEngine() {
 	CleanUpSwapChain();
 }
@@ -221,6 +234,20 @@ void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
 	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	for (auto& gameObject : gameObjects) {
 		gameObjectToPipelineModule.erase(gameObject);
+	}
+}
+
+void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
+	std::vector<GameObject*>& gameObjects) {
+	for (auto gameObject : gameObjects) {
+		for (std::map<std::shared_ptr<GameObject>, PipelineModule*>::iterator
+			it = gameObjectToPipelineModule.begin();
+			it != gameObjectToPipelineModule.end(); ++it) {
+			if (it->first.get() == gameObject) {
+				gameObjectToPipelineModule.erase(it->first);
+				break;
+			}
+		}
 	}
 }
 

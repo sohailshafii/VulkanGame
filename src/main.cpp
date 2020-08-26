@@ -189,6 +189,16 @@ private:
 		mainGameScene->AddGameObject(newGameObject);
 	}
 
+	void RemoveGameObject(GameObject* gameObjectToRemove) {
+		mainGameScene->RemoveGameObject(gameObjectToRemove);
+		auto& allGameObjects = mainGameScene->GetGameObjects();
+		std::vector<GameObject*> gameObjectsToRemove;
+		gameObjectsToRemove.push_back(gameObjectToRemove);
+		graphicsEngine->RemoveCommandsForGameObjects(
+			inFlightFences, gameObjectsToRemove,
+			allGameObjects);
+	}
+
 	void CreateSurface() {
 		if (glfwCreateWindowSurface(instance->GetVkInstance(), window, nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
