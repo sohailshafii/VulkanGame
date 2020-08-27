@@ -23,8 +23,9 @@ MothershipBehavior::~MothershipBehavior() {
 	}
 }
 
-void MothershipBehavior::UpdateSelf(float time, float deltaTime) {
-	UpdateStateMachine(time, deltaTime);
+GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(float time,
+	float deltaTime) {
+	return UpdateStateMachine(time, deltaTime);
 }
 
 void MothershipBehavior::SpawnGameObject() const {
@@ -41,7 +42,8 @@ void MothershipBehavior::Initialize() {
 	currentShipStateBehavior = new ShipIdleStateBehavior();
 }
 
-void MothershipBehavior::UpdateStateMachine(float time, float deltaTime) {
+GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
+	float time, float deltaTime) {
 	auto nextShipState = currentShipStateBehavior->UpdateAndGetNextState(
 		*this, time, deltaTime);
 	if (nextShipState != currentShipStateBehavior) {
@@ -51,5 +53,7 @@ void MothershipBehavior::UpdateStateMachine(float time, float deltaTime) {
 		delete currentShipStateBehavior;
 		currentShipStateBehavior = nextShipState;
 	}
+
+	return GameObjectBehavior::BehaviorStatus::Normal;
 }
 

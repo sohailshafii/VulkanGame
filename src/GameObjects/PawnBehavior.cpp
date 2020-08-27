@@ -20,29 +20,33 @@ PawnBehavior::PawnBehavior(Scene* const scene)
 PawnBehavior::~PawnBehavior() {
 }
 
-void PawnBehavior::UpdateSelf(float time, float deltaTime) {
-	if (scene != nullptr) {
-		auto playerGameObject = scene->GetPlayerGameObject();
-		if (playerGameObject != nullptr) {
-			auto playerWorldPosition =
-				playerGameObject->GetWorldPosition();
-			glm::vec3 pawnPosition = GetWorldPosition();
-			auto vectorToPlayer = playerWorldPosition -
-				pawnPosition;
-			glm::normalize(vectorToPlayer);
-
-			// semi-implicit euler
-			currentVelocity += acceleration * deltaTime;
-			if (currentVelocity > maxVelocityMagnitude) {
-				currentVelocity = maxVelocityMagnitude;
-			}
-			else if (currentVelocity < -maxVelocityMagnitude) {
-				currentVelocity = -maxVelocityMagnitude;
-			}
-			pawnPosition += currentVelocity * vectorToPlayer;
-			modelMatrix[3][0] = pawnPosition[0];
-			modelMatrix[3][1] = pawnPosition[1];
-			modelMatrix[3][2] = pawnPosition[2];
-		}
+GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
+	float deltaTime) {
+	if (scene == nullptr) {
+		return GameObjectBehavior::Normal;
 	}
+	auto playerGameObject = scene->GetPlayerGameObject();
+	if (playerGameObject != nullptr) {
+		auto playerWorldPosition =
+			playerGameObject->GetWorldPosition();
+		glm::vec3 pawnPosition = GetWorldPosition();
+		auto vectorToPlayer = playerWorldPosition -
+			pawnPosition;
+		glm::normalize(vectorToPlayer);
+
+		// semi-implicit euler
+		currentVelocity += acceleration * deltaTime;
+		if (currentVelocity > maxVelocityMagnitude) {
+			currentVelocity = maxVelocityMagnitude;
+		}
+		else if (currentVelocity < -maxVelocityMagnitude) {
+			currentVelocity = -maxVelocityMagnitude;
+		}
+		pawnPosition += currentVelocity * vectorToPlayer;
+		modelMatrix[3][0] = pawnPosition[0];
+		modelMatrix[3][1] = pawnPosition[1];
+		modelMatrix[3][2] = pawnPosition[2];
+	}
+
+	return GameObjectBehavior::Normal;
 }

@@ -6,6 +6,8 @@
 class GameObjectBehavior
 {
 public:
+	enum BehaviorStatus { Normal = 0, Destroyed };
+
 	GameObjectBehavior(Scene * const scene)
 		: scene(scene)
 	{
@@ -23,7 +25,7 @@ public:
 
 	}
 
-	virtual void UpdateSelf(float time, float deltaTime) = 0;
+	virtual BehaviorStatus UpdateSelf(float time, float deltaTime) = 0;
 	
 	void MultiplyByMatrix(glm::mat4 const& newMatrix) {
 		this->modelMatrix *= newMatrix;
@@ -48,8 +50,12 @@ public:
 			modelMatrix[3][2]);
 	}
 
+	void SetScene(Scene* scene) {
+		this->scene = scene;
+	}
+
 protected:
 	glm::mat4 modelMatrix;
 	// we don't own this pointer; should be shared_ptr ideally
-	Scene * const scene;
+	Scene * scene;
 };

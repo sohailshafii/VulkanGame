@@ -1,6 +1,8 @@
 #include "PlayerGameObjectBehavior.h"
 
-void PlayerGameObjectBehavior::UpdateSelf(float time, float deltaTime) {
+GameObjectBehavior::BehaviorStatus PlayerGameObjectBehavior::UpdateSelf(
+	float time, float deltaTime) {
 	this->SetWorldPosition(playerCamera->GetWorldPosition());
+	return GameObjectBehavior::Normal;
 }
 

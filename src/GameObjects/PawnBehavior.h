@@ -12,7 +12,8 @@ public:
 	
 	~PawnBehavior();
 
-	virtual void UpdateSelf(float time, float deltaTime) override;
+	virtual GameObjectBehavior::BehaviorStatus UpdateSelf(float time,
+		float deltaTime) override;
 
 private:
 	static const float acceleration;

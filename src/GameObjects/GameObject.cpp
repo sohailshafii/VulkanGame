@@ -19,7 +19,8 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	gameObjectBehavior(std::move(behavior)),
 	logicalDeviceManager(logicalDeviceManager),
 	descriptorPool(nullptr),
-	initializedInEngine(false) {
+	initializedInEngine(false),
+	markedForDeletion(false) {
 	SetupShaderNames();
 	auto materialType = material->GetMaterialType();
 
@@ -172,7 +173,10 @@ void GameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 }
 
 void GameObject::UpdateState(float time, float deltaTime) {
-	gameObjectBehavior->UpdateSelf(time, deltaTime);
+	auto behaviorStatus = gameObjectBehavior->UpdateSelf(time, deltaTime);
+	if (behaviorStatus == GameObjectBehavior::BehaviorStatus::Destroyed) {
+		markedForDeletion = true;
+	}
 }
 
 // TODO: use push constants, more efficient

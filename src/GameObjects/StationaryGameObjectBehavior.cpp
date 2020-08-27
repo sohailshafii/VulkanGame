@@ -1,6 +1,7 @@
 #include "StationaryGameObjectBehavior.h"
 
-void StationaryGameObjectBehavior::UpdateSelf(float time, float deltaTime) {
-
+GameObjectBehavior::BehaviorStatus StationaryGameObjectBehavior::UpdateSelf(
+	float time, float deltaTime) {
+	return GameObjectBehavior::Normal;
 }
 

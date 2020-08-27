@@ -113,6 +113,14 @@ public:
 	void SetInitializedInEngine(bool value) {
 		initializedInEngine = value;
 	}
+
+	bool GetMarkedForDeletion() const {
+		return markedForDeletion;
+	}
+
+	void SetMarkedForDeletion(bool value) {
+		markedForDeletion = value;
+	}
 	
 	void InitAndCreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 								size_t numSwapChainImages);
@@ -146,6 +154,7 @@ private:
 	std::vector<VkDescriptorSet> descriptorSets;
 
 	bool initializedInEngine;
+	bool markedForDeletion;
 	
 	void SetupShaderNames();
 	

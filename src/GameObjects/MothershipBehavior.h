@@ -14,7 +14,8 @@ public:
 	MothershipBehavior();
 	~MothershipBehavior();
 
-	virtual void UpdateSelf(float time, float deltaTime) override;
+	virtual GameObjectBehavior::BehaviorStatus UpdateSelf(float time,
+		float deltaTime) override;
 
 	void SpawnGameObject() const;
 
@@ -23,5 +24,5 @@ private:
 	float radius;
 
 	void Initialize();
-	void UpdateStateMachine(float time, float deltaTime);
+	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time, float deltaTime);
 };

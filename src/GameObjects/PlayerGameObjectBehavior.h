@@ -23,7 +23,8 @@ public:
 
 	}
 
-	virtual void UpdateSelf(float time, float deltaTime) override;
+	virtual GameObjectBehavior::BehaviorStatus UpdateSelf(float time,
+		float deltaTime) override;
 
 private:
 	std::shared_ptr<Camera> playerCamera;
