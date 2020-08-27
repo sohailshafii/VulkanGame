@@ -35,6 +35,13 @@ public:
 
 	void RemoveGameObject(GameObject* gameObjectToRemove);
 
+	void RemoveGameObject(std::shared_ptr<GameObject> const & gameObjectToRemove);
+
+	void RemoveGameObjects(std::vector<GameObject*> const& gameObjectsToRemove);
+
+	void RemoveGameObjects(std::vector<std::shared_ptr<GameObject>> const &
+		gameObjectsToRemove);
+
 	std::shared_ptr<GameObject> GetPlayerGameObject();
 
 	void SpawnGameObject(std::string const& gameObjectName,

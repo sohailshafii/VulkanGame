@@ -46,6 +46,34 @@ void Scene::RemoveGameObject(GameObject* gameObjectToRemove) {
 	}
 }
 
+void Scene::RemoveGameObject(std::shared_ptr<GameObject> const & gameObjectToRemove) {
+	int removalIndex = -1;
+	for (int i = 0; i < gameObjects.size(); i++) {
+		if (gameObjects[i] == gameObjectToRemove) {
+			removalIndex = i;
+			break;
+		}
+	}
+
+	if (removalIndex != -1) {
+		gameObjects.erase(gameObjects.begin() + removalIndex);
+	}
+}
+
+void Scene::RemoveGameObjects(
+	std::vector<GameObject *> const& gameObjectsToRemove) {
+	for (int i = 0; i < gameObjectsToRemove.size(); i++) {
+		RemoveGameObject(gameObjectsToRemove[i]);
+	}
+}
+
+void Scene::RemoveGameObjects(
+	std::vector<std::shared_ptr<GameObject>> const& gameObjectsToRemove) {
+	for (int i = 0; i < gameObjectsToRemove.size(); i++) {
+		RemoveGameObject(gameObjectsToRemove[i]);
+	}
+}
+
 std::shared_ptr<GameObject> Scene::GetPlayerGameObject() {
 	std::shared_ptr<GameObject> foundPlayer = nullptr;
 

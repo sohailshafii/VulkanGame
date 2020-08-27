@@ -189,11 +189,18 @@ private:
 		mainGameScene->AddGameObject(newGameObject);
 	}
 
-	void RemoveGameObject(GameObject* gameObjectToRemove) {
-		mainGameScene->RemoveGameObject(gameObjectToRemove);
+	void RemoveGameObjects(std::vector<GameObject*> & gameObjectsToRemove) {
+		mainGameScene->RemoveGameObjects(gameObjectsToRemove);
 		auto& allGameObjects = mainGameScene->GetGameObjects();
-		std::vector<GameObject*> gameObjectsToRemove;
-		gameObjectsToRemove.push_back(gameObjectToRemove);
+		graphicsEngine->RemoveCommandsForGameObjects(
+			inFlightFences, gameObjectsToRemove,
+			allGameObjects);
+	}
+
+	void RemoveGameObjects(std::vector<std::shared_ptr<GameObject>>
+		& gameObjectsToRemove) {
+		mainGameScene->RemoveGameObjects(gameObjectsToRemove);
+		auto& allGameObjects = mainGameScene->GetGameObjects();
 		graphicsEngine->RemoveCommandsForGameObjects(
 			inFlightFences, gameObjectsToRemove,
 			allGameObjects);
@@ -347,17 +354,23 @@ private:
 		// TODO: make this event driven to force decoupling
 		auto& gameObjects = mainGameScene->GetGameObjects();
 		std::vector<std::shared_ptr<GameObject>> gameObjectsToInit;
-		for (auto& gameObject : gameObjects)
-		{
-			if (!gameObject->GetInitializedInEngine())
-			{
+		std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
+		for (auto& gameObject : gameObjects) {
+			if (!gameObject->GetInitializedInEngine()) {
 				gameObjectsToInit.push_back(gameObject);
 			}
+			else if (gameObject->GetMarkedForDeletion()) {
+				gameObjectsToRemove.push_back(gameObject);
+			}
 		}
-		if (gameObjectsToInit.size() > 0)
-		{
+
+		if (gameObjectsToInit.size() > 0) {
 			graphicsEngine->RecordCommandsForNewGameObjects(gfxDeviceManager,
 				resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
+		}
+
+		if (gameObjectsToRemove.size() > 0) {
+			RemoveGameObjects(gameObjectsToRemove);
 		}
 	}
 
