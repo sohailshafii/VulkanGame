@@ -201,6 +201,8 @@ private:
 		& gameObjectsToRemove) {
 		mainGameScene->RemoveGameObjects(gameObjectsToRemove);
 		auto& allGameObjects = mainGameScene->GetGameObjects();
+		std::cout << "Removed " << gameObjectsToRemove.size()
+			<< " game objects " << std::endl;
 		graphicsEngine->RemoveCommandsForGameObjects(
 			inFlightFences, gameObjectsToRemove,
 			allGameObjects);

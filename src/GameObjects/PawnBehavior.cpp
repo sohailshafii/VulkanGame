@@ -4,7 +4,6 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
-#include <iostream>
 
 const float PawnBehavior::acceleration = 0.1f;
 const float PawnBehavior::maxVelocityMagnitude = 2.0f;
@@ -32,15 +31,13 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 		return GameObjectBehavior::BehaviorStatus::Normal;
 	}
 
-	// TODO: remove test code
 	auto playerWorldPosition =
-		playerGameObject->GetWorldPosition() - glm::vec3(0.0f, 0.0f, 3.0f);
+		playerGameObject->GetWorldPosition();
 	glm::vec3 pawnPosition = GetWorldPosition();
 	auto vectorToPlayer = playerWorldPosition -
 		pawnPosition;
 
-	if (glm::length(vectorToPlayer) < 0.00f) {
-		std::cout << "close to pawn already!\n";
+	if (glm::length(vectorToPlayer) < 0.001f) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 
@@ -71,7 +68,10 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 	if (planeDistSignBefore * planeDistSignAfter < 0.0f ||
 		fabs(planeDistSignAfter) < 0.00001f) {
 		pawnPosition = playerWorldPosition;
-		std::cout << "reached pawn now!\n";
+		modelMatrix[3][0] = pawnPosition[0];
+		modelMatrix[3][1] = pawnPosition[1];
+		modelMatrix[3][2] = pawnPosition[2];
+		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 
 	modelMatrix[3][0] = pawnPosition[0];
