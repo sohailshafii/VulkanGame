@@ -1,4 +1,5 @@
 #include "ShipFiringLevel1Behavior.h"
+#include "ShipFiringLevel2Behavior.h"
 #include "MothershipBehavior.h"
 #include "ShipIdleStateBehavior.h"
 #include <iostream>
@@ -18,7 +19,12 @@ ShipStateBehavior* ShipFiringLevel1Behavior::UpdateAndGetNextState(
 
 	ShipStateBehavior* nextShipState = this;
 	if (timeToSwitchState < time) {
-		nextShipState = new ShipIdleStateBehavior();
+		if ((rand() % 200) < 150) {
+			nextShipState = new ShipIdleStateBehavior();
+		}
+		else {
+			nextShipState = new ShipFiringLevel2Behavior();
+		}
 	}
 
 	modelMatrix = glm::rotate(motherShip.GetModelMatrix(),

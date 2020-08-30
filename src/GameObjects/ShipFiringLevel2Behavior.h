@@ -16,6 +16,10 @@ public:
 	}
 
 private:
+	float timeToSwitchState;
+	float nextTimeToSpawnPawn;
 	glm::mat4 modelMatrix;
 	glm::vec3 axisOfRotation;
+
+	void InitializeIfNecessary(float time);
 };
