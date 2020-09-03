@@ -107,13 +107,16 @@ private:
 	bool framebufferResized = false;
 
 	ResourceLoader* resourceLoader;
-	Scene* mainGameScene;
+	static Scene* mainGameScene;
 
 	// need to be static for cursor callback function to work
 	static std::shared_ptr<Camera> mainCamera;
 	static bool firstMouse;
 	static float lastX, lastY;
 	static float lastFrameTime;
+
+	static float lastFireTime;
+	static float fireInterval;
 
 	void InitWindow() {
 		glfwInit();
@@ -327,6 +330,15 @@ private:
 		// wait for all operations to finish before cleaning up
 		vkDeviceWaitIdle(logicalDeviceManager->GetDevice());
 	}
+
+	static void FireMainCannon() {
+		if (lastFrameTime > (lastFireTime + fireInterval)) {
+			// TODO: get current frame time
+			lastFireTime = lastFrameTime;
+			mainGameScene->SpawnGameObject(Scene::SpawnType::Bullet,
+				mainCamera->GetWorldPosition());
+		}
+ 	}
 	
 	bool CanAcquireNextPresentableImageIndex(uint32_t& imageIndex) {
 		vkWaitForFences(logicalDeviceManager->GetDevice(), 1, &inFlightFences[currentFrame], VK_TRUE,
@@ -459,10 +471,13 @@ private:
 std::shared_ptr<Camera> HelloTriangleApplication::mainCamera = 
 	std::make_shared<Camera>(glm::vec3(0.0f, 2.0f, 100.0f),
 	-90.0f, 0.0f, 14.5f, 0.035f);
+Scene* HelloTriangleApplication::mainGameScene = nullptr;
 bool HelloTriangleApplication::firstMouse = false;
 float HelloTriangleApplication::lastX = 0.0f;
 float HelloTriangleApplication::lastY = 0.0f;
 float HelloTriangleApplication::lastFrameTime = 0.0f;
+float HelloTriangleApplication::lastFireTime = -1.0f;
+float HelloTriangleApplication::fireInterval = 0.5f;
 
 void HelloTriangleApplication::MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -493,6 +508,9 @@ void HelloTriangleApplication::ProcessInput(GLFWwindow* window, float frameTime)
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		HelloTriangleApplication::mainCamera->MoveRight(frameTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		HelloTriangleApplication::FireMainCannon();
 	}
 }
 

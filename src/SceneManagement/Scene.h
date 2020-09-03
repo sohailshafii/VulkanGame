@@ -15,6 +15,8 @@ class LogicalDeviceManager;
 class Scene
 {
 public:
+	enum SpawnType { Pawn = 0, Bullet };
+
 	Scene(ResourceLoader* resourceLoader,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -44,8 +46,8 @@ public:
 
 	std::shared_ptr<GameObject> GetPlayerGameObject();
 
-	void SpawnGameObject(std::string const& gameObjectName,
-		glm::vec3 spawnPosition);
+	void SpawnGameObject(SpawnType spawnType,
+		glm::vec3 const & spawnPosition);
 
 	void Update(float time, float deltaTime, uint32_t imageIndex,
 		glm::mat4 const& viewMatrix, VkExtent2D swapChainExtent);
@@ -59,5 +61,8 @@ private:
 	GfxDeviceManager* gfxDeviceManager;
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	VkCommandPool commandPool;
+
+	void SpawnPawnGameObject(glm::vec3 const & spawnPosition);
+	void SpawnBulletGameObject(glm::vec3 const& spawnPosition);
 };
 

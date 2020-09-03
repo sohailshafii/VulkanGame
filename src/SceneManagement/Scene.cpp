@@ -90,8 +90,19 @@ std::shared_ptr<GameObject> Scene::GetPlayerGameObject() {
 	return foundPlayer;
 }
 
-void  Scene::SpawnGameObject(std::string const& gameObjectName,
-	glm::vec3 spawnPosition) {
+void Scene::SpawnGameObject(SpawnType spawnType,
+	glm::vec3 const & spawnPosition) {
+	switch (spawnType) {
+		case SpawnType::Pawn:
+			SpawnPawnGameObject(spawnPosition);
+			break;
+		case SpawnType::Bullet:
+			SpawnBulletGameObject(spawnPosition);
+			break;
+	}
+}
+
+void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition) {
 	std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
 		"texture.jpg", resourceLoader, gfxDeviceManager,
@@ -107,6 +118,17 @@ void  Scene::SpawnGameObject(std::string const& gameObjectName,
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	upcomingGameObjects.push_back(newGameObject);
+}
+
+void Scene::SpawnBulletGameObject(glm::vec3 const& spawnPosition) {
+	std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
+		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
+		"texture.jpg", resourceLoader, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
+	std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
+		"cube.obj", resourceLoader);
+	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
+		spawnPosition);
 }
 
 void Scene::Update(float time, float deltaTime, uint32_t imageIndex,
