@@ -4,6 +4,7 @@
 #include "LogicalDeviceManager.h"
 #include "GameObjectCreationUtilFuncs.h"
 #include "PawnBehavior.h"
+#include "BulletBehavior.h"
 #include "GameObject.h"
 #include "PlayerGameObjectBehavior.h"
 #include <iostream>
@@ -129,6 +130,13 @@ void Scene::SpawnBulletGameObject(glm::vec3 const& spawnPosition) {
 		"cube.obj", resourceLoader);
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
 		spawnPosition);
+
+	std::shared_ptr<GameObject> newGameObject =
+		GameObjectCreator::CreateGameObject(gameObjectMaterial,
+			gameObjectModel, std::make_unique<BulletBehavior>(this),
+			localToWorldTransform, resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool);
+	upcomingGameObjects.push_back(newGameObject);
 }
 
 void Scene::Update(float time, float deltaTime, uint32_t imageIndex,
