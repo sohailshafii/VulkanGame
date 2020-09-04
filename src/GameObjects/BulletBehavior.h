@@ -8,7 +8,7 @@ class BulletBehavior : public GameObjectBehavior
 {
 public:
 	BulletBehavior();
-	BulletBehavior(Scene* const scene);
+	BulletBehavior(Scene* const scene, glm::vec3 const & velocityVector);
 	
 	~BulletBehavior();
 
@@ -20,4 +20,5 @@ private:
 	static const float maxVelocityMagnitude;
 
 	float currentVelocity;
+	glm::vec3 velocityVector;
 };

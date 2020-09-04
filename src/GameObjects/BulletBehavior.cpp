@@ -11,10 +11,11 @@ const float BulletBehavior::maxVelocityMagnitude = 4.0f;
 BulletBehavior::BulletBehavior() : currentVelocity(0.0f) {
 }
 
-BulletBehavior::BulletBehavior(Scene* const scene) 
-	: GameObjectBehavior(scene), currentVelocity(0.0f) {
-	int breakVar;
-	breakVar = 1;
+BulletBehavior::BulletBehavior(Scene* const scene,
+	glm::vec3 const& velocityVector)
+	: GameObjectBehavior(scene), currentVelocity(0.0f),
+		velocityVector(velocityVector) {
+	glm::normalize(velocityVector);
 }
 	
 BulletBehavior::~BulletBehavior() {
@@ -25,6 +26,21 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 	if (scene == nullptr) {
 		return GameObjectBehavior::BehaviorStatus::Normal;
 	}
+
+	currentVelocity += acceleration * deltaTime;
+	if (currentVelocity > maxVelocityMagnitude) {
+		currentVelocity = maxVelocityMagnitude;
+	}
+	else if (currentVelocity < -maxVelocityMagnitude) {
+		currentVelocity = -maxVelocityMagnitude;
+	}
+
+	glm::vec3 bulletPosition = GetWorldPosition();
+	bulletPosition += currentVelocity * velocityVector;
+
+	modelMatrix[3][0] = bulletPosition[0];
+	modelMatrix[3][1] = bulletPosition[1];
+	modelMatrix[3][2] = bulletPosition[2];
 
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }

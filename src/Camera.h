@@ -20,6 +20,10 @@ public:
 		return position;
 	}
 
+	glm::vec3 GetForwardDirection() const {
+		return forward;
+	}
+
 	void MoveForward(float deltaTime);
 	void MoveBackward(float deltaTime);
 	void MoveRight(float deltaTime);

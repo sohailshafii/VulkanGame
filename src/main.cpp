@@ -336,7 +336,8 @@ private:
 			// TODO: get current frame time
 			lastFireTime = lastFrameTime;
 			mainGameScene->SpawnGameObject(Scene::SpawnType::Bullet,
-				mainCamera->GetWorldPosition());
+				mainCamera->GetWorldPosition(),
+				mainCamera->GetForwardDirection());
 		}
  	}
 	

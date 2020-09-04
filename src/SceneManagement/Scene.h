@@ -47,7 +47,8 @@ public:
 	std::shared_ptr<GameObject> GetPlayerGameObject();
 
 	void SpawnGameObject(SpawnType spawnType,
-		glm::vec3 const & spawnPosition);
+		glm::vec3 const & spawnPosition,
+		glm::vec3 const& forwardDir);
 
 	void Update(float time, float deltaTime, uint32_t imageIndex,
 		glm::mat4 const& viewMatrix, VkExtent2D swapChainExtent);
@@ -63,6 +64,7 @@ private:
 	VkCommandPool commandPool;
 
 	void SpawnPawnGameObject(glm::vec3 const & spawnPosition);
-	void SpawnBulletGameObject(glm::vec3 const& spawnPosition);
+	void SpawnBulletGameObject(glm::vec3 const& spawnPosition,
+		glm::vec3 const& forwardDir);
 };
 
