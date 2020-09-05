@@ -21,4 +21,6 @@ private:
 
 	float currentVelocity;
 	bool destroyed;
+	bool initialized;
+	glm::vec3 initialVectorToPlayer;
 };

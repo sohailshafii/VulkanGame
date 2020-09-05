@@ -17,7 +17,7 @@ BulletBehavior::BulletBehavior(Scene* const scene,
 	: GameObjectBehavior(scene), currentVelocity(0.0f),
 		velocityVector(velocityVector), distanceTraveled(0.0f),
 		maxDistance(maxDistance), destroyed(false) {
-	glm::normalize(velocityVector);
+	this->velocityVector = glm::normalize(this->velocityVector);
 }
 	
 BulletBehavior::~BulletBehavior() {
@@ -56,7 +56,7 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 		if (pawnBehav != nullptr) {
 			auto pawnPos = pawnBehav->GetWorldPosition();
 			auto vecToPawnPos = bulletPosition - pawnPos;
-			if (glm::length(vecToPawnPos) < 0.01f) {
+			if (glm::length(vecToPawnPos) < 1.0f) {
 				destroyed = true;
 				break;
 			}
