@@ -20,4 +20,5 @@ private:
 	static const float maxVelocityMagnitude;
 
 	float currentVelocity;
+	bool destroyed;
 };

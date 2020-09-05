@@ -12,7 +12,8 @@ PawnBehavior::PawnBehavior() : currentVelocity(0.0f) {
 }
 
 PawnBehavior::PawnBehavior(Scene* const scene) 
-	: GameObjectBehavior(scene), currentVelocity(0.0f) {
+	: GameObjectBehavior(scene), currentVelocity(0.0f),
+	destroyed(false) {
 	int breakVar;
 	breakVar = 1;
 }
@@ -22,6 +23,10 @@ PawnBehavior::~PawnBehavior() {
 
 GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 	float deltaTime) {
+	if (destroyed) {
+		return GameObjectBehavior::BehaviorStatus::Destroyed;
+	}
+
 	if (scene == nullptr) {
 		return GameObjectBehavior::BehaviorStatus::Normal;
 	}
@@ -71,6 +76,7 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 		modelMatrix[3][0] = pawnPosition[0];
 		modelMatrix[3][1] = pawnPosition[1];
 		modelMatrix[3][2] = pawnPosition[2];
+		destroyed = true;
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 
