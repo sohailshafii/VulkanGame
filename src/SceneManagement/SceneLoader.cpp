@@ -44,7 +44,8 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 						  VkCommandPool commandPool);
 
 static void SetupTransformation(const nlohmann::json& transformNode,
-								glm::mat4& localToWorld);
+								glm::mat4& localToWorld, glm::vec3& position,
+								glm::vec3& rotation, glm::vec3& scale);
 
 static std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
 	const nlohmann::json& gameObjectNode,
@@ -195,12 +196,14 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	}
 	
 	auto transformationNode = SafeGetToken(jsonObj, "transformation");
-	glm::mat4 localToWorldTranfsorm(1.0f);
-	SetupTransformation(transformationNode, localToWorldTranfsorm);
+	glm::mat4 localToWorldTransform(1.0f);
+	glm::vec3 position, rotation, scale;
+	SetupTransformation(transformationNode, localToWorldTransform,
+		position, rotation, scale);
 	constructedGameObject = GameObjectCreator::CreateGameObject(
 		newMaterial, gameObjectModel,
 		SetupGameObjectBehavior(jsonObj, scene),
-		localToWorldTranfsorm, resourceLoader, gfxDeviceManager,
+		localToWorldTransform, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 }
 
@@ -236,7 +239,8 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 }
 
 static void SetupTransformation(const nlohmann::json& transformNode,
-								glm::mat4& localToWorld) {
+								glm::mat4& localToWorld, glm::vec3& position,
+								glm::vec3& rotation, glm::vec3& scale) {
 	localToWorld = glm::mat4(1.0f);
 	if (ContainsToken(transformNode, "position")) {
 		auto positionNode = SafeGetToken(transformNode, "position");

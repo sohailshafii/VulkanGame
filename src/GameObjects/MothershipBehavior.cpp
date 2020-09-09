@@ -32,8 +32,9 @@ void MothershipBehavior::SpawnGameObject() const {
 	if (scene != nullptr) {
 		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
 		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
-		glm::vec3 randomPos(radius * cos(randTheta) * sin(randPhi),
-			radius * sin(randTheta) * sin(randPhi), radius * cos(randPhi));
+		glm::vec3 randomPos(radius * sin(randTheta) * sin(randPhi),
+			radius * cos(randPhi),
+			radius * cos(randTheta) * sin(randPhi));
 		scene->SpawnGameObject(Scene::SpawnType::Pawn, randomPos,
 			glm::vec3(0.0f, 0.0f, 1.0f));
 	}

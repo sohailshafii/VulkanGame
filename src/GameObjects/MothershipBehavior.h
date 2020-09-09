@@ -10,6 +10,7 @@ class GameObject;
 class MothershipBehavior : public GameObjectBehavior
 {
 public:
+	// TODO: apply local-to-world scale to radius
 	MothershipBehavior(Scene * const scene, float radius);
 	MothershipBehavior();
 	~MothershipBehavior();

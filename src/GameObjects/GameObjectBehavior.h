@@ -55,6 +55,8 @@ public:
 	}
 
 protected:
+	// TODO: isolate position, rotation, and scale
+	// because a model matrix will mix up rotation and scale
 	glm::mat4 modelMatrix;
 	// we don't own this pointer; should be shared_ptr ideally
 	Scene * scene;
