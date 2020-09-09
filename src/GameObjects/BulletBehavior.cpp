@@ -56,8 +56,9 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 		if (pawnBehav != nullptr) {
 			auto pawnPos = pawnBehav->GetWorldPosition();
 			auto vecToPawnPos = bulletPosition - pawnPos;
-			if (glm::length(vecToPawnPos) < 1.0f) {
+			if (glm::length(vecToPawnPos) < 2.0f) {
 				destroyed = true;
+				pawnBehav->Destroy();
 				break;
 			}
 		}

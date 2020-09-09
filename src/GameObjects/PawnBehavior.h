@@ -12,6 +12,10 @@ public:
 	
 	~PawnBehavior();
 
+	void Destroy() {
+		destroyed = true;
+	}
+
 	virtual GameObjectBehavior::BehaviorStatus UpdateSelf(float time,
 		float deltaTime) override;
 
