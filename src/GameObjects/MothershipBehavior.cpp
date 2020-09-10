@@ -23,8 +23,8 @@ MothershipBehavior::~MothershipBehavior() {
 	}
 }
 
-GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(float time,
-	float deltaTime) {
+GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(
+	float time, float deltaTime) {
 	return UpdateStateMachine(time, deltaTime);
 }
 
@@ -32,9 +32,10 @@ void MothershipBehavior::SpawnGameObject() const {
 	if (scene != nullptr) {
 		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
 		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
-		glm::vec3 randomPos(radius * sin(randTheta) * sin(randPhi),
-			radius * cos(randPhi),
-			radius * cos(randTheta) * sin(randPhi));
+		float adjustedRadius = radius * 0.7f;
+		glm::vec3 randomPos(adjustedRadius * sin(randTheta) * sin(randPhi),
+			adjustedRadius * cos(randPhi),
+			adjustedRadius * cos(randTheta) * sin(randPhi));
 		scene->SpawnGameObject(Scene::SpawnType::Pawn, randomPos,
 			glm::vec3(0.0f, 0.0f, 1.0f));
 	}

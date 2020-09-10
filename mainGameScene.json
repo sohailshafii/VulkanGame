@@ -15,7 +15,7 @@
 		{
 			"model":"Procedural",
 			"type":"Mothership",
-			"ship_radius":20.0,
+			"ship_radius":100.0,
 			"material":
 			{
 				"type":"UnlitTintedTextured",

@@ -44,8 +44,7 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 						  VkCommandPool commandPool);
 
 static void SetupTransformation(const nlohmann::json& transformNode,
-								glm::mat4& localToWorld, glm::vec3& position,
-								glm::vec3& rotation, glm::vec3& scale);
+								glm::mat4& localToWorld);
 
 static std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
 	const nlohmann::json& gameObjectNode,
@@ -197,12 +196,11 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	
 	auto transformationNode = SafeGetToken(jsonObj, "transformation");
 	glm::mat4 localToWorldTransform(1.0f);
-	glm::vec3 position, rotation, scale;
-	SetupTransformation(transformationNode, localToWorldTransform,
-		position, rotation, scale);
+	SetupTransformation(transformationNode, localToWorldTransform);
+	std::unique_ptr<GameObjectBehavior> gameObjectBehavior =
+		SetupGameObjectBehavior(jsonObj, scene);
 	constructedGameObject = GameObjectCreator::CreateGameObject(
-		newMaterial, gameObjectModel,
-		SetupGameObjectBehavior(jsonObj, scene),
+		newMaterial, gameObjectModel, std::move(gameObjectBehavior),
 		localToWorldTransform, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 }
@@ -239,35 +237,38 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 }
 
 static void SetupTransformation(const nlohmann::json& transformNode,
-								glm::mat4& localToWorld, glm::vec3& position,
-								glm::vec3& rotation, glm::vec3& scale) {
+								glm::mat4& localToWorld) {
 	localToWorld = glm::mat4(1.0f);
 	if (ContainsToken(transformNode, "position")) {
 		auto positionNode = SafeGetToken(transformNode, "position");
+		auto position = glm::vec3((float)positionNode[0],
+					(float)positionNode[1],
+					(float)positionNode[2]);
 		localToWorld = glm::translate(localToWorld,
-									  glm::vec3((float)positionNode[0],
-												(float)positionNode[1],
-												(float)positionNode[2]));
+			position);
 	}
 	if (ContainsToken(transformNode, "rotation")) {
 		auto rotationNode = SafeGetToken(transformNode, "rotation");
+		auto rotation = glm::vec3((float)rotationNode[0],
+			(float)rotationNode[1], (float)rotationNode[2]);
 		localToWorld = glm::rotate(localToWorld,
-									  glm::radians((float)rotationNode[0]),
-									  glm::vec3(1.0f, 0.0f, 0.0f));
+									glm::radians(rotation[0]),
+									glm::vec3(1.0f, 0.0f, 0.0f));
 		localToWorld = glm::rotate(localToWorld,
-									  glm::radians((float)rotationNode[1]),
-									  glm::vec3(0.0f, 1.0f, 0.0f));
+									glm::radians(rotation[1]),
+									glm::vec3(0.0f, 1.0f, 0.0f));
 		localToWorld = glm::rotate(localToWorld,
-									  glm::radians((float)rotationNode[2]),
-									  glm::vec3(0.0f, 0.0f, 1.0f));
+									glm::radians(rotation[2]),
+									glm::vec3(0.0f, 0.0f, 1.0f));
 		
 	}
 	if (ContainsToken(transformNode, "scale")) {
 		auto scaleNode = SafeGetToken(transformNode, "scale");
+		auto scale = glm::vec3((float)scaleNode[0], (float)scaleNode[1],
+			(float)scaleNode[2]);
 		localToWorld = glm::scale(localToWorld,
-								  glm::vec3((float)scaleNode[0],
-											(float)scaleNode[1],
-											(float)scaleNode[2]));
+									glm::vec3(scale[0], scale[1],
+									scale[2]));
 	}
 }
 
