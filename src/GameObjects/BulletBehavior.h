@@ -25,4 +25,6 @@ private:
 	float distanceTraveled;
 	float maxDistance;
 	bool destroyed;
+
+	void CheckForCollisions(glm::vec3 const & bulletPosition);
 };

@@ -1,5 +1,6 @@
 #include "BulletBehavior.h"
 #include "PawnBehavior.h"
+#include "MothershipBehavior.h"
 #include "GameObject.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -48,6 +49,19 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 
+	
+	if (destroyed) {
+		return GameObjectBehavior::BehaviorStatus::Destroyed;
+	}
+
+	modelMatrix[3][0] = bulletPosition[0];
+	modelMatrix[3][1] = bulletPosition[1];
+	modelMatrix[3][2] = bulletPosition[2];
+
+	return GameObjectBehavior::BehaviorStatus::Normal;
+}
+
+void BulletBehavior::CheckForCollisions(glm::vec3 const & bulletPosition) {
 	std::vector<std::shared_ptr<GameObject>>& gameObjects =
 		scene->GetGameObjects();
 	for (std::shared_ptr<GameObject> const& gameObject : gameObjects) {
@@ -62,14 +76,21 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 				break;
 			}
 		}
-	}
-	if (destroyed) {
-		return GameObjectBehavior::BehaviorStatus::Destroyed;
-	}
 
-	modelMatrix[3][0] = bulletPosition[0];
-	modelMatrix[3][1] = bulletPosition[1];
-	modelMatrix[3][2] = bulletPosition[2];
-
-	return GameObjectBehavior::BehaviorStatus::Normal;
+		// TODO: fix, does not work
+		// there might be cases where we might hit mothership first in
+		// loop even though it is further away than a pawn. but that's
+		// unlikely. until we have real physics this is OK
+		MothershipBehavior* motherBehav =
+			dynamic_cast<MothershipBehavior*>(behavInst);
+		if (motherBehav != nullptr) {
+			auto motherPosition = motherBehav->GetWorldPosition();
+			auto vecToMother = bulletPosition - motherPosition;
+			if (glm::length(vecToMother) < motherBehav->GetRadius()) {
+				motherBehav->TakeDamage(10);
+				destroyed = true;
+				break;
+			}
+		}
+	}
 }

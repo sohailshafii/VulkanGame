@@ -19,9 +19,22 @@ public:
 
 	void SpawnGameObject() const;
 
+	float GetRadius() const {
+		return radius;
+	}
+
+	void TakeDamage(int damage);
+
+	int GetCurrentHealth() const {
+		return currentHealth;
+	}
+
 private:
+	static const int maxHealth;
+
 	ShipStateBehavior *currentShipStateBehavior;
 	float radius;
+	int currentHealth;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time, float deltaTime);

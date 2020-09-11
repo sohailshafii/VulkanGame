@@ -6,13 +6,15 @@
 #include <iostream>
 #include <cmath>
 
+const int MothershipBehavior::maxHealth = 300;
+
 MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
-	: GameObjectBehavior(scene), radius(radius) {
+	: GameObjectBehavior(scene), radius(radius), currentHealth(maxHealth) {
 	Initialize();
 }
 
 MothershipBehavior::MothershipBehavior()
-	: GameObjectBehavior()
+	: GameObjectBehavior(), currentHealth(maxHealth)
 {
 	Initialize();
 }
@@ -43,6 +45,20 @@ void MothershipBehavior::SpawnGameObject() const {
 
 void MothershipBehavior::Initialize() {
 	currentShipStateBehavior = new ShipIdleStateBehavior();
+}
+
+void MothershipBehavior::TakeDamage(int damage) {
+	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
+		!= nullptr) {
+		return;
+		// TODO: react to not being able to take damage
+		// TODO: react to damage
+	}
+	currentHealth -= damage;
+	if (currentHealth < 0) {
+		currentHealth = 0;
+	}
+	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
 }
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
