@@ -48,7 +48,7 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 		destroyed = true;
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
-
+	CheckForCollisions(bulletPosition);
 	
 	if (destroyed) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
