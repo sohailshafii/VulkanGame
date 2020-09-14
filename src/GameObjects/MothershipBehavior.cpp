@@ -63,6 +63,10 @@ void MothershipBehavior::TakeDamage(int damage) {
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	float time, float deltaTime) {
+	if (currentHealth == 0) {
+		return GameObjectBehavior::BehaviorStatus::Destroyed;
+	}
+
 	auto nextShipState = currentShipStateBehavior->UpdateAndGetNextState(
 		*this, time, deltaTime);
 	if (nextShipState != currentShipStateBehavior) {

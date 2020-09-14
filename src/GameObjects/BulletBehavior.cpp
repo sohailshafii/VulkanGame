@@ -77,7 +77,6 @@ void BulletBehavior::CheckForCollisions(glm::vec3 const & bulletPosition) {
 			}
 		}
 
-		// TODO: fix, does not work
 		// there might be cases where we might hit mothership first in
 		// loop even though it is further away than a pawn. but that's
 		// unlikely. until we have real physics this is OK
