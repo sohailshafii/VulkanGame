@@ -333,7 +333,6 @@ private:
 
 	static void FireMainCannon() {
 		if (lastFrameTime > (lastFireTime + fireInterval)) {
-			// TODO: get current frame time
 			lastFireTime = lastFrameTime;
 			mainGameScene->SpawnGameObject(Scene::SpawnType::Bullet,
 				mainCamera->GetWorldPosition(),
