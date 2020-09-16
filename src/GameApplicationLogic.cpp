@@ -1,13 +1,16 @@
 #include "GameApplicationLogic.h"
 #include <string>
+#include "Camera.h"
 #include "VulkanInstance.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "GraphicsEngine.h"
 #include "ResourceLoader.h"
+#include "GraphicsEngine.h"
+#include "SwapChainManager.h"
+#include "CommonBufferModule.h"
 #include "SceneManagement/Scene.h"
 #include "SceneManagement/SceneLoader.h"
-#include "Camera.h"
 #include "GameObjects/GameObject.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
@@ -34,7 +37,10 @@ float GameApplicationLogic::lastFireTime = -1.0f;
 float GameApplicationLogic::fireInterval = 0.5f;
 
 void GameApplicationLogic::Run() {
-	// TODO
+	InitWindow();
+	InitVulkan();
+	MainLoop();
+	CleanUp();
 }
 
 void GameApplicationLogic::MouseCallback(GLFWwindow* window,
@@ -298,19 +304,132 @@ void GameApplicationLogic::FireMainCannon() {
 
 bool GameApplicationLogic::CanAcquireNextPresentableImageIndex(
 	uint32_t& imageIndex) {
-	return false; // TODO
+	vkWaitForFences(logicalDeviceManager->GetDevice(), 1,
+		&inFlightFences[currentFrame], VK_TRUE,
+		std::numeric_limits<uint64_t>::max());
+
+	VkResult result = vkAcquireNextImageKHR(logicalDeviceManager->GetDevice(),
+		graphicsEngine->GetSwapChainManager()->GetSwapChain(),
+		std::numeric_limits<uint64_t>::max(),
+		imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		RecreateSwapChain();
+		return false;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		throw std::runtime_error("Failed to acquire swap chain image!");
+	}
+
+	return true;
 }
 
 void GameApplicationLogic::UpdateGameState(float time,
 	float deltaTime, uint32_t imageIndex) {
-	// TODO
+	mainGameScene->Update(time, deltaTime, imageIndex,
+		GameApplicationLogic::mainCamera->ConstructViewMatrix(),
+		graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
+
+	// TODO: make this event driven to force decoupling
+	auto& gameObjects = mainGameScene->GetGameObjects();
+	std::vector<std::shared_ptr<GameObject>> gameObjectsToInit;
+	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
+	for (auto& gameObject : gameObjects) {
+		if (!gameObject->GetInitializedInEngine()) {
+			gameObjectsToInit.push_back(gameObject);
+		}
+		else if (gameObject->GetMarkedForDeletion()) {
+			gameObjectsToRemove.push_back(gameObject);
+		}
+	}
+
+	if (gameObjectsToInit.size() > 0) {
+		graphicsEngine->RecordCommandsForNewGameObjects(gfxDeviceManager,
+			resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
+	}
+
+	if (gameObjectsToRemove.size() > 0) {
+		RemoveGameObjects(gameObjectsToRemove);
+	}
 }
 
 void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
-	// TODO
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &(graphicsEngine->GetCommandBufferModule()->GetCommandBuffers()[imageIndex]);
+
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	vkResetFences(logicalDeviceManager->GetDevice(), 1, &inFlightFences[currentFrame]);
+
+	VkResult submitResult = vkQueueSubmit(logicalDeviceManager->GetGraphicsQueue(),
+		1, &submitInfo, inFlightFences[currentFrame]);
+	if (submitResult != VK_SUCCESS) {
+		std::cerr << "Submit result: " << submitResult << std::endl;
+		throw std::runtime_error("Failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { graphicsEngine->GetSwapChainManager()->GetSwapChain() };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+
+	presentInfo.pResults = nullptr;
+
+	VkResult result = vkQueuePresentKHR(logicalDeviceManager->GetPresentQueue(), &presentInfo);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result ==
+		VK_SUBOPTIMAL_KHR || framebufferResized) {
+		framebufferResized = false;
+		RecreateSwapChain();
+	}
+	else if (result != VK_SUCCESS) {
+		throw std::runtime_error("Failed to present swap chain image!");
+	}
+
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void GameApplicationLogic::CleanUp() {
-	// TODO
+	delete resourceLoader;
+
+	delete graphicsEngine;
+
+	// delete game obejcts before main game scene is removed
+	delete mainGameScene;
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(logicalDeviceManager->GetDevice(), renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(logicalDeviceManager->GetDevice(), imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(logicalDeviceManager->GetDevice(), inFlightFences[i], nullptr);
+	}
+	vkDestroyCommandPool(logicalDeviceManager->GetDevice(), commandPool, nullptr);
+
+	logicalDeviceManager.reset();
+
+	vkDestroySurfaceKHR(instance->GetVkInstance(), surface, nullptr);
+
+	delete gfxDeviceManager;
+
+	delete instance;
+
+	glfwDestroyWindow(window);
+
+	glfwTerminate();
 }
 
