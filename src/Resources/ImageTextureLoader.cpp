@@ -10,6 +10,9 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 ImageTextureLoader::ImageTextureLoader(const std::string& path,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
