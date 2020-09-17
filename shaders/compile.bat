@@ -10,7 +10,7 @@ glslc.exe ./WavySurface.frag -o ./WavySurfaceFrag.spv
 glslc.exe ./BumpySurface.vert -o ./BumpySurfaceVert.spv
 glslc.exe ./BumpySurface.frag -o ./BumpySurfaceFrag.spv
 
-glslc.exe ./MotherShip.vert -o ./MotherShip.spv
-glslc.exe ./MotherShip.frag -o ./MotherShip.spv
+glslc.exe ./MotherShip.vert -o ./MotherShipVert.spv
+glslc.exe ./MotherShip.frag -o ./MotherShipFrag.spv
 
 pause

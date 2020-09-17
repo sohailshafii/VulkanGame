@@ -15,6 +15,10 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateDescriptorSetLayout(VkDevice
 			descriptorSetLayout = CreateUnlitTintedTexturedDescriptorSetLayout(
 				device);
 			break;
+		case MaterialType::MotherShip:
+			descriptorSetLayout = CreateUnlitTintedTexturedDescriptorSetLayout(
+				device);
+			break;
 		case MaterialType::WavySurface:
 			descriptorSetLayout = CreateWavySurfaceDescriptorSetLayout(device);
 			break;
@@ -38,6 +42,12 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 				bufferInfoVert, bufferInfoFrag);
 			break;
 		case MaterialType::UnlitTintedTextured:
+			UpdateDescriptorSetUnlitTintedTextured(device, descriptorSet,
+				imageTextureLoader->GetTextureImageView(),
+				imageTextureLoader->GetTextureImageSampler(),
+				bufferInfoVert);
+			break;
+		case MaterialType::MotherShip:
 			UpdateDescriptorSetUnlitTintedTextured(device, descriptorSet,
 				imageTextureLoader->GetTextureImageView(),
 				imageTextureLoader->GetTextureImageSampler(),
@@ -68,6 +78,10 @@ VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPool(VkDevice device, M
 		case MaterialType::UnlitTintedTextured:
 			descriptorPool = CreateDescriptorPoolUnlitTintedTextured(device,
 																numSwapChainImages);
+			break;
+		case MaterialType::MotherShip:
+			descriptorPool = CreateDescriptorPoolUnlitTintedTextured(device,
+				numSwapChainImages);
 			break;
 		case MaterialType::WavySurface:
 			descriptorPool = CreateDescriptorPoolWavySurface(device,

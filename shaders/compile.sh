@@ -13,5 +13,5 @@ glslc ./BumpySurface.frag -o ./BumpySurfaceFrag.spv
 glslc ./BumpySurface.vert -o ./BumpySurfaceVert.spv
 glslc ./BumpySurface.frag -o ./BumpySurfaceFrag.spv
 
-glslc ./MotherShip.vert -o ./MotherShip.spv
-glslc ./MotherShip.frag -o ./MotherShip.spv
+glslc ./MotherShip.vert -o ./MotherShipVert.spv
+glslc ./MotherShip.frag -o ./MotherShipFrag.spv

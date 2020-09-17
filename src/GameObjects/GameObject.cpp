@@ -35,6 +35,10 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
 							commandPool);
 	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::MotherShip) {
+		CreateVertexBuffer(model->BuildAndReturnVertsPosColorTexCoord(), gfxDeviceManager,
+			commandPool);
+	}
 	else if (materialType == DescriptorSetFunctions::MaterialType::WavySurface) {
 		CreateVertexBuffer(model->BuildAndReturnVertsPosNormalColorTexCoord(), gfxDeviceManager,
 							commandPool);
@@ -89,6 +93,10 @@ void GameObject::SetupShaderNames() {
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 			vertexShaderName = "UnlitColorVert.spv";
 			fragmentShaderName = "UnlitColorFrag.spv";
+			break;
+		case DescriptorSetFunctions::MaterialType::MotherShip:
+			vertexShaderName = "MotherShip.spv";
+			fragmentShaderName = "MotherShip.spv";
 			break;
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
 			vertexShaderName = "UnlitTintedTexturedVert.spv";
@@ -188,6 +196,7 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+		case DescriptorSetFunctions::MaterialType::MotherShip:
 			UpdateUniformBufferModelViewProj(imageIndex, viewMatrix,
 											time, deltaTime, swapChainExtent);
 			break;
@@ -258,6 +267,7 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+		case DescriptorSetFunctions::MaterialType::MotherShip:
 			return sizeof(UniformBufferObjectModelViewProj);
 			break;
 		default:

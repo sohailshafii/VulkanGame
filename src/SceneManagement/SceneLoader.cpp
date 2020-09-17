@@ -230,6 +230,9 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	else if (materialToken == "BumpySurface") {
 		materialEnumType = DescriptorSetFunctions::MaterialType::BumpySurface;
 	}
+	else if (materialToken == "MotherShip") {
+		materialEnumType = DescriptorSetFunctions::MaterialType::MotherShip;
+	}
 	
 	material = GameObjectCreator::CreateMaterial(materialEnumType,
 		mainTextureName, resourceLoader, gfxDeviceManager,
