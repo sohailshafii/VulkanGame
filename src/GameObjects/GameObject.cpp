@@ -95,8 +95,8 @@ void GameObject::SetupShaderNames() {
 			fragmentShaderName = "UnlitColorFrag.spv";
 			break;
 		case DescriptorSetFunctions::MaterialType::MotherShip:
-			vertexShaderName = "MotherShip.spv";
-			fragmentShaderName = "MotherShip.spv";
+			vertexShaderName = "MotherShipVert.spv";
+			fragmentShaderName = "MotherShipFrag.spv";
 			break;
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
 			vertexShaderName = "UnlitTintedTexturedVert.spv";

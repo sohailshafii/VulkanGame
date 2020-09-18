@@ -4,6 +4,7 @@
 #include "ShipStateBehavior.h"
 #include <glm/glm.hpp>
 #include <memory>
+#include <stack>
 
 class GameObject;
 
@@ -23,7 +24,7 @@ public:
 		return radius;
 	}
 
-	void TakeDamage(int damage);
+	void TakeDamage(int damage, glm::vec3 const& hitPosition);
 
 	int GetCurrentHealth() const {
 		return currentHealth;
@@ -35,6 +36,7 @@ private:
 	ShipStateBehavior *currentShipStateBehavior;
 	float radius;
 	int currentHealth;
+	std::stack<glm::vec3> ripplePositions;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time, float deltaTime);

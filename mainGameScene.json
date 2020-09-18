@@ -18,7 +18,7 @@
 			"ship_radius":100.0,
 			"material":
 			{
-				"type":"UnlitTintedTextured",
+				"type":"MotherShip",
 				"main_texture":"texture.jpg"
 			},
 			"transformation":

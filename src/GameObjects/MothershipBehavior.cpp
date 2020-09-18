@@ -27,6 +27,12 @@ MothershipBehavior::~MothershipBehavior() {
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(
 	float time, float deltaTime) {
+	if (ripplePositions.size() > 0) {
+		glm::vec3 newRipplePosition = ripplePositions.top();
+		ripplePositions.pop();
+		// TODO: affect material somehow; link behavior with game object
+	}
+
 	return UpdateStateMachine(time, deltaTime);
 }
 
@@ -47,14 +53,20 @@ void MothershipBehavior::Initialize() {
 	currentShipStateBehavior = new ShipIdleStateBehavior();
 }
 
-void MothershipBehavior::TakeDamage(int damage) {
+void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
+	glm::vec3 worldPosition = GetWorldPosition();
+	glm::vec3 vectorFromCenter = glm::normalize(hitPosition - worldPosition);
+	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
+
 	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
 		!= nullptr) {
 		return;
 		// TODO: react to not being able to take damage
-		// TODO: react to damage
+
 	}
 	currentHealth -= damage;
+	// ripple near where damage was dealt
+	ripplePositions.push(surfacePoint);
 	if (currentHealth < 0) {
 		currentHealth = 0;
 	}
