@@ -23,6 +23,7 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	markedForDeletion(false) {
 	SetupShaderNames();
 	auto materialType = material->GetMaterialType();
+	gameObjectBehavior->SetGameObject(this);
 
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(
 		logicalDeviceManager->GetDevice(), materialType);

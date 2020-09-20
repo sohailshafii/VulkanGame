@@ -3,26 +3,19 @@
 #include <glm/glm.hpp>
 #include "SceneManagement/Scene.h"
 
-class GameObjectBehavior
-{
+class GameObjectBehavior {
 public:
 	enum BehaviorStatus { Normal = 0, Destroyed };
 
 	GameObjectBehavior(Scene * const scene)
-		: scene(scene)
-	{
-
+		: scene(scene) {
 	}
 
 	GameObjectBehavior()
-		: scene(nullptr)
-	{
-
+		: scene(nullptr) {
 	}
 	
-	virtual ~GameObjectBehavior()
-	{
-
+	virtual ~GameObjectBehavior() {
 	}
 
 	virtual BehaviorStatus UpdateSelf(float time, float deltaTime) = 0;
@@ -54,9 +47,18 @@ public:
 		this->scene = scene;
 	}
 
+	void SetGameObject(GameObject* gameObject) {
+		this->gameObject = gameObject;
+	}
+
 protected:
 	// because a model matrix will mix up rotation and scale
 	glm::mat4 modelMatrix;
-	// we don't own this pointer; should be shared_ptr ideally
+	// we don't own this pointer; should be shared_ptr ideally?
+	// the problem is that we want to de-allocate objects in a certain order
+	// because an object relies on a vulkan logic device, the latter of which
+	// should be deleted after. Need to enforce proper destruction order somehow
+	// with shared pointers as opposed to using classical pointers.
 	Scene * scene;
+	class GameObject* gameObject;
 };
