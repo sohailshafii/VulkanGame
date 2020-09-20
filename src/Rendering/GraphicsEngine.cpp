@@ -77,7 +77,7 @@ void GraphicsEngine::RemoveCommandsForGameObjects(
 
 	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
 		inFlightFences.data(), VK_TRUE,
-		std::numeric_limits<uint64_t>::max());
+		(uint32_t)std::numeric_limits<uint64_t>::max());
 
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
 }
@@ -90,7 +90,7 @@ void GraphicsEngine::RemoveCommandsForGameObjects(
 
 	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
 		inFlightFences.data(), VK_TRUE,
-		std::numeric_limits<uint64_t>::max());
+		(uint32_t)std::numeric_limits<uint64_t>::max());
 
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
 }
