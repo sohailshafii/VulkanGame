@@ -73,3 +73,7 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }
+
+void PawnBehavior::GetUBOInformation(void** uboData, size_t& uboSize) {
+	// TODO
+}

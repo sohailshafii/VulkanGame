@@ -6,3 +6,7 @@ GameObjectBehavior::BehaviorStatus PlayerGameObjectBehavior::UpdateSelf(
 	return GameObjectBehavior::Normal;
 }
 
+void PlayerGameObjectBehavior::GetUBOInformation(void** uboData,
+	size_t& uboSize) {
+	// TODO
+}

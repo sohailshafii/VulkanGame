@@ -30,6 +30,8 @@ public:
 		return currentHealth;
 	}
 
+	virtual void GetUBOInformation(void** uboData, size_t& uboSize) override;
+
 private:
 	static const int maxHealth;
 

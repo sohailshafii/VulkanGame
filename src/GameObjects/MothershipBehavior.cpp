@@ -73,6 +73,10 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
 }
 
+void MothershipBehavior::GetUBOInformation(void** uboData, size_t& uboSize) {
+	// TODO
+}
+
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	float time, float deltaTime) {
 	if (currentHealth == 0) {

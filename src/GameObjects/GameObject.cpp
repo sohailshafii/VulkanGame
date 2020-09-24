@@ -295,10 +295,12 @@ void GameObject::UpdateUniformBufferModelViewProj(uint32_t imageIndex,
 	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
+	vkMapMemory(logicalDeviceManager->GetDevice(),
+		uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
 		sizeof(ubo), 0, &data);
 	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
+	vkUnmapMemory(logicalDeviceManager->GetDevice(),
+		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 }
 
 void GameObject::UpdateUniformBufferModelViewProjRipple(uint32_t imageIndex,

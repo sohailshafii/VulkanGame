@@ -51,8 +51,9 @@ public:
 		this->gameObject = gameObject;
 	}
 
-	// behavior class might have special information that
-	// needs to be passed to shader.
+	// provide specific information to callers about UBO.
+	// depends on material used
+	virtual void GetUBOInformation(void** uboData, size_t& uboSize) = 0;
 
 protected:
 	// because a model matrix will mix up rotation and scale

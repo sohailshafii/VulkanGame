@@ -5,3 +5,7 @@ GameObjectBehavior::BehaviorStatus StationaryGameObjectBehavior::UpdateSelf(
 	return GameObjectBehavior::Normal;
 }
 
+void StationaryGameObjectBehavior::GetUBOInformation(void** uboData,
+	size_t& uboSize) {
+	// TODO
+}
