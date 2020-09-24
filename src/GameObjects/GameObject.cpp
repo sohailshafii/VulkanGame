@@ -197,8 +197,10 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-		case DescriptorSetFunctions::MaterialType::MotherShip:
 			UpdateUniformBufferModelViewProj(imageIndex, viewMatrix,
+				time, deltaTime, swapChainExtent);
+		case DescriptorSetFunctions::MaterialType::MotherShip:
+			UpdateUniformBufferModelViewProjRipple(imageIndex, viewMatrix,
 											time, deltaTime, swapChainExtent);
 			break;
 		default:
@@ -268,8 +270,10 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-		case DescriptorSetFunctions::MaterialType::MotherShip:
 			return sizeof(UniformBufferObjectModelViewProj);
+			break;
+		case DescriptorSetFunctions::MaterialType::MotherShip:
+			return sizeof(UniformBufferObjectModelViewProjRipple);
 			break;
 		default:
 			return sizeof(UniformBufferObjectModelViewProjTime);
@@ -295,6 +299,28 @@ void GameObject::UpdateUniformBufferModelViewProj(uint32_t imageIndex,
 		sizeof(ubo), 0, &data);
 	memcpy(data, &ubo, sizeof(ubo));
 	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
+}
+
+void GameObject::UpdateUniformBufferModelViewProjRipple(uint32_t imageIndex,
+	const glm::mat4& viewMatrix,
+	float time,
+	float deltaTime,
+	VkExtent2D swapChainExtent)
+{
+	UniformBufferObjectModelViewProjRipple ubo = {};
+	ubo.model = gameObjectBehavior->GetModelMatrix();
+	ubo.view = viewMatrix;
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
+		(float)swapChainExtent.height, 0.1f, 1000.0f);
+	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
+
+	void* data;
+	vkMapMemory(logicalDeviceManager->GetDevice(),
+		uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
+		sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(logicalDeviceManager->GetDevice(),
+		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 }
 
 void GameObject::UpdateUniformBufferModelViewProjTime(uint32_t imageIndex,

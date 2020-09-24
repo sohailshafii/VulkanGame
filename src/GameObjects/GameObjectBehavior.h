@@ -51,6 +51,9 @@ public:
 		this->gameObject = gameObject;
 	}
 
+	// behavior class might have special information that
+	// needs to be passed to shader.
+
 protected:
 	// because a model matrix will mix up rotation and scale
 	glm::mat4 modelMatrix;

@@ -19,6 +19,14 @@ struct UniformBufferObjectModelViewProjTime {
 	alignas(16) float time;
 };
 
+struct UniformBufferObjectModelViewProjRipple {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
+	alignas(16) glm::vec3 ripplePoints[10];
+	alignas(16) glm::vec3 isRipple[10];
+};
+
 struct UniformBufferFragUnlitColor {
 	alignas(16) glm::vec4 objectColor;
 };

@@ -181,6 +181,11 @@ private:
 										float time,
 										float deltaTime,
 										VkExtent2D swapChainExtent);
+	void UpdateUniformBufferModelViewProjRipple(uint32_t imageIndex,
+												const glm::mat4& viewMatrix,
+												float time,
+												float deltaTime,
+												VkExtent2D swapChainExtent);
 	void UpdateUniformBufferModelViewProjTime(uint32_t imageIndex,
 											const glm::mat4& viewMatrix,
 											float time,
