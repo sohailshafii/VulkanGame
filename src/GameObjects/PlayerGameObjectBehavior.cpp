@@ -5,8 +5,3 @@ GameObjectBehavior::BehaviorStatus PlayerGameObjectBehavior::UpdateSelf(
 	this->SetWorldPosition(playerCamera->GetWorldPosition());
 	return GameObjectBehavior::Normal;
 }
-
-void PlayerGameObjectBehavior::GetUBOInformation(void** uboData,
-	size_t& uboSize) {
-	// TODO
-}

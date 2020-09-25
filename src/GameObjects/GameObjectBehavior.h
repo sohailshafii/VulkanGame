@@ -53,7 +53,8 @@ public:
 
 	// provide specific information to callers about UBO.
 	// depends on material used
-	virtual void GetUBOInformation(void** uboData, size_t& uboSize) = 0;
+	void* GetUBOData(size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix, float time, float deltaTime);
 
 protected:
 	// because a model matrix will mix up rotation and scale
@@ -65,4 +66,22 @@ protected:
 	// with shared pointers as opposed to using classical pointers.
 	Scene * scene;
 	class GameObject* gameObject;
+
+	// these can be overwritten by inheritors
+	// assuming specific behaviors want to write to UBOs differently
+	virtual void* GetUniformBufferModelViewProj(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void* GetUniformBufferModelViewProjRipple(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void* GetUniformBufferModelViewProjTime(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
 };

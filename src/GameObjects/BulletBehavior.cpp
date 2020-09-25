@@ -61,10 +61,6 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }
 
-void BulletBehavior::GetUBOInformation(void** uboData, size_t& uboSize) {
-	// TODO
-}
-
 void BulletBehavior::CheckForCollisions(glm::vec3 const & bulletPosition) {
 	std::vector<std::shared_ptr<GameObject>>& gameObjects =
 		scene->GetGameObjects();
