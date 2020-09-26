@@ -43,12 +43,13 @@ void* GameObjectBehavior::GetUniformBufferModelViewProjRipple(
 	const glm::mat4& viewMatrix,
 	float time,
 	float deltaTime) {
-	UniformBufferObjectModelViewProj* ubo =
-		new UniformBufferObjectModelViewProj();
+	UniformBufferObjectModelViewProjRipple* ubo =
+		new UniformBufferObjectModelViewProjRipple();
 	ubo->model = GetModelMatrix();
 	ubo->view = viewMatrix;
-	ubo->proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
+	ubo->proj = glm::perspective(glm::radians(45.0f),
+		swapChainExtent.width / (float)swapChainExtent.height,
+		0.1f, 1000.0f);
 	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 	uboSize = sizeof(*ubo);

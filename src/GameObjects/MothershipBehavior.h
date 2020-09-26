@@ -39,5 +39,13 @@ private:
 	std::stack<glm::vec3> ripplePositions;
 
 	void Initialize();
-	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time, float deltaTime);
+	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,
+		float deltaTime);
+
+protected:
+	virtual void* GetUniformBufferModelViewProjRipple(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime) override;
 };
