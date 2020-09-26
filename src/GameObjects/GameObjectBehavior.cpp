@@ -34,8 +34,8 @@ void* GameObjectBehavior::GetUniformBufferModelViewProj(
 		(float)swapChainExtent.height, 0.1f, 1000.0f);
 	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
 
-	uboSize = sizeof(ubo);
-	return ubo;
+	uboSize = sizeof(*ubo);
+	return static_cast<void*>(ubo);
 }
 
 void* GameObjectBehavior::GetUniformBufferModelViewProjRipple(
@@ -51,7 +51,7 @@ void* GameObjectBehavior::GetUniformBufferModelViewProjRipple(
 		(float)swapChainExtent.height, 0.1f, 1000.0f);
 	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
 
-	uboSize = sizeof(ubo);
+	uboSize = sizeof(*ubo);
 	return ubo;
 }
 
@@ -69,6 +69,6 @@ void* GameObjectBehavior::GetUniformBufferModelViewProjTime(
 	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
 	ubo->time = time;
 
-	uboSize = sizeof(ubo);
+	uboSize = sizeof(*ubo);
 	return ubo;
 }

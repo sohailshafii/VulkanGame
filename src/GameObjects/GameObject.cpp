@@ -193,7 +193,21 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 								   const glm::mat4& viewMatrix,
 								   float time, float deltaTime,
 								   VkExtent2D swapChainExtent) {
-	switch (material->GetMaterialType())
+	size_t uboSize = 0;
+	void* uboData = gameObjectBehavior->GetUBOData(uboSize, swapChainExtent,
+		viewMatrix, time, deltaTime);
+
+	void* data;
+	vkMapMemory(logicalDeviceManager->GetDevice(),
+		uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
+		uboSize, 0, &data);
+	memcpy(data, uboData, uboSize);
+	vkUnmapMemory(logicalDeviceManager->GetDevice(),
+		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
+
+	delete uboData;
+
+	/*switch (material->GetMaterialType())
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
@@ -207,7 +221,7 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 			UpdateUniformBufferModelViewProjTime(imageIndex, viewMatrix,
 												time, deltaTime, swapChainExtent);
 			break;
-	}
+	}*/
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
