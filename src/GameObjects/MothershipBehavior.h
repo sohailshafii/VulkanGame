@@ -31,12 +31,22 @@ public:
 	}
 
 private:
+	struct RippleData {
+		RippleData(float timeCreated, glm::vec3 const& pos) {
+			this->timeCreated = timeCreated;
+			this->position = pos;
+		}
+
+		float timeCreated;
+		glm::vec3 position;
+	};
+
 	static const int maxHealth;
 
 	ShipStateBehavior *currentShipStateBehavior;
 	float radius;
 	int currentHealth;
-	std::stack<glm::vec3> ripplePositions;
+	std::stack<RippleData> ripples;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,

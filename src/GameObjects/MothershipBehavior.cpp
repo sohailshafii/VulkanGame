@@ -27,9 +27,9 @@ MothershipBehavior::~MothershipBehavior() {
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(
 	float time, float deltaTime) {
-	if (ripplePositions.size() > 0) {
-		glm::vec3 newRipplePosition = ripplePositions.top();
-		ripplePositions.pop();
+	if (ripples.size() > 0) {
+		//glm::vec3 newRipplePosition = ripplePositions.top();
+		//ripplePositions.pop();
 		// TODO: affect material somehow; link behavior with game object
 	}
 
@@ -66,7 +66,7 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 	}
 	currentHealth -= damage;
 	// ripple near where damage was dealt
-	ripplePositions.push(surfacePoint);
+	ripples.push(RippleData(0.0f, surfacePoint));
 	if (currentHealth < 0) {
 		currentHealth = 0;
 	}
