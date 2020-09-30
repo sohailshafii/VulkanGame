@@ -4,7 +4,7 @@
 #include "ShipStateBehavior.h"
 #include <glm/glm.hpp>
 #include <memory>
-#include <stack>
+#include <deque>
 
 class GameObject;
 
@@ -48,12 +48,12 @@ private:
 	float radius;
 	int currentHealth;
 	float currentFrameTime;
-	std::stack<RippleData> ripples;
+	std::deque<RippleData> ripples;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,
 		float deltaTime);
-	void UpdateRipples();
+	void RemoveOldRipples();
 
 protected:
 	virtual void* GetUniformBufferModelViewProjRipple(

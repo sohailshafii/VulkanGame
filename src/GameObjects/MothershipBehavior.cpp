@@ -73,9 +73,9 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 	// ripple near where damage was dealt
 	// with a limit of ten
 	if (ripples.size() == MAX_RIPPLE_COUNT) {
-		ripples.pop();
+		ripples.pop_front();
 	}
-	ripples.push(RippleData(currentFrameTime, surfacePoint));
+	ripples.push_back(RippleData(currentFrameTime, surfacePoint));
 	if (currentHealth < 0) {
 		currentHealth = 0;
 	}
@@ -85,7 +85,7 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	float time, float deltaTime) {
 	currentFrameTime = time;
-	UpdateRipples();
+	RemoveOldRipples();
 	if (currentHealth == 0) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
@@ -103,8 +103,20 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }
 
-void MothershipBehavior::UpdateRipples() {
-	// TODO
+void MothershipBehavior::RemoveOldRipples() {
+	if (ripples.size() == 0) {
+		return;
+	}
+	// remove old ripples, if any
+	RippleData topmostRipple = ripples.front();
+	while (topmostRipple.timeCreated + maxRippleDurationSeconds <
+		currentFrameTime) {
+		ripples.pop_front();
+		if (ripples.size() == 0) {
+			break;
+		}
+		topmostRipple = ripples.front();
+	}
 }
 
 void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
@@ -120,6 +132,23 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 		(float)swapChainExtent.height, 0.1f, 1000.0f);
 	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
 	ubo->time = time;
+
+	ubo->time = currentFrameTime;
+	ubo->maxRippleDuration = maxRippleDurationSeconds;
+	size_t numCurrentRipples = ripples.size();
+	for (size_t i = 0; i < numCurrentRipples; i++) {
+		auto& currentRipple = ripples[i];
+		ubo->ripplePoints[i] = currentRipple.position;
+		ubo->rippleStartTime[i] = currentRipple.timeCreated;
+	}
+	// disable any old ripples
+	if (numCurrentRipples < MAX_RIPPLE_COUNT) {
+		int difference = MAX_RIPPLE_COUNT - numCurrentRipples;
+		for (size_t i = numCurrentRipples; i < numCurrentRipples + difference;
+			i++) {
+			ubo->rippleStartTime[i] = -1.0f;
+		}
+	}
 
 	// TODO: update ripple positions
 
