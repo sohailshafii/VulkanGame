@@ -63,6 +63,8 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 	glm::vec3 worldPosition = GetWorldPosition();
 	glm::vec3 vectorFromCenter = glm::normalize(hitPosition - worldPosition);
 	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
+	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
+	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
 
 	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
 		!= nullptr) {
@@ -75,7 +77,9 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 	if (ripples.size() == MAX_RIPPLE_COUNT) {
 		ripples.pop_front();
 	}
-	ripples.push_back(RippleData(currentFrameTime, surfacePoint));
+	ripples.push_back(RippleData(currentFrameTime,
+		glm::vec3(surfacePointLocal[0], surfacePointLocal[1],
+			surfacePointLocal[2])));
 	if (currentHealth < 0) {
 		currentHealth = 0;
 	}
@@ -138,7 +142,7 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 	size_t numCurrentRipples = ripples.size();
 	for (size_t i = 0; i < numCurrentRipples; i++) {
 		auto& currentRipple = ripples[i];
-		ubo->ripplePoints[i] = currentRipple.position;
+		ubo->ripplePointsLocal[i] = currentRipple.position;
 		ubo->rippleStartTime[i] = currentRipple.timeCreated;
 	}
 	// disable any old ripples

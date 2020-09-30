@@ -9,7 +9,7 @@ layout(binding = 0) uniform UniformBufferObject {
 	mat4 proj;
 	float time;
 	float maxRippleDuration;
-	vec3 ripplePoints[10];
+	vec3 ripplePointsLocal[10];
 	float rippleStartTime[10];
 } ubo;
 
@@ -29,9 +29,40 @@ layout(location = 1) out vec2 fragTexCoord;
 // z=cos( 0.5*sqrt((x - x.c)^2+(y - y.c)^2)-6*2)/(0.5*((x - x.c)^2+(y - y.c)^2)+1+2*2)
 // lerp from 5 to 0.1 over time
 
+float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
+	vec2 diffVec = vertexPos - rippleCenter;
+	float dotProd = dot(diffVec, diffVec);
+	float heightTerm = mix(5.0, 0.1, lerpValue);
+	float numeratorOffset = mix(3.0f, 30.0f, lerpValue);
+	float denomOffset = mix(1.0f, 10.0f, lerpValue);
+
+	float numerator = heightTerm*cos(dotProd) - numeratorOffset;
+	float denominator = heightTerm*dotProd + denomOffset;
+	return numerator/denominator;
+}
+
 void main() {
+	vec3 vertexPosition = inPosition;
+	for (int i = 0; i < 10; i++) {
+		if (ubo.rippleStartTime[i] < 0.0f) {
+			continue;
+		}
+
+		vec3 currentRipplePoint = ubo.ripplePointsLocal[i];
+		vec3 distanceVec = vertexPosition - currentRipplePoint;
+		if (dot(distanceVec, distanceVec) < 2.0) {
+			// calculate lerp value based on time
+			float lerpVal = (ubo.time - ubo.rippleStartTime[i])/ubo.maxRippleDuration;
+			lerpVal = clamp(lerpVal, 0.0, 1.0);
+			float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
+				vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
+				lerpVal);
+			vertexPosition.z = newHeightVal;
+		}
+	}
+
 	gl_Position = ubo.proj * ubo.view *
-		ubo.model * vec4(inPosition, 1.0);
+		ubo.model * vec4(vertexPosition, 1.0);
 	fragColor = inColor;
 	fragTexCoord = inTexCoord;
 }
