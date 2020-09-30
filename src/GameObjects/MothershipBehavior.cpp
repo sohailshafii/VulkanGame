@@ -1,12 +1,14 @@
 #include "MothershipBehavior.h"
 #include "ShipIdleStateBehavior.h"
 #include "GameObjectCreationUtilFuncs.h"
+#include "DescriptorSetFunctions.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <cmath>
 
 const int MothershipBehavior::maxHealth = 300;
+const float MothershipBehavior::maxRippleDurationSeconds = 3.0f;
 
 MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
 	: GameObjectBehavior(scene), radius(radius), currentHealth(maxHealth) {
@@ -54,6 +56,10 @@ void MothershipBehavior::Initialize() {
 }
 
 void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
+	if (currentHealth == 0) {
+		return;
+	}
+	
 	glm::vec3 worldPosition = GetWorldPosition();
 	glm::vec3 vectorFromCenter = glm::normalize(hitPosition - worldPosition);
 	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
@@ -62,11 +68,14 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 		!= nullptr) {
 		return;
 		// TODO: react to not being able to take damage
-
 	}
 	currentHealth -= damage;
 	// ripple near where damage was dealt
-	ripples.push(RippleData(0.0f, surfacePoint));
+	// with a limit of ten
+	if (ripples.size() == MAX_RIPPLE_COUNT) {
+		ripples.pop();
+	}
+	ripples.push(RippleData(currentFrameTime, surfacePoint));
 	if (currentHealth < 0) {
 		currentHealth = 0;
 	}
@@ -75,6 +84,8 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	float time, float deltaTime) {
+	currentFrameTime = time;
+	UpdateRipples();
 	if (currentHealth == 0) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
@@ -90,6 +101,10 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	}
 
 	return GameObjectBehavior::BehaviorStatus::Normal;
+}
+
+void MothershipBehavior::UpdateRipples() {
+	// TODO
 }
 
 void* MothershipBehavior::GetUniformBufferModelViewProjRipple(

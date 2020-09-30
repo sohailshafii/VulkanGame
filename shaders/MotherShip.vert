@@ -3,14 +3,14 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-// TODO: update C++ side too
 layout(binding = 0) uniform UniformBufferObject {
 	mat4 model;
 	mat4 view;
 	mat4 proj;
 	float time;
+	float maxRippleDuration;
 	vec3 ripplePoints[10];
-	bool isRipple[10];
+	float rippleStartTime[10];
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -27,6 +27,7 @@ layout(location = 1) out vec2 fragTexCoord;
 // https://www.youtube.com/watch?v=JrzgE7p-xnU
 // modified based on center:
 // z=cos( 0.5*sqrt((x - x.c)^2+(y - y.c)^2)-6*2)/(0.5*((x - x.c)^2+(y - y.c)^2)+1+2*2)
+// lerp from 5 to 0.1 over time
 
 void main() {
 	gl_Position = ubo.proj * ubo.view *

@@ -42,15 +42,18 @@ private:
 	};
 
 	static const int maxHealth;
+	static const float maxRippleDurationSeconds;
 
 	ShipStateBehavior *currentShipStateBehavior;
 	float radius;
 	int currentHealth;
+	float currentFrameTime;
 	std::stack<RippleData> ripples;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,
 		float deltaTime);
+	void UpdateRipples();
 
 protected:
 	virtual void* GetUniformBufferModelViewProjRipple(

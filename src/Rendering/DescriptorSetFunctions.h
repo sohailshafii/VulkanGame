@@ -19,13 +19,16 @@ struct UniformBufferObjectModelViewProjTime {
 	alignas(16) float time;
 };
 
+#define MAX_RIPPLE_COUNT 10
+
 struct UniformBufferObjectModelViewProjRipple {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
 	alignas(16) float time;
-	alignas(16) glm::vec3 ripplePoints[10];
-	alignas(16) glm::vec3 isRipple[10];
+	alignas(16) float maxRippleDuration;
+	alignas(16) glm::vec3 ripplePoints[MAX_RIPPLE_COUNT];
+	alignas(16) float rippleStartTime[MAX_RIPPLE_COUNT];
 };
 
 struct UniformBufferFragUnlitColor {
