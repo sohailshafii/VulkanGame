@@ -27,6 +27,7 @@ layout(location = 1) out vec2 fragTexCoord;
 // https://www.youtube.com/watch?v=JrzgE7p-xnU
 // modified based on center:
 // z=cos( 0.5*sqrt((x - x.c)^2+(y - y.c)^2)-6*2)/(0.5*((x - x.c)^2+(y - y.c)^2)+1+2*2)
+// z=cos( 0.5*sqrt((x - x.c)^2+(y - y.c)^2)-6*n)/(0.5*((x - x.c)^2+(y - y.c)^2)+1+2*n)
 // lerp from 5 to 0.1 over time
 
 float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
@@ -36,7 +37,7 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 	float numeratorOffset = mix(3.0f, 30.0f, lerpValue);
 	float denomOffset = mix(1.0f, 10.0f, lerpValue);
 
-	float numerator = heightTerm*cos(dotProd) - numeratorOffset;
+	float numerator = heightTerm*cos(sqrt(dotProd)) - numeratorOffset;
 	float denominator = heightTerm*dotProd + denomOffset;
 	return numerator/denominator;
 }
@@ -44,20 +45,23 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 void main() {
 	vec3 vertexPosition = inPosition;
 	for (int i = 0; i < 10; i++) {
+		// skip invalid ripples (-1 means "invalid")
 		if (ubo.rippleStartTime[i] < 0.0f) {
 			continue;
 		}
 
 		vec3 currentRipplePoint = ubo.ripplePointsLocal[i];
 		vec3 distanceVec = vertexPosition - currentRipplePoint;
-		if (dot(distanceVec, distanceVec) < 2.0) {
+		// if we are close to ripple point, then add its contribution to our
+		// z value
+		if (dot(distanceVec, distanceVec) < 4.0) {
 			// calculate lerp value based on time
 			float lerpVal = (ubo.time - ubo.rippleStartTime[i])/ubo.maxRippleDuration;
 			lerpVal = clamp(lerpVal, 0.0, 1.0);
 			float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
 				vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
 				lerpVal);
-			vertexPosition.z = newHeightVal;
+			vertexPosition.z += newHeightVal;
 		}
 	}
 
