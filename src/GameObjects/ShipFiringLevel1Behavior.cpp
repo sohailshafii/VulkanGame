@@ -29,7 +29,7 @@ ShipStateBehavior* ShipFiringLevel1Behavior::UpdateAndGetNextState(
 
 	modelMatrix = glm::rotate(motherShip.GetModelMatrix(),
 		-0.1f * deltaTime, axisOfRotation);
-	motherShip.SetModelMatrix(modelMatrix);
+	//motherShip.SetModelMatrix(modelMatrix);
 
 	return nextShipState;
 }

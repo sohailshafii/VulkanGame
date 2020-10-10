@@ -35,7 +35,7 @@ void* GameObjectBehavior::GetUniformBufferModelViewProj(
 	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
 
 	uboSize = sizeof(*ubo);
-	return static_cast<void*>(ubo);
+	return ubo;
 }
 
 void* GameObjectBehavior::GetUniformBufferModelViewProjRipple(

@@ -68,7 +68,7 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 
 	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
 		!= nullptr) {
-		return;
+		//return;
 		// TODO: react to not being able to take damage
 	}
 	currentHealth -= damage;
@@ -142,19 +142,17 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 	size_t numCurrentRipples = ripples.size();
 	for (size_t i = 0; i < numCurrentRipples; i++) {
 		auto& currentRipple = ripples[i];
-		ubo->ripplePointsLocal[i] = currentRipple.position;
-		ubo->rippleStartTime[i] = currentRipple.timeCreated;
+		//ubo->ripplePointsLocal[i] = currentRipple.position;
+		ubo->rippleStartTime = currentRipple.timeCreated; // TODO: fix
 	}
 	// disable any old ripples
-	if (numCurrentRipples < MAX_RIPPLE_COUNT) {
-		int difference = MAX_RIPPLE_COUNT - numCurrentRipples;
+	if (numCurrentRipples < 1) { // TODO: fix
+		int difference = 1 - numCurrentRipples;
 		for (size_t i = numCurrentRipples; i < numCurrentRipples + difference;
 			i++) {
-			ubo->rippleStartTime[i] = -1.0f;
+			ubo->rippleStartTime = -1.0f; // TODO: fix
 		}
 	}
-
-	// TODO: update ripple positions
 
 	uboSize = sizeof(*ubo);
 	return ubo;

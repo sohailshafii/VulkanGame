@@ -7,10 +7,10 @@ layout(binding = 0) uniform UniformBufferObject {
 	mat4 model;
 	mat4 view;
 	mat4 proj;
+	//vec4 ripplePointsLocal[10];
+	float rippleStartTime;
 	float time;
 	float maxRippleDuration;
-	vec3 ripplePointsLocal[10];
-	float rippleStartTime[10];
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -33,11 +33,11 @@ layout(location = 1) out vec2 fragTexCoord;
 float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 	vec2 diffVec = vertexPos - rippleCenter;
 	float dotProd = dot(diffVec, diffVec);
-	float heightTerm = mix(5.0, 0.1, lerpValue);
+	float heightTerm = mix(0.6, 0.01, lerpValue);
 	float numeratorOffset = mix(3.0f, 30.0f, lerpValue);
 	float denomOffset = mix(1.0f, 10.0f, lerpValue);
 
-	float numerator = heightTerm*cos(sqrt(dotProd)) - numeratorOffset;
+	float numerator = cos(heightTerm*sqrt(dotProd) - numeratorOffset);
 	float denominator = heightTerm*dotProd + denomOffset;
 	return numerator/denominator;
 }
@@ -46,22 +46,25 @@ void main() {
 	vec3 vertexPosition = inPosition;
 	for (int i = 0; i < 10; i++) {
 		// skip invalid ripples (-1 means "invalid")
-		if (ubo.rippleStartTime[i] < 0.0f) {
+		if (ubo.rippleStartTime < 0.0f) {
 			continue;
 		}
 
-		vec3 currentRipplePoint = ubo.ripplePointsLocal[i];
+		vec3 currentRipplePoint = vec3(0.0, 5, 0.0);//ubo.ripplePointsLocal[i];
 		vec3 distanceVec = vertexPosition - currentRipplePoint;
+		vec3 vertexNormalized = normalize(vertexPosition);
 		// if we are close to ripple point, then add its contribution to our
 		// z value
 		if (dot(distanceVec, distanceVec) < 4.0) {
 			// calculate lerp value based on time
-			float lerpVal = (ubo.time - ubo.rippleStartTime[i])/ubo.maxRippleDuration;
-			lerpVal = clamp(lerpVal, 0.0, 1.0);
-			float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
-				vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
-				lerpVal);
-			vertexPosition.z += newHeightVal;
+			// TODO: fix start time line
+			// TODO: lerp backwards too
+			float lerpVal = (ubo.time - ubo.rippleStartTime)/ubo.maxRippleDuration;
+			//lerpVal = clamp(lerpVal, 0.0, 1.0);
+			//float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
+			//	vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
+			//	lerpVal);
+			vertexPosition += vertexNormalized*lerpVal*0.1;//newHeightVal;
 		}
 	}
 
