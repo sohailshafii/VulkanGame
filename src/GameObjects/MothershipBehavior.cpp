@@ -140,8 +140,12 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 	ubo->time = currentFrameTime;
 	ubo->maxRippleDuration = maxRippleDurationSeconds;
 	size_t numCurrentRipples = ripples.size();
+	
 	for (size_t i = 0; i < numCurrentRipples; i++) {
 		auto& currentRipple = ripples[i];
+		RipplePointLocal& ripplePointLocal = ubo->ripplePointsLocal[i];
+		ripplePointLocal.ripplePosition = glm::vec4(currentRipple.position,
+													1.0f);
 		//ubo->ripplePointsLocal[i] = currentRipple.position;
 		ubo->rippleStartTime = currentRipple.timeCreated; // TODO: fix
 	}

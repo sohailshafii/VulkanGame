@@ -54,7 +54,10 @@ void main() {
 			continue;
 		}
 
-		vec3 currentRipplePoint = vec3(0.0, 5, 0.0);//ubo.ripplePointsLocal[i];
+		RipplePoint ripplePoint = ubo.ripplePointsLocal[i];
+		vec3 currentRipplePoint = vec3(ripplePoint.ripplePosition);
+
+		//vec3(0.0, 5, 0.0);//ubo.ripplePointsLocal[i];
 		vec3 distanceVec = vertexPosition - currentRipplePoint;
 		vec3 vertexNormalized = normalize(vertexPosition);
 		// if we are close to ripple point, then add its contribution to our
