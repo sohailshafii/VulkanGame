@@ -4,7 +4,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 struct RipplePoint {
-	vec4 ripplePosition; 	
+	vec4 ripplePosition;
+	float rippleStartTime; 	
 };
 
 layout(binding = 0) uniform UniformBufferObject {
@@ -12,7 +13,6 @@ layout(binding = 0) uniform UniformBufferObject {
 	mat4 view;
 	mat4 proj;
 	RipplePoint ripplePointsLocal[10];
-	float rippleStartTime;
 	float time;
 	float maxRippleDuration;
 } ubo;
@@ -24,19 +24,18 @@ layout(location = 2) in vec2 inTexCoord;
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 
-// found this cool equation
-// TODO: use this for ripple
+// found this cool equation here: https://www.youtube.com/watch?v=JrzgE7p-xnU
+// It's basically a ripple effect
 // z=(cos( 0.5sqrt(x^2+y^2)-6n)/(0.5(x^2+y^2)+1+2n),  n={0...10}
 // z=cos( 0.5*sqrt(x^2+y^2)-6*2)/(0.5*(x^2+y^2)+1+2*2)
-// https://www.youtube.com/watch?v=JrzgE7p-xnU
+// 
 // modified based on center:
 // z=cos( 0.5*sqrt((x - x.c)^2+(y - y.c)^2)-6*2)/(0.5*((x - x.c)^2+(y - y.c)^2)+1+2*2)
 // z=cos( 0.5*sqrt((x - x.c)^2+(y - y.c)^2)-6*n)/(0.5*((x - x.c)^2+(y - y.c)^2)+1+2*n)
-// lerp from 5 to 0.1 over time
-
+// some tweaks
 // z=cos( 0.6*sqrt((x - x.c)^2+(y - y.c)^2)-3)/(0.6*((x - x.c)^2+(y - y.c)^2)+1)
 // z=cos( 0.6*sqrt((x)^2+(y)^2)-3)/(0.6*((x)^2+(y)^2)+1)
-
+// final version: z=cos( heightTerm*sqrt((x - x.c)^2+(y - y.c)^2)-numeratorOffset)/(heightTerm*((x - x.c)^2+(y - y.c)^2)+denomOffset)
 float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 	vec2 diffVec = vertexPos - rippleCenter;
 	float dotProd = dot(diffVec, diffVec);
@@ -52,12 +51,13 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 void main() {
 	vec3 vertexPosition = inPosition;
 	for (int i = 0; i < 10; i++) {
+		RipplePoint ripplePoint = ubo.ripplePointsLocal[i];
+		float rippleStartTime = ripplePoint.rippleStartTime;
 		// skip invalid ripples (-1 means "invalid")
-		if (ubo.rippleStartTime < 0.0f) {
+		if (rippleStartTime < 0.0f) {
 			continue;
 		}
 
-		RipplePoint ripplePoint = ubo.ripplePointsLocal[i];
 		vec3 currentRipplePoint = vec3(ripplePoint.ripplePosition);
 		vec3 distanceVec = vertexPosition - currentRipplePoint;
 		vec3 offsetDirection = normalize(vertexPosition);
@@ -65,7 +65,7 @@ void main() {
 		// z value
 		if (dot(distanceVec, distanceVec) < 4.0) {
 			// calculate lerp value based on time
-			float lerpVal = (ubo.time - ubo.rippleStartTime)/ubo.maxRippleDuration;
+			float lerpVal = (ubo.time - rippleStartTime)/ubo.maxRippleDuration;
 			lerpVal = clamp(lerpVal, 0.0, 1.0);
 
 			float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,

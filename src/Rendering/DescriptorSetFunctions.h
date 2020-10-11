@@ -23,6 +23,7 @@ struct UniformBufferObjectModelViewProjTime {
 
 struct RipplePointLocal {
 	alignas(16) glm::vec4 ripplePosition;
+	alignas(4) float rippleStartTime;
 };
 
 struct UniformBufferObjectModelViewProjRipple {
@@ -30,7 +31,6 @@ struct UniformBufferObjectModelViewProjRipple {
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
 	alignas(16) RipplePointLocal ripplePointsLocal[MAX_RIPPLE_COUNT];
-	alignas(4) float rippleStartTime;// [MAX_RIPPLE_COUNT] ;
 	alignas(4) float time;
 	alignas(4) float maxRippleDuration;
 };

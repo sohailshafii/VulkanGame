@@ -29,12 +29,6 @@ MothershipBehavior::~MothershipBehavior() {
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(
 	float time, float deltaTime) {
-	if (ripples.size() > 0) {
-		//glm::vec3 newRipplePosition = ripplePositions.top();
-		//ripplePositions.pop();
-		// TODO: affect material somehow; link behavior with game object
-	}
-
 	return UpdateStateMachine(time, deltaTime);
 }
 
@@ -153,15 +147,15 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 		RipplePointLocal& ripplePointLocal = ubo->ripplePointsLocal[i];
 		ripplePointLocal.ripplePosition = glm::vec4(currentRipple.position,
 													1.0f);
-		//ubo->ripplePointsLocal[i] = currentRipple.position;
-		ubo->rippleStartTime = currentRipple.timeCreated; // TODO: fix
+		ripplePointLocal.rippleStartTime = currentRipple.timeCreated;
 	}
 	// disable any old ripples
-	if (numCurrentRipples < 1) { // TODO: fix
-		int difference = 1 - numCurrentRipples;
+	if (numCurrentRipples < MAX_RIPPLE_COUNT) {
+		int difference = MAX_RIPPLE_COUNT - numCurrentRipples;
 		for (size_t i = numCurrentRipples; i < numCurrentRipples + difference;
 			i++) {
-			ubo->rippleStartTime = -1.0f; // TODO: fix
+			RipplePointLocal& ripplePointLocal = ubo->ripplePointsLocal[i];
+			ripplePointLocal.rippleStartTime = -1.0f;
 		}
 	}
 
