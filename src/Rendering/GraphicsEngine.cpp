@@ -233,6 +233,12 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
 	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	for (auto& gameObject : gameObjects) {
+		if (gameObjectToPipelineModule.find(gameObject) !=
+			gameObjectToPipelineModule.end())
+		{
+			continue;
+		}
+		delete gameObjectToPipelineModule[gameObject];
 		gameObjectToPipelineModule.erase(gameObject);
 	}
 }
@@ -244,6 +250,7 @@ void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
 			it = gameObjectToPipelineModule.begin();
 			it != gameObjectToPipelineModule.end(); ++it) {
 			if (it->first.get() == gameObject) {
+				delete it->second;
 				gameObjectToPipelineModule.erase(it->first);
 				break;
 			}

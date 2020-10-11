@@ -21,11 +21,15 @@ struct UniformBufferObjectModelViewProjTime {
 
 #define MAX_RIPPLE_COUNT 10
 
+struct RipplePointLocal {
+	alignas(16) glm::vec4 ripplePosition;
+};
+
 struct UniformBufferObjectModelViewProjRipple {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
-	//alignas(16) glm::vec3 ripplePointsLocal[MAX_RIPPLE_COUNT];
+	alignas(16) RipplePointLocal ripplePointsLocal[MAX_RIPPLE_COUNT];
 	alignas(4) float rippleStartTime;// [MAX_RIPPLE_COUNT] ;
 	alignas(4) float time;
 	alignas(4) float maxRippleDuration;
