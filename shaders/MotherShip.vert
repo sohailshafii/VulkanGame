@@ -57,10 +57,21 @@ void main() {
 		// z value
 		if (dot(distanceVec, distanceVec) < 4.0) {
 			// calculate lerp value based on time
-			// TODO: fix start time line
-			// TODO: lerp backwards too
-			float lerpVal = (ubo.time - ubo.rippleStartTime)/ubo.maxRippleDuration;
-			//lerpVal = clamp(lerpVal, 0.0, 1.0);
+			// 0.0-0.5: lerp forward from 0 to 1, 0.5-1.0: lerp backward from 1 to 0
+			// lerp from 0 to 1 to half-way point, then 1 to 0 from halfway to end
+			float halfwayDuration = ubo.maxRippleDuration*0.5;
+			float diffTime = ubo.time - ubo.rippleStartTime;
+			float lerpVal = 0.0;
+			if (diffTime < halfwayDuration) {
+				lerpVal = diffTime/halfwayDuration;
+				lerpVal = clamp(lerpVal, 0.0, 1.0);
+			}
+			else {
+				lerpVal = (diffTime - halfwayDuration)/halfwayDuration;
+				lerpVal = clamp(lerpVal, 0.0, 1.0);
+				lerpVal = 1.0 - lerpVal;
+			}
+
 			//float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
 			//	vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
 			//	lerpVal);
