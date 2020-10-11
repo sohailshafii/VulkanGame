@@ -206,22 +206,6 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 
 	delete uboData;
-
-	/*switch (material->GetMaterialType())
-	{
-		case DescriptorSetFunctions::MaterialType::UnlitColor:
-		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-			UpdateUniformBufferModelViewProj(imageIndex, viewMatrix,
-				time, deltaTime, swapChainExtent);
-		case DescriptorSetFunctions::MaterialType::MotherShip:
-			UpdateUniformBufferModelViewProjRipple(imageIndex, viewMatrix,
-											time, deltaTime, swapChainExtent);
-			break;
-		default:
-			UpdateUniformBufferModelViewProjTime(imageIndex, viewMatrix,
-												time, deltaTime, swapChainExtent);
-			break;
-	}*/
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
@@ -293,68 +277,4 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 			return sizeof(UniformBufferObjectModelViewProjTime);
 			break;
 	}
-}
-
-void GameObject::UpdateUniformBufferModelViewProj(uint32_t imageIndex,
-												const glm::mat4& viewMatrix,
-												float time,
-												float deltaTime,
-												VkExtent2D swapChainExtent)
-{
-	UniformBufferObjectModelViewProj ubo = {};
-	ubo.model = gameObjectBehavior->GetModelMatrix();
-	ubo.view = viewMatrix;
-	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
-	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
-
-	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(),
-		uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
-		sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(logicalDeviceManager->GetDevice(),
-		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
-}
-
-void GameObject::UpdateUniformBufferModelViewProjRipple(uint32_t imageIndex,
-	const glm::mat4& viewMatrix,
-	float time,
-	float deltaTime,
-	VkExtent2D swapChainExtent)
-{
-	UniformBufferObjectModelViewProjRipple ubo = {};
-	ubo.model = gameObjectBehavior->GetModelMatrix();
-	ubo.view = viewMatrix;
-	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
-	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
-
-	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(),
-		uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
-		sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(logicalDeviceManager->GetDevice(),
-		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
-}
-
-void GameObject::UpdateUniformBufferModelViewProjTime(uint32_t imageIndex,
-													const glm::mat4& viewMatrix,
-													float time, float deltaTime,
-													VkExtent2D swapChainExtent)
-{
-	UniformBufferObjectModelViewProjTime ubo = {};
-	ubo.model = gameObjectBehavior->GetModelMatrix();
-	ubo.view = viewMatrix;
-	ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
-	ubo.proj[1][1] *= -1; // flip Y -- opposite of opengl
-	ubo.time = time;
-
-	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
-		sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(logicalDeviceManager->GetDevice(), uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 }
