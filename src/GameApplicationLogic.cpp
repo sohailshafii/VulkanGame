@@ -420,9 +420,7 @@ void GameApplicationLogic::CleanUp() {
 	}
 	vkDestroyCommandPool(logicalDeviceManager->GetDevice(), commandPool, nullptr);
 
-	std::cout << "about to reset\n";
 	logicalDeviceManager.reset();
-	std::cout << "complete reset\n";
 
 	vkDestroySurfaceKHR(instance->GetVkInstance(), surface, nullptr);
 

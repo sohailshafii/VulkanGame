@@ -83,10 +83,7 @@ void BulletBehavior::CheckForCollisions(glm::vec3 const & bulletPosition) {
 		MothershipBehavior* motherBehav =
 			dynamic_cast<MothershipBehavior*>(behavInst);
 		if (motherBehav != nullptr) {
-			auto motherPosition = motherBehav->GetWorldPosition();
-			auto vecToMother = bulletPosition - motherPosition;
-			if (glm::length(vecToMother) < motherBehav->GetRadius()) {
-				motherBehav->TakeDamage(10, bulletPosition);
+			if (motherBehav->TakeDamageIfHit(10, bulletPosition)) {
 				destroyed = true;
 				break;
 			}

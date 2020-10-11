@@ -24,7 +24,7 @@ public:
 		return radius;
 	}
 
-	void TakeDamage(int damage, glm::vec3 const& hitPosition);
+	bool TakeDamageIfHit(int damage, glm::vec3 const& possibleHitPosition);
 
 	int GetCurrentHealth() const {
 		return currentHealth;

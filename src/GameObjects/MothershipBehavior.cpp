@@ -55,20 +55,26 @@ void MothershipBehavior::Initialize() {
 	currentShipStateBehavior = new ShipIdleStateBehavior();
 }
 
-void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
+bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHitPosition) {
 	if (currentHealth == 0) {
-		return;
+		return false;
 	}
 	
 	glm::vec3 worldPosition = GetWorldPosition();
-	glm::vec3 vectorFromCenter = glm::normalize(hitPosition - worldPosition);
+	glm::vec3 vectorFromCenter = possibleHitPosition - worldPosition;
+	float vecFromCenterMagn = glm::length(vectorFromCenter);
+	if (vecFromCenterMagn > radius) {
+		return false;
+	}
+	vectorFromCenter /= vecFromCenterMagn;
+	
 	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
 	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
 	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
 
 	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
 		!= nullptr) {
-		//return;
+		//return false;
 		// TODO: react to not being able to take damage
 	}
 	currentHealth -= damage;
@@ -84,6 +90,7 @@ void MothershipBehavior::TakeDamage(int damage, glm::vec3 const& hitPosition) {
 		currentHealth = 0;
 	}
 	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
+	return true;
 }
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
