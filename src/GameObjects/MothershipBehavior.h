@@ -32,12 +32,14 @@ public:
 
 private:
 	struct RippleData {
-		RippleData(float timeCreated, glm::vec3 const& pos) {
+		RippleData(float timeCreated, float duration, glm::vec3 const& pos) {
 			this->timeCreated = timeCreated;
+			this->duration = duration;
 			this->position = pos;
 		}
 
 		float timeCreated;
+		float duration;
 		glm::vec3 position;
 	};
 

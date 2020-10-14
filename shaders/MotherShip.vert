@@ -5,6 +5,7 @@
 
 struct RipplePoint {
 	vec4 ripplePosition;
+	float rippleDuration;
 	float rippleStartTime; 	
 };
 
@@ -14,7 +15,6 @@ layout(binding = 0) uniform UniformBufferObject {
 	mat4 proj;
 	RipplePoint ripplePointsLocal[10];
 	float time;
-	float maxRippleDuration;
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -53,6 +53,7 @@ void main() {
 	for (int i = 0; i < 10; i++) {
 		RipplePoint ripplePoint = ubo.ripplePointsLocal[i];
 		float rippleStartTime = ripplePoint.rippleStartTime;
+		float rippleDuration = ripplePoint.rippleDuration;
 		// skip invalid ripples (-1 means "invalid")
 		if (rippleStartTime < 0.0f) {
 			continue;
@@ -65,7 +66,7 @@ void main() {
 		// z value
 		if (dot(distanceVec, distanceVec) < 4.0) {
 			// calculate lerp value based on time
-			float lerpVal = (ubo.time - rippleStartTime)/ubo.maxRippleDuration;
+			float lerpVal = (ubo.time - rippleStartTime)/rippleDuration;
 			lerpVal = clamp(lerpVal, 0.0, 1.0);
 
 			float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,

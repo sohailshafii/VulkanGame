@@ -8,7 +8,7 @@
 #include <cmath>
 
 const int MothershipBehavior::maxHealth = 300;
-const float MothershipBehavior::maxRippleDurationSeconds = 3.0f;
+const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
 
 MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
 	: GameObjectBehavior(scene), radius(radius), currentHealth(maxHealth) {
@@ -68,8 +68,7 @@ bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHi
 
 	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
 		!= nullptr) {
-		//return false;
-		// TODO: react to not being able to take damage
+		return false;
 	}
 	currentHealth -= damage;
 	// ripple near where damage was dealt
@@ -78,8 +77,10 @@ bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHi
 		ripples.pop_front();
 	}
 	ripples.push_back(RippleData(currentFrameTime,
-		glm::vec3(surfacePointLocal[0], surfacePointLocal[1],
-			surfacePointLocal[2])));
+		MothershipBehavior::maxRippleDurationSeconds*0.33f +
+		((float)rand() / RAND_MAX)*MothershipBehavior::maxRippleDurationSeconds*0.67f,
+		glm::vec3(surfacePointLocal[0], surfacePointLocal[1], surfacePointLocal[2]))
+		);
 	if (currentHealth < 0) {
 		currentHealth = 0;
 	}
@@ -139,7 +140,6 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 	ubo->time = time;
 
 	ubo->time = currentFrameTime;
-	ubo->maxRippleDuration = maxRippleDurationSeconds;
 	size_t numCurrentRipples = ripples.size();
 	
 	for (size_t i = 0; i < numCurrentRipples; i++) {
@@ -147,6 +147,7 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 		RipplePointLocal& ripplePointLocal = ubo->ripplePointsLocal[i];
 		ripplePointLocal.ripplePosition = glm::vec4(currentRipple.position,
 													1.0f);
+		ripplePointLocal.rippleDuration = currentRipple.duration;
 		ripplePointLocal.rippleStartTime = currentRipple.timeCreated;
 	}
 	// disable any old ripples
