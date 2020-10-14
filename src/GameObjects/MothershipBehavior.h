@@ -45,12 +45,14 @@ private:
 
 	static const int maxHealth;
 	static const float maxRippleDurationSeconds;
+	static const float maxShudderDurationSeconds;
 
 	ShipStateBehavior *currentShipStateBehavior;
 	float radius;
 	int currentHealth;
 	float currentFrameTime;
 	std::deque<RippleData> ripples;
+	float shudderStartTime;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,

@@ -9,6 +9,7 @@
 
 const int MothershipBehavior::maxHealth = 300;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
+const float MothershipBehavior::maxShudderDurationSeconds = 0.25f;
 
 MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
 	: GameObjectBehavior(scene), radius(radius), currentHealth(maxHealth) {
@@ -66,9 +67,14 @@ bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHi
 	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
 	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
 
+	// shudder if we can't take damage
 	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
 		!= nullptr) {
+		shudderStartTime = currentFrameTime;
 		return false;
+	}
+	else {
+		shudderStartTime = -1.0f;
 	}
 	currentHealth -= damage;
 	// ripple near where damage was dealt
@@ -139,7 +145,8 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
 	ubo->time = time;
 
-	ubo->time = currentFrameTime;
+	ubo->shudderDuration = maxShudderDurationSeconds;
+	ubo->shudderStartTime = shudderStartTime;
 	size_t numCurrentRipples = ripples.size();
 	
 	for (size_t i = 0; i < numCurrentRipples; i++) {

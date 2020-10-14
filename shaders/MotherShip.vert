@@ -15,6 +15,9 @@ layout(binding = 0) uniform UniformBufferObject {
 	mat4 proj;
 	RipplePoint ripplePointsLocal[10];
 	float time;
+
+	float shudderStartTime;
+	float shudderDuration;
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -48,8 +51,7 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 	return numerator/denominator;
 }
 
-void main() {
-	vec3 vertexPosition = inPosition;
+vec3 getNewVertexPositionRipple(vec3 vertexPosition) {
 	for (int i = 0; i < 10; i++) {
 		RipplePoint ripplePoint = ubo.ripplePointsLocal[i];
 		float rippleStartTime = ripplePoint.rippleStartTime;
@@ -74,6 +76,37 @@ void main() {
 				lerpVal);
 			vertexPosition += offsetDirection*newHeightVal;
 		}
+	}
+
+	return vertexPosition;
+}
+
+float rand(vec2 co) {
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+vec3 shudderEffect(vec3 vertexPosition) {
+	float lerpVal = (ubo.time - ubo.shudderStartTime)/ubo.shudderDuration;
+	lerpVal = clamp(lerpVal, 0.0, 1.0);
+	float intensity = mix(0.025f, 0.0f, lerpVal);
+	vertexPosition.x += intensity*rand(vec2(ubo.time+vertexPosition.y,
+		ubo.time+vertexPosition.z));
+	vertexPosition.y += intensity*rand(vec2(ubo.time+vertexPosition.x,
+		ubo.time+vertexPosition.z));
+	vertexPosition.z += intensity*rand(vec2(ubo.time+vertexPosition.x,
+		ubo.time+vertexPosition.y));
+
+	return vertexPosition;
+}
+
+void main() {
+	vec3 vertexPosition = inPosition;
+	
+	if (ubo.time < (ubo.shudderStartTime + ubo.shudderDuration)) {
+		vertexPosition = shudderEffect(vertexPosition);
+	}
+	else {
+		vertexPosition = getNewVertexPositionRipple(vertexPosition);
 	}
 
 	gl_Position = ubo.proj * ubo.view *

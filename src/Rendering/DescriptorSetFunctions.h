@@ -33,6 +33,8 @@ struct UniformBufferObjectModelViewProjRipple {
 	alignas(16) glm::mat4 proj;
 	alignas(16) RipplePointLocal ripplePointsLocal[MAX_RIPPLE_COUNT];
 	alignas(4) float time;
+	alignas(4) float shudderStartTime;
+	alignas(4) float shudderDuration;
 };
 
 struct UniformBufferFragUnlitColor {
