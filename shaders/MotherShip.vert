@@ -6,7 +6,7 @@
 struct RipplePoint {
 	vec4 ripplePosition;
 	float rippleDuration;
-	float rippleStartTime; 	
+	float rippleStartTime;	
 };
 
 layout(binding = 0) uniform UniformBufferObject {
@@ -38,11 +38,11 @@ layout(location = 1) out vec2 fragTexCoord;
 // some tweaks
 // z=cos( 0.6*sqrt((x - x.c)^2+(y - y.c)^2)-3)/(0.6*((x - x.c)^2+(y - y.c)^2)+1)
 // z=cos( 0.6*sqrt((x)^2+(y)^2)-3)/(0.6*((x)^2+(y)^2)+1)
-// final version: z=cos( heightTerm*sqrt((x - x.c)^2+(y - y.c)^2)-numeratorOffset)/(heightTerm*((x - x.c)^2+(y - y.c)^2)+denomOffset)
+// final version: z=cos(heightTerm*sqrt((x - x.c)^2+(y - y.c)^2)-numeratorOffset)/(heightTerm*((x - x.c)^2+(y - y.c)^2)+denomOffset)
 float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 	vec2 diffVec = vertexPos - rippleCenter;
 	float dotProd = dot(diffVec, diffVec);
-	float heightTerm = mix(0.6, 0.001, lerpValue);
+	float heightTerm = mix(20, 0.001, lerpValue);
 	float numeratorOffset = mix(3.0f, 90.0f, lerpValue);
 	float denomOffset = mix(1.0f, 40.0f, lerpValue);
 
@@ -66,21 +66,20 @@ vec3 getNewVertexPositionRipple(vec3 vertexPosition) {
 		vec3 offsetDirection = normalize(vertexPosition);
 		// if we are close to ripple point, then add its contribution to our
 		// z value
-		if (dot(distanceVec, distanceVec) < 4.0) {
-			// calculate lerp value based on time
-			float lerpVal = (ubo.time - rippleStartTime)/rippleDuration;
-			lerpVal = clamp(lerpVal, 0.0, 1.0);
+		// calculate lerp value based on time
+		float lerpVal = (ubo.time - rippleStartTime)/rippleDuration;
+		lerpVal = clamp(lerpVal, 0.0, 1.0);
 
-			float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
-				vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
-				lerpVal);
-			vertexPosition += offsetDirection*newHeightVal;
-		}
+		float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
+			vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
+			lerpVal);
+		vertexPosition += offsetDirection*newHeightVal;
 	}
 
 	return vertexPosition;
 }
 
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
 float rand(vec2 co) {
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
@@ -101,13 +100,12 @@ vec3 shudderEffect(vec3 vertexPosition) {
 
 void main() {
 	vec3 vertexPosition = inPosition;
-	
+
 	if (ubo.time < (ubo.shudderStartTime + ubo.shudderDuration)) {
 		vertexPosition = shudderEffect(vertexPosition);
 	}
-	else {
-		vertexPosition = getNewVertexPositionRipple(vertexPosition);
-	}
+
+	vertexPosition = getNewVertexPositionRipple(vertexPosition);
 
 	gl_Position = ubo.proj * ubo.view *
 		ubo.model * vec4(vertexPosition, 1.0);
