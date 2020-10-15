@@ -20,6 +20,7 @@ struct UniformBufferObjectModelViewProjTime {
 };
 
 #define MAX_RIPPLE_COUNT 10
+#define MAX_STALK_COUNT 4
 
 struct RipplePointLocal {
 	alignas(16) glm::vec4 ripplePosition;
@@ -27,11 +28,17 @@ struct RipplePointLocal {
 	alignas(4) float rippleStartTime;
 };
 
+struct StalkPointLocal {
+	alignas(16) glm::vec4 stalkPosition;
+	alignas(4) float stalkSpawnTIme;
+};
+
 struct UniformBufferObjectModelViewProjRipple {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
 	alignas(16) RipplePointLocal ripplePointsLocal[MAX_RIPPLE_COUNT];
+	alignas(16) StalkPointLocal stalkPointsLocal[MAX_STALK_COUNT];
 	alignas(4) float time;
 	alignas(4) float shudderStartTime;
 	alignas(4) float shudderDuration;

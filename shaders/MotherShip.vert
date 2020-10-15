@@ -3,17 +3,25 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-struct RipplePoint {
+struct RipplePointLocal {
 	vec4 ripplePosition;
 	float rippleDuration;
 	float rippleStartTime;	
 };
 
+struct StalkPointLocal {
+	vec4 stalkPosition;
+	float stalkSpawnTime;	
+};
+
+const float stalkDuration = 1.0f;
+
 layout(binding = 0) uniform UniformBufferObject {
 	mat4 model;
 	mat4 view;
 	mat4 proj;
-	RipplePoint ripplePointsLocal[10];
+	RipplePointLocal ripplePointsLocal[10];
+	StalkPointLocal stalkPointsLocal[4];
 	float time;
 
 	float shudderStartTime;
@@ -53,7 +61,7 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 
 vec3 getNewVertexPositionRipple(vec3 vertexPosition) {
 	for (int i = 0; i < 10; i++) {
-		RipplePoint ripplePoint = ubo.ripplePointsLocal[i];
+		RipplePointLocal ripplePoint = ubo.ripplePointsLocal[i];
 		float rippleStartTime = ripplePoint.rippleStartTime;
 		float rippleDuration = ripplePoint.rippleDuration;
 		// skip invalid ripples (-1 means "invalid")
