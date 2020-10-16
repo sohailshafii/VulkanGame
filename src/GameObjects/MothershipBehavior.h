@@ -43,8 +43,19 @@ private:
 		glm::vec3 position;
 	};
 
+	struct StalkData {
+		StalkData(glm::vec3 const & pos, float time) {
+			this->position = pos;
+			this->timeCreated = time;
+		}
+
+		glm::vec3 position;
+		float timeCreated;
+	};
+
 	static const int maxHealth;
 	static const float maxRippleDurationSeconds;
+	static const float maxStalkDurationSeconds;
 	static const float maxShudderDurationSeconds;
 
 	ShipStateBehavior *currentShipStateBehavior;
@@ -52,12 +63,16 @@ private:
 	int currentHealth;
 	float currentFrameTime;
 	std::deque<RippleData> ripples;
+	std::deque<StalkData> stalks;
 	float shudderStartTime;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,
 		float deltaTime);
+	void AddNewRipple(glm::vec4 const& surfacePointLocal);
+	void AddNewStalk(glm::vec4 const& surfacePointLocal);
 	void RemoveOldRipples();
+	void RemoveOldStalks();
 
 protected:
 	virtual void* GetUniformBufferModelViewProjRipple(

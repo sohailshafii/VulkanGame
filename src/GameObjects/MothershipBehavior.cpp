@@ -9,6 +9,7 @@
 
 const int MothershipBehavior::maxHealth = 300;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
+const float MothershipBehavior::maxStalkDurationSeconds = 1.0f;
 const float MothershipBehavior::maxShudderDurationSeconds = 0.25f;
 
 MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
@@ -61,11 +62,6 @@ bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHi
 	if (vecFromCenterMagn > radius) {
 		return false;
 	}
-	vectorFromCenter /= vecFromCenterMagn;
-	
-	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
-	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
-	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
 
 	// shudder if we can't take damage
 	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
@@ -73,25 +69,47 @@ bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHi
 		shudderStartTime = currentFrameTime;
 		return false;
 	}
-	else {
+	// reset shudder time once the last one has elapsed
+	else if (currentFrameTime > shudderStartTime + maxShudderDurationSeconds){
 		shudderStartTime = -1.0f;
 	}
 	currentHealth -= damage;
+
+	vectorFromCenter /= vecFromCenterMagn;
+	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
+	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
+	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
+
+	if (currentHealth < 0) {
+		currentHealth = 0;
+	}
+	AddNewRipple(surfacePointLocal);
+	AddNewStalk(surfacePointLocal);
+	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
+	return true;
+}
+
+void MothershipBehavior::AddNewRipple(glm::vec4 const & surfacePointLocal) {
 	// ripple near where damage was dealt
 	// with a limit of ten
 	if (ripples.size() == MAX_RIPPLE_COUNT) {
 		ripples.pop_front();
 	}
 	ripples.push_back(RippleData(currentFrameTime,
-		MothershipBehavior::maxRippleDurationSeconds*0.33f +
-		((float)rand() / RAND_MAX)*MothershipBehavior::maxRippleDurationSeconds*0.67f,
+		MothershipBehavior::maxRippleDurationSeconds * 0.33f +
+		((float)rand() / RAND_MAX) * MothershipBehavior::maxRippleDurationSeconds * 0.67f,
 		glm::vec3(surfacePointLocal[0], surfacePointLocal[1], surfacePointLocal[2]))
-		);
-	if (currentHealth < 0) {
-		currentHealth = 0;
+	);
+}
+
+void MothershipBehavior::AddNewStalk(glm::vec4 const& surfacePointLocal) {
+	if (stalks.size() == MAX_STALK_COUNT) {
+		stalks.pop_front();
 	}
-	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
-	return true;
+
+	stalks.push_back(StalkData(
+		glm::vec3(surfacePointLocal[0], surfacePointLocal[1], surfacePointLocal[2]),
+		currentFrameTime));
 }
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
@@ -128,6 +146,22 @@ void MothershipBehavior::RemoveOldRipples() {
 			break;
 		}
 		topmostRipple = ripples.front();
+	}
+}
+
+void MothershipBehavior::RemoveOldStalks() {
+	if (stalks.size() == 0) {
+		return;
+	}
+
+	StalkData topmostStalk = stalks.front();
+	while (topmostStalk.timeCreated + maxStalkDurationSeconds <
+		currentFrameTime) {
+		stalks.pop_front();
+		if (stalks.size() == 0) {
+			break;
+		}
+		topmostStalk = stalks.front();
 	}
 }
 
