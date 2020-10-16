@@ -115,8 +115,11 @@ vec3 getNewStalkPosition(vec3 vertexPosition) {
 			continue;
 		}
 
-		vec4 stalkPosition = stalkPoint.stalkPosition;
-
+		vec3 stalkPosition = vec3(stalkPoint.stalkPosition);
+		vec3 distanceVec = vertexPosition - stalkPosition;
+		float lerpVal = (ubo.time - stalkSpawnTime)/stalkDuration;
+		lerpVal = clamp(lerpVal, 0.0, 1.0);
+		// TODO: figure out function to use here
 	}
 	return vertexPosition;
 }
