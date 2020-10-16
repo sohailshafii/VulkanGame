@@ -30,7 +30,7 @@ struct RipplePointLocal {
 
 struct StalkPointLocal {
 	alignas(16) glm::vec4 stalkPosition;
-	alignas(4) float stalkSpawnTIme;
+	alignas(4) float stalkSpawnTime;
 };
 
 struct UniformBufferObjectModelViewProjRipple {

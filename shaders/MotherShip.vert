@@ -106,6 +106,21 @@ vec3 shudderEffect(vec3 vertexPosition) {
 	return vertexPosition;
 }
 
+vec3 getNewStalkPosition(vec3 vertexPosition) {
+	for (int i = 0; i < 4; i++) {
+		StalkPointLocal stalkPoint = ubo.stalkPointsLocal[i];
+		float stalkSpawnTime = stalkPoint.stalkSpawnTime;
+		// skip invalid ripples (-1 means "invalid")
+		if (stalkSpawnTime < 0.0f) {
+			continue;
+		}
+
+		vec4 stalkPosition = stalkPoint.stalkPosition;
+
+	}
+	return vertexPosition;
+}
+
 void main() {
 	vec3 vertexPosition = inPosition;
 

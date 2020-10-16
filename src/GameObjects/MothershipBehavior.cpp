@@ -181,13 +181,22 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 
 	ubo->shudderDuration = maxShudderDurationSeconds;
 	ubo->shudderStartTime = shudderStartTime;
+
+	UpdateUBORippleData(ubo);
+	UpdateUBOStalkData(ubo);
+
+	uboSize = sizeof(*ubo);
+	return ubo;
+}
+
+void MothershipBehavior::UpdateUBORippleData(
+	UniformBufferObjectModelViewProjRipple* ubo) {
 	size_t numCurrentRipples = ripples.size();
-	
 	for (size_t i = 0; i < numCurrentRipples; i++) {
 		auto& currentRipple = ripples[i];
 		RipplePointLocal& ripplePointLocal = ubo->ripplePointsLocal[i];
 		ripplePointLocal.ripplePosition = glm::vec4(currentRipple.position,
-													1.0f);
+			1.0f);
 		ripplePointLocal.rippleDuration = currentRipple.duration;
 		ripplePointLocal.rippleStartTime = currentRipple.timeCreated;
 	}
@@ -200,8 +209,26 @@ void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
 			ripplePointLocal.rippleStartTime = -1.0f;
 		}
 	}
+}
 
-	uboSize = sizeof(*ubo);
-	return ubo;
+void MothershipBehavior::UpdateUBOStalkData(
+	UniformBufferObjectModelViewProjRipple* ubo) {
+	size_t numCurrentStalks = stalks.size();
+	for (size_t i = 0; i < numCurrentStalks; i++) {
+		auto& currentStalk = stalks[i];
+		StalkPointLocal& stalkPointLocal = ubo->stalkPointsLocal[i];
+		stalkPointLocal.stalkPosition = glm::vec4(currentStalk.position,
+			1.0f);
+		stalkPointLocal.stalkSpawnTime = currentStalk.timeCreated;
+	}
+	// disable any old ripples
+	if (numCurrentStalks < MAX_STALK_COUNT) {
+		int difference = MAX_STALK_COUNT - numCurrentStalks;
+		for (size_t i = numCurrentStalks; i < numCurrentStalks + difference;
+			i++) {
+			StalkPointLocal& stalkPointLocal = ubo->stalkPointsLocal[i];
+			stalkPointLocal.stalkSpawnTime = -1.0f;
+		}
+	}
 }
 

@@ -7,6 +7,7 @@
 #include <deque>
 
 class GameObject;
+struct UniformBufferObjectModelViewProjRipple;
 
 class MothershipBehavior : public GameObjectBehavior
 {
@@ -80,4 +81,6 @@ protected:
 		const glm::mat4& viewMatrix,
 		float time,
 		float deltaTime) override;
+	void UpdateUBORippleData(UniformBufferObjectModelViewProjRipple* ubo);
+	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
 };
