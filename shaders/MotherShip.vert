@@ -60,6 +60,8 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 }
 
 vec3 getNewVertexPositionRipple(vec3 vertexPosition) {
+	vec3 offsetDirection = normalize(vertexPosition);
+
 	for (int i = 0; i < 10; i++) {
 		RipplePointLocal ripplePoint = ubo.ripplePointsLocal[i];
 		float rippleStartTime = ripplePoint.rippleStartTime;
@@ -71,7 +73,6 @@ vec3 getNewVertexPositionRipple(vec3 vertexPosition) {
 
 		vec3 currentRipplePoint = vec3(ripplePoint.ripplePosition);
 		vec3 distanceVec = vertexPosition - currentRipplePoint;
-		vec3 offsetDirection = normalize(vertexPosition);
 		// if we are close to ripple point, then add its contribution to our
 		// z value
 		// calculate lerp value based on time
@@ -106,7 +107,10 @@ vec3 shudderEffect(vec3 vertexPosition) {
 	return vertexPosition;
 }
 
+// if a vertex is too far away from a stalk, it should not be affected
 vec3 getNewStalkPosition(vec3 vertexPosition) {
+	vec3 offsetDirection = normalize(vertexPosition);
+
 	for (int i = 0; i < 4; i++) {
 		StalkPointLocal stalkPoint = ubo.stalkPointsLocal[i];
 		float stalkSpawnTime = stalkPoint.stalkSpawnTime;
@@ -117,9 +121,13 @@ vec3 getNewStalkPosition(vec3 vertexPosition) {
 
 		vec3 stalkPosition = vec3(stalkPoint.stalkPosition);
 		vec3 distanceVec = vertexPosition - stalkPosition;
+		float dotProd = dot(distanceVec, distanceVec);
 		float lerpVal = (ubo.time - stalkSpawnTime)/stalkDuration;
 		lerpVal = clamp(lerpVal, 0.0, 1.0);
+		float distance = sqrt(dotProd);
+		float bumpIntensity = cos(distance);
 		// TODO: figure out function to use here
+		vertexPosition += bumpIntensity*0.01*offsetDirection;
 	}
 	return vertexPosition;
 }
@@ -132,6 +140,8 @@ void main() {
 	}
 
 	vertexPosition = getNewVertexPositionRipple(vertexPosition);
+
+	vertexPosition = getNewStalkPosition(vertexPosition);
 
 	gl_Position = ubo.proj * ubo.view *
 		ubo.model * vec4(vertexPosition, 1.0);

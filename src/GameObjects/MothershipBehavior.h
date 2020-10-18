@@ -19,7 +19,7 @@ public:
 	virtual GameObjectBehavior::BehaviorStatus UpdateSelf(float time,
 		float deltaTime) override;
 
-	void SpawnGameObject() const;
+	void SpawnPawn();
 
 	float GetRadius() const {
 		return radius;

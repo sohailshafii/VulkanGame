@@ -23,5 +23,5 @@ private:
 
 	void InitializeIfNecessary(float time);
 	void SpawnPawnBasedOnTime(MothershipBehavior
-		const& motherShip, float time);
+		& motherShip, float time);
 };

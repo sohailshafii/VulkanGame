@@ -34,7 +34,7 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(
 	return UpdateStateMachine(time, deltaTime);
 }
 
-void MothershipBehavior::SpawnGameObject() const {
+void MothershipBehavior::SpawnPawn() {
 	if (scene != nullptr) {
 		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
 		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
@@ -44,6 +44,10 @@ void MothershipBehavior::SpawnGameObject() const {
 			adjustedRadius * cos(randTheta) * sin(randPhi));
 		scene->SpawnGameObject(Scene::SpawnType::Pawn, randomPos,
 			glm::vec3(0.0f, 0.0f, 1.0f));
+
+		glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
+		glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(randomPos, 1.0f);
+		AddNewStalk(surfacePointLocal);
 	}
 }
 
@@ -84,7 +88,6 @@ bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHi
 		currentHealth = 0;
 	}
 	AddNewRipple(surfacePointLocal);
-	AddNewStalk(surfacePointLocal);
 	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
 	return true;
 }
@@ -116,6 +119,7 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	float time, float deltaTime) {
 	currentFrameTime = time;
 	RemoveOldRipples();
+	RemoveOldStalks();
 	if (currentHealth == 0) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
