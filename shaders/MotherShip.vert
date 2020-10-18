@@ -108,6 +108,7 @@ vec3 shudderEffect(vec3 vertexPosition) {
 }
 
 // if a vertex is too far away from a stalk, it should not be affected
+// try something like z=cos(sqrt(x^2+y^2))/(3*(x^2+y^2) + 0.2)
 vec3 getNewStalkPosition(vec3 vertexPosition) {
 	vec3 offsetDirection = normalize(vertexPosition);
 
@@ -125,9 +126,11 @@ vec3 getNewStalkPosition(vec3 vertexPosition) {
 		float lerpVal = (ubo.time - stalkSpawnTime)/stalkDuration;
 		lerpVal = clamp(lerpVal, 0.0, 1.0);
 		float distance = sqrt(dotProd);
-		float bumpIntensity = cos(distance);
+		float numerator = cos(distance);
+		float denom = 3.0*(dotProd) + 0.2;
+		float bumpIntensity = lerpVal*numerator/denom;
 		// TODO: figure out function to use here
-		vertexPosition += bumpIntensity*0.01*offsetDirection;
+		vertexPosition += bumpIntensity*offsetDirection;
 	}
 	return vertexPosition;
 }
