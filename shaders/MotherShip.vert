@@ -111,6 +111,7 @@ vec3 shudderEffect(vec3 vertexPosition) {
 // try something like z=cos(sqrt(x^2+y^2))/(3*(x^2+y^2) + 0.2)
 vec3 getNewStalkPosition(vec3 vertexPosition) {
 	vec3 offsetDirection = normalize(vertexPosition);
+	float halfDuration = stalkDuration*0.5;
 
 	for (int i = 0; i < 4; i++) {
 		StalkPointLocal stalkPoint = ubo.stalkPointsLocal[i];
@@ -123,13 +124,21 @@ vec3 getNewStalkPosition(vec3 vertexPosition) {
 		vec3 stalkPosition = vec3(stalkPoint.stalkPosition);
 		vec3 distanceVec = vertexPosition - stalkPosition;
 		float dotProd = dot(distanceVec, distanceVec);
-		float lerpVal = (ubo.time - stalkSpawnTime)/stalkDuration;
+
+		// 0.0-half time: lerp to peak, half time-death: lerp back to zero
+		float halfwayPoint = stalkSpawnTime + halfDuration;
+		float lerpVal = (ubo.time - stalkSpawnTime)/halfDuration;
+		if (ubo.time > halfwayPoint) {
+			lerpVal = (ubo.time - halfwayPoint)/halfDuration;
+			// invert it -- we go backwards here
+			lerpVal = 1.0 - lerpVal;
+		}
 		lerpVal = clamp(lerpVal, 0.0, 1.0);
+
 		float distance = sqrt(dotProd);
 		float numerator = cos(distance);
 		float denom = 3.0*(dotProd) + 0.2;
 		float bumpIntensity = lerpVal*numerator/denom;
-		// TODO: figure out function to use here
 		vertexPosition += bumpIntensity*offsetDirection;
 	}
 	return vertexPosition;
