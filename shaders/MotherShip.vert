@@ -59,9 +59,9 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 	return numerator/denominator;
 }
 
-vec3 getNewVertexPositionRipple(vec3 vertexPosition) {
+vec3 getNewVertexOffsetRipple(vec3 vertexPosition) {
 	vec3 offsetDirection = normalize(vertexPosition);
-
+	vec3 vertexOffset = vec3(0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < 10; i++) {
 		RipplePointLocal ripplePoint = ubo.ripplePointsLocal[i];
 		float rippleStartTime = ripplePoint.rippleStartTime;
@@ -82,10 +82,10 @@ vec3 getNewVertexPositionRipple(vec3 vertexPosition) {
 		float newHeightVal = rippleHeightValue(vec2(vertexPosition.x,
 			vertexPosition.y), vec2(currentRipplePoint.x, currentRipplePoint.y),
 			lerpVal);
-		vertexPosition += offsetDirection*newHeightVal;
+		vertexOffset += offsetDirection*newHeightVal;
 	}
 
-	return vertexPosition;
+	return vertexOffset;
 }
 
 // https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
@@ -97,21 +97,23 @@ vec3 shudderEffect(vec3 vertexPosition) {
 	float lerpVal = (ubo.time - ubo.shudderStartTime)/ubo.shudderDuration;
 	lerpVal = clamp(lerpVal, 0.0, 1.0);
 	float intensity = mix(0.025f, 0.0f, lerpVal);
-	vertexPosition.x += intensity*rand(vec2(ubo.time+vertexPosition.y,
+	vec3 offsetVec = vec3(0.0, 0.0, 0.0);
+	offsetVec.x += intensity*rand(vec2(ubo.time+vertexPosition.y,
 		ubo.time+vertexPosition.z));
-	vertexPosition.y += intensity*rand(vec2(ubo.time+vertexPosition.x,
+	offsetVec.y += intensity*rand(vec2(ubo.time+vertexPosition.x,
 		ubo.time+vertexPosition.z));
-	vertexPosition.z += intensity*rand(vec2(ubo.time+vertexPosition.x,
+	offsetVec.z += intensity*rand(vec2(ubo.time+vertexPosition.x,
 		ubo.time+vertexPosition.y));
 
-	return vertexPosition;
+	return offsetVec;
 }
 
 // if a vertex is too far away from a stalk, it should not be affected
 // try something like z=cos(sqrt(x^2+y^2))/(3*(x^2+y^2) + 0.2)
-vec3 getNewStalkPosition(vec3 vertexPosition) {
+vec3 getNewStalkOffset(vec3 vertexPosition) {
 	vec3 offsetDirection = normalize(vertexPosition);
 	float halfDuration = stalkDuration*0.5;
+	vec3 offsetVec = vec3(0.0, 0.0, 0.0);
 
 	for (int i = 0; i < 4; i++) {
 		StalkPointLocal stalkPoint = ubo.stalkPointsLocal[i];
@@ -139,21 +141,24 @@ vec3 getNewStalkPosition(vec3 vertexPosition) {
 		float numerator = cos(distance);
 		float denom = 3.0*(dotProd) + 0.2;
 		float bumpIntensity = lerpVal*numerator/denom;
-		vertexPosition += bumpIntensity*offsetDirection;
+		offsetVec += bumpIntensity*offsetDirection;
 	}
-	return vertexPosition;
+	return offsetVec;
 }
 
 void main() {
 	vec3 vertexPosition = inPosition;
+	// use original vertex position in effects
+	// that way their offsets are based on the original local pos
+	vec3 vertexPositionOriginal = vertexPosition;
 
 	if (ubo.time < (ubo.shudderStartTime + ubo.shudderDuration)) {
-		vertexPosition = shudderEffect(vertexPosition);
+		vertexPosition += shudderEffect(vertexPositionOriginal);
 	}
 
-	vertexPosition = getNewVertexPositionRipple(vertexPosition);
+	vertexPosition += getNewVertexOffsetRipple(vertexPositionOriginal);
 
-	vertexPosition = getNewStalkPosition(vertexPosition);
+	vertexPosition += getNewStalkOffset(vertexPositionOriginal);
 
 	gl_Position = ubo.proj * ubo.view *
 		ubo.model * vec4(vertexPosition, 1.0);

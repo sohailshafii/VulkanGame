@@ -4,6 +4,9 @@
 #include "MothershipBehavior.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
+
+const float ShipFiringLevel2Behavior::timeUntilNextSpawn = 1.1f;
 
 ShipFiringLevel2Behavior::ShipFiringLevel2Behavior() {
 	timeToSwitchState = -1.0f;
@@ -14,6 +17,7 @@ ShipStateBehavior* ShipFiringLevel2Behavior::UpdateAndGetNextState(
 	MothershipBehavior & motherShip,
 	float time, float deltaTime) {
 	InitializeIfNecessary(time);
+	SpawnPawnBasedOnTime(motherShip, time);
 
 	modelMatrix = glm::rotate(motherShip.GetModelMatrix(),
 		-0.5f * deltaTime, axisOfRotation);
@@ -36,6 +40,16 @@ ShipStateBehavior* ShipFiringLevel2Behavior::UpdateAndGetNextState(
 void ShipFiringLevel2Behavior::InitializeIfNecessary(float time) {
 	if (timeToSwitchState < 0.0f) {
 		timeToSwitchState = time + (float)(rand() % 3) + 10.0f;
-		nextTimeToSpawnPawn = time + (float)(rand() % 3) + 1.5f;
+		nextTimeToSpawnPawn = time + (float)(rand() % 3) + timeUntilNextSpawn;
+	}
+}
+
+void ShipFiringLevel2Behavior::SpawnPawnBasedOnTime(
+	MothershipBehavior& motherShip,
+	float time) {
+	if (time > nextTimeToSpawnPawn) {
+		motherShip.SpawnPawn();
+		nextTimeToSpawnPawn = time + (float)(rand() % 3) + timeUntilNextSpawn;
+		std::cout << "Spawned pawn at time: " << time << ".\n";
 	}
 }

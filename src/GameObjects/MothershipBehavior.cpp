@@ -34,6 +34,7 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(
 	return UpdateStateMachine(time, deltaTime);
 }
 
+// TODO: spawn on areas of ship FACING player
 void MothershipBehavior::SpawnPawn() {
 	if (scene != nullptr) {
 		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);

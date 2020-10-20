@@ -21,5 +21,9 @@ private:
 	glm::mat4 modelMatrix;
 	glm::vec3 axisOfRotation;
 
+	static const float timeUntilNextSpawn;
+
 	void InitializeIfNecessary(float time);
+	void SpawnPawnBasedOnTime(MothershipBehavior
+		& motherShip, float time);
 };
