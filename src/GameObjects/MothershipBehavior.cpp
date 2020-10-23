@@ -2,6 +2,7 @@
 #include "ShipIdleStateBehavior.h"
 #include "GameObjectCreationUtilFuncs.h"
 #include "DescriptorSetFunctions.h"
+#include "GameObject.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -34,15 +35,35 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateSelf(
 	return UpdateStateMachine(time, deltaTime);
 }
 
-// TODO: spawn on areas of ship FACING player
 void MothershipBehavior::SpawnPawn() {
 	if (scene != nullptr) {
+		auto playerGameObject = scene->GetPlayerGameObject();
+		if (playerGameObject == nullptr) {
+			return;
+		}
+		// spawn using player position. pawns should be spawned on
+		// side of ship facing the player. so create plane that represents half
+		// space on the player's side
+		auto playerWorldPosition = playerGameObject->GetWorldPosition();
+		auto worldPosition = GetWorldPosition();
+		auto worldPosVecToPlayer = playerWorldPosition - worldPosition;
+		worldPosVecToPlayer = glm::normalize(worldPosVecToPlayer);
+		float planeDistance =-glm::dot(worldPosition, worldPosVecToPlayer);
+
 		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
 		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
-		float adjustedRadius = radius * 0.7f;
-		glm::vec3 randomPos(adjustedRadius * sin(randTheta) * sin(randPhi),
-			adjustedRadius * cos(randPhi),
-			adjustedRadius * cos(randTheta) * sin(randPhi));
+		glm::vec3 randomPos(radius * 0.7f * sin(randTheta) * sin(randPhi),
+			radius * 0.7f * cos(randPhi),
+			radius * 0.7f * cos(randTheta) * sin(randPhi));
+
+		// on wrong side? reflect along normal
+		float randomPosDist = glm::dot(worldPosVecToPlayer, randomPos)
+			+ planeDistance;
+		if (randomPosDist < 0.0f) {
+			randomPos += randomPosDist * worldPosVecToPlayer;
+			std::cout << "moving random pos to other side\n";
+		}
+
 		scene->SpawnGameObject(Scene::SpawnType::Pawn, randomPos,
 			glm::vec3(0.0f, 0.0f, 1.0f));
 
