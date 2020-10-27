@@ -83,4 +83,7 @@ protected:
 		float deltaTime) override;
 	void UpdateUBORippleData(UniformBufferObjectModelViewProjRipple* ubo);
 	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
+
+	bool RaySphereIntersection(glm::vec3 const& rayDir, glm::vec3 const& rayOrigin,
+		float radius, glm::vec3 const& sphereOrigin, float& tVal);
 };

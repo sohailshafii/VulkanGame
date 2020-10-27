@@ -41,9 +41,13 @@ void MothershipBehavior::SpawnPawn() {
 		if (playerGameObject == nullptr) {
 			return;
 		}
-		// spawn using player position. pawns should be spawned on
-		// side of ship facing the player. so create plane that represents half
-		// space on the player's side
+		// create plane representing half space facing player
+		// we want to sample point points along this plane. Then cast a vector
+		// from that point to the player to get position on sphere.
+		// the sphere position is valid assuming the path from its point
+		// to the player does not hit the sphere again (i.e. doesn't
+		// hit sphere from the inside)
+		// TODO: implement
 		auto playerWorldPosition = playerGameObject->GetWorldPosition();
 		auto worldPosition = GetWorldPosition();
 		auto worldPosVecToPlayer = playerWorldPosition - worldPosition;
@@ -52,15 +56,19 @@ void MothershipBehavior::SpawnPawn() {
 
 		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
 		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
-		glm::vec3 randomPos(radius * 0.7f * sin(randTheta) * sin(randPhi),
-			radius * 0.7f * cos(randPhi),
-			radius * 0.7f * cos(randTheta) * sin(randPhi));
+		float reducedRadius = radius * 0.7f;
+		glm::vec3 randomPos(reducedRadius * sin(randTheta) * sin(randPhi),
+			reducedRadius * cos(randPhi),
+			reducedRadius * cos(randTheta) * sin(randPhi));
 
 		// on wrong side? reflect along normal
 		float randomPosDist = glm::dot(worldPosVecToPlayer, randomPos)
 			+ planeDistance;
+		// TODO: this is wrong. need to fix
+		std::cout << "*************Distance: " << randomPosDist << std::endl;
 		if (randomPosDist < 0.0f) {
-			randomPos += randomPosDist * worldPosVecToPlayer;
+			// move by 2x distance to plane to move to other side of sphere
+			randomPos += 2.0f * fabs(randomPosDist) * worldPosVecToPlayer;
 			std::cout << "moving random pos to other side\n";
 		}
 
@@ -71,6 +79,38 @@ void MothershipBehavior::SpawnPawn() {
 		glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(randomPos, 1.0f);
 		AddNewStalk(surfacePointLocal);
 	}
+}
+
+bool MothershipBehavior::RaySphereIntersection(glm::vec3 const& rayDir,
+	glm::vec3 const& rayOrigin, float radius, glm::vec3 const& sphereOrigin,
+	float& tVal) {
+	glm::vec3 centerToRayOrigin = rayOrigin - sphereOrigin;
+	float a = glm::dot(rayDir, rayDir);
+	float b = 2.0f * glm::dot(centerToRayOrigin, rayDir);
+	float c = glm::dot(centerToRayOrigin, centerToRayOrigin) - radius* radius;
+	float discr = b * b - 4.0f * a * c;
+
+	if (discr < 0.0f) {
+		return false;
+	}
+
+	float e = sqrt(discr);
+	float denom = 2.0f * a;
+	float t = (-b - e) / denom;
+	// smaller root
+	if (t > 0.0f) {
+		tVal = t;
+		return true;
+	}
+
+	t = (-b + e) / denom;
+	if (t > 0.0f) {
+		tVal = t;
+		return true;
+	}
+
+	// all tests failed so far
+	return false;
 }
 
 void MothershipBehavior::Initialize() {
