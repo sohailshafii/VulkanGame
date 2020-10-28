@@ -49,10 +49,10 @@ void MothershipBehavior::SpawnPawn() {
 		// hit sphere from the inside)
 		// TODO: implement
 		auto playerWorldPosition = playerGameObject->GetWorldPosition();
-		auto worldPosition = GetWorldPosition();
-		auto worldPosVecToPlayer = playerWorldPosition - worldPosition;
+		auto planePosition = GetWorldPosition();
+		auto worldPosVecToPlayer = playerWorldPosition - planePosition;
 		worldPosVecToPlayer = glm::normalize(worldPosVecToPlayer);
-		float planeDistance =-glm::dot(worldPosition, worldPosVecToPlayer);
+		float planeDistance =-glm::dot(planePosition, worldPosVecToPlayer);
 
 		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
 		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
@@ -79,6 +79,47 @@ void MothershipBehavior::SpawnPawn() {
 		glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(randomPos, 1.0f);
 		AddNewStalk(surfacePointLocal);
 	}
+}
+
+glm::vec3 MothershipBehavior::SamplePositionOnPlane(glm::vec3 const& planePosition,
+	glm::vec3 const& planeNormal, float maxRadius) {
+	glm::vec3 vectorOnPlane = FindVectorPerpendicularToInputVec(planeNormal);
+	glm::vec3 vectorOnPlane2 = glm::cross(vectorOnPlane, planeNormal);
+	glm::normalize(vectorOnPlane2);
+	// make sure first vector is perpendicular to both
+	vectorOnPlane = glm::cross(planeNormal, vectorOnPlane2);
+
+	// now we have a coordinate system. time to sample
+	float randAngle = 3.14f * 0.5f * ((float)rand() / RAND_MAX);
+	return cos(randAngle) * vectorOnPlane + sin(randAngle) * vectorOnPlane2;
+}
+
+glm::vec3 MothershipBehavior::FindVectorPerpendicularToInputVec(
+	glm::vec3 const& inputVector) {
+	// find unit vector in coordinate axis that is perpendicular
+		// to forward
+	glm::vec3 candidate1(0.0f, 0.0f, 1.0f);
+	glm::vec3 candidate2(0.0f, 1.0f, 0.0f);
+	glm::vec3 candidate3(1.0f, 0.0f, 0.0f);
+	float dot1 = fabs(glm::dot(candidate1, inputVector));
+	float dot2 = fabs(glm::dot(candidate2, inputVector));
+	float dot3 = fabs(glm::dot(candidate3, inputVector));
+	glm::vec3 perpVec;
+	// the most perpendicular one has the smallest dot product
+	if (dot1 < dot2 && dot1 < dot3) {
+		// subtract out the parallel part
+		perpVec = candidate1 - inputVector * (candidate1 * inputVector);
+	}
+	else if (dot2 < dot1 && dot2 < dot3) {
+		// subtract out the parallel part
+		perpVec = candidate2 - inputVector * (candidate2 * inputVector);
+	}
+	else {
+		// subtract out the parallel part
+		perpVec = candidate3 - inputVector * (candidate3 * inputVector);
+	}
+	glm::normalize(perpVec);
+	return perpVec;
 }
 
 bool MothershipBehavior::RaySphereIntersection(glm::vec3 const& rayDir,

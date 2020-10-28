@@ -84,6 +84,9 @@ protected:
 	void UpdateUBORippleData(UniformBufferObjectModelViewProjRipple* ubo);
 	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
 
+	glm::vec3 SamplePositionOnPlane(glm::vec3 const& planePosition,
+		glm::vec3 const& planeNormal, float maxRadius);
+	glm::vec3 FindVectorPerpendicularToInputVec(glm::vec3 const& inputVector);
 	bool RaySphereIntersection(glm::vec3 const& rayDir, glm::vec3 const& rayOrigin,
 		float radius, glm::vec3 const& sphereOrigin, float& tVal);
 };
