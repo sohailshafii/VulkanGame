@@ -91,7 +91,8 @@ glm::vec3 MothershipBehavior::SamplePositionOnPlane(glm::vec3 const& planePositi
 
 	// now we have a coordinate system. time to sample
 	float randAngle = 3.14f * 0.5f * ((float)rand() / RAND_MAX);
-	return cos(randAngle) * vectorOnPlane + sin(randAngle) * vectorOnPlane2;
+	return maxRadius * cos(randAngle) * vectorOnPlane +
+		maxRadius * sin(randAngle) * vectorOnPlane2;
 }
 
 glm::vec3 MothershipBehavior::FindVectorPerpendicularToInputVec(
