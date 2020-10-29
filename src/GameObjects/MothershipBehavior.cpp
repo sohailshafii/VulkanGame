@@ -46,37 +46,43 @@ void MothershipBehavior::SpawnPawn() {
 		// from that point to the player to get position on sphere.
 		// the sphere position is valid assuming the path from its point
 		// to the player does not hit the sphere again (i.e. doesn't
-		// hit sphere from the inside)
-		// TODO: implement
+		// hit sphere from the inside). But this probably would never
+		// happen
 		auto playerWorldPosition = playerGameObject->GetWorldPosition();
 		auto planePosition = GetWorldPosition();
-		auto worldPosVecToPlayer = playerWorldPosition - planePosition;
-		worldPosVecToPlayer = glm::normalize(worldPosVecToPlayer);
-		float planeDistance =-glm::dot(planePosition, worldPosVecToPlayer);
+		auto planePosToPlayer = playerWorldPosition - planePosition;
+		planePosToPlayer = glm::normalize(planePosToPlayer);
+		float planeDistance =-glm::dot(planePosition, planePosToPlayer);
 
-		float randPhi = 3.14f * 0.5f * ((float)rand()/RAND_MAX);
-		float randTheta = 3.14f * 2.0f * ((float)rand() / RAND_MAX);
 		float reducedRadius = radius * 0.7f;
-		glm::vec3 randomPos(reducedRadius * sin(randTheta) * sin(randPhi),
-			reducedRadius * cos(randPhi),
-			reducedRadius * cos(randTheta) * sin(randPhi));
-
-		// on wrong side? reflect along normal
-		float randomPosDist = glm::dot(worldPosVecToPlayer, randomPos)
-			+ planeDistance;
-		// TODO: this is wrong. need to fix
-		std::cout << "*************Distance: " << randomPosDist << std::endl;
-		if (randomPosDist < 0.0f) {
-			// move by 2x distance to plane to move to other side of sphere
-			randomPos += 2.0f * fabs(randomPosDist) * worldPosVecToPlayer;
-			std::cout << "moving random pos to other side\n";
+		glm::vec3 positionOnSphere = planePosition;
+		int numTries = 0;
+		while (numTries < 10) {
+			glm::vec3 pointOnPlaneCrossingThroughSphere =
+				SamplePositionOnPlane(planePosition, planePosToPlayer,
+					reducedRadius);
+			glm::vec3 vectorToPlayer = glm::normalize(playerWorldPosition -
+				pointOnPlaneCrossingThroughSphere);
+			float tVal;
+			if (RaySphereIntersection(vectorToPlayer, pointOnPlaneCrossingThroughSphere,
+				radius, planePosition, tVal)) {
+				positionOnSphere = pointOnPlaneCrossingThroughSphere +
+					(tVal + radius*0.01f) * vectorToPlayer;
+				// make sure we don't hit from inside -- not sure if possible
+				if (!RaySphereIntersection(vectorToPlayer, positionOnSphere,
+					radius, planePosition, tVal)) {
+					break;
+				}
+			}
+			numTries++;
 		}
 
-		scene->SpawnGameObject(Scene::SpawnType::Pawn, randomPos,
+		scene->SpawnGameObject(Scene::SpawnType::Pawn, positionOnSphere,
 			glm::vec3(0.0f, 0.0f, 1.0f));
 
 		glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
-		glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(randomPos, 1.0f);
+		glm::vec4 surfacePointLocal = worldToModelMat *
+			glm::vec4(positionOnSphere, 1.0f);
 		AddNewStalk(surfacePointLocal);
 	}
 }
@@ -90,7 +96,8 @@ glm::vec3 MothershipBehavior::SamplePositionOnPlane(glm::vec3 const& planePositi
 	vectorOnPlane = glm::cross(planeNormal, vectorOnPlane2);
 
 	// now we have a coordinate system. time to sample
-	float randAngle = 3.14f * 0.5f * ((float)rand() / RAND_MAX);
+	// on unit circle
+	float randAngle = 3.14f * ((float)rand() / RAND_MAX);
 	return maxRadius * cos(randAngle) * vectorOnPlane +
 		maxRadius * sin(randAngle) * vectorOnPlane2;
 }
@@ -98,7 +105,7 @@ glm::vec3 MothershipBehavior::SamplePositionOnPlane(glm::vec3 const& planePositi
 glm::vec3 MothershipBehavior::FindVectorPerpendicularToInputVec(
 	glm::vec3 const& inputVector) {
 	// find unit vector in coordinate axis that is perpendicular
-		// to forward
+	// to forward
 	glm::vec3 candidate1(0.0f, 0.0f, 1.0f);
 	glm::vec3 candidate2(0.0f, 1.0f, 0.0f);
 	glm::vec3 candidate3(1.0f, 0.0f, 0.0f);
