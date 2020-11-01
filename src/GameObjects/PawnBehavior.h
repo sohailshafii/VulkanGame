@@ -26,6 +26,9 @@ private:
 						 glm::vec3 const & pawnPosition);
 	void ComputeHeadingDir(std::shared_ptr<GameObject>
 						   const & playerGameObject);
+	
+	enum PawnState { Spawning = 0, HeadingToPlayer };
+	// TODO states for pawn
 	//glm::vec3 ComputeCurrentPawnPosition(std::shared_ptr<GameObject>
 		//								 const & playerGameObject);
 	
