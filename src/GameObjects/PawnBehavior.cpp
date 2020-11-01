@@ -1,5 +1,6 @@
 #include "PawnBehavior.h"
 #include "GameObject.h"
+#include "MothershipBehavior.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,9 +12,11 @@ const float PawnBehavior::maxVelocityMagnitude = 2.0f;
 PawnBehavior::PawnBehavior() : currentVelocity(0.0f) {
 }
 
-PawnBehavior::PawnBehavior(Scene* const scene) 
+PawnBehavior::PawnBehavior(Scene* const scene,
+						   glm::vec3 const & initialForwardVec)
 	: GameObjectBehavior(scene), currentVelocity(0.0f),
 	destroyed(false), initialized(false) {
+		this->initialForwardVec = initialForwardVec;
 }
 	
 PawnBehavior::~PawnBehavior() {
@@ -34,25 +37,17 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 		return GameObjectBehavior::BehaviorStatus::Normal;
 	}
 
-	// do this here because in constructor our model
-	// matrix is not ready yet
-	if (!initialized) {
-		auto playerWorldPosition =
-			playerGameObject->GetWorldPosition();
-		glm::vec3 pawnPosition = GetWorldPosition();
-		initialVectorToPlayer = playerWorldPosition -
-			pawnPosition;
-		initialVectorToPlayer = glm::normalize(initialVectorToPlayer);
-		initialized = true;
-	}
+	glm::vec3 pawnPosition = GetWorldPosition();
+
+	ComputeHeadingDir(playerGameObject);
 
 	auto playerWorldPosition =
 		playerGameObject->GetWorldPosition();
-	glm::vec3 pawnPosition = GetWorldPosition();
+	pawnPosition = GetWorldPosition();
 	auto headingToPlayer = playerWorldPosition -
 		pawnPosition;
 
-	// TODO: use real physics to do intersections
+	// TODO: use real physics engine to do intersections
 	if (glm::length(headingToPlayer) < 0.001f) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
@@ -73,3 +68,24 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }
+
+void PawnBehavior::ComputeHeadingDir(std::shared_ptr<GameObject>
+									 const & playerGameObject) {
+	glm::vec3 pawnPosition = GetWorldPosition();
+	// do this here because in constructor our model
+	// matrix is not ready yet
+	if (!initialized) {
+		auto playerWorldPosition =
+			playerGameObject->GetWorldPosition();
+		initialVectorToPlayer = playerWorldPosition -
+			pawnPosition;
+		initialVectorToPlayer = glm::normalize(initialVectorToPlayer);
+		initialized = true;
+	}
+}
+
+/*glm::vec3 PawnBehavior::ComputeCurrentPawnPosition(std::shared_ptr<GameObject>
+												   const & playerGameObject) {
+	
+	
+}*/

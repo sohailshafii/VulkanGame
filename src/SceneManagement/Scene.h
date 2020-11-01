@@ -63,8 +63,9 @@ private:
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
 	VkCommandPool commandPool;
 
-	void SpawnPawnGameObject(glm::vec3 const & spawnPosition);
+	void SpawnPawnGameObject(glm::vec3 const & spawnPosition,
+							 glm::vec3 const& forwardDirection);
 	void SpawnBulletGameObject(glm::vec3 const& spawnPosition,
-		glm::vec3 const& forwardDir);
+							   glm::vec3 const& forwardDir);
 };
 

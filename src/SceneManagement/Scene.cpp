@@ -96,7 +96,7 @@ void Scene::SpawnGameObject(SpawnType spawnType,
 	glm::vec3 const& forwardDir) {
 	switch (spawnType) {
 		case SpawnType::Pawn:
-			SpawnPawnGameObject(spawnPosition);
+			SpawnPawnGameObject(spawnPosition, forwardDir);
 			break;
 		case SpawnType::Bullet:
 			SpawnBulletGameObject(spawnPosition, forwardDir);
@@ -104,7 +104,8 @@ void Scene::SpawnGameObject(SpawnType spawnType,
 	}
 }
 
-void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition) {
+void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition,
+								glm::vec3 const& forwardDirection) {
 	std::shared_ptr<Material> gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
 		"texture.jpg", resourceLoader, gfxDeviceManager,
@@ -116,7 +117,7 @@ void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition) {
 
 	std::shared_ptr<GameObject> newGameObject =
 		GameObjectCreator::CreateGameObject(gameObjectMaterial,
-			gameObjectModel, std::make_unique<PawnBehavior>(this),
+			gameObjectModel, std::make_unique<PawnBehavior>(this, forwardDirection),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	upcomingGameObjects.push_back(newGameObject);

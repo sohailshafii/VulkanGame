@@ -8,7 +8,8 @@ class PawnBehavior : public GameObjectBehavior
 {
 public:
 	PawnBehavior();
-	PawnBehavior(Scene* const scene);
+	PawnBehavior(Scene* const scene,
+				 glm::vec3 const & initialForwardVec);
 	
 	~PawnBehavior();
 
@@ -20,6 +21,11 @@ public:
 		float deltaTime) override;
 
 private:
+	void ComputeHeadingDir(std::shared_ptr<GameObject>
+						   const & playerGameObject);
+	//glm::vec3 ComputeCurrentPawnPosition(std::shared_ptr<GameObject>
+		//								 const & playerGameObject);
+	
 	static const float acceleration;
 	static const float maxVelocityMagnitude;
 
@@ -27,4 +33,5 @@ private:
 	bool destroyed;
 	bool initialized;
 	glm::vec3 initialVectorToPlayer;
+	glm::vec3 initialForwardVec;
 };

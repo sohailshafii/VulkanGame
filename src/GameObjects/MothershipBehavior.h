@@ -30,6 +30,10 @@ public:
 	int GetCurrentHealth() const {
 		return currentHealth;
 	}
+	
+	// this is a value that is matched against the value
+	// in the mothership shader file. reference by pawn
+	static const float stalkDuration;
 
 private:
 	struct RippleData {

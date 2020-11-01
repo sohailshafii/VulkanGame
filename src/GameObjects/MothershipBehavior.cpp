@@ -8,6 +8,8 @@
 #include <iostream>
 #include <cmath>
 
+const float MothershipBehavior::stalkDuration = 1.0f;
+
 const int MothershipBehavior::maxHealth = 300;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
 const float MothershipBehavior::maxStalkDurationSeconds = 1.0f;
@@ -76,14 +78,17 @@ void MothershipBehavior::SpawnPawn() {
 			}
 			numTries++;
 		}
-
-		scene->SpawnGameObject(Scene::SpawnType::Pawn, positionOnSphere,
-			glm::vec3(0.0f, 0.0f, 1.0f));
-
+		
+		// create new stalk. then pawn that corresponds to stalk
 		glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
 		glm::vec4 surfacePointLocal = worldToModelMat *
 			glm::vec4(positionOnSphere, 1.0f);
 		AddNewStalk(surfacePointLocal);
+
+		scene->SpawnGameObject(Scene::SpawnType::Pawn,
+							   positionOnSphere,
+							   // forward position is direction of stalk
+							   glm::normalize(positionOnSphere - planePosition));
 	}
 }
 
