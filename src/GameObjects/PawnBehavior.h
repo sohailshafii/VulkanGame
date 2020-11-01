@@ -21,6 +21,9 @@ public:
 		float deltaTime) override;
 
 private:
+	bool IsCloseToPlayer(std::shared_ptr<GameObject>
+						 const & playerGameObject,
+						 glm::vec3 const & pawnPosition);
 	void ComputeHeadingDir(std::shared_ptr<GameObject>
 						   const & playerGameObject);
 	//glm::vec3 ComputeCurrentPawnPosition(std::shared_ptr<GameObject>

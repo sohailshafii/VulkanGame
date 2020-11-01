@@ -39,18 +39,11 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 
 	glm::vec3 pawnPosition = GetWorldPosition();
 
-	ComputeHeadingDir(playerGameObject);
-
-	auto playerWorldPosition =
-		playerGameObject->GetWorldPosition();
-	pawnPosition = GetWorldPosition();
-	auto headingToPlayer = playerWorldPosition -
-		pawnPosition;
-
-	// TODO: use real physics engine to do intersections
-	if (glm::length(headingToPlayer) < 0.001f) {
+	if (IsCloseToPlayer(playerGameObject, pawnPosition)) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
+
+	ComputeHeadingDir(playerGameObject);
 
 	// semi-implicit euler
 	currentVelocity += acceleration * deltaTime;
@@ -67,6 +60,17 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 	modelMatrix[3][2] = pawnPosition[2];
 
 	return GameObjectBehavior::BehaviorStatus::Normal;
+}
+
+bool PawnBehavior::IsCloseToPlayer(std::shared_ptr<GameObject>
+								   const & playerGameObject,
+								   glm::vec3 const & pawnPosition) {
+	auto playerWorldPosition =
+		playerGameObject->GetWorldPosition();
+	auto headingToPlayer = playerWorldPosition -
+		pawnPosition;
+	// TODO: use real physics engine to do intersections
+	return glm::length(headingToPlayer) < 0.001f;
 }
 
 void PawnBehavior::ComputeHeadingDir(std::shared_ptr<GameObject>
