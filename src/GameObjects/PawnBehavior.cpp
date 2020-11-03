@@ -9,13 +9,14 @@
 const float PawnBehavior::acceleration = 0.1f;
 const float PawnBehavior::maxVelocityMagnitude = 2.0f;
 
-PawnBehavior::PawnBehavior() : currentVelocity(0.0f) {
+PawnBehavior::PawnBehavior() : currentVelocity(0.0f),
+	currentPawnState(JustCreated) {
 }
 
 PawnBehavior::PawnBehavior(Scene* const scene,
 						   glm::vec3 const & initialForwardVec)
 	: GameObjectBehavior(scene), currentVelocity(0.0f),
-	destroyed(false), initialized(false) {
+	currentPawnState(JustCreated) {
 		this->initialForwardVec = initialForwardVec;
 }
 	
@@ -24,7 +25,7 @@ PawnBehavior::~PawnBehavior() {
 
 GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 	float deltaTime) {
-	if (destroyed) {
+	if (currentPawnState == Destroyed) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 
@@ -40,6 +41,7 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 	glm::vec3 pawnPosition = GetWorldPosition();
 
 	if (IsCloseToPlayer(playerGameObject, pawnPosition)) {
+		currentPawnState = Destroyed;
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 
@@ -76,15 +78,19 @@ bool PawnBehavior::IsCloseToPlayer(std::shared_ptr<GameObject>
 void PawnBehavior::ComputeHeadingDir(std::shared_ptr<GameObject>
 									 const & playerGameObject) {
 	glm::vec3 pawnPosition = GetWorldPosition();
-	// do this here because in constructor our model
-	// matrix is not ready yet
-	if (!initialized) {
-		auto playerWorldPosition =
-			playerGameObject->GetWorldPosition();
-		initialVectorToPlayer = playerWorldPosition -
-			pawnPosition;
-		initialVectorToPlayer = glm::normalize(initialVectorToPlayer);
-		initialized = true;
+	switch (currentPawnState) {
+		case JustCreated:
+			auto playerWorldPosition =
+				playerGameObject->GetWorldPosition();
+			initialVectorToPlayer = playerWorldPosition -
+				pawnPosition;
+			initialVectorToPlayer = glm::normalize(initialVectorToPlayer);
+			currentPawnState = Spawning;
+			break;
+		case Spawning:
+			break;
+		case HeadingToPlayer:
+			break;
 	}
 }
 

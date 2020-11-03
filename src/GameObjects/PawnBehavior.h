@@ -14,7 +14,7 @@ public:
 	~PawnBehavior();
 
 	void Destroy() {
-		destroyed = true;
+		currentPawnState = Destroyed;
 	}
 
 	virtual GameObjectBehavior::BehaviorStatus UpdateSelf(float time,
@@ -27,7 +27,7 @@ private:
 	void ComputeHeadingDir(std::shared_ptr<GameObject>
 						   const & playerGameObject);
 	
-	enum PawnState { Spawning = 0, HeadingToPlayer };
+	enum PawnState { JustCreated = 0, Spawning, HeadingToPlayer, Destroyed };
 	// TODO states for pawn
 	//glm::vec3 ComputeCurrentPawnPosition(std::shared_ptr<GameObject>
 		//								 const & playerGameObject);
@@ -36,8 +36,7 @@ private:
 	static const float maxVelocityMagnitude;
 
 	float currentVelocity;
-	bool destroyed;
-	bool initialized;
+	PawnState currentPawnState;
 	glm::vec3 initialVectorToPlayer;
 	glm::vec3 initialForwardVec;
 };
