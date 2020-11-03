@@ -24,8 +24,10 @@ private:
 	bool IsCloseToPlayer(std::shared_ptr<GameObject>
 						 const & playerGameObject,
 						 glm::vec3 const & pawnPosition);
-	void ComputeHeadingDir(std::shared_ptr<GameObject>
-						   const & playerGameObject);
+	glm::vec3 ComputeMovement(std::shared_ptr<GameObject>
+						const & playerGameObject,
+						float currentTime,
+						float deltaTime);
 	
 	enum PawnState { JustCreated = 0, Spawning, HeadingToPlayer, Destroyed };
 	// TODO states for pawn
@@ -37,6 +39,8 @@ private:
 
 	float currentVelocity;
 	PawnState currentPawnState;
-	glm::vec3 initialVectorToPlayer;
-	glm::vec3 initialForwardVec;
+	glm::vec3 currentForwardVec;
+	glm::vec3 startPosition;
+
+	float timeBeginState, timeEndState;
 };

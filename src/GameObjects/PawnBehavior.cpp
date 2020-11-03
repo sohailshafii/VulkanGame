@@ -17,7 +17,7 @@ PawnBehavior::PawnBehavior(Scene* const scene,
 						   glm::vec3 const & initialForwardVec)
 	: GameObjectBehavior(scene), currentVelocity(0.0f),
 	currentPawnState(JustCreated) {
-		this->initialForwardVec = initialForwardVec;
+		this->currentForwardVec = initialForwardVec;
 }
 	
 PawnBehavior::~PawnBehavior() {
@@ -45,17 +45,8 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 
-	ComputeHeadingDir(playerGameObject);
-
-	// semi-implicit euler
-	currentVelocity += acceleration * deltaTime;
-	if (currentVelocity > maxVelocityMagnitude) {
-		currentVelocity = maxVelocityMagnitude;
-	}
-	else if (currentVelocity < -maxVelocityMagnitude) {
-		currentVelocity = -maxVelocityMagnitude;
-	}
-	pawnPosition += currentVelocity * initialVectorToPlayer;
+	pawnPosition = ComputeMovement(playerGameObject, time,
+		deltaTime);
 
 	modelMatrix[3][0] = pawnPosition[0];
 	modelMatrix[3][1] = pawnPosition[1];
@@ -75,23 +66,56 @@ bool PawnBehavior::IsCloseToPlayer(std::shared_ptr<GameObject>
 	return glm::length(headingToPlayer) < 0.001f;
 }
 
-void PawnBehavior::ComputeHeadingDir(std::shared_ptr<GameObject>
-									 const & playerGameObject) {
+glm::vec3 PawnBehavior::ComputeMovement(std::shared_ptr<GameObject>
+										const & playerGameObject,
+										float currentTime,
+										float deltaTime) {
 	glm::vec3 pawnPosition = GetWorldPosition();
+
 	switch (currentPawnState) {
 		case JustCreated:
-			auto playerWorldPosition =
-				playerGameObject->GetWorldPosition();
-			initialVectorToPlayer = playerWorldPosition -
-				pawnPosition;
-			initialVectorToPlayer = glm::normalize(initialVectorToPlayer);
+			timeBeginState = currentTime;
+			timeEndState = currentTime + MothershipBehavior::stalkDuration;
+			startPosition = pawnPosition;
 			currentPawnState = Spawning;
 			break;
 		case Spawning:
+			if (currentTime > timeEndState) {
+				auto playerWorldPosition =
+					playerGameObject->GetWorldPosition();
+				currentForwardVec = glm::normalize(playerWorldPosition -
+					pawnPosition);
+				currentPawnState = HeadingToPlayer;
+			}
+			else {
+				float lerpVal = (currentTime - timeBeginState) /
+					(timeEndState - timeBeginState);
+				if (lerpVal > 1.0f) {
+					lerpVal = 1.0f;
+				}
+				
+				glm::vec3 endPos = startPosition +
+					// based on equation found in vertex shader
+					// for mothership...for max displacement
+					currentForwardVec * 1.0f / 0.2f;
+				pawnPosition = startPosition * (1.0f - lerpVal)
+					+ endPos * lerpVal;
+			}
 			break;
 		case HeadingToPlayer:
+			// semi-implicit euler
+			currentVelocity += acceleration * deltaTime;
+			if (currentVelocity > maxVelocityMagnitude) {
+				currentVelocity = maxVelocityMagnitude;
+			}
+			else if (currentVelocity < -maxVelocityMagnitude) {
+				currentVelocity = -maxVelocityMagnitude;
+			}
+			pawnPosition += currentVelocity * currentForwardVec;
 			break;
 	}
+
+	return pawnPosition;
 }
 
 /*glm::vec3 PawnBehavior::ComputeCurrentPawnPosition(std::shared_ptr<GameObject>
