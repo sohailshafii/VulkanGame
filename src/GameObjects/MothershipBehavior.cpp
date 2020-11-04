@@ -8,7 +8,8 @@
 #include <iostream>
 #include <cmath>
 
-const float MothershipBehavior::stalkDuration = 1.0f;
+// based on the shader. the stalk spends half its time rising
+const float MothershipBehavior::stalkRiseDuration = 0.5f;
 
 const int MothershipBehavior::maxHealth = 300;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;

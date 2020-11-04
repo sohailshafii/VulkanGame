@@ -75,7 +75,7 @@ glm::vec3 PawnBehavior::ComputeMovement(std::shared_ptr<GameObject>
 	switch (currentPawnState) {
 		case JustCreated:
 			timeBeginState = currentTime;
-			timeEndState = currentTime + MothershipBehavior::stalkDuration;
+			timeEndState = currentTime + MothershipBehavior::stalkRiseDuration;
 			startPosition = pawnPosition;
 			currentPawnState = Spawning;
 			break;
@@ -97,7 +97,9 @@ glm::vec3 PawnBehavior::ComputeMovement(std::shared_ptr<GameObject>
 				glm::vec3 endPos = startPosition +
 					// based on equation found in vertex shader
 					// for mothership...for max displacement
-					currentForwardVec * 1.0f / 0.2f;
+					// we use a constant that is slightly larger than
+					// what the shader uses (1.0/0.2 or 8.0)
+					currentForwardVec * 10.0f;
 				pawnPosition = startPosition * (1.0f - lerpVal)
 					+ endPos * lerpVal;
 			}

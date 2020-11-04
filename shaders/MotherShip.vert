@@ -15,6 +15,7 @@ struct StalkPointLocal {
 };
 
 const float stalkDuration = 1.0f;
+const float epsilon = 0.001f;
 
 layout(binding = 0) uniform UniformBufferObject {
 	mat4 model;
@@ -55,6 +56,12 @@ float rippleHeightValue(vec2 vertexPos, vec2 rippleCenter, float lerpValue) {
 	float denomOffset = mix(1.0f, 40.0f, lerpValue);
 
 	float numerator = cos(heightTerm*sqrt(dotProd) - numeratorOffset);
+	if (numerator < epsilon && numerator > 0) {
+		numerator = epsilon;
+	}
+	if (numerator < -epsilon && numerator < 0) {
+		numerator = -epsilon;
+	}
 	float denominator = heightTerm*dotProd + denomOffset;
 	return numerator/denominator;
 }
@@ -139,6 +146,12 @@ vec3 getNewStalkOffset(vec3 vertexPosition) {
 
 		float distance = sqrt(dotProd);
 		float numerator = cos(distance);
+		if (numerator < epsilon && numerator > 0) {
+			numerator = epsilon;
+		}
+		if (numerator < -epsilon && numerator < 0) {
+			numerator = -epsilon;
+		}
 		float denom = 3.0*(dotProd) + 0.2;
 		float bumpIntensity = lerpVal*numerator/denom;
 		offsetVec += bumpIntensity*offsetDirection;
