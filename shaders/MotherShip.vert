@@ -14,7 +14,7 @@ struct StalkPointLocal {
 	float stalkSpawnTime;	
 };
 
-const float stalkDuration = 1.0f;
+const float stalkDuration = 2.0f;
 const float epsilon = 0.001f;
 
 layout(binding = 0) uniform UniformBufferObject {
@@ -119,7 +119,7 @@ vec3 shudderEffect(vec3 vertexPosition) {
 // try something like z=cos(sqrt(x^2+y^2))/(3*(x^2+y^2) + 0.2)
 vec3 getNewStalkOffset(vec3 vertexPosition) {
 	vec3 offsetDirection = normalize(vertexPosition);
-	float halfDuration = stalkDuration*0.5;
+	float riseDuration = stalkDuration*0.25;
 	vec3 offsetVec = vec3(0.0, 0.0, 0.0);
 
 	for (int i = 0; i < 4; i++) {
@@ -134,11 +134,11 @@ vec3 getNewStalkOffset(vec3 vertexPosition) {
 		vec3 distanceVec = vertexPosition - stalkPosition;
 		float dotProd = dot(distanceVec, distanceVec);
 
-		// 0.0-half time: lerp to peak, half time-death: lerp back to zero
-		float halfwayPoint = stalkSpawnTime + halfDuration;
-		float lerpVal = (ubo.time - stalkSpawnTime)/halfDuration;
-		if (ubo.time > halfwayPoint) {
-			lerpVal = (ubo.time - halfwayPoint)/halfDuration;
+		// 0.0-rise time: lerp to peak, rise time-death: lerp back to zero
+		float risePoint = stalkSpawnTime + riseDuration;
+		float lerpVal = (ubo.time - stalkSpawnTime)/riseDuration;
+		if (ubo.time > risePoint) {
+			lerpVal = (ubo.time - risePoint)/(stalkDuration*0.75);
 			// invert it -- we go backwards here
 			lerpVal = 1.0 - lerpVal;
 		}

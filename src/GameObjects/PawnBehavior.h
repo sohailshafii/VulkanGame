@@ -30,9 +30,6 @@ private:
 						float deltaTime);
 	
 	enum PawnState { JustCreated = 0, Spawning, HeadingToPlayer, Destroyed };
-	// TODO states for pawn
-	//glm::vec3 ComputeCurrentPawnPosition(std::shared_ptr<GameObject>
-		//								 const & playerGameObject);
 	
 	static const float acceleration;
 	static const float maxVelocityMagnitude;

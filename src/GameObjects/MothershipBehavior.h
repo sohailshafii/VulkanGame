@@ -79,6 +79,8 @@ private:
 	void RemoveOldRipples();
 	void RemoveOldStalks();
 
+	int FindIndexOfStalkCloseToPosition(glm::vec3 const& surfacePointLocal);
+
 protected:
 	virtual void* GetUniformBufferModelViewProjRipple(
 		size_t& uboSize, VkExtent2D const& swapChainExtent,

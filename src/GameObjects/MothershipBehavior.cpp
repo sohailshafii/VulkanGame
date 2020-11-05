@@ -13,7 +13,7 @@ const float MothershipBehavior::stalkRiseDuration = 0.5f;
 
 const int MothershipBehavior::maxHealth = 300;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
-const float MothershipBehavior::maxStalkDurationSeconds = 1.0f;
+const float MothershipBehavior::maxStalkDurationSeconds = 2.0f;
 const float MothershipBehavior::maxShudderDurationSeconds = 0.25f;
 
 MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
@@ -172,7 +172,8 @@ void MothershipBehavior::Initialize() {
 	currentShipStateBehavior = new ShipIdleStateBehavior();
 }
 
-bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHitPosition) {
+bool MothershipBehavior::TakeDamageIfHit(int damage,
+	glm::vec3 const& possibleHitPosition) {
 	if (currentHealth == 0) {
 		return false;
 	}
@@ -194,16 +195,23 @@ bool MothershipBehavior::TakeDamageIfHit(int damage, glm::vec3 const& possibleHi
 	else if (currentFrameTime > shudderStartTime + maxShudderDurationSeconds){
 		shudderStartTime = -1.0f;
 	}
-	currentHealth -= damage;
 
 	vectorFromCenter /= vecFromCenterMagn;
 	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
 	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
 	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
 
+	if (FindIndexOfStalkCloseToPosition(glm::vec3(surfacePointLocal[0],
+		surfacePointLocal[1], surfacePointLocal[2]))) {
+		damage = (int)(damage*1.5f);
+		std::cout << "HIT STALK! Damage is now: " << damage << std::endl;
+	}
+	currentHealth -= damage;
+	// TODO: death
 	if (currentHealth < 0) {
 		currentHealth = 0;
 	}
+
 	AddNewRipple(surfacePointLocal);
 	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
 	return true;
@@ -284,6 +292,23 @@ void MothershipBehavior::RemoveOldStalks() {
 		}
 		topmostStalk = stalks.front();
 	}
+}
+
+int MothershipBehavior::FindIndexOfStalkCloseToPosition(
+	glm::vec3 const& surfacePointLocal) {
+	int foundIndex = -1;
+	size_t numCurrentStalks = stalks.size();
+	for (size_t i = 0; i < numCurrentStalks; i++) {
+		auto& currentStalk = stalks[i];
+		glm::vec3 stalkLocalPos = currentStalk.position;
+		// if we are close enough, consider it
+		if (glm::length(stalkLocalPos - surfacePointLocal) < 0.1f) {
+			foundIndex = (int)i;
+			break;
+		}
+	}
+
+	return foundIndex;
 }
 
 void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
