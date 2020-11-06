@@ -37,12 +37,12 @@ public:
 		std::vector<std::shared_ptr<GameObject>>& newGameObjects,
 		std::vector<std::shared_ptr<GameObject>>& allGameObjects);
 	
-	void RemoveCommandsForGameObjects(
+	void RemoveGameObjectsAndRecordCommands(
 		std::vector<VkFence> const& inFlightFences,
 		std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
 		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
 
-	void RemoveCommandsForGameObjects(
+	void RemoveGameObjectsAndRecordCommands(
 		std::vector<VkFence> const& inFlightFences,
 		std::vector<GameObject*>& gameObjectsToRemove,
 		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);

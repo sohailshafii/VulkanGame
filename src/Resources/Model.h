@@ -139,6 +139,10 @@ public:
 		return indices;
 	}
 
+	std::vector<ModelVert>& GetVertices() {
+		return vertices;
+	}
+
 	TopologyType GetTopologyType() const {
 		return modelTopology;
 	}

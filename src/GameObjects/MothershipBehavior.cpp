@@ -3,6 +3,7 @@
 #include "GameObjectCreationUtilFuncs.h"
 #include "DescriptorSetFunctions.h"
 #include "GameObject.h"
+#include "Model.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -201,10 +202,14 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
 	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
 
-	if (FindIndexOfStalkCloseToPosition(glm::vec3(surfacePointLocal[0],
-		surfacePointLocal[1], surfacePointLocal[2]))) {
+	glm::vec3 surfacePointLocalVec3(glm::vec3(surfacePointLocal[0],
+		surfacePointLocal[1], surfacePointLocal[2]));
+	float damageDistance = 0.1f;
+	if (FindIndexOfStalkCloseToPosition(surfacePointLocalVec3, damageDistance)) {
 		damage = (int)(damage*1.5f);
 		std::cout << "HIT STALK! Damage is now: " << damage << std::endl;
+		AffectModelColors(surfacePointLocalVec3, 0.1f, glm::vec3(1.0f, 0.0f, 0.f));
+		// TODO: re-record commands
 	}
 	currentHealth -= damage;
 	// TODO: death
@@ -215,6 +220,23 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 	AddNewRipple(surfacePointLocal);
 	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
 	return true;
+}
+
+void MothershipBehavior::AffectModelColors(glm::vec3 const& localPosition,
+	float radius, glm::vec3 const& color) {
+	std::shared_ptr<Model> gameObjectModel = gameObject->GetModel();
+	std::vector<Model::ModelVert> & modelVerts = gameObjectModel->GetVertices();
+	for (size_t index = 0; index < modelVerts.size(); index++) {
+		float distance = glm::length(modelVerts[index].position -
+			localPosition);
+		if (distance < radius) {
+			// increases to 1.0 when you approach 0
+			float lerpVal = 1.0 - distance / radius;
+			glm::vec3 originalColor = modelVerts[index].color;
+			modelVerts[index].color = lerpVal * color + (1.0f - lerpVal)
+				* originalColor;
+		}
+	}
 }
 
 void MothershipBehavior::AddNewRipple(glm::vec4 const & surfacePointLocal) {
@@ -295,14 +317,14 @@ void MothershipBehavior::RemoveOldStalks() {
 }
 
 int MothershipBehavior::FindIndexOfStalkCloseToPosition(
-	glm::vec3 const& surfacePointLocal) {
+	glm::vec3 const& surfacePointLocal, float distance) {
 	int foundIndex = -1;
 	size_t numCurrentStalks = stalks.size();
 	for (size_t i = 0; i < numCurrentStalks; i++) {
 		auto& currentStalk = stalks[i];
 		glm::vec3 stalkLocalPos = currentStalk.position;
 		// if we are close enough, consider it
-		if (glm::length(stalkLocalPos - surfacePointLocal) < 0.1f) {
+		if (glm::length(stalkLocalPos - surfacePointLocal) < distance) {
 			foundIndex = (int)i;
 			break;
 		}

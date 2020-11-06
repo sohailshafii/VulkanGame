@@ -69,7 +69,7 @@ void GraphicsEngine::RecordCommandsForNewGameObjects(
 	}
 }
 
-void GraphicsEngine::RemoveCommandsForGameObjects(
+void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<VkFence> const& inFlightFences,
 	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
 	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
@@ -82,7 +82,7 @@ void GraphicsEngine::RemoveCommandsForGameObjects(
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
 }
 
-void GraphicsEngine::RemoveCommandsForGameObjects(
+void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<VkFence> const& inFlightFences,
 	std::vector<GameObject*>& gameObjectsToRemove,
 	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
@@ -279,7 +279,6 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 
 // per object. have a ubo per object, then update that ubo based on the matrices associated
 // move render logic to this class!
-// TODO: wait for fence for existing command buffers if we are recording new ones
 void GraphicsEngine::CreateCommandBuffersForGameObjects(
 					std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	auto& commandBuffers = commandBufferModule->GetCommandBuffers();

@@ -74,12 +74,15 @@ private:
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,
 		float deltaTime);
+	void AffectModelColors(glm::vec3 const& localPosition,
+		float radius, glm::vec3 const& color);
 	void AddNewRipple(glm::vec4 const& surfacePointLocal);
 	void AddNewStalk(glm::vec4 const& surfacePointLocal);
 	void RemoveOldRipples();
 	void RemoveOldStalks();
 
-	int FindIndexOfStalkCloseToPosition(glm::vec3 const& surfacePointLocal);
+	int FindIndexOfStalkCloseToPosition(glm::vec3 const& surfacePointLocal,
+		float distance);
 
 protected:
 	virtual void* GetUniformBufferModelViewProjRipple(

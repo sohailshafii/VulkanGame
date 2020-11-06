@@ -157,7 +157,7 @@ void GameApplicationLogic::RemoveGameObjects(
 	std::vector<GameObject*>& gameObjectsToRemove) {
 	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
 	auto& allGameObjects = mainGameScene->GetGameObjects();
-	graphicsEngine->RemoveCommandsForGameObjects(
+	graphicsEngine->RemoveGameObjectsAndRecordCommands(
 		inFlightFences, gameObjectsToRemove,
 		allGameObjects);
 }
@@ -166,7 +166,7 @@ void GameApplicationLogic::RemoveGameObjects(
 	std::vector<std::shared_ptr<GameObject>> & gameObjectsToRemove) {
 	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
 	auto& allGameObjects = mainGameScene->GetGameObjects();
-	graphicsEngine->RemoveCommandsForGameObjects(
+	graphicsEngine->RemoveGameObjectsAndRecordCommands(
 		inFlightFences, gameObjectsToRemove,
 		allGameObjects);
 }
