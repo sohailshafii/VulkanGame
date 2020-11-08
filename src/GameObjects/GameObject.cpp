@@ -20,7 +20,11 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	logicalDeviceManager(logicalDeviceManager),
 	descriptorPool(nullptr),
 	initializedInEngine(false),
-	markedForDeletion(false) {
+	markedForDeletion(false),
+	vertexStagingBuffer(VK_NULL_HANDLE),
+	vertexStagingBufferMemory(VK_NULL_HANDLE),
+	indexStagingBuffer(VK_NULL_HANDLE),
+	indexStagingBufferMemory(VK_NULL_HANDLE) {
 	SetupShaderNames();
 	auto materialType = material->GetMaterialType();
 	gameObjectBehavior->SetGameObject(this);
@@ -58,32 +62,32 @@ void GameObject::CreateVertexBuffer(const std::vector<VertexType>& vertices,
 									VkCommandPool commandPool) {
 	VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
 
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	if (vertexStagingBuffer == VK_NULL_HANDLE) {
+		Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexStagingBuffer, vertexStagingBufferMemory);
+	}
 
 	void *data;
-	vkMapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(logicalDeviceManager->GetDevice(), vertexStagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory);
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), vertexStagingBufferMemory);
 
 	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	Common::CopyBuffer(logicalDeviceManager.get(), commandPool, stagingBuffer, vertexBuffer, bufferSize);
-
-	vkDestroyBuffer(logicalDeviceManager->GetDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, nullptr);
+	Common::CopyBuffer(logicalDeviceManager.get(), commandPool, vertexStagingBuffer, vertexBuffer, bufferSize);
 }
 
 GameObject::~GameObject() {
-	vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->GetDevice(), indexBufferMemory, nullptr);
+	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexStagingBuffer, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), vertexStagingBufferMemory, nullptr);
 	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexBuffer, nullptr);
 	vkFreeMemory(logicalDeviceManager->GetDevice(), vertexBufferMemory, nullptr);
+	
+	vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexStagingBuffer, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), indexStagingBufferMemory, nullptr);
+	vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexBuffer, nullptr);
+	vkFreeMemory(logicalDeviceManager->GetDevice(), indexBufferMemory, nullptr);
 	vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
 	CleanUpUniformBuffers();
 	CleanUpDescriptorPool();
@@ -119,25 +123,20 @@ void GameObject::CreateIndexBuffer(const std::vector<uint32_t>& indices,
 								   VkCommandPool commandPool) {
 	VkDeviceSize bufferSize = sizeof(indices[0])*indices.size();
 
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	if (indexStagingBuffer == VK_NULL_HANDLE) {
+		Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, indexStagingBuffer, indexStagingBufferMemory);
+	}
 
 	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(logicalDeviceManager->GetDevice(), indexStagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory);
+	vkUnmapMemory(logicalDeviceManager->GetDevice(), indexStagingBufferMemory);
 
 	Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-	Common::CopyBuffer(logicalDeviceManager.get(), commandPool, stagingBuffer, indexBuffer, bufferSize);
-
-	vkDestroyBuffer(logicalDeviceManager->GetDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory, nullptr);
+	Common::CopyBuffer(logicalDeviceManager.get(), commandPool, indexStagingBuffer, indexBuffer, bufferSize);
 }
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
@@ -206,6 +205,11 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 
 	delete uboData;
+}
+
+void GameObject::UpdateVertexBufferWithLatestModelVerts() {
+	// TODO create staging buffer associated with each model
+	// and use that update model verts
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {

@@ -132,6 +132,8 @@ public:
 						   float time, float deltaTime,
 						   VkExtent2D swapChainExtent);
 	
+	void UpdateVertexBufferWithLatestModelVerts();
+	
 private:
 	std::shared_ptr<Model> objModel;
 	std::shared_ptr<Material> material;
@@ -140,8 +142,12 @@ private:
 	std::string vertexShaderName;
 	std::string fragmentShaderName;
 	
+	VkBuffer vertexStagingBuffer;
+	VkDeviceMemory vertexStagingBufferMemory;
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
+	VkBuffer indexStagingBuffer;
+	VkDeviceMemory indexStagingBufferMemory;
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 	

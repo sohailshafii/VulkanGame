@@ -209,7 +209,7 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 		damage = (int)(damage*1.5f);
 		std::cout << "HIT STALK! Damage is now: " << damage << std::endl;
 		AffectModelColors(surfacePointLocalVec3, 0.1f, glm::vec3(1.0f, 0.0f, 0.f));
-		// TODO: re-record commands
+		// TODO: update vertex buffers
 	}
 	currentHealth -= damage;
 	// TODO: death
