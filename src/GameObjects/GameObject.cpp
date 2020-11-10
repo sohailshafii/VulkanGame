@@ -28,9 +28,12 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	indexStagingBuffer(VK_NULL_HANDLE),
 	indexStagingBufferMemory(VK_NULL_HANDLE),
 	indexBuffer(VK_NULL_HANDLE),
-	indexBufferMemory(VK_NULL_HANDLE) {
+	indexBufferMemory(VK_NULL_HANDLE),
+	commandPool(commandPool),
+	materialType(material->GetMaterialType()),
+	gfxDeviceManager(gfxDeviceManager) {
 	SetupShaderNames();
-	auto materialType = material->GetMaterialType();
+
 	gameObjectBehavior->SetGameObject(this);
 
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(
@@ -230,8 +233,9 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 }
 
 void GameObject::UpdateVertexBufferWithLatestModelVerts() {
-	// TODO create staging buffer associated with each model
-	// and use that update model verts
+	std::cout << "************Update VBO!\n";
+	UpdateOrUpdateVertexBufferForMaterial(gfxDeviceManager,
+		commandPool, materialType);
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {

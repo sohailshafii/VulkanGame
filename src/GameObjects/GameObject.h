@@ -159,6 +159,10 @@ private:
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<VkDescriptorSet> descriptorSets;
 
+	VkCommandPool commandPool;
+	DescriptorSetFunctions::MaterialType materialType;
+	GfxDeviceManager* gfxDeviceManager; // TODO UGH, use smart pointer
+
 	bool initializedInEngine;
 	bool markedForDeletion;
 	

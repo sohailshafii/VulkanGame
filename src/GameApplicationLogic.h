@@ -45,7 +45,7 @@ private:
 	VkSurfaceKHR surface;
 
 	GraphicsEngine* graphicsEngine;
-
+	// TODO: have central place for command pool
 	VkCommandPool commandPool;
 
 	std::vector<VkSemaphore> imageAvailableSemaphores;
