@@ -164,14 +164,16 @@ private:
 	
 	void SetupShaderNames();
 	
+	void UpdateOrUpdateVertexBufferForMaterial(GfxDeviceManager* gfxDeviceManager,
+		VkCommandPool commandPool, DescriptorSetFunctions::MaterialType materialType);
+
 	template<typename VertexType>
-	void CreateVertexBuffer(const std::vector<VertexType>& vertices,
-							GfxDeviceManager *gfxDeviceManager,
-							VkCommandPool commandPool);
-	
-	void CreateIndexBuffer(const std::vector<uint32_t>& indices,
-						   GfxDeviceManager *gfxDeviceManager,
-						   VkCommandPool commandPool);
+	void CreateOrUpdateVertexBuffer(const std::vector<VertexType>& vertices,
+									GfxDeviceManager *gfxDeviceManager,
+									VkCommandPool commandPool);
+	void CreateOrUpdateIndexBuffer(const std::vector<uint32_t>& indices,
+									GfxDeviceManager *gfxDeviceManager,
+									VkCommandPool commandPool);
 	
 	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,
 							  size_t numSwapChainImages);
