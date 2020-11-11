@@ -58,6 +58,27 @@ private:
 		float timeCreated;
 	};
 
+	struct VertexColorModifierData {
+		VertexColorModifierData(float timeCreated,
+			float duration, float radius, glm::vec3 const& localPos,
+			glm::vec3 const & desiredColor,
+			glm::vec3 const & originalColor) {
+			this->timeCreated = timeCreated;
+			this->duration = duration;
+			this->radius = radius;
+			this->localPosition = localPos;
+
+			this->desiredColor = desiredColor;
+			this->originalColor = originalColor;
+		}
+
+		float timeCreated;
+		float duration;
+		float radius;
+		glm::vec3 localPosition;
+		glm::vec3 desiredColor, originalColor;
+	};
+
 	static const int maxHealth;
 	static const float maxRippleDurationSeconds;
 	static const float maxStalkDurationSeconds;
@@ -69,20 +90,31 @@ private:
 	float currentFrameTime;
 	std::deque<RippleData> ripples;
 	std::deque<StalkData> stalks;
+	std::deque<VertexColorModifierData> vertexColorModifiers;
 	float shudderStartTime;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,
 		float deltaTime);
-	void AffectModelColors(glm::vec3 const& localPosition,
+	void AddVertexColorModifier(glm::vec3 const& localPosition,
 		float radius, glm::vec3 const& color);
+	void UpdateModelColorsBasedOnCurrentModifiers();
 	void AddNewRipple(glm::vec4 const& surfacePointLocal);
 	void AddNewStalk(glm::vec4 const& surfacePointLocal);
 	void RemoveOldRipples();
 	void RemoveOldStalks();
 
+	glm::vec3 SamplePositionOnPlane(glm::vec3 const& planePosition,
+		glm::vec3 const& planeNormal, float maxRadius);
+	glm::vec3 FindVectorPerpendicularToInputVec(glm::vec3 const& inputVector);
+	bool RaySphereIntersection(glm::vec3 const& rayDir, glm::vec3 const& rayOrigin,
+		float radius, glm::vec3 const& sphereOrigin, float& tVal);
+
 	int FindIndexOfStalkCloseToPosition(glm::vec3 const& surfacePointLocal,
 		float distance);
+
+	void UpdateUBORippleData(UniformBufferObjectModelViewProjRipple* ubo);
+	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
 
 protected:
 	virtual void* GetUniformBufferModelViewProjRipple(
@@ -90,12 +122,4 @@ protected:
 		const glm::mat4& viewMatrix,
 		float time,
 		float deltaTime) override;
-	void UpdateUBORippleData(UniformBufferObjectModelViewProjRipple* ubo);
-	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
-
-	glm::vec3 SamplePositionOnPlane(glm::vec3 const& planePosition,
-		glm::vec3 const& planeNormal, float maxRadius);
-	glm::vec3 FindVectorPerpendicularToInputVec(glm::vec3 const& inputVector);
-	bool RaySphereIntersection(glm::vec3 const& rayDir, glm::vec3 const& rayOrigin,
-		float radius, glm::vec3 const& sphereOrigin, float& tVal);
 };
