@@ -125,10 +125,11 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 
 	glm::vec3 surfacePointLocalVec3(glm::vec3(surfacePointLocal[0],
 		surfacePointLocal[1], surfacePointLocal[2]));
-	float damageDistance = 0.1f;
-	if (FindIndexOfStalkCloseToPosition(surfacePointLocalVec3, damageDistance)) {
+	float damageDistance = 2.2f;
+	if (FindIndexOfStalkCloseToPosition(surfacePointLocalVec3, damageDistance)
+		>= 0) {
 		damage = (int)(damage * 1.5f);
-		AddVertexColorModifier(surfacePointLocalVec3, 0.1f,
+		AddVertexColorModifier(surfacePointLocalVec3, damageDistance,
 			glm::vec3(1.0f, 0.0f, 0.f));
 	}
 	currentHealth -= damage;
