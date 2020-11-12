@@ -61,22 +61,20 @@ private:
 	struct VertexColorModifierData {
 		VertexColorModifierData(float timeCreated,
 			float duration, float radius, glm::vec3 const& localPos,
-			glm::vec3 const & desiredColor,
-			glm::vec3 const & originalColor) {
+			glm::vec3 const & desiredColor) {
 			this->timeCreated = timeCreated;
 			this->duration = duration;
 			this->radius = radius;
 			this->localPosition = localPos;
 
 			this->desiredColor = desiredColor;
-			this->originalColor = originalColor;
 		}
 
 		float timeCreated;
 		float duration;
 		float radius;
 		glm::vec3 localPosition;
-		glm::vec3 desiredColor, originalColor;
+		glm::vec3 desiredColor;
 	};
 
 	static const int maxHealth;
@@ -91,6 +89,7 @@ private:
 	std::deque<RippleData> ripples;
 	std::deque<StalkData> stalks;
 	std::deque<VertexColorModifierData> vertexColorModifiers;
+	std::vector<glm::vec3> originalModelColors;
 	float shudderStartTime;
 
 	void Initialize();
@@ -99,6 +98,9 @@ private:
 	void AddVertexColorModifier(glm::vec3 const& localPosition,
 		float radius, glm::vec3 const& color);
 	void UpdateModelColorsBasedOnCurrentModifiers();
+	void StoreOriginalColorsIfRequired();
+	void RestoreOldColorsIfRequired();
+
 	void AddNewRipple(glm::vec4 const& surfacePointLocal);
 	void AddNewStalk(glm::vec4 const& surfacePointLocal);
 	void RemoveOldRipples();

@@ -7,8 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 
-const float BulletBehavior::acceleration = 0.2f;
-const float BulletBehavior::maxVelocityMagnitude = 4.0f;
+const float BulletBehavior::acceleration = 0.5f;
+const float BulletBehavior::maxVelocityMagnitude = 8.0f;
 
 BulletBehavior::BulletBehavior() : currentVelocity(0.0f) {
 }

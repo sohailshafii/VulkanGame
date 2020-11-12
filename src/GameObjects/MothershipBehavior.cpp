@@ -12,7 +12,7 @@
 // based on the shader. the stalk spends half its time rising
 const float MothershipBehavior::stalkRiseDuration = 0.5f;
 
-const int MothershipBehavior::maxHealth = 300;
+const int MothershipBehavior::maxHealth = 7000;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
 const float MothershipBehavior::maxStalkDurationSeconds = 2.0f;
 const float MothershipBehavior::maxShudderDurationSeconds = 0.25f;
@@ -174,12 +174,13 @@ void MothershipBehavior::AddVertexColorModifier(glm::vec3 const& localPosition,
 	float radius, glm::vec3 const& color) {
 	vertexColorModifiers.push_back(VertexColorModifierData(
 		currentFrameTime,
-		1.0f, radius, localPosition,
-		glm::vec3(1.0f, 1.0f, 1.0f), color));
+		1.0f, radius, localPosition, color));
 }
 
 void MothershipBehavior::UpdateModelColorsBasedOnCurrentModifiers() {
+	StoreOriginalColorsIfRequired();
 	if (vertexColorModifiers.size() == 0) {
+		RestoreOldColorsIfRequired();
 		return;
 	}
 
@@ -220,14 +221,14 @@ void MothershipBehavior::UpdateModelColorsBasedOnCurrentModifiers() {
 				lerpVal = lerpVal > 1.0 ? 1.0 : lerpVal;
 				// lerp desired colorval over time
 				glm::vec3 desiredColor = lerpVal * currentModifier.desiredColor +
-					(1.0f - lerpVal) * currentModifier.originalColor;
+					(1.0f - lerpVal) * originalModelColors[index];
 
 				float lerpValDist = 1.0 - distance / radius;
 				modelVerts[index].color = lerpValDist * desiredColor +
-					(1.0f - lerpValDist)* currentModifier.originalColor;
+					(1.0f - lerpValDist)* originalModelColors[index];
 			}
 			else {
-				modelVerts[index].color = currentModifier.originalColor;
+				modelVerts[index].color = originalModelColors[index];
 			}
 			modifiedVertColors = true;
 		}
@@ -235,6 +236,38 @@ void MothershipBehavior::UpdateModelColorsBasedOnCurrentModifiers() {
 
 	// update on demand
 	if (modifiedVertColors) {
+		gameObject->UpdateVertexBufferWithLatestModelVerts();
+	}
+}
+
+void MothershipBehavior::StoreOriginalColorsIfRequired() {
+	if (originalModelColors.size() > 0) {
+		return;
+	}
+
+	std::shared_ptr<Model> gameObjectModel = gameObject->GetModel();
+	std::vector<Model::ModelVert>& modelVerts = gameObjectModel->GetVertices();
+	for (auto modelVert : modelVerts) {
+		originalModelColors.push_back(modelVert.color);
+	}
+}
+
+void MothershipBehavior::RestoreOldColorsIfRequired() {
+	std::shared_ptr<Model> gameObjectModel = gameObject->GetModel();
+	std::vector<Model::ModelVert>& modelVerts = gameObjectModel->GetVertices();
+	glm::vec3 originalColor(1, 1, 1);
+	bool colorsNeedRestoration = false;
+
+	for (size_t index = 0; index < modelVerts.size(); index++) {
+		glm::vec3 colorDiff = modelVerts[index].color - originalModelColors[index];
+		if (colorDiff.x * colorDiff.x + colorDiff.y * colorDiff.y
+			+ colorDiff.z * colorDiff.z > 0.001f) {
+			modelVerts[index].color = originalColor;
+			colorsNeedRestoration = true;
+		}
+	}
+
+	if (colorsNeedRestoration) {
 		gameObject->UpdateVertexBufferWithLatestModelVerts();
 	}
 }
