@@ -125,11 +125,13 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 
 	glm::vec3 surfacePointLocalVec3(glm::vec3(surfacePointLocal[0],
 		surfacePointLocal[1], surfacePointLocal[2]));
-	float damageDistance = 2.2f;
-	if (FindIndexOfStalkCloseToPosition(surfacePointLocalVec3, damageDistance)
+	float maxAngleRadians = 0.26f;
+	if (FindIndexOfStalkCloseToPosition(surfacePointLocalVec3, maxAngleRadians)
 		>= 0) {
 		damage = (int)(damage * 1.5f);
-		AddVertexColorModifier(surfacePointLocalVec3, damageDistance,
+		// TODO: maybe modify colors of all vertices that get hit, not just
+		// those close to the stalks?
+		AddVertexColorModifier(surfacePointLocalVec3, maxAngleRadians,
 			glm::vec3(1.0f, 0.0f, 0.f));
 	}
 	currentHealth -= damage;
@@ -172,10 +174,10 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 }
 
 void MothershipBehavior::AddVertexColorModifier(glm::vec3 const& localPosition,
-	float radius, glm::vec3 const& color) {
+	float maxAngleRadians, glm::vec3 const& color) {
 	vertexColorModifiers.push_back(VertexColorModifierData(
 		currentFrameTime,
-		1.0f, radius, localPosition, color));
+		1.0f, maxAngleRadians, localPosition, color));
 }
 
 void MothershipBehavior::UpdateModelColorsBasedOnCurrentModifiers() {
@@ -206,9 +208,9 @@ void MothershipBehavior::UpdateModelColorsBasedOnCurrentModifiers() {
 		float lerpDuration = currentModifier.duration;
 		float halfDuration = lerpDuration * 0.5f;
 		for (size_t index = 0; index < modelVerts.size(); index++) {
-			float distance = glm::length(modelVerts[index].position -
-				currentModifier.localPosition);
-			if (distance < currentModifier.radius) {
+			float currAngle = FindUnsignedAngleBetweenTwoLocalPoints(
+				modelVerts[index].position, currentModifier.localPosition);
+			if (currAngle <= currentModifier.maxAngleRadians) {
 				// 0.0-half time: lerp to peak, half time-death: lerp back to zero
 				float halfPoint = currentModifier.timeCreated +
 					halfDuration;
@@ -224,7 +226,9 @@ void MothershipBehavior::UpdateModelColorsBasedOnCurrentModifiers() {
 				glm::vec3 desiredColor = lerpVal * currentModifier.desiredColor +
 					(1.0f - lerpVal) * originalModelColors[index];
 
-				float lerpValDist = 1.0 - distance / radius;
+				// if angle is closer to 0, lerp value should 1. otherwise,
+				// it is 0
+				float lerpValDist = 1.0 - currAngle / currentModifier.maxAngleRadians;
 				modelVerts[index].color = lerpValDist * desiredColor +
 					(1.0f - lerpValDist)* originalModelColors[index];
 			}
@@ -404,20 +408,29 @@ bool MothershipBehavior::RaySphereIntersection(glm::vec3 const& rayDir,
 }
 
 int MothershipBehavior::FindIndexOfStalkCloseToPosition(
-	glm::vec3 const& surfacePointLocal, float distance) {
+	glm::vec3 const& surfacePointLocal, float maxAngleRadians) {
 	int foundIndex = -1;
 	size_t numCurrentStalks = stalks.size();
 	for (size_t i = 0; i < numCurrentStalks; i++) {
 		auto& currentStalk = stalks[i];
 		glm::vec3 stalkLocalPos = currentStalk.position;
 		// if we are close enough, consider it
-		if (glm::length(stalkLocalPos - surfacePointLocal) < distance) {
+		if (FindUnsignedAngleBetweenTwoLocalPoints(stalkLocalPos,
+			surfacePointLocal) < maxAngleRadians) {
 			foundIndex = (int)i;
 			break;
 		}
 	}
 
 	return foundIndex;
+}
+
+float MothershipBehavior::FindUnsignedAngleBetweenTwoLocalPoints(
+	glm::vec3 const& surfacePointLocal1,
+	glm::vec3 const& surfacePointLocal2) {
+	glm::vec3 vectorToPoint1 = glm::normalize(surfacePointLocal1);
+	glm::vec3 vectorToPoint2 = glm::normalize(surfacePointLocal2);
+	return acos(glm::dot(vectorToPoint1, vectorToPoint2));
 }
 
 void MothershipBehavior::UpdateUBORippleData(

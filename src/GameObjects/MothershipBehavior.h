@@ -60,11 +60,11 @@ private:
 
 	struct VertexColorModifierData {
 		VertexColorModifierData(float timeCreated,
-			float duration, float radius, glm::vec3 const& localPos,
+			float duration, float maxAngleRadians, glm::vec3 const& localPos,
 			glm::vec3 const & desiredColor) {
 			this->timeCreated = timeCreated;
 			this->duration = duration;
-			this->radius = radius;
+			this->maxAngleRadians = maxAngleRadians;
 			this->localPosition = localPos;
 
 			this->desiredColor = desiredColor;
@@ -72,7 +72,7 @@ private:
 
 		float timeCreated;
 		float duration;
-		float radius;
+		float maxAngleRadians;
 		glm::vec3 localPosition;
 		glm::vec3 desiredColor;
 	};
@@ -113,7 +113,9 @@ private:
 		float radius, glm::vec3 const& sphereOrigin, float& tVal);
 
 	int FindIndexOfStalkCloseToPosition(glm::vec3 const& surfacePointLocal,
-		float distance);
+		float maxAngleRadians);
+	float FindUnsignedAngleBetweenTwoLocalPoints(glm::vec3 const& surfacePointLocal1,
+		glm::vec3 const& surfacePointLocal2);
 
 	void UpdateUBORippleData(UniformBufferObjectModelViewProjRipple* ubo);
 	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
