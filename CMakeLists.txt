@@ -27,6 +27,10 @@ find_package(GLFW REQUIRED)
 include_directories(${GLFW_INCLUDE_DIRS})
 target_link_libraries(VulkanGame ${GLFW_LIBRARY})
 
+find_package(FreeType REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(VulkanGame ${FREETYPE_LIBRARIES})
+
 target_include_directories(VulkanGame
 	PRIVATE
 		"${PROJECT_BINARY_DIR}"
