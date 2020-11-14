@@ -233,7 +233,6 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 }
 
 void GameObject::UpdateVertexBufferWithLatestModelVerts() {
-	std::cout << "************Update VBO!\n";
 	UpdateOrUpdateVertexBufferForMaterial(gfxDeviceManager,
 		commandPool, materialType);
 }

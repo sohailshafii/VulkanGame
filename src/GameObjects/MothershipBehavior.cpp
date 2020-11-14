@@ -129,11 +129,11 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 	if (FindIndexOfStalkCloseToPosition(surfacePointLocalVec3, maxAngleRadians)
 		>= 0) {
 		damage = (int)(damage * 1.5f);
-		// TODO: maybe modify colors of all vertices that get hit, not just
-		// those close to the stalks?
-		AddVertexColorModifier(surfacePointLocalVec3, maxAngleRadians,
-			glm::vec3(1.0f, 0.0f, 0.f));
 	}
+
+	AddVertexColorModifier(surfacePointLocalVec3, maxAngleRadians,
+		glm::vec3(1.0f, 0.0f, 0.f));
+
 	currentHealth -= damage;
 	// TODO: death
 	if (currentHealth < 0) {
