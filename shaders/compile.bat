@@ -13,4 +13,7 @@ glslc.exe ./BumpySurface.frag -o ./BumpySurfaceFrag.spv
 glslc.exe ./MotherShip.vert -o ./MotherShipVert.spv
 glslc.exe ./MotherShip.frag -o ./MotherShipFrag.spv
 
+glslc.exe ./TextShader.vert -o ./TextShaderVert.spv
+glslc.exe ./TextShader.frag -o ./TextShaderFrag.spv
+
 pause

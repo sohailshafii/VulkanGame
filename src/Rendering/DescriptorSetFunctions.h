@@ -60,7 +60,7 @@ class DescriptorSetFunctions
 {
 public:
 	enum MaterialType { UnlitColor = 0, UnlitTintedTextured,
-		WavySurface, BumpySurface, MotherShip };
+		WavySurface, BumpySurface, MotherShip, Text };
 	
 	static VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,
 														   MaterialType materialType);

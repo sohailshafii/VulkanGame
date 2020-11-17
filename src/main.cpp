@@ -11,9 +11,6 @@ int main() {
 
 	GameApplicationLogic app;
 
-	// just test the font interface here for now
-	FreeTypeInterface freeTypeInterface;
-
 	try {
 		app.Run();
 	}
