@@ -66,6 +66,10 @@ void GameObject::UpdateOrUpdateVertexBufferForMaterial(GfxDeviceManager* gfxDevi
 		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosNormalColorTexCoord(),
 			gfxDeviceManager, commandPool);
 	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::Text) {
+		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosTex(),
+			gfxDeviceManager, commandPool);
+	}
 }
 
 template<typename VertexType>
@@ -134,6 +138,10 @@ void GameObject::SetupShaderNames() {
 			vertexShaderName = "BumpySurfaceVert.spv";
 			fragmentShaderName = "BumpySurfaceFrag.spv";
 			break;
+		case DescriptorSetFunctions::MaterialType::Text:
+			vertexShaderName = "TextShaderVert.spv";
+			fragmentShaderName = "TextShaderFrag.spv";
+			break;
 	}
 }
 
@@ -166,16 +174,18 @@ void GameObject::CreateOrUpdateIndexBuffer(const std::vector<uint32_t>& indices,
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
 	VkDeviceSize bufferSizeVert = GetMaterialUniformBufferSizeVert();
-	VkDeviceSize bufferSizeLighting =
-		material->GetMaterialType() == DescriptorSetFunctions::MaterialType::UnlitColor ?
-		sizeof(UniformBufferFragUnlitColor) :
-		sizeof(UniformBufferObjectLighting);
+	VkDeviceSize bufferSizeFrag = sizeof(UniformBufferObjectLighting);
+	auto materialType = material->GetMaterialType();
+	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor ||
+		materialType == DescriptorSetFunctions::MaterialType::Text) {
+		bufferSizeFrag = sizeof(UniformBufferFragUnlitColor);
+	}
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
 		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager,
 			(int)bufferSizeVert));
 		uniformBuffersFrag.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager,
-			(int)bufferSizeLighting));
+			(int)bufferSizeFrag));
 	}
 }
 
