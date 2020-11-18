@@ -307,6 +307,7 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+		case DescriptorSetFunctions::MaterialType::Text:
 			return sizeof(UniformBufferObjectModelViewProj);
 			break;
 		case DescriptorSetFunctions::MaterialType::MotherShip:

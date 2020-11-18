@@ -58,6 +58,15 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 			attribDescriptionArray[i] = attributeDescriptions[i];
 		}
 	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::Text) {
+		bindingDescription = VertexPosTex::GetBindingDescription();
+		auto attributeDescriptions = VertexPosTex::GetAttributeDescriptions();
+		numAttrib = attributeDescriptions.size();
+		attribDescriptionArray = new VkVertexInputAttributeDescription[numAttrib];
+		for (size_t i = 0; i < numAttrib; i++) {
+			attribDescriptionArray[i] = attributeDescriptions[i];
+		}
+	}
 	else if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured ||
 		materialType == DescriptorSetFunctions::MaterialType::MotherShip) {
 		bindingDescription = VertexPosColorTexCoord::GetBindingDescription();

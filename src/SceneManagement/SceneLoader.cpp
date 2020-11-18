@@ -224,6 +224,9 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	if (materialToken == "UnlitColor") {
 		materialEnumType = DescriptorSetFunctions::MaterialType::UnlitColor;
 	}
+	else if (materialToken == "Text") {
+		materialEnumType = DescriptorSetFunctions::MaterialType::Text;
+	}
 	else if (materialToken == "WavySurface") {
 		materialEnumType = DescriptorSetFunctions::MaterialType::WavySurface;
 	}

@@ -75,6 +75,16 @@ public:
 	static VkDescriptorPool CreateDescriptorPool(VkDevice device, MaterialType materialType,
 									 size_t numSwapChainImages);
 
+	static VkDescriptorSetLayout CreateTextDescriptorSetLayout(VkDevice device);
+	static void UpdateDescriptorSetText(VkDevice device,
+		VkDescriptorSet descriptorSet,
+		glm::vec4 const& tintColor,
+		VkDescriptorBufferInfo* bufferInfoVert,
+		VkDescriptorBufferInfo* bufferInfoFrag);
+	static VkDescriptorPool CreateDescriptorPoolText(VkDevice device,
+		size_t numSwapChainImages);
+
+
 	static VkDescriptorSetLayout CreateUnlitColorDescriptorSetLayout(
 		VkDevice device);
 	static void UpdateDescriptorSetUnlitColor(VkDevice device,

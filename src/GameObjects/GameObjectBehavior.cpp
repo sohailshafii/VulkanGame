@@ -10,6 +10,7 @@ void* GameObjectBehavior::GetUBOData(size_t& uboSize,
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+		case DescriptorSetFunctions::MaterialType::Text:
 			return GetUniformBufferModelViewProj(uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
 		case DescriptorSetFunctions::MaterialType::MotherShip:
