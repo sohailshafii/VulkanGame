@@ -330,6 +330,7 @@ void GameApplicationLogic::UpdateGameState(float time,
 		graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 
 	// TODO: make this event driven to force decoupling
+	// TODO: scene with menu objects
 	auto& gameObjects = mainGameScene->GetGameObjects();
 	std::vector<std::shared_ptr<GameObject>> gameObjectsToInit;
 	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
