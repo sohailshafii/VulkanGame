@@ -79,11 +79,12 @@ public:
 	static void UpdateDescriptorSetText(VkDevice device,
 		VkDescriptorSet descriptorSet,
 		glm::vec4 const& tintColor,
+		VkImageView textureImageView,
+		VkSampler textureSampler,
 		VkDescriptorBufferInfo* bufferInfoVert,
 		VkDescriptorBufferInfo* bufferInfoFrag);
 	static VkDescriptorPool CreateDescriptorPoolText(VkDevice device,
 		size_t numSwapChainImages);
-
 
 	static VkDescriptorSetLayout CreateUnlitColorDescriptorSetLayout(
 		VkDevice device);

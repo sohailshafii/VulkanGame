@@ -46,6 +46,8 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 			break;
 		case MaterialType::Text:
 			UpdateDescriptorSetText(device, descriptorSet, tintColor,
+				imageTextureLoader->GetTextureImageView(),
+				imageTextureLoader->GetTextureImageSampler(),
 				bufferInfoVert, bufferInfoFrag);
 			break;
 		case MaterialType::UnlitTintedTextured:
@@ -114,15 +116,22 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateTextDescriptorSetLayout(VkDe
 	uboLayoutBinding.pImmutableSamplers = nullptr;
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
+	VkDescriptorSetLayoutBinding samplerLayoutBindingFrag = {};
+	samplerLayoutBindingFrag.binding = 1;
+	samplerLayoutBindingFrag.descriptorCount = 1;
+	samplerLayoutBindingFrag.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBindingFrag.pImmutableSamplers = nullptr;
+	samplerLayoutBindingFrag.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
 	VkDescriptorSetLayoutBinding uboLayoutBindingFrag = {};
-	uboLayoutBindingFrag.binding = 1;
+	uboLayoutBindingFrag.binding = 2;
 	uboLayoutBindingFrag.descriptorCount = 1;
 	uboLayoutBindingFrag.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	uboLayoutBindingFrag.pImmutableSamplers = nullptr;
 	uboLayoutBindingFrag.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = {
-		uboLayoutBinding, uboLayoutBindingFrag
+	std::array<VkDescriptorSetLayoutBinding, 3> bindings = {
+		uboLayoutBinding, samplerLayoutBindingFrag, uboLayoutBindingFrag
 	};
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
@@ -143,9 +152,11 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateTextDescriptorSetLayout(VkDe
 void DescriptorSetFunctions::UpdateDescriptorSetText(VkDevice device,
 	VkDescriptorSet descriptorSet,
 	glm::vec4 const& tintColor,
+	VkImageView textureImageView,
+	VkSampler textureSampler,
 	VkDescriptorBufferInfo* bufferInfoVert,
 	VkDescriptorBufferInfo* bufferInfoFrag) {
-	std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+	std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
 	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptorWrites[0].dstSet = descriptorSet;
 	descriptorWrites[0].dstBinding = 0;
@@ -154,13 +165,26 @@ void DescriptorSetFunctions::UpdateDescriptorSetText(VkDevice device,
 	descriptorWrites[0].descriptorCount = 1;
 	descriptorWrites[0].pBufferInfo = bufferInfoVert;
 
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = textureImageView;
+	imageInfo.sampler = textureSampler;
+
 	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	descriptorWrites[1].dstSet = descriptorSet;
 	descriptorWrites[1].dstBinding = 1;
 	descriptorWrites[1].dstArrayElement = 0;
-	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	descriptorWrites[1].descriptorCount = 1;
-	descriptorWrites[1].pBufferInfo = bufferInfoFrag;
+	descriptorWrites[1].pImageInfo = &imageInfo;
+
+	descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrites[2].dstSet = descriptorSet;
+	descriptorWrites[2].dstBinding = 2;
+	descriptorWrites[2].dstArrayElement = 0;
+	descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrites[2].descriptorCount = 1;
+	descriptorWrites[2].pBufferInfo = bufferInfoFrag;
 
 	vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()),
 		descriptorWrites.data(), 0, nullptr);
@@ -168,11 +192,13 @@ void DescriptorSetFunctions::UpdateDescriptorSetText(VkDevice device,
 
 VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPoolText(VkDevice device,
 	size_t numSwapChainImages) {
-	std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+	std::array<VkDescriptorPoolSize, 3> poolSizes = {};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
-	poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[1].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
+	poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[2].descriptorCount = static_cast<uint32_t>(numSwapChainImages);
 
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
