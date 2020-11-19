@@ -27,6 +27,7 @@ LogicalDeviceManager::LogicalDeviceManager(const GfxDeviceManager *gfxDeviceMana
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
+	deviceFeatures.wideLines = VK_TRUE; // TODO: consider remove
 	deviceFeatures.sampleRateShading = VK_TRUE; // try to smooth
 	deviceFeatures.fillModeNonSolid = true; // TODO: remove
 	// out interior of object at pref cost
