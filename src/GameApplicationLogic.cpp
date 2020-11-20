@@ -123,7 +123,7 @@ void GameApplicationLogic::InitVulkan() {
 
 	resourceLoader = new ResourceLoader();
 
-	CreateGameObjects();
+	CreateSceneAndGameObjects();
 
 	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, surface, window, commandPool,
@@ -215,14 +215,14 @@ void GameApplicationLogic::CreateCommandPool() {
 	}
 }
 
-void GameApplicationLogic::CreateGameObjects() {
+void GameApplicationLogic::CreateSceneAndGameObjects() {
 #if __APPLE__
 	std::string scenePath = "../../mainGameScene.json";
 #else
 	std::string scenePath = "../mainGameScene.json";
 #endif
-	mainGameScene = new Scene(resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+	mainGameScene = new Scene(Scene::SceneMode::Menu, resourceLoader,
+		gfxDeviceManager, logicalDeviceManager, commandPool);
 	SceneLoader::SceneSettings sceneSettings;
 
 	SceneLoader::DeserializeJSONFileIntoScene(
@@ -358,13 +358,15 @@ void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
-	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	VkPipelineStageFlags waitStages[] = { 
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &(graphicsEngine->GetCommandBufferModule()->GetCommandBuffers()[imageIndex]);
+	submitInfo.pCommandBuffers = &(
+		graphicsEngine->GetCommandBufferModule()->GetCommandBuffers()[imageIndex]);
 
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
@@ -385,14 +387,16 @@ void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
-	VkSwapchainKHR swapChains[] = { graphicsEngine->GetSwapChainManager()->GetSwapChain() };
+	VkSwapchainKHR swapChains[] = {
+		graphicsEngine->GetSwapChainManager()->GetSwapChain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
 
 	presentInfo.pResults = nullptr;
 
-	VkResult result = vkQueuePresentKHR(logicalDeviceManager->GetPresentQueue(), &presentInfo);
+	VkResult result = vkQueuePresentKHR(logicalDeviceManager->GetPresentQueue(),
+		&presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result ==
 		VK_SUBOPTIMAL_KHR || framebufferResized) {

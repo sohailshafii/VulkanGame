@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include "vulkan/vulkan.h"
 #include <memory>
 #include <vector>
@@ -11,17 +13,23 @@ class GameObject;
 class ResourceLoader;
 class GfxDeviceManager;
 class LogicalDeviceManager;
+class GraphicsEngine;
 
 class Scene
 {
 public:
 	enum SpawnType { Pawn = 0, Bullet };
+	enum SceneMode { Menu = 0, Game };
 
-	Scene(ResourceLoader* resourceLoader,
+	Scene(SceneMode currentSceneMode, ResourceLoader* resourceLoader,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		VkCommandPool commandPool);
 	~Scene();
+
+	void CreateGraphicsEngine(VkSurfaceKHR surface, GLFWwindow* window);
+
+	void UpdateSceneMode(SceneMode newSceneMode);
 	
 	void AddGameObject(std::shared_ptr<GameObject> const & newGameObject);
 	
@@ -54,6 +62,9 @@ public:
 		glm::mat4 const& viewMatrix, VkExtent2D swapChainExtent);
 	
 private:
+	SceneMode currentSceneMode;
+	GraphicsEngine* graphicsEngine;
+
 	std::vector<std::shared_ptr<GameObject>> gameObjects;
 	std::vector<std::shared_ptr<GameObject>> upcomingGameObjects;
 

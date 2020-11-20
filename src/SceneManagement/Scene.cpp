@@ -7,18 +7,38 @@
 #include "BulletBehavior.h"
 #include "GameObject.h"
 #include "PlayerGameObjectBehavior.h"
+#include "GraphicsEngine.h"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-Scene::Scene(ResourceLoader* resourceLoader,
-	GfxDeviceManager* gfxDeviceManager,
+Scene::Scene(SceneMode currentSceneMode,
+	ResourceLoader* resourceLoader, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const & logicalDeviceManager,
-	VkCommandPool commandPool) : resourceLoader(resourceLoader),
+	VkCommandPool commandPool) : currentSceneMode(SceneMode::Menu),
+		graphicsEngine(nullptr), resourceLoader(resourceLoader),
 		gfxDeviceManager(gfxDeviceManager),
-		logicalDeviceManager(logicalDeviceManager), commandPool(commandPool) {
+	logicalDeviceManager(logicalDeviceManager), commandPool(commandPool) {
 }
 
 Scene::~Scene() {
+}
+
+void Scene::CreateGraphicsEngine(VkSurfaceKHR surface, GLFWwindow* window) {
+	// TODO: find out best way to use this
+	// need another class to hold scene and graphics engine
+	// maybe game driver? that way it can switch between scene types
+	// and manage pipelines via graphics engine
+	if (graphicsEngine != nullptr) {
+		delete graphicsEngine;
+	}
+	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, surface, window, commandPool,
+		GetGameObjects());
+}
+
+void Scene::UpdateSceneMode(SceneMode newSceneMode) {
+	currentSceneMode = newSceneMode;
+	// TODO: switch pipelines
 }
 
 void Scene::AddGameObject(std::shared_ptr<GameObject>

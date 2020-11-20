@@ -84,7 +84,7 @@ private:
 
 	void RecreateSwapChain();
 	void CreateCommandPool();
-	void CreateGameObjects();
+	void CreateSceneAndGameObjects();
 	void CreateSyncObjects();
 	void MainLoop();
 	static void FireMainCannon();
