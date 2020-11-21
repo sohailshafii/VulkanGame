@@ -11,13 +11,11 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-Scene::Scene(SceneMode currentSceneMode,
-	ResourceLoader* resourceLoader, GfxDeviceManager* gfxDeviceManager,
+Scene::Scene(ResourceLoader* resourceLoader, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const & logicalDeviceManager,
-	VkCommandPool commandPool) : currentSceneMode(SceneMode::Menu),
-		graphicsEngine(nullptr), resourceLoader(resourceLoader),
-		gfxDeviceManager(gfxDeviceManager),
-	logicalDeviceManager(logicalDeviceManager), commandPool(commandPool) {
+	VkCommandPool commandPool) : graphicsEngine(nullptr),
+		resourceLoader(resourceLoader), gfxDeviceManager(gfxDeviceManager),
+		logicalDeviceManager(logicalDeviceManager), commandPool(commandPool) {
 }
 
 Scene::~Scene() {
@@ -34,11 +32,6 @@ void Scene::CreateGraphicsEngine(VkSurfaceKHR surface, GLFWwindow* window) {
 	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, surface, window, commandPool,
 		GetGameObjects());
-}
-
-void Scene::UpdateSceneMode(SceneMode newSceneMode) {
-	currentSceneMode = newSceneMode;
-	// TODO: switch pipelines
 }
 
 void Scene::AddGameObject(std::shared_ptr<GameObject>

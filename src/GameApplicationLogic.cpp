@@ -221,7 +221,7 @@ void GameApplicationLogic::CreateSceneAndGameObjects() {
 #else
 	std::string scenePath = "../mainGameScene.json";
 #endif
-	mainGameScene = new Scene(Scene::SceneMode::Menu, resourceLoader,
+	mainGameScene = new Scene(resourceLoader,
 		gfxDeviceManager, logicalDeviceManager, commandPool);
 	SceneLoader::SceneSettings sceneSettings;
 
