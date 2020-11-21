@@ -4,12 +4,14 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include "vulkan/vulkan.h"
+#include "SceneManagement/SceneLoader.h"
 
 class Scene;
 class GraphicsEngine;
 class GfxDeviceManager;
 class LogicalDeviceManager;
 class ResourceLoader;
+class Camera;
 
 class GameEngine {
 public:
@@ -25,8 +27,16 @@ public:
 
 private:
 	GameMode currentGameMode;
+	std::shared_ptr<Camera> mainCamera;
 	Scene* mainGameScene;
 	GraphicsEngine* graphicsEngine;
 
-	void CreateSceneAndGameObjects();
+	SceneLoader::SceneSettings CreateSceneAndReturnSettings(
+		GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+		ResourceLoader* resourceLoader, VkCommandPool commandPool,
+		VkSurfaceKHR surface, GLFWwindow* window);
+	void CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+		ResourceLoader* resourceLoader, VkCommandPool commandPool);
 };
