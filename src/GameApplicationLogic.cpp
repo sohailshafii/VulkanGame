@@ -14,6 +14,7 @@
 #include "GameObjects/GameObject.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
+#include "GameEngine.h"
 
 #if __APPLE__
 const std::string MODEL_PATH = "../../models/chalet.obj";
@@ -25,16 +26,14 @@ const std::string CUBE_MODEL_PATH = "../models/cube.obj";
 const std::string TEXTURE_PATH = "../textures/chalet.jpg";
 #endif
 
-std::shared_ptr<Camera> GameApplicationLogic::mainCamera =
-std::make_shared<Camera>(glm::vec3(0.0f, 2.0f, 100.0f),
-	-90.0f, 0.0f, 14.5f, 0.035f);
-Scene* GameApplicationLogic::mainGameScene = nullptr;
 bool GameApplicationLogic::firstMouse = false;
 float GameApplicationLogic::lastX = 0.0f;
 float GameApplicationLogic::lastY = 0.0f;
 float GameApplicationLogic::lastFrameTime = 0.0f;
 float GameApplicationLogic::lastFireTime = -1.0f;
 float GameApplicationLogic::fireInterval = 0.5f;
+
+GameEngine* GameApplicationLogic::gameEngine;
 
 void GameApplicationLogic::Run() {
 	InitWindow();
@@ -56,23 +55,25 @@ void GameApplicationLogic::MouseCallback(GLFWwindow* window,
 	float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
 	lastX = (float)xpos;
 	lastY = (float)ypos;
-
-	GameApplicationLogic::mainCamera->ProcessMouse(xoffset, yoffset);
+	auto mainCamera = GameApplicationLogic::gameEngine->GetCamera();
+	mainCamera->ProcessMouse(xoffset, yoffset);
 }
 
 void GameApplicationLogic::ProcessInput(GLFWwindow* window,
 	float frameTime) {
+	auto mainCamera = GameApplicationLogic::gameEngine->GetCamera();
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		GameApplicationLogic::mainCamera->MoveForward(frameTime);
+		mainCamera->MoveForward(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		GameApplicationLogic::mainCamera->MoveBackward(frameTime);
+		mainCamera->MoveBackward(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		GameApplicationLogic::mainCamera->MoveLeft(frameTime);
+		mainCamera->MoveLeft(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		GameApplicationLogic::mainCamera->MoveRight(frameTime);
+		mainCamera->MoveRight(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		GameApplicationLogic::FireMainCannon();
@@ -123,52 +124,11 @@ void GameApplicationLogic::InitVulkan() {
 
 	resourceLoader = new ResourceLoader();
 
-	CreateSceneAndGameObjects();
-
-	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, surface, window, commandPool,
-		mainGameScene->GetGameObjects());
+	gameEngine = new GameEngine(GameEngine::GameMode::Game,
+		gfxDeviceManager, logicalDeviceManager, resourceLoader,
+		surface, window, commandPool);
 
 	CreateSyncObjects();
-}
-
-void GameApplicationLogic::CreatePlayerGameObject() {
-	// add player game object; this is necessary because enemies
-		// need to know where the player is
-	std::shared_ptr<Material> gameObjectMaterial =
-		GameObjectCreator::CreateMaterial(
-			DescriptorSetFunctions::MaterialType::UnlitColor,
-			"texture.jpg", resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
-	std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
-		"cube.obj", resourceLoader);
-	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
-		glm::vec3(0.0f, 0.0f, 4.0f));
-	std::shared_ptr<GameObject> newGameObject =
-		GameObjectCreator::CreateGameObject(gameObjectMaterial,
-			gameObjectModel,
-			std::make_unique<PlayerGameObjectBehavior>(mainCamera),
-			localToWorldTransform, resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
-	mainGameScene->AddGameObject(newGameObject);
-}
-
-void GameApplicationLogic::RemoveGameObjects(
-	std::vector<GameObject*>& gameObjectsToRemove) {
-	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
-	auto& allGameObjects = mainGameScene->GetGameObjects();
-	graphicsEngine->RemoveGameObjectsAndRecordCommands(
-		inFlightFences, gameObjectsToRemove,
-		allGameObjects);
-}
-
-void GameApplicationLogic::RemoveGameObjects(
-	std::vector<std::shared_ptr<GameObject>> & gameObjectsToRemove) {
-	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
-	auto& allGameObjects = mainGameScene->GetGameObjects();
-	graphicsEngine->RemoveGameObjectsAndRecordCommands(
-		inFlightFences, gameObjectsToRemove,
-		allGameObjects);
 }
 
 void GameApplicationLogic::CreateSurface() {
@@ -194,9 +154,8 @@ void GameApplicationLogic::RecreateSwapChain() {
 
 	vkDeviceWaitIdle(logicalDeviceManager->GetDevice());
 
-	delete graphicsEngine;
-	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, surface, window, commandPool, mainGameScene->GetGameObjects());
+	gameEngine->RecreateGraphicsEngineForNewSwapchain(gfxDeviceManager,
+		logicalDeviceManager, resourceLoader, surface, window, commandPool);
 }
 
 void GameApplicationLogic::CreateCommandPool() {
@@ -213,29 +172,6 @@ void GameApplicationLogic::CreateCommandPool() {
 		&commandPool) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create command pool!");
 	}
-}
-
-void GameApplicationLogic::CreateSceneAndGameObjects() {
-#if __APPLE__
-	std::string scenePath = "../../mainGameScene.json";
-#else
-	std::string scenePath = "../mainGameScene.json";
-#endif
-	mainGameScene = new Scene(resourceLoader,
-		gfxDeviceManager, logicalDeviceManager, commandPool);
-	SceneLoader::SceneSettings sceneSettings;
-
-	SceneLoader::DeserializeJSONFileIntoScene(
-		resourceLoader, gfxDeviceManager, logicalDeviceManager,
-		commandPool, mainGameScene, sceneSettings, scenePath);
-
-	mainCamera->InitializeCameraSystem(glm::vec3(0.0f, 2.0f, 100.0f),
-		-90.0f, 0.0f, 14.5f, 0.035f);
-	mainCamera->InitializeCameraSystem(sceneSettings.cameraPosition,
-		sceneSettings.cameraYaw, sceneSettings.cameraPitch,
-		sceneSettings.cameraMovementSpeed,
-		sceneSettings.cameraMouseSensitivity);
-	CreatePlayerGameObject();
 }
 
 void GameApplicationLogic::CreateSyncObjects() {
@@ -296,9 +232,10 @@ void GameApplicationLogic::MainLoop() {
 void GameApplicationLogic::FireMainCannon() {
 	if (lastFrameTime > (lastFireTime + fireInterval)) {
 		lastFireTime = lastFrameTime;
-		mainGameScene->SpawnGameObject(Scene::SpawnType::Bullet,
-			mainCamera->GetWorldPosition(),
-			mainCamera->GetForwardDirection());
+		GameApplicationLogic::gameEngine->SpawnGameObject(
+			Scene::SpawnType::Bullet,
+			GameApplicationLogic::gameEngine->GetCamera()->GetWorldPosition(),
+			GameApplicationLogic::gameEngine->GetCamera()->GetForwardDirection());
 	}
 }
 
@@ -309,7 +246,7 @@ bool GameApplicationLogic::CanAcquireNextPresentableImageIndex(
 		std::numeric_limits<uint64_t>::max());
 
 	VkResult result = vkAcquireNextImageKHR(logicalDeviceManager->GetDevice(),
-		graphicsEngine->GetSwapChainManager()->GetSwapChain(),
+		gameEngine->GetGraphicsEngine()->GetSwapChainManager()->GetSwapChain(),
 		std::numeric_limits<uint64_t>::max(),
 		imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -325,32 +262,8 @@ bool GameApplicationLogic::CanAcquireNextPresentableImageIndex(
 
 void GameApplicationLogic::UpdateGameState(float time,
 	float deltaTime, uint32_t imageIndex) {
-	mainGameScene->Update(time, deltaTime, imageIndex,
-		GameApplicationLogic::mainCamera->ConstructViewMatrix(),
-		graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
-
-	// TODO: make this event driven to force decoupling
-	// TODO: scene with menu objects
-	auto& gameObjects = mainGameScene->GetGameObjects();
-	std::vector<std::shared_ptr<GameObject>> gameObjectsToInit;
-	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
-	for (auto& gameObject : gameObjects) {
-		if (!gameObject->GetInitializedInEngine()) {
-			gameObjectsToInit.push_back(gameObject);
-		}
-		else if (gameObject->GetMarkedForDeletion()) {
-			gameObjectsToRemove.push_back(gameObject);
-		}
-	}
-
-	if (gameObjectsToInit.size() > 0) {
-		graphicsEngine->RecordCommandsForNewGameObjects(gfxDeviceManager,
-			resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
-	}
-
-	if (gameObjectsToRemove.size() > 0) {
-		RemoveGameObjects(gameObjectsToRemove);
-	}
+	gameEngine->UpdateFrame(time, deltaTime, imageIndex,
+		gfxDeviceManager, resourceLoader, inFlightFences);
 }
 
 void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
@@ -366,7 +279,7 @@ void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
 
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &(
-		graphicsEngine->GetCommandBufferModule()->GetCommandBuffers()[imageIndex]);
+		gameEngine->GetGraphicsEngine()->GetCommandBufferModule()->GetCommandBuffers()[imageIndex]);
 
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
@@ -388,7 +301,7 @@ void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
 	VkSwapchainKHR swapChains[] = {
-		graphicsEngine->GetSwapChainManager()->GetSwapChain() };
+		gameEngine->GetGraphicsEngine()->GetSwapChainManager()->GetSwapChain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
@@ -413,10 +326,8 @@ void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
 void GameApplicationLogic::CleanUp() {
 	delete resourceLoader;
 
-	delete graphicsEngine;
-
 	// delete game objects before destroying vulkan instance
-	delete mainGameScene;
+	delete gameEngine;
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(logicalDeviceManager->GetDevice(), renderFinishedSemaphores[i], nullptr);

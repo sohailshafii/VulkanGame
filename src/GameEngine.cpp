@@ -4,7 +4,7 @@
 #include "LogicalDeviceManager.h"
 #include "ResourceLoader.h"
 #include "Camera.h"
-#include "SceneManagement/Scene.h"
+#include "SwapChainManager.h"
 #include "SceneManagement/SceneLoader.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/PlayerGameObjectBehavior.h"
@@ -19,7 +19,7 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 		CreateSceneAndReturnSettings(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool, surface, window);
 
-	mainCamera->InitializeCameraSystem(glm::vec3(0.0f, 2.0f, 100.0f),
+	mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 2.0f, 100.0f),
 		-90.0f, 0.0f, 14.5f, 0.035f);
 	mainCamera->InitializeCameraSystem(sceneSettings.cameraPosition,
 		sceneSettings.cameraYaw, sceneSettings.cameraPitch,
@@ -32,12 +32,55 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 
 GameEngine::~GameEngine() {
 	delete graphicsEngine;
+	// delete game objects before destroying vulkan instance
+
 	delete mainGameScene;
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	currentGameMode = newGameMode;
 	// TODO: switch pipelines
+}
+
+void GameEngine::RecreateGraphicsEngineForNewSwapchain(
+	GfxDeviceManager* gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	ResourceLoader* resourceLoader, VkSurfaceKHR surface, GLFWwindow* window,
+	VkCommandPool commandPool) {
+	delete graphicsEngine;
+	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, surface, window, commandPool, mainGameScene->GetGameObjects());
+}
+
+void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
+	GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
+	std::vector<VkFence> const& inFlightFences) {
+	mainGameScene->Update(time, deltaTime, imageIndex,
+		mainCamera->ConstructViewMatrix(),
+		graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
+
+	// TODO: make this event driven to force decoupling
+	// TODO: scene with menu objects
+	auto& gameObjects = mainGameScene->GetGameObjects();
+	std::vector<std::shared_ptr<GameObject>> gameObjectsToInit;
+	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
+	for (auto& gameObject : gameObjects) {
+		if (!gameObject->GetInitializedInEngine()) {
+			gameObjectsToInit.push_back(gameObject);
+		}
+		else if (gameObject->GetMarkedForDeletion()) {
+			gameObjectsToRemove.push_back(gameObject);
+		}
+	}
+
+	if (gameObjectsToInit.size() > 0) {
+		graphicsEngine->RecordCommandsForNewGameObjects(gfxDeviceManager,
+			resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
+	}
+
+	if (gameObjectsToRemove.size() > 0) {
+		RemoveGameObjects(gameObjectsToRemove, inFlightFences);
+	}
 }
 
 SceneLoader::SceneSettings GameEngine::CreateSceneAndReturnSettings(
@@ -86,4 +129,24 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	mainGameScene->AddGameObject(newGameObject);
+}
+
+void GameEngine::RemoveGameObjects(
+	std::vector<GameObject*>& gameObjectsToRemove,
+	std::vector<VkFence> const& inFlightFences) {
+	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
+	auto& allGameObjects = mainGameScene->GetGameObjects();
+	graphicsEngine->RemoveGameObjectsAndRecordCommands(
+		inFlightFences, gameObjectsToRemove,
+		allGameObjects);
+}
+
+void GameEngine::RemoveGameObjects(
+	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
+	std::vector<VkFence> const& inFlightFences) {
+	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
+	auto& allGameObjects = mainGameScene->GetGameObjects();
+	graphicsEngine->RemoveGameObjectsAndRecordCommands(
+		inFlightFences, gameObjectsToRemove,
+		allGameObjects);
 }

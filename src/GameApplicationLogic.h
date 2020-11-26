@@ -44,7 +44,6 @@ private:
 
 	VkSurfaceKHR surface;
 
-	GraphicsEngine* graphicsEngine;
 	// TODO: have central place for command pool
 	VkCommandPool commandPool;
 
@@ -56,10 +55,11 @@ private:
 	bool framebufferResized = false;
 
 	ResourceLoader* resourceLoader;
-	static Scene* mainGameScene;
+	// this has to be static because we feed
+	// camera inputs to it via static functions
+	static class GameEngine* gameEngine;
 
 	// need to be static for cursor callback function to work
-	static std::shared_ptr<Camera> mainCamera;
 	static bool firstMouse;
 	static float lastX, lastY;
 	static float lastFrameTime;
@@ -74,17 +74,12 @@ private:
 	void CreateInstance();
 	void PickPhysicalDevice();
 	void InitVulkan();
-	void CreatePlayerGameObject();
 
-	void RemoveGameObjects(std::vector<GameObject*>& gameObjectsToRemove);
-	void RemoveGameObjects(std::vector<std::shared_ptr<GameObject>>
-		& gameObjectsToRemove);
 	void CreateSurface();
 	void CreateLogicalDevice();
 
 	void RecreateSwapChain();
 	void CreateCommandPool();
-	void CreateSceneAndGameObjects();
 	void CreateSyncObjects();
 	void MainLoop();
 	static void FireMainCannon();
