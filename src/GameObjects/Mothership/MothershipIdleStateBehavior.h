@@ -3,16 +3,16 @@
 #include "ShipStateBehavior.h"
 #include <glm/glm.hpp>
 
-class ShipIdleStateBehavior : public ShipStateBehavior {
+class MothershipIdleStateBehavior : public ShipStateBehavior {
 public:
-	ShipIdleStateBehavior();
+	MothershipIdleStateBehavior();
 
 	virtual ShipStateBehavior* UpdateAndGetNextState(
 		MothershipBehavior & motherShip,
 		float time, float deltaTime) override;
 
 	virtual std::string GetDescriptiveName() const override {
-		return "ShipIdleStateBehavior";
+		return "MothershipIdleStateBehavior";
 	}
 
 private:

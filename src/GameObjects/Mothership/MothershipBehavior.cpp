@@ -1,5 +1,5 @@
 #include "MothershipBehavior.h"
-#include "ShipIdleStateBehavior.h"
+#include "MothershipIdleStateBehavior.h"
 #include "GameObjectCreationUtilFuncs.h"
 #include "DescriptorSetFunctions.h"
 #include "GameObject.h"
@@ -108,7 +108,7 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 	}
 
 	// shudder if we can't take damage
-	if (dynamic_cast<ShipIdleStateBehavior*>(currentShipStateBehavior)
+	if (dynamic_cast<MothershipIdleStateBehavior*>(currentShipStateBehavior)
 		!= nullptr) {
 		shudderStartTime = currentFrameTime;
 		return false;
@@ -146,7 +146,7 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 }
 
 void MothershipBehavior::Initialize() {
-	currentShipStateBehavior = new ShipIdleStateBehavior();
+	currentShipStateBehavior = new MothershipIdleStateBehavior();
 }
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
@@ -219,16 +219,16 @@ void MothershipBehavior::UpdateModelColorsBasedOnCurrentModifiers() {
 				if (currentFrameTime > halfPoint) {
 					lerpVal = (currentFrameTime - halfPoint) / halfDuration;
 					// invert it -- we go backwards here
-					lerpVal = 1.0 - lerpVal;
+					lerpVal = 1.0f - lerpVal;
 				}
-				lerpVal = lerpVal > 1.0 ? 1.0 : lerpVal;
+				lerpVal = lerpVal > 1.0f ? 1.0f : lerpVal;
 				// lerp desired colorval over time
 				glm::vec3 desiredColor = lerpVal * currentModifier.desiredColor +
 					(1.0f - lerpVal) * originalModelColors[index];
 
 				// if angle is closer to 0, lerp value should 1. otherwise,
 				// it is 0
-				float lerpValDist = 1.0 - currAngle / currentModifier.maxAngleRadians;
+				float lerpValDist = 1.0f - currAngle / currentModifier.maxAngleRadians;
 				modelVerts[index].color = lerpValDist * desiredColor +
 					(1.0f - lerpValDist)* originalModelColors[index];
 			}
@@ -446,7 +446,7 @@ void MothershipBehavior::UpdateUBORippleData(
 	}
 	// disable any old ripples
 	if (numCurrentRipples < MAX_RIPPLE_COUNT) {
-		int difference = MAX_RIPPLE_COUNT - numCurrentRipples;
+		size_t difference = MAX_RIPPLE_COUNT - numCurrentRipples;
 		for (size_t i = numCurrentRipples; i < numCurrentRipples + difference;
 			i++) {
 			RipplePointLocal& ripplePointLocal = ubo->ripplePointsLocal[i];
@@ -467,7 +467,7 @@ void MothershipBehavior::UpdateUBOStalkData(
 	}
 	// disable any old ripples
 	if (numCurrentStalks < MAX_STALK_COUNT) {
-		int difference = MAX_STALK_COUNT - numCurrentStalks;
+		size_t difference = MAX_STALK_COUNT - numCurrentStalks;
 		for (size_t i = numCurrentStalks; i < numCurrentStalks + difference;
 			i++) {
 			StalkPointLocal& stalkPointLocal = ubo->stalkPointsLocal[i];

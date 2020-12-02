@@ -2,6 +2,6 @@
 
 GameObjectBehavior::BehaviorStatus StationaryGameObjectBehavior::UpdateSelf(
 	float time, float deltaTime) {
-	return GameObjectBehavior::Normal;
+	return GameObjectBehavior::BehaviorStatus::Normal;
 }
 

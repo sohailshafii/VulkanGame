@@ -1,16 +1,16 @@
-#include "ShipIdleStateBehavior.h"
-#include "ShipFiringLevel1Behavior.h"
+#include "MothershipIdleStateBehavior.h"
+#include "MothershipFiringLevel1Behavior.h"
 #include "MothershipBehavior.h"
 #include <cstdlib>
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 
-ShipIdleStateBehavior::ShipIdleStateBehavior() {
+MothershipIdleStateBehavior::MothershipIdleStateBehavior() {
 	initialized = false;
 	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-ShipStateBehavior* ShipIdleStateBehavior::UpdateAndGetNextState(
+ShipStateBehavior* MothershipIdleStateBehavior::UpdateAndGetNextState(
 	MothershipBehavior & motherShip,
 	float time, float deltaTime) {
 	if (!initialized) {
@@ -20,7 +20,7 @@ ShipStateBehavior* ShipIdleStateBehavior::UpdateAndGetNextState(
 
 	ShipStateBehavior* nextShipState = this;
 	if (timeWhenFireStateBegins < time) {
-		nextShipState = new ShipFiringLevel1Behavior();
+		nextShipState = new MothershipFiringLevel1Behavior();
 	}
 
 	modelMatrix = glm::rotate(motherShip.GetModelMatrix(),

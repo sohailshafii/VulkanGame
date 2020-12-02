@@ -3,5 +3,5 @@
 GameObjectBehavior::BehaviorStatus PlayerGameObjectBehavior::UpdateSelf(
 	float time, float deltaTime) {
 	this->SetWorldPosition(playerCamera->GetWorldPosition());
-	return GameObjectBehavior::Normal;
+	return GameObjectBehavior::BehaviorStatus::Normal;
 }

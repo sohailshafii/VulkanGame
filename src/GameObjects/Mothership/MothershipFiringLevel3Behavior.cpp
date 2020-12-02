@@ -1,19 +1,19 @@
-#include "ShipFiringLevel3Behavior.h"
-#include "ShipIdleStateBehavior.h"
-#include "ShipFiringLevel1Behavior.h"
+#include "MothershipFiringLevel3Behavior.h"
+#include "MothershipIdleStateBehavior.h"
+#include "MothershipFiringLevel1Behavior.h"
 #include "MothershipBehavior.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-const float ShipFiringLevel3Behavior::timeUntilNextSpawn = 0.7f;
+const float MothershipFiringLevel3Behavior::timeUntilNextSpawn = 0.7f;
 
-ShipFiringLevel3Behavior::ShipFiringLevel3Behavior() {
+MothershipFiringLevel3Behavior::MothershipFiringLevel3Behavior() {
 	timeToSwitchState = -1.0f;
 	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-ShipStateBehavior* ShipFiringLevel3Behavior::UpdateAndGetNextState(
+ShipStateBehavior* MothershipFiringLevel3Behavior::UpdateAndGetNextState(
 	MothershipBehavior & motherShip,
 	float time, float deltaTime) {
 	InitializeIfNecessary(time);
@@ -26,24 +26,24 @@ ShipStateBehavior* ShipFiringLevel3Behavior::UpdateAndGetNextState(
 	ShipStateBehavior* nextShipState = this;
 	if (timeToSwitchState < time) {
 		if ((rand() % 200) < 180) {
-			nextShipState = new ShipIdleStateBehavior();
+			nextShipState = new MothershipIdleStateBehavior();
 		}
 		else {
-			nextShipState = new ShipFiringLevel1Behavior();
+			nextShipState = new MothershipFiringLevel1Behavior();
 		}
 	}
 
 	return nextShipState;
 }
 
-void ShipFiringLevel3Behavior::InitializeIfNecessary(float time) {
+void MothershipFiringLevel3Behavior::InitializeIfNecessary(float time) {
 	if (timeToSwitchState < 0.0f) {
 		timeToSwitchState = time + (float)(rand() % 2) + 10.0f;
 		nextTimeToSpawnPawn = time + (float)(rand() % 3) + timeUntilNextSpawn;
 	}
 }
 
-void ShipFiringLevel3Behavior::SpawnPawnBasedOnTime(
+void MothershipFiringLevel3Behavior::SpawnPawnBasedOnTime(
 	MothershipBehavior& motherShip,
 	float time) {
 	if (time > nextTimeToSpawnPawn) {

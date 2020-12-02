@@ -16,7 +16,7 @@ class Camera;
 
 class GameEngine {
 public:
-	enum GameMode { Menu = 0, Game };
+	enum class GameMode : char { Menu = 0, Game };
 
 	GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const & logicalDeviceManager,

@@ -18,7 +18,7 @@ class GraphicsEngine;
 class Scene
 {
 public:
-	enum SpawnType { Pawn = 0, Bullet };
+	enum class SpawnType : char { Pawn = 0, Bullet };
 
 	Scene(ResourceLoader* resourceLoader,
 		GfxDeviceManager* gfxDeviceManager,

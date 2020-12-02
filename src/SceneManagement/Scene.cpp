@@ -3,10 +3,10 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "GameObjectCreationUtilFuncs.h"
-#include "PawnBehavior.h"
-#include "BulletBehavior.h"
+#include "Mothership/PawnBehavior.h"
+#include "Player/BulletBehavior.h"
 #include "GameObject.h"
-#include "PlayerGameObjectBehavior.h"
+#include "Player/PlayerGameObjectBehavior.h"
 #include "GraphicsEngine.h"
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>

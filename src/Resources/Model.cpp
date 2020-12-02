@@ -385,11 +385,11 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 			ComputeHalfVertex(v2, v3, newV2, radius);
 			ComputeHalfVertex(v1, v3, newV3, radius);
 
-			uint32_t newV1Index = vertices.size();
+			uint32_t newV1Index = (uint32_t)vertices.size();
 			vertices.push_back(newV1);
-			uint32_t newV2Index = vertices.size();
+			uint32_t newV2Index = (uint32_t)vertices.size();
 			vertices.push_back(newV2);
-			uint32_t newV3Index = vertices.size();
+			uint32_t newV3Index = (uint32_t)vertices.size();
 			vertices.push_back(newV3);
 			oldIndex1 = vertices.size();
 			vertices.push_back(v1);
@@ -399,17 +399,17 @@ void Model::SubdivideIcosahedron(std::vector<ModelVert>& vertices,
 			vertices.push_back(v3);
 
 			// topmost triangle in new subdiv
-			AddIcosahedronIndices(indices, oldIndex1,
+			AddIcosahedronIndices(indices, (uint32_t)oldIndex1,
 				newV1Index, newV3Index, vertexNeighbors);
 			// center triangle
 			AddIcosahedronIndices(indices, newV2Index,
 				newV3Index, newV1Index, vertexNeighbors);
 			// bottom left triangle
 			AddIcosahedronIndices(indices, newV1Index,
-				oldIndex2, newV2Index, vertexNeighbors);
+				(uint32_t)oldIndex2, newV2Index, vertexNeighbors);
 			// bottom right triangle
 			AddIcosahedronIndices(indices, newV3Index,
-				newV2Index, oldIndex3, vertexNeighbors);
+				newV2Index, (uint32_t)oldIndex3, vertexNeighbors);
 		}
 	}
 }
@@ -432,7 +432,7 @@ void Model::CalculateNormalVectors(std::vector<ModelVert>& vertices,
 	std::unordered_map<uint32_t, std::set<TriangleEdgeSet>>& vertexNeighbors) {
 	size_t numVertices = vertices.size();
 	for (size_t vertIndex = 0; vertIndex < numVertices; vertIndex++) {
-		ComputeNormal(vertIndex, vertices, vertexNeighbors);
+		ComputeNormal((uint32_t)vertIndex, vertices, vertexNeighbors);
 	}
 }
 

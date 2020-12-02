@@ -7,7 +7,7 @@
 #include "SwapChainManager.h"
 #include "SceneManagement/SceneLoader.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
-#include "GameObjects/PlayerGameObjectBehavior.h"
+#include "GameObjects/Player/PlayerGameObjectBehavior.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,

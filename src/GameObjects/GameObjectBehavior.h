@@ -5,14 +5,14 @@
 
 class GameObjectBehavior {
 public:
-	enum BehaviorStatus { Normal = 0, Destroyed };
+	enum class BehaviorStatus : char { Normal = 0, Destroyed };
 
 	GameObjectBehavior(Scene * const scene)
-		: scene(scene) {
+		: modelMatrix(glm::mat4(1.0f)), scene(scene), gameObject(nullptr) {
 	}
 
 	GameObjectBehavior()
-		: scene(nullptr) {
+		: modelMatrix(glm::mat4(1.0f)), scene(nullptr), gameObject(nullptr) {
 	}
 	
 	virtual ~GameObjectBehavior() {

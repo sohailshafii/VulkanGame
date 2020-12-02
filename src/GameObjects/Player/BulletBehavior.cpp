@@ -1,6 +1,6 @@
 #include "BulletBehavior.h"
-#include "PawnBehavior.h"
-#include "MothershipBehavior.h"
+#include "Mothership/PawnBehavior.h"
+#include "Mothership/MothershipBehavior.h"
 #include "GameObject.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

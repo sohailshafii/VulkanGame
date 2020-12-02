@@ -59,7 +59,7 @@ void GraphicsEngine::RecordCommandsForNewGameObjects(
 	CreateDescriptorPoolAndSetsForGameObjects(newGameObjects);
 	
 	// TODO: do this on a separate thread?
-	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
+	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 					inFlightFences.data(), VK_TRUE,
 					std::numeric_limits<uint64_t>::max());
 	
@@ -75,9 +75,9 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
 
-	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
+	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 		inFlightFences.data(), VK_TRUE,
-		(uint32_t)std::numeric_limits<uint64_t>::max());
+		std::numeric_limits<uint64_t>::max());
 
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
 }
@@ -88,7 +88,7 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
 
-	vkWaitForFences(logicalDeviceManager->GetDevice(), inFlightFences.size(),
+	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 		inFlightFences.data(), VK_TRUE,
 		(uint32_t)std::numeric_limits<uint64_t>::max());
 

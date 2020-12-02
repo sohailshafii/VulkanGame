@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-enum NoiseGeneratorType { None = 0, Perlin };
+enum class NoiseGeneratorType : char { None = 0, Perlin };
 
 class NoiseGenerator {
 public:

@@ -3,11 +3,10 @@
 #include <cstdlib>
 #include <ctime>
 #include "GameApplicationLogic.h"
-#include "FreeTypeInterface.h"
 
 int main() {
 	// in case we use rand anywhere, set up seed here
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	GameApplicationLogic app;
 

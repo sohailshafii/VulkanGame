@@ -1,18 +1,18 @@
-#pragma once 
+#pragma once
 
 #include "ShipStateBehavior.h"
 #include <glm/glm.hpp>
 
-class ShipFiringLevel1Behavior : public ShipStateBehavior {
+class MothershipFiringLevel3Behavior : public ShipStateBehavior {
 public:
-	ShipFiringLevel1Behavior();
+	MothershipFiringLevel3Behavior();
 
 	virtual ShipStateBehavior* UpdateAndGetNextState(
 		MothershipBehavior & motherShip,
 		float time, float deltaTime) override;
 
 	virtual std::string GetDescriptiveName() const override {
-		return "ShipFiringLevel1Behavior";
+		return "MothershipFiringLevel3Behavior";
 	}
 
 private:

@@ -15,20 +15,28 @@
 
 class Model {
 public:
-	enum TopologyType { TriangleList = 0, TriangleStrip };
+	enum class TopologyType : char { TriangleList = 0, TriangleStrip };
 
 	struct ModelVert {
-		ModelVert() { }
+		ModelVert() : position(glm::vec3(0.0f, 0.0f, 0.0f)),
+			normal(glm::vec3(0.0f, 0.0f, 0.0f)),
+			color(glm::vec3(0.0f, 0.0f, 0.0f)),
+			texCoord(glm::vec2(0.0f, 0.0f)) { }
 		ModelVert(const glm::vec3& position) :
-			position(position) { }
+			position(position),
+			normal(glm::vec3(0.0f, 0.0f, 0.0f)),
+			color(glm::vec3(0.0f, 0.0f, 0.0f)),
+			texCoord(glm::vec2(0.0f, 0.0f)) { }
 		ModelVert(const glm::vec3& position, const glm::vec3&
 				  normal) : position(position),
-			normal(normal) { }
+			normal(normal),
+			color(glm::vec3(0.0f, 0.0f, 0.0f)),
+			texCoord(glm::vec2(0.0f, 0.0f)) { }
 		
 		ModelVert(const glm::vec3& position, const glm::vec3&
 				  normal, const glm::vec3& color) :
 			position(position), normal(normal),
-			color(color) { }
+			color(color), texCoord(glm::vec2(0.0f, 0.0f)) { }
 		ModelVert(const glm::vec3& position, const glm::vec3&
 				  normal, const glm::vec3& color,
 				  const glm::vec2& texCoord) : position(position),
@@ -61,7 +69,7 @@ public:
 		}
 	};
 	
-	Model() {}
+	Model() : modelTopology(TopologyType::TriangleList) {}
 	Model(const std::string& modelPath);
 	Model(const std::vector<ModelVert>& vertices,
 		  const std::vector<uint32_t>& indices,

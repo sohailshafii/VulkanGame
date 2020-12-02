@@ -1,19 +1,19 @@
-#include "ShipFiringLevel2Behavior.h"
-#include "ShipIdleStateBehavior.h"
-#include "ShipFiringLevel3Behavior.h"
+#include "MothershipFiringLevel2Behavior.h"
+#include "MothershipIdleStateBehavior.h"
+#include "MothershipFiringLevel3Behavior.h"
 #include "MothershipBehavior.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-const float ShipFiringLevel2Behavior::timeUntilNextSpawn = 1.1f;
+const float MothershipFiringLevel2Behavior::timeUntilNextSpawn = 1.1f;
 
-ShipFiringLevel2Behavior::ShipFiringLevel2Behavior() {
+MothershipFiringLevel2Behavior::MothershipFiringLevel2Behavior() {
 	timeToSwitchState = -1.0f;
 	axisOfRotation = glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f));
 }
 
-ShipStateBehavior* ShipFiringLevel2Behavior::UpdateAndGetNextState(
+ShipStateBehavior* MothershipFiringLevel2Behavior::UpdateAndGetNextState(
 	MothershipBehavior & motherShip,
 	float time, float deltaTime) {
 	InitializeIfNecessary(time);
@@ -26,10 +26,10 @@ ShipStateBehavior* ShipFiringLevel2Behavior::UpdateAndGetNextState(
 	ShipStateBehavior* nextShipState = this;
 	if (timeToSwitchState < time) {
 		if ((rand() % 200) < 150) {
-			nextShipState = new ShipIdleStateBehavior();
+			nextShipState = new MothershipIdleStateBehavior();
 		}
 		else {
-			nextShipState = new ShipFiringLevel3Behavior();
+			nextShipState = new MothershipFiringLevel3Behavior();
 		}
 	}
 
@@ -37,14 +37,14 @@ ShipStateBehavior* ShipFiringLevel2Behavior::UpdateAndGetNextState(
 	return nextShipState;
 }
 
-void ShipFiringLevel2Behavior::InitializeIfNecessary(float time) {
+void MothershipFiringLevel2Behavior::InitializeIfNecessary(float time) {
 	if (timeToSwitchState < 0.0f) {
 		timeToSwitchState = time + (float)(rand() % 3) + 10.0f;
 		nextTimeToSpawnPawn = time + (float)(rand() % 3) + timeUntilNextSpawn;
 	}
 }
 
-void ShipFiringLevel2Behavior::SpawnPawnBasedOnTime(
+void MothershipFiringLevel2Behavior::SpawnPawnBasedOnTime(
 	MothershipBehavior& motherShip,
 	float time) {
 	if (time > nextTimeToSpawnPawn) {

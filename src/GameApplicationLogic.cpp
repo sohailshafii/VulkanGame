@@ -13,7 +13,7 @@
 #include "SceneManagement/SceneLoader.h"
 #include "GameObjects/GameObject.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
-#include "GameObjects/PlayerGameObjectBehavior.h"
+#include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameEngine.h"
 
 #if __APPLE__

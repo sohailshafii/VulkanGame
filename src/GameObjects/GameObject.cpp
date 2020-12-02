@@ -252,7 +252,7 @@ void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
 																  material->GetMaterialType(),
 																  numSwapChainImages);
 	std::cout << descriptorPool << " belongs to "
-	<< material->GetMaterialType() << ", with layout " << std::endl;
+		<< static_cast<int>(material->GetMaterialType()) << ", with layout " << std::endl;
 }
 
 void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
@@ -265,7 +265,8 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 	allocInfo.pSetLayouts = layouts.data();
 	
 	std::cout << "about to allocate descriptor sets for pool "
-	<< descriptorPool << ", with layout " << descriptorSetLayout << ", material: " << material->GetMaterialType() << std::endl;
+	<< descriptorPool << ", with layout " << descriptorSetLayout << ", material: " << 
+		static_cast<int>(material->GetMaterialType()) << std::endl;
 
 	descriptorSets.resize(numSwapChainImages);
 	if (vkAllocateDescriptorSets(logicalDeviceManager->GetDevice(), &allocInfo,
