@@ -62,9 +62,13 @@ bool GfxDeviceManager::IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR su
 
 	return indices.IsComplete() && extensionsSupported
 		&& swapChainAdequate && ((bool)supportedFeatures.samplerAnisotropy
-			== true &&
+			== true
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+								 &&
 			// need wide lines for testing wireframes
-			(bool)supportedFeatures.wideLines);
+			(bool)supportedFeatures.wideLines
+#endif
+	);
 }
 
 VkSampleCountFlagBits GfxDeviceManager::GetMaxUsableSampleCount(VkPhysicalDevice device) {
