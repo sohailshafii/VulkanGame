@@ -72,7 +72,6 @@ Model::Model(const std::vector<ModelVert>& vertices,
 }
 
 Model::~Model() {
-
 }
 
 std::shared_ptr<Model> Model::CreateQuad(

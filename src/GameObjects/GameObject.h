@@ -172,10 +172,10 @@ private:
 		VkCommandPool commandPool, DescriptorSetFunctions::MaterialType materialType);
 
 	template<typename VertexType>
-	void CreateOrUpdateVertexBuffer(const std::vector<VertexType>& vertices,
+	void CreateOrUpdateVertexBuffer(std::vector<VertexType> const & vertices,
 									GfxDeviceManager *gfxDeviceManager,
 									VkCommandPool commandPool);
-	void CreateOrUpdateIndexBuffer(const std::vector<uint32_t>& indices,
+	void CreateOrUpdateIndexBuffer(std::vector<uint32_t> const & indices,
 									GfxDeviceManager *gfxDeviceManager,
 									VkCommandPool commandPool);
 	

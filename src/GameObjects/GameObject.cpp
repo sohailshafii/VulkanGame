@@ -73,7 +73,7 @@ void GameObject::UpdateOrUpdateVertexBufferForMaterial(GfxDeviceManager* gfxDevi
 }
 
 template<typename VertexType>
-void GameObject::CreateOrUpdateVertexBuffer(const std::vector<VertexType>& vertices,
+void GameObject::CreateOrUpdateVertexBuffer(std::vector<VertexType> const & vertices,
 											GfxDeviceManager *gfxDeviceManager,
 											VkCommandPool commandPool) {
 	VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
@@ -145,7 +145,7 @@ void GameObject::SetupShaderNames() {
 	}
 }
 
-void GameObject::CreateOrUpdateIndexBuffer(const std::vector<uint32_t>& indices,
+void GameObject::CreateOrUpdateIndexBuffer(std::vector<uint32_t> const & indices,
 											GfxDeviceManager *gfxDeviceManager,
 											VkCommandPool commandPool) {
 	VkDeviceSize bufferSize = sizeof(indices[0])*indices.size();

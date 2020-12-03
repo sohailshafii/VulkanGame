@@ -41,6 +41,7 @@ GameEngine::~GameEngine() {
 void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
+	// TODO: procedurally create texture
 	std::shared_ptr<Material> gameObjectMaterial =
 		GameObjectCreator::CreateMaterial(
 			DescriptorSetFunctions::MaterialType::Text,
