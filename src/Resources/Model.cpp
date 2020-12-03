@@ -75,6 +75,52 @@ Model::~Model() {
 
 }
 
+std::shared_ptr<Model> Model::CreateQuad(
+	glm::vec3 const& quadOrigin,
+	glm::vec3 const& side1Vec, glm::vec3 const& side2Vec) {
+	std::vector<ModelVert> vertices;
+	std::vector<uint32_t> indices;
+
+	// make sure side1 and side2 are perpendicular
+	if (fabs(glm::dot(side1Vec, side2Vec)) > 0.0f)
+	{
+		std::cerr << "Side vectors are not perpendicular; "
+			<< "cannot create plane.\n";
+		return nullptr;
+	}
+
+	glm::vec3 normalVec = glm::normalize(glm::cross(
+		side1Vec, side2Vec));
+	glm::vec3 currentPnt = quadOrigin;
+	vertices.push_back(Model::ModelVert(currentPnt,
+		normalVec,
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f)));
+	currentPnt = quadOrigin + side1Vec;
+	vertices.push_back(Model::ModelVert(currentPnt,
+		normalVec,
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec2(0.0f, 0.0f)));
+	currentPnt = quadOrigin + side2Vec;
+	vertices.push_back(Model::ModelVert(currentPnt,
+		normalVec,
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f)));
+	currentPnt = quadOrigin + side1Vec + side2Vec;
+	vertices.push_back(Model::ModelVert(currentPnt,
+		normalVec,
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec2(0.0f, 1.0f)));
+
+	indices.push_back(0);
+	indices.push_back(1);
+	indices.push_back(2);
+	indices.push_back(3);
+
+	return std::make_shared<Model>(vertices, indices,
+		TopologyType::TriangleStrip);
+}
+
 std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
 	const glm::vec3& side1Vec, const glm::vec3& side2Vec,
 	uint32_t numSide1Points, uint32_t numSide2Points,

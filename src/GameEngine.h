@@ -24,6 +24,10 @@ public:
 		VkCommandPool commandPool);
 	~GameEngine();
 
+	void CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+		ResourceLoader* resourceLoader, VkCommandPool commandPool);
+
 	void UpdateGameMode(GameMode newGameMode);
 	void RecreateGraphicsEngineForNewSwapchain(GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,

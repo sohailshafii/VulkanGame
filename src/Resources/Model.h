@@ -76,6 +76,9 @@ public:
 		TopologyType modelTopology);
 	~Model();
 	
+	static std::shared_ptr<Model> CreateQuad(glm::vec3 const& quadOrigin,
+		glm::vec3 const& side1Vec, glm::vec3 const& side2Vec);
+
 	static std::shared_ptr<Model> CreatePlane(const glm::vec3& lowerLeft,
 		const glm::vec3& side1Vec, const glm::vec3& side2Vec,
 		uint32_t numSide1Points, uint32_t numSide2Points,

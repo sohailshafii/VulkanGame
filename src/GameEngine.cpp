@@ -8,6 +8,7 @@
 #include "SceneManagement/SceneLoader.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
+#include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -35,6 +36,29 @@ GameEngine::~GameEngine() {
 	// delete game objects before destroying vulkan instance
 
 	delete mainGameScene;
+}
+
+void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
+	std::shared_ptr<Material> gameObjectMaterial =
+		GameObjectCreator::CreateMaterial(
+			DescriptorSetFunctions::MaterialType::Text,
+			"no_texture.jpg", resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool);
+	std::shared_ptr<Model> textObjecModel =
+		Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
+			glm::vec3(1.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+
+	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
+		glm::vec3(0.0f, 0.0f, 4.0f));
+	std::shared_ptr<GameObject> newGameObject =
+		GameObjectCreator::CreateGameObject(gameObjectMaterial,
+			textObjecModel,
+			std::make_unique<StationaryGameObjectBehavior>(),
+			localToWorldTransform, resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool);
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
@@ -112,13 +136,13 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
 	// add player game object; this is necessary because enemies
-		// need to know where the player is
+	// need to know where the player is
 	std::shared_ptr<Material> gameObjectMaterial =
 		GameObjectCreator::CreateMaterial(
 			DescriptorSetFunctions::MaterialType::UnlitColor,
 			"texture.jpg", resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
-	std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
+	std::shared_ptr<Model> gameObjectModel = GameObjectCreator::LoadModelFromName(
 		"cube.obj", resourceLoader);
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
 		glm::vec3(0.0f, 0.0f, 4.0f));
