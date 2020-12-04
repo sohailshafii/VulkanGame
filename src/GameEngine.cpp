@@ -9,7 +9,7 @@
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
-#include "GameObjects/FontObjects/MenuOption.h"
+#include "GameObjects/FontObjects/MenuObject.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -45,25 +45,32 @@ GameEngine::~GameEngine() {
 void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
-	// TODO: procedurally create texture
-	std::shared_ptr<Material> gameObjectMaterial =
-		GameObjectCreator::CreateMaterial(
-			DescriptorSetFunctions::MaterialType::Text,
-			"texture.jpg", resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
-	std::shared_ptr<Model> textObjecModel =
-		Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
-			glm::vec3(1.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f));
 
-	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
-		glm::vec3(0.0f, 0.0f, 4.0f));
-	std::shared_ptr<GameObject> newGameObject =
-		GameObjectCreator::CreateGameObject(gameObjectMaterial,
-			textObjecModel,
-			std::make_unique<StationaryGameObjectBehavior>(),
-			localToWorldTransform, resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
+	menuModel = Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+	menuMaterial = GameObjectCreator::CreateMaterial(
+		DescriptorSetFunctions::MaterialType::Text,
+		"texture.jpg", resourceLoader, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
+	menuObjects.push_back(std::make_shared<MenuObject>("Play",
+		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("About",
+		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
+		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Easy",
+		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Medium",
+		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Hard",
+		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {

@@ -13,7 +13,9 @@ class GfxDeviceManager;
 class LogicalDeviceManager;
 class ResourceLoader;
 class Camera;
-class MenuOption;
+class MenuObject;
+class Model;
+class Material;
 
 class GameEngine {
 public:
@@ -60,7 +62,10 @@ private:
 	std::shared_ptr<Camera> mainCamera;
 	Scene* mainGameScene;
 	GraphicsEngine* graphicsEngine;
-	std::vector<std::shared_ptr<MenuOption>> menuOptions;
+
+	std::shared_ptr<Model> menuModel;
+	std::shared_ptr<Material> menuMaterial;
+	std::vector<std::shared_ptr<MenuObject>> menuObjects;
 
 	SceneLoader::SceneSettings CreateSceneAndReturnSettings(
 		GfxDeviceManager* gfxDeviceManager,

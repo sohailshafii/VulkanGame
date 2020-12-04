@@ -15,12 +15,13 @@ class GameObject;
 class MenuObject {
 public:
 	MenuObject(std::string const & menuText,
+		std::shared_ptr<Model> & model,
+		std::shared_ptr<Material> & gameObjectMaterial,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool);
 private:
-	static std::shared_ptr<Model> model;
-	static std::shared_ptr<Material> gameObjectMaterial;
-
+	std::shared_ptr<Model> model;
+	std::shared_ptr<Material> gameObjectMaterial;
 	std::vector<std::shared_ptr<GameObject>> textGameObjects;
 };
