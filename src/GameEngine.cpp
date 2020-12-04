@@ -9,6 +9,7 @@
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
+#include "GameObjects/FontObjects/MenuOption.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -29,6 +30,9 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 
 	CreatePlayerGameObject(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool);
+
+	CreateMenuObjects(gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool);
 }
 
 GameEngine::~GameEngine() {
@@ -45,7 +49,7 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<Material> gameObjectMaterial =
 		GameObjectCreator::CreateMaterial(
 			DescriptorSetFunctions::MaterialType::Text,
-			"no_texture.jpg", resourceLoader, gfxDeviceManager,
+			"texture.jpg", resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	std::shared_ptr<Model> textObjecModel =
 		Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
