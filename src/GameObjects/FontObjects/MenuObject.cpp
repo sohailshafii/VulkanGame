@@ -20,12 +20,12 @@ MenuObject::MenuObject(std::string const& menuText,
 
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
 		glm::vec3(0.0f, 0.0f, 4.0f));
-	/*for (char character : menuText) {
+	for (char character : menuText) {
 		// TODO: modify texture coords to access letter in text texture
-		auto newGameObject = GameObjectCreator::CreateGameObject(gameObjectMaterial,
-			MenuObject::model,
+		auto newGameObject = GameObjectCreator::CreateGameObject(
+			this->gameObjectMaterial, this->model,
 			std::make_unique<StationaryGameObjectBehavior>(),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
-	}*/
+	}
 }
