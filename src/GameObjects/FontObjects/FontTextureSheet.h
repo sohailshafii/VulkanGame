@@ -67,7 +67,13 @@ private:
 	};
 
 	FT_Library InitFreeTypeLibrary();
-	void BuildFonts(FT_Library freeTypeLibrary);
+	void BuildFonts(FT_Library freeTypeLibrary,
+		std::vector<FontRasterInfo>& fontRasterInfos);
+	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
+		int textureWidthPOT, int textureHeightPOT);
 
 	std::vector<FontPositioningInfo> fontPositioningInfos;
+	static constexpr int fontHeight = 20;
+	static constexpr int numCharacterAcross = 25;
+	static constexpr int maxTextureSize = 2048;
 };
