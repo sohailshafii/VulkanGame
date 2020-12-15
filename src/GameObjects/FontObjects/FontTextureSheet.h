@@ -72,6 +72,8 @@ private:
 	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
 		int textureWidthPOT, int textureHeightPOT);
 
+	void BuildTextureSheet(std::vector<FontRasterInfo> & const rasterInfos);
+
 	std::vector<FontPositioningInfo> fontPositioningInfos;
 	static constexpr int fontHeight = 20;
 	static constexpr int numCharacterAcross = 25;

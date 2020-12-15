@@ -17,6 +17,7 @@ FontTextureSheet::FontTextureSheet() {
 				textureWidthPOT, textureHeightPOT);
 
 		if (computedSizes) {
+			BuildTextureSheet();
 		}
 
 		FT_Done_FreeType(freeTypeLibrary);
@@ -125,4 +126,8 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 	std::cout << "Texture width and height: (" << textureWidthPOT <<
 		" x " << textureHeightPOT << ").\n";
 	return true;
+}
+
+void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo>& const rasterInfos) {
+	// TODO
 }
