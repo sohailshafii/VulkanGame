@@ -1,13 +1,13 @@
 #include "Resources/Material.h"
-#include "Resources/ImageTextureLoader.h"
+#include "Resources/TextureCreator.h"
 
-Material::Material(std::shared_ptr<ImageTextureLoader>const &
+Material::Material(std::shared_ptr<TextureCreator>const &
 		 texture, DescriptorSetFunctions::MaterialType material,
-		glm::vec4 const& tintColor)
-: textureLoader(texture), materialType(material), tintColor(tintColor){
+		glm::vec4 const& tintColor) : textureCreator(texture),
+		materialType(material), tintColor(tintColor){
 }
 
 Material::Material(DescriptorSetFunctions::MaterialType material,
-	glm::vec4 const& tintColor) :textureLoader(nullptr), materialType(material),
+	glm::vec4 const& tintColor) : textureCreator(nullptr), materialType(material),
 	tintColor(tintColor) {
 }

@@ -40,7 +40,7 @@ std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 #endif
 	std::string texturePath = texturePathPrefix + mainTextureName;
 
-	std::shared_ptr<ImageTextureLoader> mainTexture =
+	std::shared_ptr<TextureCreator> mainTexture =
 		resourceLoader->GetTexture(texturePath, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 

@@ -4,7 +4,7 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "Common.h"
-#include "Resources/ImageTextureLoader.h"
+#include "Resources/TextureCreator.h"
 
 #include <iostream>
 

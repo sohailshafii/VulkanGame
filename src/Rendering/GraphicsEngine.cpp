@@ -7,7 +7,7 @@
 #include "RenderPassModule.h"
 #include "PipelineModule.h"
 #include "CommonBufferModule.h"
-#include "Resources/ImageTextureLoader.h"
+#include "Resources/TextureCreator.h"
 #include "Resources/ResourceLoader.h"
 
 // TODO renaming this to something else..it's not really a graphics engine, but 

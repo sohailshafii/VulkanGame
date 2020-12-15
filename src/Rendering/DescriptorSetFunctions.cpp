@@ -1,6 +1,6 @@
 #include "DescriptorSetFunctions.h"
 #include "LogicalDeviceManager.h"
-#include "ImageTextureLoader.h"
+#include "Resources/TextureCreator.h"
 #include <array>
 #include <stdexcept>
 
@@ -35,7 +35,7 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateDescriptorSetLayout(VkDevice
 void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 												 MaterialType materialType,
 												 VkDescriptorSet descriptorSet,
-												 ImageTextureLoader* imageTextureLoader,
+												 TextureCreator* textureCreator,
 												 glm::vec4 const & tintColor,
 												 VkDescriptorBufferInfo* bufferInfoVert,
 												 VkDescriptorBufferInfo* bufferInfoFrag) {
@@ -46,32 +46,32 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 			break;
 		case MaterialType::Text:
 			UpdateDescriptorSetText(device, descriptorSet, tintColor,
-				imageTextureLoader->GetTextureImageView(),
-				imageTextureLoader->GetTextureImageSampler(),
+				textureCreator->GetTextureImageView(),
+				textureCreator->GetTextureImageSampler(),
 				bufferInfoVert, bufferInfoFrag);
 			break;
 		case MaterialType::UnlitTintedTextured:
 			UpdateDescriptorSetUnlitTintedTextured(device, descriptorSet,
-				imageTextureLoader->GetTextureImageView(),
-				imageTextureLoader->GetTextureImageSampler(),
+				textureCreator->GetTextureImageView(),
+				textureCreator->GetTextureImageSampler(),
 				bufferInfoVert);
 			break;
 		case MaterialType::MotherShip:
 			UpdateDescriptorSetUnlitTintedTextured(device, descriptorSet,
-				imageTextureLoader->GetTextureImageView(),
-				imageTextureLoader->GetTextureImageSampler(),
+				textureCreator->GetTextureImageView(),
+				textureCreator->GetTextureImageSampler(),
 				bufferInfoVert);
 			break;
 		case MaterialType::WavySurface:
 			UpdateDescriptorSetWavySurface(device, descriptorSet,
-				imageTextureLoader->GetTextureImageView(),
-				imageTextureLoader->GetTextureImageSampler(),
+				textureCreator->GetTextureImageView(),
+				textureCreator->GetTextureImageSampler(),
 				bufferInfoVert);
 			break;
 		case MaterialType::BumpySurface:
 			UpdateDescriptorSetBumpySurface(device, descriptorSet,
-				imageTextureLoader->GetTextureImageView(),
-				imageTextureLoader->GetTextureImageSampler(),
+				textureCreator->GetTextureImageView(),
+				textureCreator->GetTextureImageSampler(),
 				bufferInfoVert);
 	}
 }

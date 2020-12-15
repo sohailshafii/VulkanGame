@@ -53,7 +53,7 @@ struct UniformBufferObjectLighting {
 };
 
 class LogicalDeviceManager;
-class ImageTextureLoader;
+class TextureCreator;
 
 // Defines descriptor sets for different, pre-defined materials
 class DescriptorSetFunctions
@@ -67,7 +67,7 @@ public:
 	static void UpdateDescriptorSet(VkDevice device,
 									MaterialType materialType,
 									VkDescriptorSet descriptorSet,
-									ImageTextureLoader* imageTextureLoader,
+									TextureCreator* imageTextureLoader,
 									glm::vec4 const & tintColor,
 									VkDescriptorBufferInfo* bufferInfoVert,
 									VkDescriptorBufferInfo* bufferInfoFrag);

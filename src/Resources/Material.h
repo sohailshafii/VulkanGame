@@ -3,19 +3,19 @@
 #include <glm/glm.hpp>
 #include "DescriptorSetFunctions.h"
 
-class ImageTextureLoader;
+class TextureCreator;
 
 class Material {
 public:
-	Material(std::shared_ptr<ImageTextureLoader>const & texture,
+	Material(std::shared_ptr<TextureCreator>const & texture,
 			DescriptorSetFunctions::MaterialType material,
 			glm::vec4 const & tintColor = glm::vec4(0.0f));
 
 	Material(DescriptorSetFunctions::MaterialType material,
 			glm::vec4 const& tintColor = glm::vec4(0.0f));
 	
-	ImageTextureLoader* GetTextureLoader() {
-		return textureLoader.get();
+	TextureCreator* GetTextureLoader() {
+		return textureCreator.get();
 	}
 	
 	DescriptorSetFunctions::MaterialType GetMaterialType() const {
@@ -26,9 +26,9 @@ public:
 		return tintColor;
 	}
 	
-	void SetImageTextureLoader(std::shared_ptr<ImageTextureLoader>const &
-							   texture) {
-		textureLoader = texture;
+	void SetImageTextureLoader(std::shared_ptr<TextureCreator>const &
+		texture) {
+		textureCreator = texture;
 	}
 	
 	void SetMaterialType(DescriptorSetFunctions::MaterialType
@@ -41,7 +41,7 @@ public:
 	}
 
 private:
-	std::shared_ptr<ImageTextureLoader> textureLoader;
+	std::shared_ptr<TextureCreator> textureCreator;
 	DescriptorSetFunctions::MaterialType materialType;
 	glm::vec4 tintColor;
 };

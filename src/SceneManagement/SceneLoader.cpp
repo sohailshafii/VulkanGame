@@ -11,7 +11,7 @@
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "Resources/Material.h"
-#include "Resources/ImageTextureLoader.h"
+#include "Resources/TextureCreator.h"
 #include "Resources/Model.h"
 #include "Scene.h"
 #include "nlohmann/json.hpp"

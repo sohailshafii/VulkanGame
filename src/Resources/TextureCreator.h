@@ -7,13 +7,18 @@
 class GfxDeviceManager;
 class LogicalDeviceManager;
 
-class ImageTextureLoader {
+class TextureCreator {
 public:
-	ImageTextureLoader(const std::string& path,
+	TextureCreator(const std::string& path,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 		VkCommandPool commandPool);
-	~ImageTextureLoader();
+	TextureCreator(unsigned char* pixels,
+		int texWidth, int texHeight, int bytesPerPixel,
+		GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+		VkCommandPool commandPool);
+	~TextureCreator();
 
 	VkDeviceMemory GetTextureImageMemory() {
 		return textureImageMemory;
@@ -28,7 +33,11 @@ public:
 	}
 
 private:
-	void CreateTextureImage(const std::string& path,
+	void CreateTextureImageFromFile(const std::string& path,
+		GfxDeviceManager* gfxDeviceManager,
+		VkCommandPool commandPool);
+	void CreateTextureImage(unsigned char* pixels,
+		int texWidth, int texHeight, int bytesPerPixel,
 		GfxDeviceManager* gfxDeviceManager,
 		VkCommandPool commandPool);
 	void GenerateMipmaps(GfxDeviceManager* gfxDeviceManager,
@@ -37,7 +46,7 @@ private:
 	void CopyBufferToImage(VkCommandPool commandPool, VkBuffer buffer,
 		VkImage image, uint32_t width, uint32_t height);
 
-	void CreateTextureImageView();
+	void CreateTextureImageView(int bytesPerPixel);
 	void CreateTextureSampler();
 
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;

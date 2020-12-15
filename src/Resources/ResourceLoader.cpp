@@ -1,7 +1,7 @@
 
 #include "Resources/ResourceLoader.h"
 #include "Resources/ShaderLoader.h"
-#include "Resources/ImageTextureLoader.h"
+#include "Resources/TextureCreator.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "Resources/Model.h"
@@ -26,7 +26,7 @@ std::shared_ptr<ShaderLoader> ResourceLoader::GetShader(std::string path, VkDevi
 	return newShader;
 }
 
-std::shared_ptr<ImageTextureLoader> ResourceLoader::GetTexture(const std::string& path,
+std::shared_ptr<TextureCreator> ResourceLoader::GetTexture(const std::string& path,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 	VkCommandPool commandPool) {
@@ -35,7 +35,7 @@ std::shared_ptr<ImageTextureLoader> ResourceLoader::GetTexture(const std::string
 		return foundTexturItr->second;
 	}
 
-	auto newTexture = std::make_shared<ImageTextureLoader>(path, gfxDeviceManager,
+	auto newTexture = std::make_shared<TextureCreator>(path, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	texturesLoaded[path] = newTexture;
 	return newTexture;

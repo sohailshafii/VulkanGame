@@ -6,7 +6,7 @@
 #include "vulkan/vulkan.h"
 
 class ShaderLoader;
-class ImageTextureLoader;
+class TextureCreator;
 class GfxDeviceManager;
 class LogicalDeviceManager;
 class Model;
@@ -20,7 +20,7 @@ public:
 	~ResourceLoader();
 
 	std::shared_ptr<ShaderLoader> GetShader(std::string path, VkDevice device);
-	std::shared_ptr<ImageTextureLoader> GetTexture(const std::string& path,
+	std::shared_ptr<TextureCreator> GetTexture(const std::string& path,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 		VkCommandPool commandPool);
@@ -28,6 +28,6 @@ public:
 
 private:
 	std::map<std::string, std::shared_ptr<ShaderLoader>> shadersLoaded;
-	std::map<std::string, std::shared_ptr<ImageTextureLoader>> texturesLoaded;
+	std::map<std::string, std::shared_ptr<TextureCreator>> texturesLoaded;
 	std::map<std::string, std::shared_ptr<Model>> modelsLoaded;
 };
