@@ -17,7 +17,8 @@ FontTextureSheet::FontTextureSheet() {
 				textureWidthPOT, textureHeightPOT);
 
 		if (computedSizes) {
-			BuildTextureSheet();
+			BuildTextureSheet(rasterInfos, textureWidthPOT,
+				textureHeightPOT);
 		}
 
 		FT_Done_FreeType(freeTypeLibrary);
@@ -48,6 +49,7 @@ void FontTextureSheet::BuildFonts(FT_Library freeTypeLibrary,
 		return;
 	}
 
+	// have consistent height
 	FT_Set_Pixel_Sizes(face, 0, fontHeight);
 	for (unsigned char c = 0; c < 128; c++)
 	{
@@ -72,11 +74,12 @@ void FontTextureSheet::BuildFonts(FT_Library freeTypeLibrary,
 
 bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
 	int textureWidthPOT, int textureHeightPOT) {
-	// with 25 characters across, find the dimensions of the texture
+	// with X number of pixels down, find the dimensions of the texture
 	// in powers of two
 	size_t numCharactersTotal = fontRasterInfos.size();
 	size_t numRows = (size_t)ceil((float)numCharactersTotal / (float)numCharacterAcross);
-	int textureHeight = (int)numRows * fontHeight;
+	int fontHeightWithSpacing = fontHeight + horizSpaceBetweenFonts;
+	int textureHeight = (int)numRows * fontHeightWithSpacing;
 	textureHeightPOT = 1;
 	while (textureHeightPOT < textureHeight &&
 		textureHeightPOT < maxTextureSize) {
@@ -91,8 +94,11 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 
 	int maxWidth = -1;
 	int widthSoFar = 0;
+	int currentHeight = 0;
 	for (size_t i = 0; i < numCharactersTotal; i++) {
-		auto const & rasterInfo = fontRasterInfos[i];
+		auto & rasterInfo = fontRasterInfos[i];
+		rasterInfo.heightOffset = currentHeight;
+		rasterInfo.widthOffset = widthSoFar;
 		// after a row completes, compare against max width
 		// if row size is 25, row is indices 0-24. so on
 		// row index 25, the first of the next row, we
@@ -102,12 +108,13 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 				maxWidth = widthSoFar;
 			}
 			widthSoFar = 0;
+			currentHeight += fontHeightWithSpacing;
 		}
 
-		widthSoFar += rasterInfo.width;
+		widthSoFar += rasterInfo.width + vertSpaceBetweenFonts;
 	}
 
-	// if last row came up short, measure its width
+	// measure width after last character
 	if (widthSoFar > maxWidth) {
 		maxWidth = widthSoFar;
 	}
@@ -128,6 +135,27 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 	return true;
 }
 
-void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo>& const rasterInfos) {
-	// TODO
+void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos,
+	int textureWidthPOT, int textureHeightPOT) {
+	unsigned char* textureSheetBuffer =
+		new unsigned char[textureWidthPOT*textureHeightPOT];
+
+	size_t numFonts = rasterInfos.size();
+	for (size_t fontIndex = 0; fontIndex < numFonts; fontIndex++) {
+		auto const& fontRasterInfo = rasterInfos[fontIndex];
+
+		// go through all rows of font, copy to the correct spot in sheet
+		int bufferRows = fontRasterInfo.rows;
+		for (int rowIndex = 0; rowIndex < bufferRows; rowIndex++) {
+			unsigned char* pointerToCurrRow = &textureSheetBuffer[
+				(fontRasterInfo.heightOffset + rowIndex) * textureWidthPOT +
+					fontRasterInfo.widthOffset];
+			unsigned char* srcPointer = &fontRasterInfo.buffer[
+				fontRasterInfo.width*rowIndex];
+			// TODO: fix memory error and uncomment after the fact
+			//memcpy(pointerToCurrRow, srcPointer, fontRasterInfo.width);
+		}
+	}
+
+	delete[] textureSheetBuffer;
 }

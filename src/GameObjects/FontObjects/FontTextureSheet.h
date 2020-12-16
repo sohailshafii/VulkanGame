@@ -10,13 +10,16 @@ public:
 private:
 	struct FontRasterInfo {
 		FontRasterInfo() : rows(0), width(0),
-			pitch(0), buffer(nullptr) {
+			pitch(0), buffer(nullptr), heightOffset(0),
+			widthOffset(0) {
 		}
 
 		FontRasterInfo(FontRasterInfo const &other) {
 			this->rows = other.rows;
 			this->width = other.width;
 			this->pitch = other.pitch;
+			this->heightOffset = other.heightOffset;
+			this->widthOffset = other.widthOffset;
 			int numBytes = rows * width;
 			this->buffer = new unsigned char[numBytes];
 			memcpy(this->buffer, other.buffer, numBytes);
@@ -28,6 +31,8 @@ private:
 			this->width = other.width;
 			this->pitch = other.pitch;
 			this->buffer = other.buffer;
+			this->heightOffset = other.heightOffset;
+			this->widthOffset = other.widthOffset;
 			other.buffer = nullptr;
 		}
 
@@ -36,6 +41,8 @@ private:
 			this->rows = rows;
 			this->width = width;
 			this->pitch = pitch;
+			this->heightOffset = 0;
+			this->widthOffset = 0;
 			int numBytes = rows * width;
 			this->buffer = new unsigned char[numBytes];
 			memcpy(this->buffer, buffer, numBytes);
@@ -51,6 +58,8 @@ private:
 		unsigned int width;
 		int pitch;
 		unsigned char* buffer;
+		unsigned int heightOffset,
+			widthOffset;
 	};
 
 	struct FontPositioningInfo {
@@ -72,10 +81,13 @@ private:
 	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
 		int textureWidthPOT, int textureHeightPOT);
 
-	void BuildTextureSheet(std::vector<FontRasterInfo> & const rasterInfos);
+	void BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos,
+		int textureWidthPOT, int textureHeightPOT);
 
 	std::vector<FontPositioningInfo> fontPositioningInfos;
 	static constexpr int fontHeight = 20;
+	static constexpr int horizSpaceBetweenFonts = 5;
+	static constexpr int vertSpaceBetweenFonts = 5;
 	static constexpr int numCharacterAcross = 25;
 	static constexpr int maxTextureSize = 2048;
 };
