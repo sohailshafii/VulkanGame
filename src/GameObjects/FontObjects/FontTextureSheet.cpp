@@ -11,7 +11,7 @@ FontTextureSheet::FontTextureSheet() {
 		std::vector<FontRasterInfo> rasterInfos;
 		BuildFonts(freeTypeLibrary, rasterInfos);
 
-		int textureWidthPOT = 1, textureHeightPOT = 1;
+		unsigned int textureWidthPOT = 1, textureHeightPOT = 1;
 		bool computedSizes =
 			ComputeFontTextureSize(rasterInfos,
 				textureWidthPOT, textureHeightPOT);
@@ -60,11 +60,16 @@ void FontTextureSheet::BuildFonts(FT_Library freeTypeLibrary,
 
 		auto glyph = face->glyph;
 		auto& bitmap = glyph->bitmap;
-		fontRasterInfos.push_back(FontRasterInfo(bitmap.width,
-			bitmap.rows, bitmap.pitch, bitmap.buffer));
 
-		fontPositioningInfos.push_back(FontPositioningInfo(bitmap.width,
-			bitmap.rows, glyph->bitmap_left, glyph->bitmap_top));
+		if (bitmap.buffer == nullptr) {
+			continue;
+		}
+
+		fontRasterInfos.push_back(FontRasterInfo(bitmap.rows,
+			bitmap.width, bitmap.pitch, bitmap.buffer, c));
+
+		fontPositioningInfos.push_back(FontPositioningInfo(bitmap.rows,
+			bitmap.width, glyph->bitmap_left, glyph->bitmap_top, c));
 	}
 
 	FT_Done_Face(face);
@@ -73,31 +78,47 @@ void FontTextureSheet::BuildFonts(FT_Library freeTypeLibrary,
 }
 
 bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
-	int textureWidthPOT, int textureHeightPOT) {
+	unsigned int& textureWidthPOT, unsigned int& textureHeightPOT) {
 	// with X number of pixels down, find the dimensions of the texture
 	// in powers of two
 	size_t numCharactersTotal = fontRasterInfos.size();
 	size_t numRows = (size_t)ceil((float)numCharactersTotal / (float)numCharacterAcross);
-	int fontHeightWithSpacing = fontHeight + horizSpaceBetweenFonts;
-	int textureHeight = (int)numRows * fontHeightWithSpacing;
+	// TODO: calculate num rows based on how much space actual characters take
+	unsigned int maxHeight = 0;
+	unsigned int totalHeight = 0;
+	for (size_t i = 0; i < numCharactersTotal; i++) {
+		auto& rasterInfo = fontRasterInfos[i];
+		rasterInfo.heightOffset = totalHeight;
+
+		// new row? reset maxHeight found so far
+		if (i > 0 && i % numCharacterAcross == 0) {
+			totalHeight += maxHeight + horizSpaceBetweenFonts;
+			maxHeight = 0;
+		}
+		if (rasterInfo.rows > maxHeight) {
+			maxHeight = rasterInfo.rows;
+		}
+	}
+
+	// take last row into account
+	totalHeight += maxHeight + horizSpaceBetweenFonts;
+
 	textureHeightPOT = 1;
-	while (textureHeightPOT < textureHeight &&
+	while (textureHeightPOT < totalHeight &&
 		textureHeightPOT < maxTextureSize) {
 		textureHeightPOT *= 2;
 	}
 	if (textureHeightPOT > maxTextureSize) {
 		std::cerr << "Could not make a power of two texture for height "
-			<< textureHeight << " that is less than allowed size of "
+			<< totalHeight << " that is less than allowed size of "
 			<< maxTextureSize << ".\n";
 		return false;
 	}
 
-	int maxWidth = -1;
-	int widthSoFar = 0;
-	int currentHeight = 0;
+	unsigned int maxWidth = 0;
+	unsigned int widthSoFar = 0;
 	for (size_t i = 0; i < numCharactersTotal; i++) {
 		auto & rasterInfo = fontRasterInfos[i];
-		rasterInfo.heightOffset = currentHeight;
 		rasterInfo.widthOffset = widthSoFar;
 		// after a row completes, compare against max width
 		// if row size is 25, row is indices 0-24. so on
@@ -108,7 +129,6 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 				maxWidth = widthSoFar;
 			}
 			widthSoFar = 0;
-			currentHeight += fontHeightWithSpacing;
 		}
 
 		widthSoFar += rasterInfo.width + vertSpaceBetweenFonts;
@@ -136,7 +156,7 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 }
 
 void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos,
-	int textureWidthPOT, int textureHeightPOT) {
+	unsigned int textureWidthPOT, unsigned int textureHeightPOT) {
 	unsigned char* textureSheetBuffer =
 		new unsigned char[textureWidthPOT*textureHeightPOT];
 
@@ -152,8 +172,7 @@ void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo> const & ras
 					fontRasterInfo.widthOffset];
 			unsigned char* srcPointer = &fontRasterInfo.buffer[
 				fontRasterInfo.width*rowIndex];
-			// TODO: fix memory error and uncomment after the fact
-			//memcpy(pointerToCurrRow, srcPointer, fontRasterInfo.width);
+			memcpy(pointerToCurrRow, srcPointer, fontRasterInfo.width);
 		}
 	}
 
