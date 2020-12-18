@@ -80,37 +80,37 @@ void FontTextureSheet::BuildFonts(FT_Library freeTypeLibrary,
 bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
 	unsigned int& textureWidthPOT, unsigned int& textureHeightPOT) {
 	// with X number of pixels down, find the dimensions of the texture
-	// in powers of two
+	// in powers of two. first figure out how much minimum space is required
 	size_t numCharactersTotal = fontRasterInfos.size();
 	size_t numRows = (size_t)ceil((float)numCharactersTotal / (float)numCharacterAcross);
-	// TODO: calculate num rows based on how much space actual characters take
-	unsigned int maxHeight = 0;
-	unsigned int totalHeight = 0;
+	unsigned int maxRowHeight = 0;
+	unsigned int totalHeightSoFar = 0;
 	for (size_t i = 0; i < numCharactersTotal; i++) {
 		auto& rasterInfo = fontRasterInfos[i];
-		rasterInfo.heightOffset = totalHeight;
+		rasterInfo.heightOffset = totalHeightSoFar;
 
 		// new row? reset maxHeight found so far
 		if (i > 0 && i % numCharacterAcross == 0) {
-			totalHeight += maxHeight + horizSpaceBetweenFonts;
-			maxHeight = 0;
+			totalHeightSoFar += maxRowHeight + horizSpaceBetweenFonts;
+			maxRowHeight = 0;
 		}
-		if (rasterInfo.rows > maxHeight) {
-			maxHeight = rasterInfo.rows;
+		if (rasterInfo.rows > maxRowHeight) {
+			maxRowHeight = rasterInfo.rows;
 		}
 	}
 
 	// take last row into account
-	totalHeight += maxHeight + horizSpaceBetweenFonts;
+	// the loop might end on the last character of the row
+	totalHeightSoFar += maxRowHeight + horizSpaceBetweenFonts;
 
 	textureHeightPOT = 1;
-	while (textureHeightPOT < totalHeight &&
+	while (textureHeightPOT < totalHeightSoFar &&
 		textureHeightPOT < maxTextureSize) {
 		textureHeightPOT *= 2;
 	}
 	if (textureHeightPOT > maxTextureSize) {
 		std::cerr << "Could not make a power of two texture for height "
-			<< totalHeight << " that is less than allowed size of "
+			<< totalHeightSoFar << " that is less than allowed size of "
 			<< maxTextureSize << ".\n";
 		return false;
 	}
@@ -122,7 +122,7 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 		rasterInfo.widthOffset = widthSoFar;
 		// after a row completes, compare against max width
 		// if row size is 25, row is indices 0-24. so on
-		// row index 25, the first of the next row, we
+		// row index 25 (i %25 = 0), the first of the next row, we
 		// see if the size of row 0-24 is the biggest so far
 		if (i > 0 && i % numCharacterAcross == 0) {
 			if (widthSoFar > maxWidth) {
@@ -175,6 +175,9 @@ void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo> const & ras
 			memcpy(pointerToCurrRow, srcPointer, fontRasterInfo.width);
 		}
 	}
+
+	// now that we have texture sheet, build the corresponding texture
+	// TODO
 
 	delete[] textureSheetBuffer;
 }

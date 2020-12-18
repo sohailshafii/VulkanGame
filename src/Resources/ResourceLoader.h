@@ -24,6 +24,16 @@ public:
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 		VkCommandPool commandPool);
+	
+
+	std::shared_ptr<TextureCreator> BuildRawTexture(std::string textureName,
+		unsigned char* pixels,
+		int texWidth, int texHeight, int bytesPerPixel,
+		GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+		VkCommandPool commandPool);
+	std::shared_ptr<TextureCreator> GetRawTexture(std::string textureName);
+
 	std::shared_ptr<Model> GetModel(const std::string& path);
 
 private:

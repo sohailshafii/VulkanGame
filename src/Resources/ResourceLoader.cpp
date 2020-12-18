@@ -41,6 +41,32 @@ std::shared_ptr<TextureCreator> ResourceLoader::GetTexture(const std::string& pa
 	return newTexture;
 }
 
+std::shared_ptr<TextureCreator> ResourceLoader::BuildRawTexture(std::string textureName,
+	unsigned char* pixels, int texWidth, int texHeight, int bytesPerPixel,
+	GfxDeviceManager* gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+	VkCommandPool commandPool) {
+	auto foundTexturItr = texturesLoaded.find(textureName);
+	if (foundTexturItr != texturesLoaded.cend()) {
+		return foundTexturItr->second;
+	}
+
+	auto newTexture = std::make_shared<TextureCreator>(pixels, texWidth,
+		texHeight, bytesPerPixel, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
+	texturesLoaded[textureName] = newTexture;
+	return newTexture;
+}
+
+std::shared_ptr<TextureCreator> ResourceLoader::GetRawTexture(std::string textureName) {
+	auto foundTexturItr = texturesLoaded.find(textureName);
+	if (foundTexturItr != texturesLoaded.cend()) {
+		return foundTexturItr->second;
+	}
+
+	return nullptr;
+}
+
 std::shared_ptr<Model> ResourceLoader::GetModel(const std::string& path) {
 	auto foundModelItr = modelsLoaded.find(path);
 	if (foundModelItr != modelsLoaded.cend()) {
