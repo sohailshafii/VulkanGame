@@ -79,8 +79,6 @@ void TextureCreator::CreateTextureImage(unsigned char *pixels,
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
 	vkUnmapMemory(logicalDeviceManager->GetDevice(), stagingBufferMemory);
 
-	stbi_image_free(pixels);
-
 	VkFormat imageFormat = bytesPerPixel == 4 ? VK_FORMAT_R8G8B8A8_UNORM :
 		VK_FORMAT_R8_UNORM;
 

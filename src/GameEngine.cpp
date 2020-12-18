@@ -46,7 +46,8 @@ GameEngine::~GameEngine() {
 void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
-	fontTextureSheet = new FontTextureSheet();
+	fontTextureSheet = new FontTextureSheet(resourceLoader, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
 
 	menuModel = Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
 		glm::vec3(1.0f, 0.0f, 0.0f),

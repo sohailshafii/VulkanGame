@@ -1,12 +1,21 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <vector>
+#include <memory>
+
+class ResourceLoader;
+class GfxDeviceManager;
+class LogicalDeviceManager;
 
 class FontTextureSheet {
 public:
-	FontTextureSheet();
+	FontTextureSheet(ResourceLoader* resourceLoader,
+		GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+		VkCommandPool commandPool);
 private:
 	struct FontRasterInfo {
 		FontRasterInfo() : rows(0), width(0),
@@ -88,8 +97,12 @@ private:
 	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
 		unsigned int& textureWidthPOT, unsigned int& textureHeightPOT);
 
-	void BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos,
-		unsigned int textureWidthPOT, unsigned int textureHeightPOT);
+	void BuildTextureSheet(ResourceLoader* resourceLoader,
+		std::vector<FontRasterInfo> const & rasterInfos,
+		unsigned int textureWidthPOT, unsigned int textureHeightPOT,
+		GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+		VkCommandPool commandPool);
 
 	std::vector<FontPositioningInfo> fontPositioningInfos;
 	static constexpr int fontHeight = 20;

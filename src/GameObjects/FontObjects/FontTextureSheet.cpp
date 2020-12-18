@@ -1,10 +1,16 @@
 
 #include "FontTextureSheet.h"
 #include "GameObjects/FontObjects/FreeTypeInterface.h"
+#include "Resources/ResourceLoader.h"
+#include "LogicalDeviceManager.h"
+#include "GfxDeviceManager.h"
 #include <iostream>
 #include <string>
 
-FontTextureSheet::FontTextureSheet() {
+FontTextureSheet::FontTextureSheet(ResourceLoader* resourceLoader,
+	GfxDeviceManager* gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+	VkCommandPool commandPool) {
 	FT_Library freeTypeLibrary = InitFreeTypeLibrary();
 
 	if (freeTypeLibrary != nullptr) {
@@ -17,8 +23,8 @@ FontTextureSheet::FontTextureSheet() {
 				textureWidthPOT, textureHeightPOT);
 
 		if (computedSizes) {
-			BuildTextureSheet(rasterInfos, textureWidthPOT,
-				textureHeightPOT);
+			BuildTextureSheet(resourceLoader, rasterInfos, textureWidthPOT,
+				textureHeightPOT, gfxDeviceManager, logicalDeviceManager, commandPool);
 		}
 
 		FT_Done_FreeType(freeTypeLibrary);
@@ -155,8 +161,12 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 	return true;
 }
 
-void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos,
-	unsigned int textureWidthPOT, unsigned int textureHeightPOT) {
+void FontTextureSheet::BuildTextureSheet(ResourceLoader* resourceLoader,
+	std::vector<FontRasterInfo> const & rasterInfos,
+	unsigned int textureWidthPOT, unsigned int textureHeightPOT,
+	GfxDeviceManager* gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
+	VkCommandPool commandPool) {
 	unsigned char* textureSheetBuffer =
 		new unsigned char[textureWidthPOT*textureHeightPOT];
 
@@ -177,7 +187,9 @@ void FontTextureSheet::BuildTextureSheet(std::vector<FontRasterInfo> const & ras
 	}
 
 	// now that we have texture sheet, build the corresponding texture
-	// TODO
+	resourceLoader->BuildRawTexture("mainTextureSheet",
+		textureSheetBuffer, textureWidthPOT, textureHeightPOT,
+		1, gfxDeviceManager, logicalDeviceManager, commandPool);
 
 	delete[] textureSheetBuffer;
 }
