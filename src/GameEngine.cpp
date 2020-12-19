@@ -10,7 +10,7 @@
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 #include "GameObjects/FontObjects/MenuObject.h"
-#include "GameObjects/FontObjects/FontTextureSheet.h"
+#include "GameObjects/FontObjects/FontTextureBuffer.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -46,8 +46,7 @@ GameEngine::~GameEngine() {
 void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
-	fontTextureSheet = new FontTextureSheet(resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+	fontTextureBuffer = new FontTextureBuffer();
 
 	menuModel = Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
 		glm::vec3(1.0f, 0.0f, 0.0f),

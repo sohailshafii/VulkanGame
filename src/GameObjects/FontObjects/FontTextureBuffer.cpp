@@ -1,16 +1,12 @@
 
-#include "FontTextureSheet.h"
+#include "FontTextureBuffer.h"
 #include "GameObjects/FontObjects/FreeTypeInterface.h"
-#include "Resources/ResourceLoader.h"
 #include "LogicalDeviceManager.h"
 #include "GfxDeviceManager.h"
 #include <iostream>
 #include <string>
 
-FontTextureSheet::FontTextureSheet(ResourceLoader* resourceLoader,
-	GfxDeviceManager* gfxDeviceManager,
-	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
-	VkCommandPool commandPool) {
+FontTextureBuffer::FontTextureBuffer() : textureSheetBuffer(nullptr) {
 	FT_Library freeTypeLibrary = InitFreeTypeLibrary();
 
 	if (freeTypeLibrary != nullptr) {
@@ -19,19 +15,23 @@ FontTextureSheet::FontTextureSheet(ResourceLoader* resourceLoader,
 
 		unsigned int textureWidthPOT = 1, textureHeightPOT = 1;
 		bool computedSizes =
-			ComputeFontTextureSize(rasterInfos,
-				textureWidthPOT, textureHeightPOT);
+			ComputeFontTextureSize(rasterInfos);
 
 		if (computedSizes) {
-			BuildTextureSheet(resourceLoader, rasterInfos, textureWidthPOT,
-				textureHeightPOT, gfxDeviceManager, logicalDeviceManager, commandPool);
+			BuildTextureSheet(rasterInfos);
 		}
 
 		FT_Done_FreeType(freeTypeLibrary);
 	}
 }
 
-FT_Library FontTextureSheet::InitFreeTypeLibrary() {
+FontTextureBuffer::~FontTextureBuffer() {
+	if (textureSheetBuffer != nullptr) {
+		delete[] textureSheetBuffer;
+	}
+}
+
+FT_Library FontTextureBuffer::InitFreeTypeLibrary() {
 	FT_Library freeTypeLibrary;
 	if (FT_Init_FreeType(&freeTypeLibrary)) {
 		std::cerr << "FontTextureSheet: Could not init the FreeType Library.\n";
@@ -40,7 +40,7 @@ FT_Library FontTextureSheet::InitFreeTypeLibrary() {
 	return freeTypeLibrary;
 }
 
-void FontTextureSheet::BuildFonts(FT_Library freeTypeLibrary,
+void FontTextureBuffer::BuildFonts(FT_Library freeTypeLibrary,
 	std::vector<FontRasterInfo>& fontRasterInfos) {
 #if __APPLE__
 	const std::fontPath fontPathPrefix = "../../fonts/";
@@ -83,8 +83,7 @@ void FontTextureSheet::BuildFonts(FT_Library freeTypeLibrary,
 	std::cout << "Successfully loaded font.\n";
 }
 
-bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
-	unsigned int& textureWidthPOT, unsigned int& textureHeightPOT) {
+bool FontTextureBuffer::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos) {
 	// with X number of pixels down, find the dimensions of the texture
 	// in powers of two. first figure out how much minimum space is required
 	size_t numCharactersTotal = fontRasterInfos.size();
@@ -128,7 +127,7 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 		rasterInfo.widthOffset = widthSoFar;
 		// after a row completes, compare against max width
 		// if row size is 25, row is indices 0-24. so on
-		// row index 25 (i %25 = 0), the first of the next row, we
+		// row index 25 (i % 25 = 0), the first of the next row, we
 		// see if the size of row 0-24 is the biggest so far
 		if (i > 0 && i % numCharacterAcross == 0) {
 			if (widthSoFar > maxWidth) {
@@ -161,13 +160,8 @@ bool FontTextureSheet::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontR
 	return true;
 }
 
-void FontTextureSheet::BuildTextureSheet(ResourceLoader* resourceLoader,
-	std::vector<FontRasterInfo> const & rasterInfos,
-	unsigned int textureWidthPOT, unsigned int textureHeightPOT,
-	GfxDeviceManager* gfxDeviceManager,
-	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
-	VkCommandPool commandPool) {
-	unsigned char* textureSheetBuffer =
+void FontTextureBuffer::BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos) {
+	textureSheetBuffer =
 		new unsigned char[textureWidthPOT*textureHeightPOT];
 
 	size_t numFonts = rasterInfos.size();
@@ -185,11 +179,4 @@ void FontTextureSheet::BuildTextureSheet(ResourceLoader* resourceLoader,
 			memcpy(pointerToCurrRow, srcPointer, fontRasterInfo.width);
 		}
 	}
-
-	// now that we have texture sheet, build the corresponding texture
-	resourceLoader->BuildRawTexture("mainTextureSheet",
-		textureSheetBuffer, textureWidthPOT, textureHeightPOT,
-		1, gfxDeviceManager, logicalDeviceManager, commandPool);
-
-	delete[] textureSheetBuffer;
 }

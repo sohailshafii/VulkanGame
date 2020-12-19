@@ -5,17 +5,18 @@
 #include FT_FREETYPE_H
 #include <vector>
 #include <memory>
+#include <string>
+#include "Resources/ResourceLoader.h"
 
-class ResourceLoader;
 class GfxDeviceManager;
 class LogicalDeviceManager;
 
-class FontTextureSheet {
+class FontTextureBuffer {
 public:
-	FontTextureSheet(ResourceLoader* resourceLoader,
-		GfxDeviceManager* gfxDeviceManager,
-		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
-		VkCommandPool commandPool);
+	FontTextureBuffer();
+
+	~FontTextureBuffer();
+
 private:
 	struct FontRasterInfo {
 		FontRasterInfo() : rows(0), width(0),
@@ -94,20 +95,19 @@ private:
 	FT_Library InitFreeTypeLibrary();
 	void BuildFonts(FT_Library freeTypeLibrary,
 		std::vector<FontRasterInfo>& fontRasterInfos);
-	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos,
-		unsigned int& textureWidthPOT, unsigned int& textureHeightPOT);
+	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos);
 
-	void BuildTextureSheet(ResourceLoader* resourceLoader,
-		std::vector<FontRasterInfo> const & rasterInfos,
-		unsigned int textureWidthPOT, unsigned int textureHeightPOT,
-		GfxDeviceManager* gfxDeviceManager,
-		std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
-		VkCommandPool commandPool);
+	void BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos);
 
-	std::vector<FontPositioningInfo> fontPositioningInfos;
 	static constexpr int fontHeight = 20;
 	static constexpr int horizSpaceBetweenFonts = 5;
 	static constexpr int vertSpaceBetweenFonts = 5;
 	static constexpr int numCharacterAcross = 25;
 	static constexpr int maxTextureSize = 2048;
+
+	unsigned char* textureSheetBuffer;
+	unsigned int textureWidthPOT;
+	unsigned int textureHeightPOT;
+	unsigned int bytesPerPixel;
+	std::vector<FontPositioningInfo> fontPositioningInfos;
 };

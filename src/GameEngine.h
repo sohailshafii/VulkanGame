@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<Model> menuModel;
 	std::shared_ptr<Material> menuMaterial;
 	std::vector<std::shared_ptr<MenuObject>> menuObjects;
-	class FontTextureSheet* fontTextureSheet;
+	class FontTextureBuffer* fontTextureBuffer;
 
 	SceneLoader::SceneSettings CreateSceneAndReturnSettings(
 		GfxDeviceManager* gfxDeviceManager,
