@@ -17,6 +17,22 @@ public:
 
 	~FontTextureBuffer();
 
+	unsigned char* GetBuffer() {
+		return textureSheetBuffer;
+	}
+
+	unsigned int GetTextureWidth() const {
+		return textureWidthPOT;
+	}
+
+	unsigned int GetTextureHeight() const {
+		return textureHeightPOT;
+	}
+
+	unsigned int GetBytesPerPixel() const {
+		return bytesPerPixel;
+	}
+
 private:
 	struct FontRasterInfo {
 		FontRasterInfo() : rows(0), width(0),

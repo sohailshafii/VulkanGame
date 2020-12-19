@@ -1,5 +1,6 @@
 
 #include "GameEngine.h"
+#include <stdexcept>
 #include "GraphicsEngine.h"
 #include "LogicalDeviceManager.h"
 #include "ResourceLoader.h"
@@ -11,6 +12,7 @@
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 #include "GameObjects/FontObjects/MenuObject.h"
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
+#include "Resources/TextureCreator.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -47,6 +49,13 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
 	fontTextureBuffer = new FontTextureBuffer();
+	if (fontTextureBuffer->GetBuffer() == nullptr) {
+		throw std::runtime_error("Could not create texture buffer!");
+	}
+	fontTextureSheet = resourceLoader->BuildRawTexture("mainMenuTextureSheet",
+		fontTextureBuffer->GetBuffer(), fontTextureBuffer->GetTextureWidth(),
+		fontTextureBuffer->GetTextureHeight(), fontTextureBuffer->GetBytesPerPixel(),
+		gfxDeviceManager, logicalDeviceManager, commandPool);
 
 	menuModel = Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
 		glm::vec3(1.0f, 0.0f, 0.0f),

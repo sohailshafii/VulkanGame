@@ -155,6 +155,7 @@ bool FontTextureBuffer::ComputeFontTextureSize(std::vector<FontRasterInfo>& font
 		return false;
 	}
 
+	bytesPerPixel = 1;
 	std::cout << "Texture width and height: (" << textureWidthPOT <<
 		" x " << textureHeightPOT << ").\n";
 	return true;
