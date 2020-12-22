@@ -29,6 +29,7 @@ std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 	DescriptorSetFunctions::MaterialType materialEnumType,
 	std::string const & mainTextureName,
+	bool isRawTexture,
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -41,6 +42,8 @@ std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 	std::string texturePath = texturePathPrefix + mainTextureName;
 
 	std::shared_ptr<TextureCreator> mainTexture =
+		isRawTexture ?
+		resourceLoader->GetRawTexture(mainTextureName) :
 		resourceLoader->GetTexture(texturePath, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 

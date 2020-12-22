@@ -99,10 +99,13 @@ private:
 			rows(rows), width(width),
 			bitMapLeft(bitMapLeft), bitMapRight(bitMapRight),
 			character(character) {
+			textureCoords[0] = 0.0f;
+			textureCoords[1] = 0.0f;
 		}
 
 		unsigned int rows;
 		unsigned int width;
+		float textureCoords[2];
 		signed int bitMapLeft;
 		signed int bitMapRight;
 		unsigned char character;
@@ -113,6 +116,7 @@ private:
 		std::vector<FontRasterInfo>& fontRasterInfos);
 	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos);
 
+	void SetUpTextureCoords(std::vector<FontRasterInfo> const& rasterInfos);
 	void BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos);
 
 	static constexpr int fontHeight = 20;

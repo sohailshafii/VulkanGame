@@ -161,6 +161,19 @@ bool FontTextureBuffer::ComputeFontTextureSize(std::vector<FontRasterInfo>& font
 	return true;
 }
 
+void FontTextureBuffer::SetUpTextureCoords(std::vector<FontRasterInfo> const& rasterInfos) {
+	size_t numFonts = rasterInfos.size();
+	for (size_t fontIndex = 0; fontIndex < numFonts; fontIndex++) {
+		auto const& fontRasterInfo = rasterInfos[fontIndex];
+		auto& positionInfo = fontPositioningInfos[fontIndex];
+		positionInfo.textureCoords[0] = fontRasterInfo.widthOffset /
+			textureWidthPOT;
+		positionInfo.textureCoords[1] = fontRasterInfo.heightOffset /
+			textureHeightPOT;
+	}
+}
+
+
 void FontTextureBuffer::BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos) {
 	textureSheetBuffer =
 		new unsigned char[textureWidthPOT*textureHeightPOT];

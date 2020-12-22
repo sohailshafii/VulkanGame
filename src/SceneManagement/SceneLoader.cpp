@@ -238,7 +238,7 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	}
 	
 	material = GameObjectCreator::CreateMaterial(materialEnumType,
-		mainTextureName, resourceLoader, gfxDeviceManager,
+		mainTextureName, false, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 }
 

@@ -52,7 +52,8 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	if (fontTextureBuffer->GetBuffer() == nullptr) {
 		throw std::runtime_error("Could not create texture buffer!");
 	}
-	fontTextureSheet = resourceLoader->BuildRawTexture("mainMenuTextureSheet",
+	std::string textureSheetName = "mainMenuTextureSheet";
+	fontTextureSheet = resourceLoader->BuildRawTexture(textureSheetName,
 		fontTextureBuffer->GetBuffer(), fontTextureBuffer->GetTextureWidth(),
 		fontTextureBuffer->GetTextureHeight(), fontTextureBuffer->GetBytesPerPixel(),
 		gfxDeviceManager, logicalDeviceManager, commandPool);
@@ -62,7 +63,7 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	menuMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::Text,
-		"texture.jpg", resourceLoader, gfxDeviceManager,
+		textureSheetName, true, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	menuObjects.push_back(std::make_shared<MenuObject>("Play",
 		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
@@ -163,7 +164,7 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<Material> gameObjectMaterial =
 		GameObjectCreator::CreateMaterial(
 			DescriptorSetFunctions::MaterialType::UnlitColor,
-			"texture.jpg", resourceLoader, gfxDeviceManager,
+			"texture.jpg", false, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	std::shared_ptr<Model> gameObjectModel = GameObjectCreator::LoadModelFromName(
 		"cube.obj", resourceLoader);

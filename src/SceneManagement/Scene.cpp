@@ -121,7 +121,7 @@ void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition,
 								glm::vec3 const& forwardDirection) {
 	std::shared_ptr<Material> gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
-		"texture.jpg", resourceLoader, gfxDeviceManager,
+		"texture.jpg", false, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	std::shared_ptr<Model> gameObjectModel =
 		Model::CreateIcosahedron(1.0f, 2);
@@ -140,7 +140,7 @@ void Scene::SpawnBulletGameObject(glm::vec3 const& spawnPosition,
 	glm::vec3 const& forwardDir) {
 	std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
-		"texture.jpg", resourceLoader, gfxDeviceManager,
+		"texture.jpg", false, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
 		"cube.obj", resourceLoader);

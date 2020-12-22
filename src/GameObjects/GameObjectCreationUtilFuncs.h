@@ -32,6 +32,7 @@ public:
 	static std::shared_ptr<Material> CreateMaterial(
 		DescriptorSetFunctions::MaterialType materialEnumType,
 		std::string const& mainTextureName,
+		bool isRawTexture,
 		ResourceLoader* resourceLoader,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
