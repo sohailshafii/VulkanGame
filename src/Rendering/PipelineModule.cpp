@@ -123,7 +123,7 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
-	rasterizer.polygonMode = VK_POLYGON_MODE_LINE; //VK_POLYGON_MODE_FILL;//
+	rasterizer.polygonMode = VK_POLYGON_MODE_LINE;//  VK_POLYGON_MODE_FILL; 
 	// TODO: revert. also need a device feature store to see what we can use
 	rasterizer.lineWidth = 2.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;

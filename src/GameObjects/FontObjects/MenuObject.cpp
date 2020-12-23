@@ -19,7 +19,11 @@ MenuObject::MenuObject(std::string const& menuText,
 	this->gameObjectMaterial = gameObjectMaterial;
 
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
-		glm::vec3(0.0f, 0.0f, 4.0f));
+		glm::vec3(0.0f, 5.0f, 100.0f));
+	localToWorldTransform = glm::scale(localToWorldTransform,
+		glm::vec3(10.0f, 10.0f, 1.0f));
+	
+	//localToWorldTransform *= translate;
 	for (char character : menuText) {
 		// TODO: modify texture coords to access letter in text texture
 		auto newGameObject = GameObjectCreator::CreateGameObject(
@@ -27,5 +31,6 @@ MenuObject::MenuObject(std::string const& menuText,
 			std::make_unique<StationaryGameObjectBehavior>(),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
+		textGameObjects.push_back(newGameObject);
 	}
 }

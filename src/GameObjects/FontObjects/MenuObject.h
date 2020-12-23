@@ -20,6 +20,12 @@ public:
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool);
+
+	std::vector<std::shared_ptr<GameObject>> const &
+		GetTextGameObjects() {
+		return textGameObjects;
+	}
+
 private:
 	std::shared_ptr<Model> model;
 	std::shared_ptr<Material> gameObjectMaterial;

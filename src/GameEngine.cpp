@@ -68,7 +68,12 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	menuObjects.push_back(std::make_shared<MenuObject>("Play",
 		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("About",
+	std::vector<std::shared_ptr<GameObject>> const& textObjs =
+		menuObjects[0]->GetTextGameObjects();
+	for (auto gameObjPtr : textObjs) {
+		mainGameScene->AddGameObject(gameObjPtr);
+	}
+	/*menuObjects.push_back(std::make_shared<MenuObject>("About",
 		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
@@ -82,7 +87,7 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Hard",
 		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
+		resourceLoader, commandPool));*/
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
