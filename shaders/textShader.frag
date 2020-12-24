@@ -13,5 +13,5 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
 	float textSample = texture(texSampler, TexCoords).r;
-	outColor = vec4(textSample, 0, 0, 1.0);//textSample*ubo.colorTint;
+	outColor = vec4(textSample.r, 0, 0, 1);
 }

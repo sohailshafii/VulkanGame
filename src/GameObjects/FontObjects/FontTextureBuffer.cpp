@@ -19,6 +19,7 @@ FontTextureBuffer::FontTextureBuffer() : textureSheetBuffer(nullptr) {
 
 		if (computedSizes) {
 			BuildTextureSheet(rasterInfos);
+			SetUpTextureCoords(rasterInfos);
 		}
 
 		FT_Done_FreeType(freeTypeLibrary);
@@ -166,13 +167,12 @@ void FontTextureBuffer::SetUpTextureCoords(std::vector<FontRasterInfo> const& ra
 	for (size_t fontIndex = 0; fontIndex < numFonts; fontIndex++) {
 		auto const& fontRasterInfo = rasterInfos[fontIndex];
 		auto& positionInfo = fontPositioningInfos[fontIndex];
-		positionInfo.textureCoords[0] = fontRasterInfo.widthOffset /
+		positionInfo.textureCoords[0] = (float)(fontRasterInfo.widthOffset) /
 			textureWidthPOT;
-		positionInfo.textureCoords[1] = fontRasterInfo.heightOffset /
+		positionInfo.textureCoords[1] = (float)(fontRasterInfo.heightOffset) /
 			textureHeightPOT;
 	}
 }
-
 
 void FontTextureBuffer::BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos) {
 	textureSheetBuffer =
@@ -184,13 +184,16 @@ void FontTextureBuffer::BuildTextureSheet(std::vector<FontRasterInfo> const & ra
 
 		// go through all rows of font, copy to the correct spot in sheet
 		int bufferRows = fontRasterInfo.rows;
+		int heightOffset = fontRasterInfo.heightOffset;
+		int widthOffset = fontRasterInfo.widthOffset;
+		int rasterWidth = fontRasterInfo.width;
 		for (int rowIndex = 0; rowIndex < bufferRows; rowIndex++) {
 			unsigned char* pointerToCurrRow = &textureSheetBuffer[
-				(fontRasterInfo.heightOffset + rowIndex) * textureWidthPOT +
-					fontRasterInfo.widthOffset];
+				(heightOffset + rowIndex) * textureWidthPOT +
+					widthOffset];
 			unsigned char* srcPointer = &fontRasterInfo.buffer[
-				fontRasterInfo.width*rowIndex];
-			memcpy(pointerToCurrRow, srcPointer, fontRasterInfo.width);
+				rasterWidth *rowIndex];
+			memcpy(pointerToCurrRow, srcPointer, rasterWidth);
 		}
 	}
 }

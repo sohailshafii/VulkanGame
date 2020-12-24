@@ -34,7 +34,8 @@ public:
 	}
 
 private:
-	struct FontRasterInfo {
+	class FontRasterInfo {
+	public:
 		FontRasterInfo() : rows(0), width(0),
 			pitch(0), buffer(nullptr), heightOffset(0),
 			widthOffset(0), character(0) {
@@ -74,7 +75,7 @@ private:
 			int numBytes = rows * width;
 			this->buffer = new unsigned char[numBytes];
 			this->character = character;
-			memcpy(this->buffer, buffer, numBytes);
+			memcpy(this->buffer, srcBuffer, numBytes);
 		}
 
 		~FontRasterInfo() {

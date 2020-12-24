@@ -252,7 +252,7 @@ void MothershipBehavior::StoreOriginalColorsIfRequired() {
 
 	std::shared_ptr<Model> gameObjectModel = gameObject->GetModel();
 	std::vector<Model::ModelVert>& modelVerts = gameObjectModel->GetVertices();
-	for (auto modelVert : modelVerts) {
+	for (auto const & modelVert : modelVerts) {
 		originalModelColors.push_back(modelVert.color);
 	}
 }
