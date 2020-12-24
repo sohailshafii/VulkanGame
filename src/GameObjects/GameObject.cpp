@@ -178,7 +178,7 @@ void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t
 	auto materialType = material->GetMaterialType();
 	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor ||
 		materialType == DescriptorSetFunctions::MaterialType::Text) {
-		bufferSizeFrag = sizeof(UniformBufferFragUnlitColor);
+		bufferSizeFrag = sizeof(UniformBufferUnlitColor);
 	}
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
@@ -228,18 +228,33 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 								   float time, float deltaTime,
 								   VkExtent2D swapChainExtent) {
 	size_t uboSize = 0;
-	void* uboData = gameObjectBehavior->GetUBOData(uboSize, swapChainExtent,
+	// TODO: avoid pesky allocations here
+	void* vertUboData = gameObjectBehavior->CreateVertUBOData(uboSize, swapChainExtent,
 		viewMatrix, time, deltaTime);
+	
+	if (vertUboData != nullptr) {
+		void* data;
+		vkMapMemory(logicalDeviceManager->GetDevice(),
+			uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
+			uboSize, 0, &data);
+		memcpy(data, vertUboData, uboSize);
+		vkUnmapMemory(logicalDeviceManager->GetDevice(),
+			uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 
-	void* data;
-	vkMapMemory(logicalDeviceManager->GetDevice(),
-		uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
-		uboSize, 0, &data);
-	memcpy(data, uboData, uboSize);
-	vkUnmapMemory(logicalDeviceManager->GetDevice(),
-		uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
+		delete vertUboData;
+	}
 
-	delete uboData;
+	void* fragUboData = gameObjectBehavior->CreateFragUBOData(uboSize);
+	if (fragUboData != nullptr) {
+		void* data;
+		vkMapMemory(logicalDeviceManager->GetDevice(),
+			uniformBuffersFrag[imageIndex]->GetUniformBufferMemory(), 0,
+			uboSize, 0, &data);
+		memcpy(data, fragUboData, uboSize);
+		vkUnmapMemory(logicalDeviceManager->GetDevice(),
+			uniformBuffersFrag[imageIndex]->GetUniformBufferMemory());
+		delete fragUboData;
+	}
 }
 
 void GameObject::UpdateVertexBufferWithLatestModelVerts() {

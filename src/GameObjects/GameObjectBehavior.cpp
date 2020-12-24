@@ -2,7 +2,7 @@
 #include "GameObject.h"
 #include "DescriptorSetFunctions.h"
 
-void* GameObjectBehavior::GetUBOData(size_t& uboSize,
+void* GameObjectBehavior::CreateVertUBOData(size_t& uboSize,
 	VkExtent2D const& swapChainExtent, const glm::mat4& viewMatrix,
 	float time, float deltaTime) {
 	
@@ -11,18 +11,22 @@ void* GameObjectBehavior::GetUBOData(size_t& uboSize,
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
 		case DescriptorSetFunctions::MaterialType::Text:
-			return GetUniformBufferModelViewProj(uboSize,
+			return CreateUniformBufferModelViewProj(uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
 		case DescriptorSetFunctions::MaterialType::MotherShip:
-			return GetUniformBufferModelViewProjRipple(uboSize,
+			return CreateUniformBufferModelViewProjRipple(uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
 		default:
-			return GetUniformBufferModelViewProjTime(uboSize,
+			return CreateUniformBufferModelViewProjTime(uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
 	}
 }
 
-void* GameObjectBehavior::GetUniformBufferModelViewProj(
+void* GameObjectBehavior::CreateFragUBOData(size_t& uboSize) {
+	return nullptr;
+}
+
+void* GameObjectBehavior::CreateUniformBufferModelViewProj(
 	size_t& uboSize, VkExtent2D const& swapChainExtent,
 	const glm::mat4& viewMatrix,
 	float time,
@@ -39,7 +43,7 @@ void* GameObjectBehavior::GetUniformBufferModelViewProj(
 	return ubo;
 }
 
-void* GameObjectBehavior::GetUniformBufferModelViewProjRipple(
+void* GameObjectBehavior::CreateUniformBufferModelViewProjRipple(
 	size_t& uboSize, VkExtent2D const& swapChainExtent,
 	const glm::mat4& viewMatrix,
 	float time,
@@ -57,7 +61,7 @@ void* GameObjectBehavior::GetUniformBufferModelViewProjRipple(
 	return ubo;
 }
 
-void* GameObjectBehavior::GetUniformBufferModelViewProjTime(
+void* GameObjectBehavior::CreateUniformBufferModelViewProjTime(
 	size_t& uboSize, VkExtent2D const& swapChainExtent,
 	const glm::mat4& viewMatrix,
 	float time,

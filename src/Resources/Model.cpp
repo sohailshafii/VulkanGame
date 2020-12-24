@@ -94,22 +94,22 @@ std::shared_ptr<Model> Model::CreateQuad(
 	vertices.push_back(Model::ModelVert(currentPnt,
 		normalVec,
 		glm::vec3(1.0f, 1.0f, 1.0f),
-		glm::vec2(1.0f, 0.0f)));
+		glm::vec2(0.0f, 1.0f)));
 	currentPnt = quadOrigin + side1Vec;
 	vertices.push_back(Model::ModelVert(currentPnt,
 		normalVec,
 		glm::vec3(1.0f, 1.0f, 1.0f),
-		glm::vec2(0.0f, 0.0f)));
+		glm::vec2(1.0f, 1.0f)));
 	currentPnt = quadOrigin + side2Vec;
 	vertices.push_back(Model::ModelVert(currentPnt,
 		normalVec,
 		glm::vec3(1.0f, 1.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f)));
+		glm::vec2(0.0f, 0.0f)));
 	currentPnt = quadOrigin + side1Vec + side2Vec;
 	vertices.push_back(Model::ModelVert(currentPnt,
 		normalVec,
 		glm::vec3(1.0f, 1.0f, 1.0f),
-		glm::vec2(0.0f, 1.0f)));
+		glm::vec2(1.0f, 0.0f)));
 
 	indices.push_back(0);
 	indices.push_back(1);

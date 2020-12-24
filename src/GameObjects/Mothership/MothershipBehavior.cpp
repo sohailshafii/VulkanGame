@@ -476,7 +476,7 @@ void MothershipBehavior::UpdateUBOStalkData(
 	}
 }
 
-void* MothershipBehavior::GetUniformBufferModelViewProjRipple(
+void* MothershipBehavior::CreateUniformBufferModelViewProjRipple(
 	size_t& uboSize, VkExtent2D const& swapChainExtent,
 	const glm::mat4& viewMatrix,
 	float time,

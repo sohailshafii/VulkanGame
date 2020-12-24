@@ -12,7 +12,6 @@ layout(location = 0) in vec2 TexCoords;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-	vec4 textSample = vec4(1.0, 1.0, 1.0, 
-		texture(texSampler, TexCoords).r);
-	outColor = textSample*ubo.colorTint;
+	float textSample = texture(texSampler, TexCoords).r;
+	outColor = vec4(textSample, 0, 0, 1.0);//textSample*ubo.colorTint;
 }

@@ -121,7 +121,7 @@ private:
 	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
 
 protected:
-	virtual void* GetUniformBufferModelViewProjRipple(
+	virtual void* CreateUniformBufferModelViewProjRipple(
 		size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix,
 		float time,

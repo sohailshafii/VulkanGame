@@ -109,7 +109,7 @@ public:
 		auto vertsToBuild = std::vector<VertexPosTex>();
 		for (auto &modelVert : vertices) {
 			vertsToBuild.push_back(VertexPosTex(modelVert.position,
-												  modelVert.texCoord));
+												modelVert.texCoord));
 		}
 		return vertsToBuild;
 	}

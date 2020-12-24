@@ -7,7 +7,7 @@ class GameObjectBehavior {
 public:
 	enum class BehaviorStatus : char { Normal = 0, Destroyed };
 
-	GameObjectBehavior(Scene * const scene)
+	GameObjectBehavior(Scene * scene)
 		: modelMatrix(glm::mat4(1.0f)), scene(scene), gameObject(nullptr) {
 	}
 
@@ -53,8 +53,10 @@ public:
 
 	// provide specific information to callers about UBO.
 	// depends on material used
-	void* GetUBOData(size_t& uboSize, VkExtent2D const& swapChainExtent,
+	void* CreateVertUBOData(size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix, float time, float deltaTime);
+
+	virtual void* CreateFragUBOData(size_t& uboSize);
 
 protected:
 	// because a model matrix will mix up rotation and scale
@@ -69,17 +71,17 @@ protected:
 
 	// these can be overwritten by inheritors
 	// assuming specific behaviors want to write to UBOs differently
-	virtual void* GetUniformBufferModelViewProj(
+	virtual void* CreateUniformBufferModelViewProj(
 		size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix,
 		float time,
 		float deltaTime);
-	virtual void* GetUniformBufferModelViewProjRipple(
+	virtual void* CreateUniformBufferModelViewProjRipple(
 		size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix,
 		float time,
 		float deltaTime);
-	virtual void* GetUniformBufferModelViewProjTime(
+	virtual void* CreateUniformBufferModelViewProjTime(
 		size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix,
 		float time,

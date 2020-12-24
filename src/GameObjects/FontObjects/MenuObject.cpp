@@ -6,7 +6,7 @@
 #include "Resources/Model.h"
 #include "Resources/Material.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
-#include "GameObjects/Msc/StationaryGameObjectBehavior.h"
+#include "GameObjects/FontObjects/FontGameObjectBehavior.h"
 #include "GameObjects/GameObject.h"
 
 MenuObject::MenuObject(std::string const& menuText,
@@ -23,12 +23,11 @@ MenuObject::MenuObject(std::string const& menuText,
 	localToWorldTransform = glm::scale(localToWorldTransform,
 		glm::vec3(10.0f, 10.0f, 1.0f));
 	
-	//localToWorldTransform *= translate;
 	for (char character : menuText) {
 		// TODO: modify texture coords to access letter in text texture
 		auto newGameObject = GameObjectCreator::CreateGameObject(
 			this->gameObjectMaterial, this->model,
-			std::make_unique<StationaryGameObjectBehavior>(),
+			std::make_unique<FontGameObjectBehavior>(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 		textGameObjects.push_back(newGameObject);

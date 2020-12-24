@@ -44,7 +44,7 @@ struct UniformBufferObjectModelViewProjRipple {
 	alignas(4) float shudderDuration;
 };
 
-struct UniformBufferFragUnlitColor {
+struct UniformBufferUnlitColor {
 	alignas(16) glm::vec4 objectColor;
 };
 
