@@ -48,7 +48,8 @@ GameEngine::~GameEngine() {
 void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
-	fontTextureBuffer = new FontTextureBuffer();
+	fontTextureBuffer = new FontTextureBuffer(
+		std::string("oxanium/Oxanium-Medium.ttf"));
 	if (fontTextureBuffer->GetBuffer() == nullptr) {
 		throw std::runtime_error("Could not create texture buffer!");
 	}

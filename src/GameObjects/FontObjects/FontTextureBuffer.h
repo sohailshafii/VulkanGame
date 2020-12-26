@@ -13,7 +13,7 @@ class LogicalDeviceManager;
 
 class FontTextureBuffer {
 public:
-	FontTextureBuffer();
+	FontTextureBuffer(std::string const & fontFolderAndName);
 
 	~FontTextureBuffer();
 
@@ -114,7 +114,8 @@ private:
 
 	FT_Library InitFreeTypeLibrary();
 	void BuildFonts(FT_Library freeTypeLibrary,
-		std::vector<FontRasterInfo>& fontRasterInfos);
+		std::vector<FontRasterInfo>& fontRasterInfos,
+		std::string const & fontFolderAndName);
 	bool ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos);
 
 	void SetUpTextureCoords(std::vector<FontRasterInfo> const& rasterInfos);

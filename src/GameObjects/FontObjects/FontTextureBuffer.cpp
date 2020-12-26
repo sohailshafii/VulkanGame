@@ -6,12 +6,13 @@
 #include <iostream>
 #include <string>
 
-FontTextureBuffer::FontTextureBuffer() : textureSheetBuffer(nullptr) {
+FontTextureBuffer::FontTextureBuffer(std::string const & fontFolderAndName)
+	: textureSheetBuffer(nullptr) {
 	FT_Library freeTypeLibrary = InitFreeTypeLibrary();
 
 	if (freeTypeLibrary != nullptr) {
 		std::vector<FontRasterInfo> rasterInfos;
-		BuildFonts(freeTypeLibrary, rasterInfos);
+		BuildFonts(freeTypeLibrary, rasterInfos, fontFolderAndName);
 
 		unsigned int textureWidthPOT = 1, textureHeightPOT = 1;
 		bool computedSizes =
@@ -42,13 +43,14 @@ FT_Library FontTextureBuffer::InitFreeTypeLibrary() {
 }
 
 void FontTextureBuffer::BuildFonts(FT_Library freeTypeLibrary,
-	std::vector<FontRasterInfo>& fontRasterInfos) {
+	std::vector<FontRasterInfo>& fontRasterInfos,
+	std::string const & fontFolderAndName) {
 #if __APPLE__
 	const std::fontPath fontPathPrefix = "../../fonts/";
 #else
 	const std::string fontPathPrefix = "../fonts/";
 #endif
-	const std::string fontPath = fontPathPrefix + "oxanium/Oxanium-Medium.ttf";
+	const std::string fontPath = fontPathPrefix + fontFolderAndName;
 
 	FT_Face face;
 	if (FT_New_Face(freeTypeLibrary, fontPath.c_str(), 0, &face)) {
@@ -84,7 +86,8 @@ void FontTextureBuffer::BuildFonts(FT_Library freeTypeLibrary,
 	std::cout << "Successfully loaded font.\n";
 }
 
-bool FontTextureBuffer::ComputeFontTextureSize(std::vector<FontRasterInfo>& fontRasterInfos) {
+bool FontTextureBuffer::ComputeFontTextureSize(
+	std::vector<FontRasterInfo>& fontRasterInfos) {
 	// with X number of pixels down, find the dimensions of the texture
 	// in powers of two. first figure out how much minimum space is required
 	size_t numCharactersTotal = fontRasterInfos.size();
