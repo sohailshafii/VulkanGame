@@ -100,13 +100,16 @@ private:
 			rows(rows), width(width),
 			bitMapLeft(bitMapLeft), bitMapRight(bitMapRight),
 			character(character) {
-			textureCoords[0] = 0.0f;
-			textureCoords[1] = 0.0f;
+			textureCoordsBegin[0] = 0.0f;
+			textureCoordsBegin[1] = 0.0f;
+			textureCoordsEnd[0] = 0.0f;
+			textureCoordsEnd[1] = 0.0f;
 		}
 
 		unsigned int rows;
 		unsigned int width;
-		float textureCoords[2];
+		float textureCoordsBegin[2];
+		float textureCoordsEnd[2];
 		signed int bitMapLeft;
 		signed int bitMapRight;
 		unsigned char character;

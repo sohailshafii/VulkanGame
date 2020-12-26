@@ -170,9 +170,16 @@ void FontTextureBuffer::SetUpTextureCoords(std::vector<FontRasterInfo> const& ra
 	for (size_t fontIndex = 0; fontIndex < numFonts; fontIndex++) {
 		auto const& fontRasterInfo = rasterInfos[fontIndex];
 		auto& positionInfo = fontPositioningInfos[fontIndex];
-		positionInfo.textureCoords[0] = (float)(fontRasterInfo.widthOffset) /
+		positionInfo.textureCoordsBegin[0] = (float)(fontRasterInfo.widthOffset) /
 			textureWidthPOT;
-		positionInfo.textureCoords[1] = (float)(fontRasterInfo.heightOffset) /
+		positionInfo.textureCoordsBegin[1] = (float)(fontRasterInfo.heightOffset) /
+			textureHeightPOT;
+
+		positionInfo.textureCoordsEnd[0] =
+			(float)(fontRasterInfo.widthOffset + fontRasterInfo.width) /
+			textureWidthPOT;
+		positionInfo.textureCoordsEnd[1] =
+			(float)(fontRasterInfo.heightOffset + fontRasterInfo.rows) /
 			textureHeightPOT;
 	}
 }
@@ -195,7 +202,7 @@ void FontTextureBuffer::BuildTextureSheet(std::vector<FontRasterInfo> const & ra
 				(heightOffset + rowIndex) * textureWidthPOT +
 					widthOffset];
 			unsigned char* srcPointer = &fontRasterInfo.buffer[
-				rasterWidth *rowIndex];
+				rasterWidth * rowIndex];
 			memcpy(pointerToCurrRow, srcPointer, rasterWidth);
 		}
 	}

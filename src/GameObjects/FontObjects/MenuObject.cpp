@@ -15,7 +15,6 @@ MenuObject::MenuObject(std::string const& menuText,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
-	this->model = model;
 	this->gameObjectMaterial = gameObjectMaterial;
 
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
@@ -26,10 +25,16 @@ MenuObject::MenuObject(std::string const& menuText,
 	for (char character : menuText) {
 		// TODO: modify texture coords to access letter in text texture
 		auto newGameObject = GameObjectCreator::CreateGameObject(
-			this->gameObjectMaterial, this->model,
-			std::make_unique<FontGameObjectBehavior>(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)),
+			this->gameObjectMaterial, model,
+			std::make_unique<FontGameObjectBehavior>(
+				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 		textGameObjects.push_back(newGameObject);
 	}
+}
+
+std::shared_ptr<Model> CreateModelForCharacter(
+	std::shared_ptr<Model> const & model) {
+	return nullptr;
 }

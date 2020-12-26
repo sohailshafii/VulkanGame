@@ -27,7 +27,9 @@ public:
 	}
 
 private:
-	std::shared_ptr<Model> model;
+	std::shared_ptr<Model> CreateModelForCharacter(
+		std::shared_ptr<Model> const & model);
+
 	std::shared_ptr<Material> gameObjectMaterial;
 	std::vector<std::shared_ptr<GameObject>> textGameObjects;
 };
