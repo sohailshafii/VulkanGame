@@ -59,15 +59,12 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		fontTextureBuffer->GetTextureHeight(), fontTextureBuffer->GetBytesPerPixel(),
 		gfxDeviceManager, logicalDeviceManager, commandPool);
 
-	menuModel = Model::CreateQuad(glm::vec3(-0.5f, -0.5f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
 	menuMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::Text,
 		textureSheetName, true, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
-	menuObjects.push_back(std::make_shared<MenuObject>("Play",
-		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+	menuObjects.push_back(std::make_shared<MenuObject>("Play", fontTextureBuffer,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	std::vector<std::shared_ptr<GameObject>> const& textObjs =
 		menuObjects[0]->GetTextGameObjects();
@@ -75,19 +72,19 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		mainGameScene->AddGameObject(gameObjPtr);
 	}
 	/*menuObjects.push_back(std::make_shared<MenuObject>("About",
-		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
-		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Easy",
-		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Medium",
-		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Hard",
-		menuModel, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));*/
 }
 

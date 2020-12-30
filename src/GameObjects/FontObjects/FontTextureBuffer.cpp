@@ -77,8 +77,10 @@ void FontTextureBuffer::BuildFonts(FT_Library freeTypeLibrary,
 		fontRasterInfos.push_back(FontRasterInfo(bitmap.rows,
 			bitmap.width, bitmap.pitch, bitmap.buffer, c));
 
-		fontPositioningInfos.push_back(FontPositioningInfo(bitmap.rows,
-			bitmap.width, glyph->bitmap_left, glyph->bitmap_top, c));
+		fontPositioningInfos.insert(std::make_pair(c,
+			FontPositioningInfo(bitmap.rows,
+			bitmap.width, glyph->bitmap_left, glyph->bitmap_top,
+			glyph->advance.x, c)));
 	}
 
 	FT_Done_Face(face);
@@ -169,7 +171,7 @@ void FontTextureBuffer::SetUpTextureCoords(std::vector<FontRasterInfo> const& ra
 	size_t numFonts = rasterInfos.size();
 	for (size_t fontIndex = 0; fontIndex < numFonts; fontIndex++) {
 		auto const& fontRasterInfo = rasterInfos[fontIndex];
-		auto& positionInfo = fontPositioningInfos[fontIndex];
+		auto& positionInfo = fontPositioningInfos[fontRasterInfo.character];
 		positionInfo.textureCoordsBegin[0] = (float)(fontRasterInfo.widthOffset) /
 			textureWidthPOT;
 		positionInfo.textureCoordsBegin[1] = (float)(fontRasterInfo.heightOffset) /

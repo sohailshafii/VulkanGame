@@ -4,6 +4,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <vector>
+#include <map>
 #include <memory>
 #include <string>
 #include "Resources/ResourceLoader.h"
@@ -31,6 +32,39 @@ public:
 
 	unsigned int GetBytesPerPixel() const {
 		return bytesPerPixel;
+	}
+
+	struct FontPositioningInfo {
+		FontPositioningInfo() : rows(0), width(0),
+			bitMapLeft(0), bitMapTop(0),
+			advanceX(0), character(0) {
+		}
+
+		FontPositioningInfo(unsigned int rows,
+			unsigned int width, int bitMapLeft,
+			int bitMapTop, int advanceX,
+			unsigned char character) :
+			rows(rows), width(width),
+			bitMapLeft(bitMapLeft), bitMapTop(bitMapTop),
+			advanceX(advanceX), character(character) {
+			textureCoordsBegin[0] = 0.0f;
+			textureCoordsBegin[1] = 0.0f;
+			textureCoordsEnd[0] = 0.0f;
+			textureCoordsEnd[1] = 0.0f;
+		}
+
+		unsigned int rows;
+		unsigned int width;
+		float textureCoordsBegin[2];
+		float textureCoordsEnd[2];
+		int bitMapLeft;
+		int bitMapTop;
+		int advanceX;
+		unsigned char character;
+	};
+
+	FontPositioningInfo GetPositioningInfo(unsigned char character) {
+		return fontPositioningInfos[character];
 	}
 
 private:
@@ -93,28 +127,6 @@ private:
 		unsigned char character;
 	};
 
-	struct FontPositioningInfo {
-		FontPositioningInfo(unsigned int rows,
-			unsigned int width, signed int bitMapLeft,
-			signed int bitMapRight, unsigned char character) :
-			rows(rows), width(width),
-			bitMapLeft(bitMapLeft), bitMapRight(bitMapRight),
-			character(character) {
-			textureCoordsBegin[0] = 0.0f;
-			textureCoordsBegin[1] = 0.0f;
-			textureCoordsEnd[0] = 0.0f;
-			textureCoordsEnd[1] = 0.0f;
-		}
-
-		unsigned int rows;
-		unsigned int width;
-		float textureCoordsBegin[2];
-		float textureCoordsEnd[2];
-		signed int bitMapLeft;
-		signed int bitMapRight;
-		unsigned char character;
-	};
-
 	FT_Library InitFreeTypeLibrary();
 	void BuildFonts(FT_Library freeTypeLibrary,
 		std::vector<FontRasterInfo>& fontRasterInfos,
@@ -134,5 +146,5 @@ private:
 	unsigned int textureWidthPOT;
 	unsigned int textureHeightPOT;
 	unsigned int bytesPerPixel;
-	std::vector<FontPositioningInfo> fontPositioningInfos;
+	std::map<unsigned char, FontPositioningInfo> fontPositioningInfos;
 };
