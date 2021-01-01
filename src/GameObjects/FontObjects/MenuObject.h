@@ -13,6 +13,9 @@ class Material;
 class GameObject;
 class FontTextureBuffer;
 
+/// <summary>
+/// A menu item that renders as a phrase or sentence.
+/// </summary>
 class MenuObject {
 public:
 	MenuObject(std::string const & menuText,
@@ -32,7 +35,8 @@ private:
 		unsigned char character,
 		Model const* model,
 		FontTextureBuffer* fontTextureBuffer,
-		float& advanceVal);
+		float& advanceVal,
+		float scale);
 
 	std::shared_ptr<Material> gameObjectMaterial;
 	std::vector<std::shared_ptr<GameObject>> textGameObjects;

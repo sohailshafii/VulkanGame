@@ -28,15 +28,15 @@ MenuObject::MenuObject(std::string const& menuText,
 		glm::vec3(1.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 	
-	float advanceVal;
+	float advanceVal = 0.0f;
 	for (unsigned char character : menuText) {
-		// TODO: modify texture coords to access letter in text texture
 		auto newGameObject = GameObjectCreator::CreateGameObject(
 			this->gameObjectMaterial, CreateModelForCharacter(
 				character,
 				menuModel.get(),
 				fontTextureBuffer,
-				advanceVal),
+				advanceVal,
+				0.1f),
 			std::make_unique<FontGameObjectBehavior>(
 				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
@@ -52,7 +52,8 @@ MenuObject::MenuObject(std::string const& menuText,
 std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 	unsigned char character, Model const * model,
 	FontTextureBuffer* fontTextureBuffer,
-	float &advanceVal) {
+	float &advanceVal,
+	float scale) {
 	std::shared_ptr<Model> duplicateModel =
 		std::make_shared<Model>();
 	*duplicateModel = *model;
@@ -60,13 +61,37 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 	auto& positioningInfo = fontTextureBuffer->GetPositioningInfo(character);
 	auto& modelVerts = duplicateModel->GetVertices();
 	for (size_t i = 0; i < modelVerts.size(); i++) {
-		auto modifiedPos = modelVerts[i].position;
-		modifiedPos.x += positioningInfo.bitMapLeft + advanceVal;
-		modifiedPos.y -= (positioningInfo.rows - positioningInfo.bitMapTop);
+		auto oldPos = modelVerts[i].position;
+		auto modifiedPos = oldPos;
+		modifiedPos.x += positioningInfo.bitMapLeft*scale + advanceVal;
+		modifiedPos.y -= (positioningInfo.rows - positioningInfo.bitMapTop) * scale;
+		modelVerts[i].position = modifiedPos;
 	}
 
+	float textureCoordsBegin[2] = {
+		positioningInfo.textureCoordsBegin[0],
+		positioningInfo.textureCoordsBegin[1]
+	};
+	float textureCoordsEnd[2] = {
+		positioningInfo.textureCoordsEnd[0],
+		positioningInfo.textureCoordsEnd[1]
+	};
+	// go through and modify texture coordinates
+	// there should be four verts total here
+	modelVerts[0].texCoord[0] = textureCoordsBegin[0];
+	modelVerts[0].texCoord[1] = textureCoordsEnd[1];
+
+	modelVerts[1].texCoord[0] = textureCoordsEnd[0];
+	modelVerts[1].texCoord[1] = textureCoordsEnd[1];
+
+	modelVerts[2].texCoord[0] = textureCoordsBegin[0];
+	modelVerts[2].texCoord[1] = textureCoordsBegin[1];
+
+	modelVerts[3].texCoord[0] = textureCoordsEnd[0];
+	modelVerts[3].texCoord[1] = textureCoordsBegin[1];
+
 	// each advance is 64 pixels
-	advanceVal += positioningInfo.advanceX >> 6;
+	advanceVal += (positioningInfo.advanceX >> 6)* scale;
 
 	return duplicateModel;
 }
