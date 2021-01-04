@@ -33,7 +33,6 @@ public:
 private:
 	std::shared_ptr<Model> CreateModelForCharacter(
 		unsigned char character,
-		Model const* model,
 		FontTextureBuffer* fontTextureBuffer,
 		float& advanceVal,
 		float scale);

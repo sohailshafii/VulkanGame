@@ -33,7 +33,6 @@ MenuObject::MenuObject(std::string const& menuText,
 		auto newGameObject = GameObjectCreator::CreateGameObject(
 			this->gameObjectMaterial, CreateModelForCharacter(
 				character,
-				menuModel.get(),
 				fontTextureBuffer,
 				advanceVal,
 				0.1f),
@@ -47,26 +46,38 @@ MenuObject::MenuObject(std::string const& menuText,
 
 /// <summary>
 /// Create a model for the character based on the reference
-/// model passed in.
+/// model passed in. Since all characters share a common
+/// local-to-world transformation, we affect their local
+/// coordinates so that its position in menu object is appropriate.
+/// If the object is "Test," affect the local coordinates of "e"
+/// so that it coems after "T" as both have the same local-to-world
+/// transform.
 /// </summary>
 std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
-	unsigned char character, Model const * model,
-	FontTextureBuffer* fontTextureBuffer,
+	unsigned char character, FontTextureBuffer* fontTextureBuffer,
 	float &advanceVal,
 	float scale) {
-	std::shared_ptr<Model> duplicateModel =
-		std::make_shared<Model>();
-	*duplicateModel = *model;
 
 	auto& positioningInfo = fontTextureBuffer->GetPositioningInfo(character);
-	auto& modelVerts = duplicateModel->GetVertices();
-	for (size_t i = 0; i < modelVerts.size(); i++) {
+	float originX = positioningInfo.bitMapLeft * scale + advanceVal;
+	float offsetY =-(positioningInfo.rows - positioningInfo.bitMapTop) * scale;
+	if (character == 'y') {
+		int breakVar;
+		breakVar = 1;
+	}
+	std::shared_ptr<Model> characterModel = Model::CreateQuad(
+			glm::vec3(originX, offsetY, 0.0f),
+			glm::vec3((float)positioningInfo.width * scale, 0.0f, 0.0f),
+			glm::vec3(0.0f, (float)positioningInfo.rows * scale, 0.0f));
+	auto& modelVerts = characterModel->GetVertices();
+
+	/*for (size_t i = 0; i < modelVerts.size(); i++) {
 		auto oldPos = modelVerts[i].position;
 		auto modifiedPos = oldPos;
 		modifiedPos.x += positioningInfo.bitMapLeft*scale + advanceVal;
 		modifiedPos.y -= (positioningInfo.rows - positioningInfo.bitMapTop) * scale;
 		modelVerts[i].position = modifiedPos;
-	}
+	}*/
 
 	float textureCoordsBegin[2] = {
 		positioningInfo.textureCoordsBegin[0],
@@ -93,5 +104,5 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 	// each advance is 64 pixels
 	advanceVal += (positioningInfo.advanceX >> 6)* scale;
 
-	return duplicateModel;
+	return characterModel;
 }

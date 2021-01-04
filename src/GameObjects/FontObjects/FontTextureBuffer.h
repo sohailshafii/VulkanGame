@@ -53,8 +53,8 @@ public:
 			textureCoordsEnd[1] = 0.0f;
 		}
 
-		unsigned int rows;
-		unsigned int width;
+		int rows;
+		int width;
 		float textureCoordsBegin[2];
 		float textureCoordsEnd[2];
 		int bitMapLeft;
@@ -118,11 +118,11 @@ private:
 			}
 		}
 
-		unsigned int rows;
-		unsigned int width;
+		int rows;
+		int width;
 		int pitch;
 		unsigned char* buffer;
-		unsigned int heightOffset,
+		int heightOffset,
 			widthOffset;
 		unsigned char character;
 	};
