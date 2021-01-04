@@ -174,12 +174,7 @@ void GameObject::CreateOrUpdateIndexBuffer(std::vector<uint32_t> const & indices
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
 	VkDeviceSize bufferSizeVert = GetMaterialUniformBufferSizeVert();
-	VkDeviceSize bufferSizeFrag = sizeof(UniformBufferObjectLighting);
-	auto materialType = material->GetMaterialType();
-	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor ||
-		materialType == DescriptorSetFunctions::MaterialType::Text) {
-		bufferSizeFrag = sizeof(UniformBufferUnlitColor);
-	}
+	VkDeviceSize bufferSizeFrag = GetMaterialUniformBufferSizeFrag();
 	
 	for (size_t i = 0; i < numSwapChainImages; i++) {
 		uniformBuffersVert.push_back(new GameObjectUniformBufferObj(logicalDeviceManager, gfxDeviceManager,
@@ -293,7 +288,7 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 		VkDescriptorBufferInfo bufferInfoVert = {};
 		bufferInfoVert.buffer = uniformBuffersVert[i]->GetUniformBuffer();
 		bufferInfoVert.offset = 0;
-		bufferInfoVert.range = GetMaterialUniformBufferSizeVert();
+		bufferInfoVert.range = uniformBuffersVert[i]->GetBufferSize();
 		
 		VkDescriptorBufferInfo bufferInfoFrag = {};
 		bufferInfoFrag.buffer = uniformBuffersFrag[i]->GetUniformBuffer();
@@ -323,8 +318,10 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-		case DescriptorSetFunctions::MaterialType::Text:
 			return sizeof(UniformBufferObjectModelViewProj);
+			break;
+		case DescriptorSetFunctions::MaterialType::Text:
+			return sizeof(UniformBufferObjectModelViewProjColor);
 			break;
 		case DescriptorSetFunctions::MaterialType::MotherShip:
 			return sizeof(UniformBufferObjectModelViewProjRipple);
@@ -333,4 +330,15 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 			return sizeof(UniformBufferObjectModelViewProjTime);
 			break;
 	}
+}
+
+VkDeviceSize GameObject::GetMaterialUniformBufferSizeFrag() {
+	VkDeviceSize bufferSizeFrag = sizeof(UniformBufferObjectLighting);
+	auto materialType = material->GetMaterialType();
+	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor ||
+		materialType == DescriptorSetFunctions::MaterialType::Text) {
+		bufferSizeFrag = sizeof(UniformBufferUnlitColor);
+	}
+
+	return bufferSizeFrag;
 }

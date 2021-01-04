@@ -12,6 +12,13 @@ struct UniformBufferObjectModelViewProj {
 	alignas(16) glm::mat4 proj;
 };
 
+struct UniformBufferObjectModelViewProjColor {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
+	alignas(16) glm::vec4 color;
+};
+
 struct UniformBufferObjectModelViewProjTime {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;

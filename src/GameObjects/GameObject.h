@@ -188,4 +188,5 @@ private:
 	void CleanUpDescriptorPool();
 	
 	VkDeviceSize GetMaterialUniformBufferSizeVert();
+	VkDeviceSize GetMaterialUniformBufferSizeFrag();
 };

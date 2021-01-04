@@ -76,6 +76,11 @@ protected:
 		const glm::mat4& viewMatrix,
 		float time,
 		float deltaTime);
+	virtual void* CreateUniformBufferModelViewProjColor(
+			size_t& uboSize, VkExtent2D const& swapChainExtent,
+			const glm::mat4& viewMatrix,
+			float time,
+			float deltaTime);
 	virtual void* CreateUniformBufferModelViewProjRipple(
 		size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix,
