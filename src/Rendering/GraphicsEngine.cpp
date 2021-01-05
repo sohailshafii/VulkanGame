@@ -210,7 +210,8 @@ void GraphicsEngine::CreateFramebuffers() {
 	}
 }
 
-// TODO: group similar pipelines, if possible
+// TODO: group similar pipelines, if possible (i.e. game objects with similar pipelines
+// get drawn together)
 void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader,

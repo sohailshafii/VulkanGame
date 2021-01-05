@@ -8,12 +8,12 @@ layout(binding = 2) uniform UniformBufferObject {
 } ubo;
 
 layout(location = 0) in vec2 texCoords;
-layout(location = 1) out vec4 fragColor;
+layout(location = 1) in vec4 fragColor;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
 	float textSample = texture(texSampler, texCoords).r;
-	// TODO: use frag color when flickering bug is addressed
-	outColor = vec4(textSample.r, 0.0, 0.0, textSample.r);
+	outColor = fragColor*vec4(textSample.r, textSample.r, textSample.r,
+		textSample.r);
 }
