@@ -179,17 +179,8 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 		throw std::runtime_error("Failed to create pipeline layout!");
 	}
 
-	VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	depthStencil.depthTestEnable = VK_TRUE;
-	depthStencil.depthWriteEnable = VK_TRUE;
-	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-	depthStencil.depthBoundsTestEnable = VK_FALSE;
-	depthStencil.minDepthBounds = 0.0f; // Optional
-	depthStencil.maxDepthBounds = 1.0f; // Optional
-	depthStencil.stencilTestEnable = VK_FALSE;
-	depthStencil.front = {}; // optional
-	depthStencil.back = {}; // optional
+	VkPipelineDepthStencilStateCreateInfo depthStencil =
+		SpecifyDepthStencilStateForMaterial(materialType);
 
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -253,5 +244,23 @@ VkPipelineColorBlendAttachmentState PipelineModule::SpecifyBlendStateForMaterial
 	}
 
 	return colorBlendAttachment;
+}
+
+VkPipelineDepthStencilStateCreateInfo PipelineModule::SpecifyDepthStencilStateForMaterial(
+	DescriptorSetFunctions::MaterialType materialType) {
+	VkPipelineDepthStencilStateCreateInfo depthStencil = {};
+	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	depthStencil.depthTestEnable = VK_TRUE;
+	depthStencil.depthWriteEnable = materialType == DescriptorSetFunctions::MaterialType::Text ?
+		VK_FALSE : VK_TRUE;
+	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+	depthStencil.depthBoundsTestEnable = VK_FALSE;
+	depthStencil.minDepthBounds = 0.0f; // Optional
+	depthStencil.maxDepthBounds = 1.0f; // Optional
+	depthStencil.stencilTestEnable = VK_FALSE;
+	depthStencil.front = {}; // optional
+	depthStencil.back = {}; // optional
+
+	return depthStencil;
 }
 

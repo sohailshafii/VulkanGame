@@ -35,4 +35,7 @@ private:
 
 	VkPipelineColorBlendAttachmentState SpecifyBlendStateForMaterial(
 		DescriptorSetFunctions::MaterialType materialType);
+
+	VkPipelineDepthStencilStateCreateInfo SpecifyDepthStencilStateForMaterial(
+		DescriptorSetFunctions::MaterialType materialType);
 };
