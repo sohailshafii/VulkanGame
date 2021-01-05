@@ -17,6 +17,7 @@ public:
 		VkRenderPass renderPass,
 		DescriptorSetFunctions::MaterialType materialType,
 		VkPrimitiveTopology primitiveTopology);
+
 	~PipelineModule();
 
 	VkPipelineLayout GetLayout() {
@@ -31,4 +32,7 @@ private:
 	VkPipelineLayout pipelineLayout;
 	VkDevice device;
 	VkPipeline graphicsPipeline;
+
+	VkPipelineColorBlendAttachmentState SpecifyBlendStateForMaterial(
+		DescriptorSetFunctions::MaterialType materialType);
 };
