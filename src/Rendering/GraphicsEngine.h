@@ -97,4 +97,9 @@ private:
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
 	void CreateCommandBuffersForGameObjects(
 		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+
+	void RecordCommandForGameObjects(VkCommandBuffer& commandBuffer,
+		std::vector<std::shared_ptr<GameObject>>& gameObjects,
+		bool renderOnlyTransparent,
+		int commandBufferIndex);
 };

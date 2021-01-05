@@ -312,32 +312,53 @@ void GraphicsEngine::CreateCommandBuffersForGameObjects(
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
 			VK_SUBPASS_CONTENTS_INLINE);
 
-		size_t numGameObjects = gameObjects.size();
-		for (size_t objectIndex = 0; objectIndex < numGameObjects;
-			 objectIndex++) {
-			auto& gameObject = gameObjects[objectIndex];
-			PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject];
-			
-			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipelineModule->GetPipeline());
-			// bind our vertex buffers
-			VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
-			VkDeviceSize offsets[] = { 0 };
-			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-
-			vkCmdBindIndexBuffer(commandBuffers[i], gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-
-			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-									pipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(i), 0, nullptr);
-			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
-							 1, 0, 0, 0);
-		}
+		// render opaque objects first, then transparent
+		RecordCommandForGameObjects(commandBuffers[i],
+			gameObjects, false, i);
+		RecordCommandForGameObjects(commandBuffers[i],
+			gameObjects, true, i);
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 
 		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to record command buffer!");
 		}
+	}
+}
+
+void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
+	std::vector<std::shared_ptr<GameObject>>& gameObjects,
+	bool renderOnlyTransparent,
+	int commandBufferIndex) {
+	size_t numGameObjects = gameObjects.size();
+	for (size_t objectIndex = 0; objectIndex < numGameObjects;
+		objectIndex++) {
+		auto& gameObject = gameObjects[objectIndex];
+		auto materialType = gameObject->GetMaterialType();
+		bool isTransparentMat = materialType ==
+			DescriptorSetFunctions::MaterialType::Text;
+		// skip object is it does not pass our render-type test
+		if (isTransparentMat && !renderOnlyTransparent ||
+			!isTransparentMat && renderOnlyTransparent) {
+			continue;
+		}
+
+		PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject];
+
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelineModule->GetPipeline());
+		// bind our vertex buffers
+		VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+		vkCmdBindIndexBuffer(commandBuffer, gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(commandBufferIndex),
+			0, nullptr);
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
+			1, 0, 0, 0);
 	}
 }
 
