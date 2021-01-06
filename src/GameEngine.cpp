@@ -66,26 +66,27 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	menuObjects.push_back(std::make_shared<MenuObject>("Play", fontTextureBuffer,
 		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("About", fontTextureBuffer,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty", fontTextureBuffer,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Easy", fontTextureBuffer,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Medium", fontTextureBuffer,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Hard", fontTextureBuffer,
+		menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+
 	std::vector<std::shared_ptr<GameObject>> const& textObjs =
 		menuObjects[0]->GetTextGameObjects();
 	for (auto gameObjPtr : textObjs) {
 		mainGameScene->AddGameObject(gameObjPtr);
 	}
-	/*menuObjects.push_back(std::make_shared<MenuObject>("About",
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Easy",
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Medium",
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Hard",
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));*/
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
