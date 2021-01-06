@@ -98,6 +98,7 @@ bool FontTextureBuffer::ComputeFontTextureSize(
 	unsigned int totalHeightSoFar = 0;
 	for (size_t i = 0; i < numCharactersTotal; i++) {
 		auto& rasterInfo = fontRasterInfos[i];
+		// font start a little below height offset
 		rasterInfo.heightOffset = totalHeightSoFar;
 
 		// new row? reset maxHeight found so far
@@ -189,6 +190,7 @@ void FontTextureBuffer::SetUpTextureCoords(std::vector<FontRasterInfo> const& ra
 void FontTextureBuffer::BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos) {
 	textureSheetBuffer =
 		new unsigned char[textureWidthPOT*textureHeightPOT];
+	memset(textureSheetBuffer, 0, textureWidthPOT * textureHeightPOT);
 
 	size_t numFonts = rasterInfos.size();
 	for (size_t fontIndex = 0; fontIndex < numFonts; fontIndex++) {

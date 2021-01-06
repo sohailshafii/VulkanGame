@@ -137,8 +137,8 @@ private:
 	void BuildTextureSheet(std::vector<FontRasterInfo> const & rasterInfos);
 
 	static constexpr int fontHeight = 20;
-	static constexpr int horizSpaceBetweenFonts = 20;
-	static constexpr int vertSpaceBetweenFonts = 20;
+	static constexpr int horizSpaceBetweenFonts = 40;
+	static constexpr int vertSpaceBetweenFonts = 40;
 	static constexpr int numCharacterAcross = 25;
 	static constexpr int maxTextureSize = 2048;
 

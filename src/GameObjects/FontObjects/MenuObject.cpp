@@ -71,14 +71,6 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 			glm::vec3(0.0f, (float)positioningInfo.rows * scale, 0.0f));
 	auto& modelVerts = characterModel->GetVertices();
 
-	/*for (size_t i = 0; i < modelVerts.size(); i++) {
-		auto oldPos = modelVerts[i].position;
-		auto modifiedPos = oldPos;
-		modifiedPos.x += positioningInfo.bitMapLeft*scale + advanceVal;
-		modifiedPos.y -= (positioningInfo.rows - positioningInfo.bitMapTop) * scale;
-		modelVerts[i].position = modifiedPos;
-	}*/
-
 	float textureCoordsBegin[2] = {
 		positioningInfo.textureCoordsBegin[0],
 		positioningInfo.textureCoordsBegin[1]
@@ -87,6 +79,7 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 		positioningInfo.textureCoordsEnd[0],
 		positioningInfo.textureCoordsEnd[1]
 	};
+
 	// go through and modify texture coordinates
 	// there should be four verts total here
 	modelVerts[0].texCoord[0] = textureCoordsBegin[0];
