@@ -65,6 +65,7 @@ private:
 
 	std::shared_ptr<Material> menuMaterial;
 	std::vector<std::shared_ptr<MenuObject>> menuObjects;
+	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
 

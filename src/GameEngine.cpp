@@ -18,8 +18,6 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkSurfaceKHR surface, GLFWwindow* window,
 	VkCommandPool commandPool) {
-	this->currentGameMode = currentGameMode;
-
 	SceneLoader::SceneSettings sceneSettings =
 		CreateSceneAndReturnSettings(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool, surface, window);
@@ -33,9 +31,14 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 
 	CreatePlayerGameObject(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool);
-
+	auto& mainGameObjects = mainGameScene->GetGameObjects();
+	for (auto& gameObject : mainGameObjects) {
+		normalGameObjects.push_back(gameObject);
+	}
 	CreateMenuObjects(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool);
+
+	UpdateGameMode(currentGameMode);
 }
 
 GameEngine::~GameEngine() {
@@ -81,17 +84,18 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	menuObjects.push_back(std::make_shared<MenuObject>("Hard", fontTextureBuffer,
 		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-
-	std::vector<std::shared_ptr<GameObject>> const& textObjs =
-		menuObjects[0]->GetTextGameObjects();
-	for (auto gameObjPtr : textObjs) {
-		mainGameScene->AddGameObject(gameObjPtr);
-	}
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	currentGameMode = newGameMode;
-	// TODO: switch pipelines
+	if (currentGameMode == GameMode::Game) {
+		// TODO: mark normal game objects for deletion from scene
+		// TODO: add menu objects
+	}
+	else {
+		// TODO: mark text game objects for deletion from scene
+		// TODO: add normal game objects
+	}
 }
 
 void GameEngine::RecreateGraphicsEngineForNewSwapchain(

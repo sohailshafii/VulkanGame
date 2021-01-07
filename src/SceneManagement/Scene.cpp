@@ -51,6 +51,7 @@ void Scene::RemoveGameObject(GameObject* gameObjectToRemove) {
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i].get() == gameObjectToRemove) {
 			removalIndex = i;
+			gameObjects[i]->SetInitializedInEngine(false);
 			break;
 		}
 	}
@@ -65,6 +66,7 @@ void Scene::RemoveGameObject(std::shared_ptr<GameObject> const & gameObjectToRem
 	for (int i = 0; i < gameObjects.size(); i++) {
 		if (gameObjects[i] == gameObjectToRemove) {
 			removalIndex = i;
+			gameObjects[i]->SetInitializedInEngine(false);
 			break;
 		}
 	}
