@@ -68,15 +68,15 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	glm::vec3 characterScale = glm::vec3(0.5f, 0.5f, 0.5f);
 	menuObjects.push_back(std::make_shared<MenuObject>("Play",
-		glm::vec3(-15.0f, 15.0f, 100.0f), characterScale,
+		glm::vec3(0.0f, 15.0f, 100.0f), characterScale, true,
 		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("About",
-		glm::vec3(-15.0f, 0.0f, 100.0f), characterScale,
+		glm::vec3(0.0f, 0.0f, 100.0f), characterScale, true,
 		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
-		glm::vec3(-15.0f, -15.0, 100.0f), characterScale,
+		glm::vec3(0.0f, -15.0, 100.0f), characterScale, true,
 		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	/*menuObjects.push_back(std::make_shared<MenuObject>("Easy",

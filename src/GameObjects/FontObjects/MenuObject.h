@@ -22,6 +22,7 @@ public:
 	MenuObject(std::string const & menuText,
 		glm::vec3 const & objectPosition,
 		glm::vec3 const & scale,
+		bool isCentered,
 		FontTextureBuffer* fontTextureBuffer,
 		std::shared_ptr<Material> & gameObjectMaterial,
 		GfxDeviceManager* gfxDeviceManager,
@@ -39,6 +40,9 @@ private:
 		FontTextureBuffer* fontTextureBuffer,
 		float& advanceVal,
 		float scale);
+
+	void ComputeWorldBoundsOfMenuObject(glm::vec3& min, glm::vec3& max,
+		glm::vec3 const& worldScale);
 
 	std::shared_ptr<Material> gameObjectMaterial;
 	std::vector<std::shared_ptr<GameObject>> textGameObjects;
