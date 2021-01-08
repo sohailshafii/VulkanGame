@@ -23,7 +23,7 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 		resourceLoader, commandPool, surface, window);
 
 	mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 2.0f, 100.0f),
-		-90.0f, 0.0f, 14.5f, 0.035f);
+		0.0f, 0.0f, 14.5f, 0.035f);
 	mainCamera->InitializeCameraSystem(sceneSettings.cameraPosition,
 		sceneSettings.cameraYaw, sceneSettings.cameraPitch,
 		sceneSettings.cameraMovementSpeed,
@@ -66,35 +66,58 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		DescriptorSetFunctions::MaterialType::Text,
 		textureSheetName, true, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
-	menuObjects.push_back(std::make_shared<MenuObject>("Play", fontTextureBuffer,
+	glm::vec3 characterScale = glm::vec3(0.5f, 0.5f, 0.5f);
+	menuObjects.push_back(std::make_shared<MenuObject>("Play",
+		glm::vec3(-15.0f, 15.0f, 100.0f), characterScale,
+		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("About",
+		glm::vec3(-15.0f, 0.0f, 100.0f), characterScale,
+		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
+		glm::vec3(-15.0f, -15.0, 100.0f), characterScale,
+		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	/*menuObjects.push_back(std::make_shared<MenuObject>("Easy",
+		fontTextureBuffer,
 		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("About", fontTextureBuffer,
+	menuObjects.push_back(std::make_shared<MenuObject>("Medium",
+		fontTextureBuffer,
 		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty", fontTextureBuffer,
+	menuObjects.push_back(std::make_shared<MenuObject>("Hard",
+		fontTextureBuffer,
 		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Easy", fontTextureBuffer,
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Medium", fontTextureBuffer,
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Hard", fontTextureBuffer,
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
+		resourceLoader, commandPool));*/
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	currentGameMode = newGameMode;
 	if (currentGameMode == GameMode::Game) {
-		// TODO: mark normal game objects for deletion from scene
-		// TODO: add menu objects
+		for (auto gameObject : normalGameObjects) {
+			gameObject->SetMarkedForDeletion(true);
+		}
+
+		for (auto menuObject : menuObjects) {
+			auto textGameObjects = menuObject->GetTextGameObjects();
+			for (auto textGameObject : textGameObjects) {
+				mainGameScene->AddGameObject(textGameObject);
+			}
+		}
 	}
 	else {
-		// TODO: mark text game objects for deletion from scene
-		// TODO: add normal game objects
+		for (auto menuObject : menuObjects) {
+			auto textGameObjects = menuObject->GetTextGameObjects();
+			for (auto textGameObject : textGameObjects) {
+				textGameObject->SetMarkedForDeletion(false);
+			}
+		}
+
+		for (auto gameObject : normalGameObjects) {
+			mainGameScene->AddGameObject(gameObject);
+		}
 	}
 }
 

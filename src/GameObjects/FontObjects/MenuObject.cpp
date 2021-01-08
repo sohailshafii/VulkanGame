@@ -11,6 +11,8 @@
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
 
 MenuObject::MenuObject(std::string const& menuText,
+	glm::vec3 const & objectPosition,
+	glm::vec3 const & scale,
 	FontTextureBuffer* fontTextureBuffer,
 	std::shared_ptr<Material>& gameObjectMaterial,
 	GfxDeviceManager* gfxDeviceManager,
@@ -19,14 +21,9 @@ MenuObject::MenuObject(std::string const& menuText,
 	this->gameObjectMaterial = gameObjectMaterial;
 
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
-		glm::vec3(0.0f, 5.0f, 100.0f));
+		objectPosition);
 	localToWorldTransform = glm::scale(localToWorldTransform,
-		glm::vec3(10.0f, 10.0f, 1.0f));
-
-	std::shared_ptr<Model> menuModel = Model::CreateQuad(
-		glm::vec3(-0.5f, -0.5f, 0.0f),
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
+		scale);
 	
 	float advanceVal = 0.0f;
 	for (unsigned char character : menuText) {
@@ -35,7 +32,7 @@ MenuObject::MenuObject(std::string const& menuText,
 				character,
 				fontTextureBuffer,
 				advanceVal,
-				0.1f),
+				1.0f),
 			std::make_unique<FontGameObjectBehavior>(
 				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
@@ -61,10 +58,7 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 	auto& positioningInfo = fontTextureBuffer->GetPositioningInfo(character);
 	float originX = positioningInfo.bitMapLeft * scale + advanceVal;
 	float offsetY =-(positioningInfo.rows - positioningInfo.bitMapTop) * scale;
-	if (character == 'y') {
-		int breakVar;
-		breakVar = 1;
-	}
+
 	std::shared_ptr<Model> characterModel = Model::CreateQuad(
 			glm::vec3(originX, offsetY, 0.0f),
 			glm::vec3((float)positioningInfo.width * scale, 0.0f, 0.0f),

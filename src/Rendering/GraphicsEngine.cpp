@@ -58,7 +58,7 @@ void GraphicsEngine::RecordCommandsForNewGameObjects(
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, newGameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(newGameObjects);
 	
-	// TODO: do this on a separate thread?
+	// TODO: should be done on separate thread
 	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 					inFlightFences.data(), VK_TRUE,
 					std::numeric_limits<uint64_t>::max());
@@ -74,7 +74,7 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
 	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
-
+	// TODO: should be done on separate thread
 	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 		inFlightFences.data(), VK_TRUE,
 		std::numeric_limits<uint64_t>::max());

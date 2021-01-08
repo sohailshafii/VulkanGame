@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <glm/glm.hpp>
 
 class GfxDeviceManager;
 class LogicalDeviceManager;
@@ -19,6 +20,8 @@ class FontTextureBuffer;
 class MenuObject {
 public:
 	MenuObject(std::string const & menuText,
+		glm::vec3 const & objectPosition,
+		glm::vec3 const & scale,
 		FontTextureBuffer* fontTextureBuffer,
 		std::shared_ptr<Material> & gameObjectMaterial,
 		GfxDeviceManager* gfxDeviceManager,
