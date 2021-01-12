@@ -22,7 +22,7 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 		CreateSceneAndReturnSettings(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool, surface, window);
 
-	mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 2.0f, 100.0f),
+	mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 100.0f),
 		0.0f, 0.0f, 14.5f, 0.035f);
 	mainCamera->InitializeCameraSystem(sceneSettings.cameraPosition,
 		sceneSettings.cameraYaw, sceneSettings.cameraPitch,
@@ -39,6 +39,9 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 		resourceLoader, commandPool);
 
 	UpdateGameMode(currentGameMode);
+
+	lastFireTime = -1.0f;
+	fireInterval = 0.5f;
 }
 
 GameEngine::~GameEngine() {
@@ -68,15 +71,15 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	glm::vec3 characterScale = glm::vec3(0.5f, 0.5f, 0.5f);
 	menuObjects.push_back(std::make_shared<MenuObject>("Play",
-		glm::vec3(0.0f, 15.0f, 100.0f), characterScale, true,
+		glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
 		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("About",
-		glm::vec3(0.0f, 0.0f, 100.0f), characterScale, true,
+		glm::vec3(0.0f, 5.0f, 80.0f), characterScale, true,
 		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
-		glm::vec3(0.0f, -15.0, 100.0f), characterScale, true,
+		glm::vec3(0.0f, -10.0, 80.0f), characterScale, true,
 		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	/*menuObjects.push_back(std::make_shared<MenuObject>("Easy",
@@ -95,7 +98,7 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	currentGameMode = newGameMode;
-	if (currentGameMode == GameMode::Game) {
+	if (currentGameMode == GameMode::Menu) {
 		for (auto gameObject : normalGameObjects) {
 			gameObject->SetMarkedForDeletion(true);
 		}
@@ -228,4 +231,42 @@ void GameEngine::RemoveGameObjects(
 	graphicsEngine->RemoveGameObjectsAndRecordCommands(
 		inFlightFences, gameObjectsToRemove,
 		allGameObjects);
+}
+
+void GameEngine::ProcessMouse(float xoffset, float yoffset) {
+	// can't move around during menu mode
+	if (currentGameMode == GameMode::Menu) {
+		return;
+	}
+	mainCamera->ProcessMouse(xoffset, yoffset);
+}
+
+void GameEngine::ProcessInput(GLFWwindow* window, float frameTime, float latestFrameTime) {
+	// can't move around during menu mode
+	if (currentGameMode == GameMode::Menu) {
+		return;
+	}
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		mainCamera->MoveForward(frameTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		mainCamera->MoveBackward(frameTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+		mainCamera->MoveLeft(frameTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		mainCamera->MoveRight(frameTime);
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		FireMainCannon(latestFrameTime);
+	}
+}
+
+void GameEngine::FireMainCannon(float latestFrameTime) {
+	if (latestFrameTime > (lastFireTime + fireInterval)) {
+		lastFireTime = latestFrameTime;
+		SpawnGameObject(Scene::SpawnType::Bullet, mainCamera->GetWorldPosition(),
+			mainCamera->GetForwardDirection());
+	}
 }

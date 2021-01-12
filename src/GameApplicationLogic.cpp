@@ -30,8 +30,6 @@ bool GameApplicationLogic::firstMouse = false;
 float GameApplicationLogic::lastX = 0.0f;
 float GameApplicationLogic::lastY = 0.0f;
 float GameApplicationLogic::lastFrameTime = 0.0f;
-float GameApplicationLogic::lastFireTime = -1.0f;
-float GameApplicationLogic::fireInterval = 0.5f;
 
 GameEngine* GameApplicationLogic::gameEngine;
 
@@ -55,29 +53,13 @@ void GameApplicationLogic::MouseCallback(GLFWwindow* window,
 	float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
 	lastX = (float)xpos;
 	lastY = (float)ypos;
-	auto mainCamera = GameApplicationLogic::gameEngine->GetCamera();
-	mainCamera->ProcessMouse(xoffset, yoffset);
+	GameApplicationLogic::gameEngine->ProcessMouse(xoffset, yoffset);
 }
 
 void GameApplicationLogic::ProcessInput(GLFWwindow* window,
 	float frameTime) {
-	auto mainCamera = GameApplicationLogic::gameEngine->GetCamera();
-
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		mainCamera->MoveForward(frameTime);
-	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		mainCamera->MoveBackward(frameTime);
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		mainCamera->MoveLeft(frameTime);
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		mainCamera->MoveRight(frameTime);
-	}
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		GameApplicationLogic::FireMainCannon();
-	}
+	GameApplicationLogic::gameEngine->ProcessInput(window,
+		frameTime, lastFrameTime);
 }
 
 void GameApplicationLogic::InitWindow() {
@@ -124,7 +106,7 @@ void GameApplicationLogic::InitVulkan() {
 
 	resourceLoader = new ResourceLoader();
 
-	gameEngine = new GameEngine(GameEngine::GameMode::Game,
+	gameEngine = new GameEngine(GameEngine::GameMode::Menu,
 		gfxDeviceManager, logicalDeviceManager, resourceLoader,
 		surface, window, commandPool);
 
@@ -227,16 +209,6 @@ void GameApplicationLogic::MainLoop() {
 
 	// wait for all operations to finish before cleaning up
 	vkDeviceWaitIdle(logicalDeviceManager->GetDevice());
-}
-
-void GameApplicationLogic::FireMainCannon() {
-	if (lastFrameTime > (lastFireTime + fireInterval)) {
-		lastFireTime = lastFrameTime;
-		GameApplicationLogic::gameEngine->SpawnGameObject(
-			Scene::SpawnType::Bullet,
-			GameApplicationLogic::gameEngine->GetCamera()->GetWorldPosition(),
-			GameApplicationLogic::gameEngine->GetCamera()->GetForwardDirection());
-	}
 }
 
 bool GameApplicationLogic::CanAcquireNextPresentableImageIndex(

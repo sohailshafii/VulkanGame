@@ -64,9 +64,6 @@ private:
 	static float lastX, lastY;
 	static float lastFrameTime;
 
-	static float lastFireTime;
-	static float fireInterval;
-
 	void InitWindow();
 	static void FramebufferResizeCallback(GLFWwindow* window, int width,
 		int height);
@@ -82,7 +79,6 @@ private:
 	void CreateCommandPool();
 	void CreateSyncObjects();
 	void MainLoop();
-	static void FireMainCannon();
 
 	bool CanAcquireNextPresentableImageIndex(uint32_t& imageIndex);
 	void UpdateGameState(float time, float deltaTime, uint32_t imageIndex);

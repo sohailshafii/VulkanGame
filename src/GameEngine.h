@@ -45,10 +45,6 @@ public:
 		return graphicsEngine;
 	}
 
-	Camera* GetCamera() {
-		return mainCamera.get();
-	}
-
 	void SpawnGameObject(Scene::SpawnType spawnType,
 		glm::vec3 const& spawnPosition,
 		glm::vec3 const& forwardDir) {
@@ -57,11 +53,18 @@ public:
 			forwardDir);
 	}
 
+	void ProcessMouse(float xoffset, float yoffset);
+	void ProcessInput(GLFWwindow* window,
+		float frameTime, float latestFrameTime);
+
 private:
 	GameMode currentGameMode;
 	std::shared_ptr<Camera> mainCamera;
 	Scene* mainGameScene;
 	GraphicsEngine* graphicsEngine;
+
+	float lastFireTime;
+	float fireInterval;
 
 	std::shared_ptr<Material> menuMaterial;
 	std::vector<std::shared_ptr<MenuObject>> menuObjects;
@@ -83,4 +86,6 @@ private:
 	void RemoveGameObjects(std::vector<std::shared_ptr<GameObject>>
 		& gameObjectsToRemove,
 		std::vector<VkFence> const& inFlightFences);
+
+	void FireMainCannon(float latestFrameTime);
 };
