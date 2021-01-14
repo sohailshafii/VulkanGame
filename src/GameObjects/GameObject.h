@@ -29,7 +29,7 @@ class GameObject {
 public:
 	GameObject(std::shared_ptr<Model> const& model,
 		std::shared_ptr<Material> const& material,
-		std::unique_ptr<GameObjectBehavior> behavior,
+		std::shared_ptr<GameObjectBehavior> behavior,
 		GfxDeviceManager *gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		VkCommandPool commandPool);
@@ -137,7 +137,7 @@ public:
 private:
 	std::shared_ptr<Model> objModel;
 	std::shared_ptr<Material> material;
-	std::unique_ptr<GameObjectBehavior> gameObjectBehavior;
+	std::shared_ptr<GameObjectBehavior> gameObjectBehavior;
 	
 	std::string vertexShaderName;
 	std::string fragmentShaderName;

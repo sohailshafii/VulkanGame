@@ -20,20 +20,20 @@ MenuObject::MenuObject(std::string const& menuText,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
-	this->gameObjectMaterial = gameObjectMaterial;
-
 	float advanceVal = 0.0f;
 	for (unsigned char character : menuText) {
+		auto fontBehavior = std::make_shared<FontGameObjectBehavior>(
+			glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		auto newGameObject = GameObjectCreator::CreateGameObject(
-			this->gameObjectMaterial, CreateModelForCharacter(
+			gameObjectMaterial, CreateModelForCharacter(
 				character,
 				fontTextureBuffer,
 				advanceVal,
 				1.0f),
-			std::make_unique<FontGameObjectBehavior>(
-				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
+			fontBehavior,
 			glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
+		behaviorObjects.push_back(fontBehavior);
 		textGameObjects.push_back(newGameObject);
 	}
 
@@ -49,6 +49,16 @@ MenuObject::MenuObject(std::string const& menuText,
 		scale);
 	for (auto textGameObject : textGameObjects) {
 		textGameObject->SetModelTransform(localToWorldTransform);
+	}
+
+	SetSelectState(false);
+}
+
+void MenuObject::SetSelectState(bool selectState) {
+	this->selectState = selectState;
+	for (auto behaviorObj : behaviorObjects) {
+		behaviorObj->SetColor(selectState ? glm::vec4(0.0f, 1.0f, 1.0f, 1.0f) :
+			glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 }
 

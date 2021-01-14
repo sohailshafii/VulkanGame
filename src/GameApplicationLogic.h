@@ -20,6 +20,7 @@ public:
 	void Run();
 
 	static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void ProcessInput(GLFWwindow* window, float frameTime);
 
 private:

@@ -56,6 +56,8 @@ public:
 	void ProcessMouse(float xoffset, float yoffset);
 	void ProcessInput(GLFWwindow* window,
 		float frameTime, float latestFrameTime);
+	void ProcessKeyCallback(GLFWwindow* window, int key,
+		int scancode, int action, int mods);
 
 private:
 	GameMode currentGameMode;
@@ -68,6 +70,7 @@ private:
 
 	std::shared_ptr<Material> menuMaterial;
 	std::vector<std::shared_ptr<MenuObject>> menuObjects;
+	size_t currentSelectedMenuObject;
 	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
@@ -87,5 +90,10 @@ private:
 		& gameObjectsToRemove,
 		std::vector<VkFence> const& inFlightFences);
 
+	void HandleMainMenuControls(GLFWwindow* window, int key,
+		int scancode, int action, int mods);
+	void SelectNextMenuObject(bool moveUp);
+
+	void HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime);
 	void FireMainCannon(float latestFrameTime);
 };

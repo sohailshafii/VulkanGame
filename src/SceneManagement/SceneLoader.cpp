@@ -46,7 +46,7 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 static void SetupTransformation(const nlohmann::json& transformNode,
 								glm::mat4& localToWorld);
 
-static std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
+static std::shared_ptr<GameObjectBehavior> SetupGameObjectBehavior(
 	const nlohmann::json& gameObjectNode,
 	Scene* const scene);
 
@@ -197,10 +197,10 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	auto transformationNode = SafeGetToken(jsonObj, "transformation");
 	glm::mat4 localToWorldTransform(1.0f);
 	SetupTransformation(transformationNode, localToWorldTransform);
-	std::unique_ptr<GameObjectBehavior> gameObjectBehavior =
+	std::shared_ptr<GameObjectBehavior> gameObjectBehavior =
 		SetupGameObjectBehavior(jsonObj, scene);
 	constructedGameObject = GameObjectCreator::CreateGameObject(
-		newMaterial, gameObjectModel, std::move(gameObjectBehavior),
+		newMaterial, gameObjectModel, gameObjectBehavior,
 		localToWorldTransform, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 }
@@ -278,21 +278,21 @@ static void SetupTransformation(const nlohmann::json& transformNode,
 	}
 }
 
-std::unique_ptr<GameObjectBehavior> SetupGameObjectBehavior(
+std::shared_ptr<GameObjectBehavior> SetupGameObjectBehavior(
 	const nlohmann::json& gameObjectNode,
 	Scene* const scene) {
 	std::string gameObjectBehaviorStr = gameObjectNode["type"];
-	std::unique_ptr<GameObjectBehavior> newGameObjBehavior;
+	std::shared_ptr<GameObjectBehavior> newGameObjBehavior;
 	if (gameObjectBehaviorStr == "Stationary") {
-		newGameObjBehavior = std::make_unique<StationaryGameObjectBehavior>();
+		newGameObjBehavior = std::make_shared<StationaryGameObjectBehavior>();
 	}
 	else if (gameObjectBehaviorStr == "Mothership") {
 		float shipRadius = gameObjectNode["ship_radius"];
-		newGameObjBehavior = std::make_unique<MothershipBehavior>(scene,
+		newGameObjBehavior = std::make_shared<MothershipBehavior>(scene,
 			shipRadius);
 	}
 	else if (gameObjectBehaviorStr == "Pawn") {
-		newGameObjBehavior = std::make_unique<PawnBehavior>();
+		newGameObjBehavior = std::make_shared<PawnBehavior>();
 	}
 	else {
 		std::stringstream exceptionMsg;

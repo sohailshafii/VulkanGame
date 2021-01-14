@@ -56,6 +56,12 @@ void GameApplicationLogic::MouseCallback(GLFWwindow* window,
 	GameApplicationLogic::gameEngine->ProcessMouse(xoffset, yoffset);
 }
 
+void GameApplicationLogic::KeyCallback(GLFWwindow* window, int key, int scancode,
+	int action, int mods) {
+	GameApplicationLogic::gameEngine->ProcessKeyCallback(window, key, scancode,
+		action, mods);
+}
+
 void GameApplicationLogic::ProcessInput(GLFWwindow* window,
 	float frameTime) {
 	GameApplicationLogic::gameEngine->ProcessInput(window,
@@ -71,6 +77,7 @@ void GameApplicationLogic::InitWindow() {
 	window = glfwCreateWindow(WIDTH, HEIGHT, "PlanetDeath", nullptr, nullptr);
 	glfwSetWindowUserPointer(window, this);
 	glfwSetCursorPosCallback(window, MouseCallback);
+	glfwSetKeyCallback(window, KeyCallback);
 	// for fps mode we want to capture the mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);

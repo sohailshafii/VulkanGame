@@ -10,7 +10,7 @@
 std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 	std::shared_ptr<Material> const & material,
 	std::shared_ptr<Model> const & gameObjectModel,
-	std::unique_ptr<GameObjectBehavior> gameObjectBehavior,
+	std::shared_ptr<GameObjectBehavior> gameObjectBehavior,
 	glm::mat4 const & localToWorldTransform,
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager* gfxDeviceManager,
@@ -18,7 +18,7 @@ std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 	VkCommandPool commandPool) {
 	std::shared_ptr<GameObject> constructedGameObject =
 		std::make_shared<GameObject>(gameObjectModel, material,
-			std::move(gameObjectBehavior),
+			gameObjectBehavior,
 			gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	constructedGameObject->SetModelTransform(localToWorldTransform);

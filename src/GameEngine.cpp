@@ -94,6 +94,9 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		fontTextureBuffer,
 		menuMaterial, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));*/
+
+	menuObjects[0]->SetSelectState(true);
+	currentSelectedMenuObject = 0;
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
@@ -246,6 +249,49 @@ void GameEngine::ProcessInput(GLFWwindow* window, float frameTime, float latestF
 	if (currentGameMode == GameMode::Menu) {
 		return;
 	}
+
+	HandleMainGameControls(window, frameTime, latestFrameTime);
+}
+
+void GameEngine::ProcessKeyCallback(GLFWwindow* window, int key,
+	int scancode, int action, int mods) {
+	if (currentGameMode == GameMode::Game) {
+		return;
+	}
+	HandleMainMenuControls(window, key, scancode, action, mods);
+}
+
+void GameEngine::HandleMainMenuControls(GLFWwindow* window, int key,
+	int scancode, int action, int mods) {
+	bool upPressed = action == GLFW_PRESS &&
+		(glfwGetKey(window, GLFW_KEY_UP)||
+		glfwGetKey(window, GLFW_KEY_W));
+	bool downPressed = action == GLFW_PRESS &&
+		(glfwGetKey(window, GLFW_KEY_DOWN) ||
+		glfwGetKey(window, GLFW_KEY_S));
+	if (upPressed) {
+		SelectNextMenuObject(false);
+	}
+	else if (downPressed) {
+		SelectNextMenuObject(true);
+	}
+}
+
+void GameEngine::SelectNextMenuObject(bool moveToNextElement) {
+	menuObjects[currentSelectedMenuObject]->SetSelectState(false);
+
+	currentSelectedMenuObject = moveToNextElement ?
+		currentSelectedMenuObject + 1 :
+		currentSelectedMenuObject - 1;
+	if (currentSelectedMenuObject < 0) {
+		currentSelectedMenuObject = 0;
+	}
+	currentSelectedMenuObject %= menuObjects.size();
+
+	menuObjects[currentSelectedMenuObject]->SetSelectState(true);
+}
+
+void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime) {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		mainCamera->MoveForward(frameTime);
 	}

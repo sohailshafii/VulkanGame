@@ -13,6 +13,7 @@ class Model;
 class Material;
 class GameObject;
 class FontTextureBuffer;
+class FontGameObjectBehavior;
 
 /// <summary>
 /// A menu item that renders as a phrase or sentence.
@@ -34,6 +35,8 @@ public:
 		return textGameObjects;
 	}
 
+	void SetSelectState(bool selectState);
+
 private:
 	std::shared_ptr<Model> CreateModelForCharacter(
 		unsigned char character,
@@ -44,6 +47,7 @@ private:
 	void ComputeWorldBoundsOfMenuObject(glm::vec3& min, glm::vec3& max,
 		glm::vec3 const& worldScale);
 
-	std::shared_ptr<Material> gameObjectMaterial;
 	std::vector<std::shared_ptr<GameObject>> textGameObjects;
+	std::vector<std::shared_ptr<FontGameObjectBehavior>> behaviorObjects;
+	bool selectState;
 };
