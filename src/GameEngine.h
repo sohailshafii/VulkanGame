@@ -69,8 +69,8 @@ private:
 	float fireInterval;
 
 	std::shared_ptr<Material> menuMaterial;
-	std::vector<std::shared_ptr<MenuObject>> menuObjects;
-	size_t currentSelectedMenuObject;
+	std::vector<std::shared_ptr<MenuObject>>* menuObjects;
+	int currentSelectedMenuObject;
 	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
@@ -92,6 +92,7 @@ private:
 
 	void HandleMainMenuControls(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
+	void ActivateMenuOption();
 	void SelectNextMenuObject(bool moveUp);
 
 	void HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime);

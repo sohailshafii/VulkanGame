@@ -25,7 +25,7 @@ public:
 		glm::vec3 const & scale,
 		bool isCentered,
 		FontTextureBuffer* fontTextureBuffer,
-		std::shared_ptr<Material> & gameObjectMaterial,
+		std::string const& textureSheetName,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool);

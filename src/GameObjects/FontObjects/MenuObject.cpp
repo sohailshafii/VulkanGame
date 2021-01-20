@@ -16,16 +16,20 @@ MenuObject::MenuObject(std::string const& menuText,
 	glm::vec3 const & scale,
 	bool isCentered,
 	FontTextureBuffer* fontTextureBuffer,
-	std::shared_ptr<Material>& gameObjectMaterial,
+	std::string const & textureSheetName,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
 	float advanceVal = 0.0f;
 	for (unsigned char character : menuText) {
+		auto menuMaterial = GameObjectCreator::CreateMaterial(
+			DescriptorSetFunctions::MaterialType::Text,
+			textureSheetName, true, resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool);
 		auto fontBehavior = std::make_shared<FontGameObjectBehavior>(
 			glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		auto newGameObject = GameObjectCreator::CreateGameObject(
-			gameObjectMaterial, CreateModelForCharacter(
+			menuMaterial, CreateModelForCharacter(
 				character,
 				fontTextureBuffer,
 				advanceVal,

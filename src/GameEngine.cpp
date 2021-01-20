@@ -45,8 +45,10 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 }
 
 GameEngine::~GameEngine() {
-	delete graphicsEngine;
 	// delete game objects before destroying vulkan instance
+	delete[] menuObjects;
+
+	delete graphicsEngine;
 
 	delete mainGameScene;
 }
@@ -64,38 +66,51 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		fontTextureBuffer->GetBuffer(), fontTextureBuffer->GetTextureWidth(),
 		fontTextureBuffer->GetTextureHeight(), fontTextureBuffer->GetBytesPerPixel(),
 		gfxDeviceManager, logicalDeviceManager, commandPool);
-
-	menuMaterial = GameObjectCreator::CreateMaterial(
-		DescriptorSetFunctions::MaterialType::Text,
-		textureSheetName, true, resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+	
 	glm::vec3 characterScale = glm::vec3(0.5f, 0.5f, 0.5f);
-	menuObjects.push_back(std::make_shared<MenuObject>("Play",
+	// assemble menus here. only three of them
+	menuObjects = new std::vector<std::shared_ptr<MenuObject>>[3];
+	menuObjects[0].push_back(std::make_shared<MenuObject>("Play",
 		glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
-		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("About",
+		
+	menuObjects[0].push_back(std::make_shared<MenuObject>("About",
 		glm::vec3(0.0f, 5.0f, 80.0f), characterScale, true,
-		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Difficulty",
+	menuObjects[0].push_back(std::make_shared<MenuObject>("Difficulty",
 		glm::vec3(0.0f, -10.0, 80.0f), characterScale, true,
-		fontTextureBuffer, menuMaterial, gfxDeviceManager, logicalDeviceManager,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	/*menuObjects.push_back(std::make_shared<MenuObject>("Easy",
-		fontTextureBuffer,
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Medium",
-		fontTextureBuffer,
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));
-	menuObjects.push_back(std::make_shared<MenuObject>("Hard",
-		fontTextureBuffer,
-		menuMaterial, gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool));*/
 
-	menuObjects[0]->SetSelectState(true);
+	menuObjects[1].push_back(std::make_shared<MenuObject>("Easy",
+		glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects[1].push_back(std::make_shared<MenuObject>("Medium",
+		glm::vec3(0.0f, 5.0f, 80.0f), characterScale, true,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects[1].push_back(std::make_shared<MenuObject>("Hard",
+		glm::vec3(0.0f, -10.0, 80.0f), characterScale, true,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects[1].push_back(std::make_shared<MenuObject>("Back",
+		glm::vec3(0.0f, -15.0, 80.0f), characterScale, true,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+
+	menuObjects[2].push_back(std::make_shared<MenuObject>("Text",
+		glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+	menuObjects[1].push_back(std::make_shared<MenuObject>("Back",
+		glm::vec3(0.0f, 5.0, 80.0f), characterScale, true,
+		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
+		resourceLoader, commandPool));
+
+	menuObjects[0][0]->SetSelectState(true);
 	currentSelectedMenuObject = 0;
 }
 
@@ -106,7 +121,7 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 			gameObject->SetMarkedForDeletion(true);
 		}
 
-		for (auto menuObject : menuObjects) {
+		for (auto menuObject : menuObjects[0]) {
 			auto textGameObjects = menuObject->GetTextGameObjects();
 			for (auto textGameObject : textGameObjects) {
 				mainGameScene->AddGameObject(textGameObject);
@@ -114,10 +129,10 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 		}
 	}
 	else {
-		for (auto menuObject : menuObjects) {
+		for (auto menuObject : menuObjects[0]) {
 			auto textGameObjects = menuObject->GetTextGameObjects();
 			for (auto textGameObject : textGameObjects) {
-				textGameObject->SetMarkedForDeletion(false);
+				textGameObject->SetMarkedForDeletion(true);
 			}
 		}
 
@@ -263,13 +278,20 @@ void GameEngine::ProcessKeyCallback(GLFWwindow* window, int key,
 
 void GameEngine::HandleMainMenuControls(GLFWwindow* window, int key,
 	int scancode, int action, int mods) {
-	bool upPressed = action == GLFW_PRESS &&
+	bool pressAction = action == GLFW_PRESS;
+	bool upPressed = pressAction &&
 		(glfwGetKey(window, GLFW_KEY_UP)||
 		glfwGetKey(window, GLFW_KEY_W));
-	bool downPressed = action == GLFW_PRESS &&
+	bool downPressed = pressAction &&
 		(glfwGetKey(window, GLFW_KEY_DOWN) ||
 		glfwGetKey(window, GLFW_KEY_S));
-	if (upPressed) {
+	bool enterPressed = pressAction &&
+		glfwGetKey(window, GLFW_KEY_ENTER);
+
+	if (enterPressed) {
+		ActivateMenuOption();
+	}
+	else if (upPressed) {
 		SelectNextMenuObject(false);
 	}
 	else if (downPressed) {
@@ -277,18 +299,22 @@ void GameEngine::HandleMainMenuControls(GLFWwindow* window, int key,
 	}
 }
 
+void GameEngine::ActivateMenuOption() {
+
+}
+
 void GameEngine::SelectNextMenuObject(bool moveToNextElement) {
-	menuObjects[currentSelectedMenuObject]->SetSelectState(false);
+	menuObjects[0][currentSelectedMenuObject]->SetSelectState(false);
 
 	currentSelectedMenuObject = moveToNextElement ?
 		currentSelectedMenuObject + 1 :
 		currentSelectedMenuObject - 1;
 	if (currentSelectedMenuObject < 0) {
-		currentSelectedMenuObject = 0;
+		currentSelectedMenuObject = menuObjects[0].size()-1;
 	}
-	currentSelectedMenuObject %= menuObjects.size();
+	currentSelectedMenuObject %= menuObjects[0].size();
 
-	menuObjects[currentSelectedMenuObject]->SetSelectState(true);
+	menuObjects[0][currentSelectedMenuObject]->SetSelectState(true);
 }
 
 void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime) {
