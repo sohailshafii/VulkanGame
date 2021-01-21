@@ -37,6 +37,10 @@ public:
 
 	void SetSelectState(bool selectState);
 
+	std::string GetText() const {
+		return menuText;
+	}
+
 private:
 	std::shared_ptr<Model> CreateModelForCharacter(
 		unsigned char character,
@@ -50,4 +54,5 @@ private:
 	std::vector<std::shared_ptr<GameObject>> textGameObjects;
 	std::vector<std::shared_ptr<FontGameObjectBehavior>> behaviorObjects;
 	bool selectState;
+	std::string menuText;
 };

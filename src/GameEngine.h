@@ -70,10 +70,18 @@ private:
 
 	std::shared_ptr<Material> menuMaterial;
 	std::vector<std::shared_ptr<MenuObject>>* menuObjects;
-	int currentSelectedMenuObject;
+	int currentSelectedMenuObject, currentSubMenuIndex;
 	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
+
+	static inline const std::string playMenuOptionText = "Play";
+	static inline const std::string aboutMenuOptionText = "About";
+	static inline const std::string difficultyMenuOptionText = "Difficulty";
+	static inline const std::string easyMenuOptionText = "Easy";
+	static inline const std::string mediumMenuOptionText = "Medium";
+	static inline const std::string hardMenuOptionText = "Hard";
+	static inline const std::string backButtonText = "Back";
 
 	SceneLoader::SceneSettings CreateSceneAndReturnSettings(
 		GfxDeviceManager* gfxDeviceManager,
@@ -92,7 +100,10 @@ private:
 
 	void HandleMainMenuControls(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
-	void ActivateMenuOption();
+	void ActivateButtonInCurrentMenu();
+	void ActivateButtonInInMainMenu();
+	void ActivateButtonInInDifficultyMenu();
+	void ActivateButtonInnTextMenu();
 	void SelectNextMenuObject(bool moveUp);
 
 	void HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime);

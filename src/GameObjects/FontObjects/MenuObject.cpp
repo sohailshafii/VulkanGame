@@ -20,6 +20,7 @@ MenuObject::MenuObject(std::string const& menuText,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
+	this->menuText = menuText;
 	float advanceVal = 0.0f;
 	for (unsigned char character : menuText) {
 		auto menuMaterial = GameObjectCreator::CreateMaterial(

@@ -70,33 +70,33 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	glm::vec3 characterScale = glm::vec3(0.5f, 0.5f, 0.5f);
 	// assemble menus here. only three of them
 	menuObjects = new std::vector<std::shared_ptr<MenuObject>>[3];
-	menuObjects[0].push_back(std::make_shared<MenuObject>("Play",
+	menuObjects[0].push_back(std::make_shared<MenuObject>(playMenuOptionText,
 		glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 		
-	menuObjects[0].push_back(std::make_shared<MenuObject>("About",
+	menuObjects[0].push_back(std::make_shared<MenuObject>(aboutMenuOptionText,
 		glm::vec3(0.0f, 5.0f, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects[0].push_back(std::make_shared<MenuObject>("Difficulty",
+	menuObjects[0].push_back(std::make_shared<MenuObject>(difficultyMenuOptionText,
 		glm::vec3(0.0f, -10.0, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 
-	menuObjects[1].push_back(std::make_shared<MenuObject>("Easy",
+	menuObjects[1].push_back(std::make_shared<MenuObject>(easyMenuOptionText,
 		glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects[1].push_back(std::make_shared<MenuObject>("Medium",
+	menuObjects[1].push_back(std::make_shared<MenuObject>(mediumMenuOptionText,
 		glm::vec3(0.0f, 5.0f, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects[1].push_back(std::make_shared<MenuObject>("Hard",
+	menuObjects[1].push_back(std::make_shared<MenuObject>(hardMenuOptionText,
 		glm::vec3(0.0f, -10.0, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects[1].push_back(std::make_shared<MenuObject>("Back",
+	menuObjects[1].push_back(std::make_shared<MenuObject>(backButtonText,
 		glm::vec3(0.0f, -15.0, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
@@ -105,13 +105,14 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
-	menuObjects[1].push_back(std::make_shared<MenuObject>("Back",
+	menuObjects[1].push_back(std::make_shared<MenuObject>(backButtonText,
 		glm::vec3(0.0f, 5.0, 80.0f), characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 
-	menuObjects[0][0]->SetSelectState(true);
 	currentSelectedMenuObject = 0;
+	currentSubMenuIndex = 0;
+	menuObjects[currentSubMenuIndex][currentSelectedMenuObject]->SetSelectState(true);
 }
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
@@ -289,7 +290,7 @@ void GameEngine::HandleMainMenuControls(GLFWwindow* window, int key,
 		glfwGetKey(window, GLFW_KEY_ENTER);
 
 	if (enterPressed) {
-		ActivateMenuOption();
+		ActivateButtonInCurrentMenu();
 	}
 	else if (upPressed) {
 		SelectNextMenuObject(false);
@@ -299,22 +300,67 @@ void GameEngine::HandleMainMenuControls(GLFWwindow* window, int key,
 	}
 }
 
-void GameEngine::ActivateMenuOption() {
+void GameEngine::ActivateButtonInCurrentMenu() {
+	if (currentSubMenuIndex == 0) {
+		ActivateButtonInInMainMenu();
+	}
+	else if (currentSubMenuIndex == 1) {
+		ActivateButtonInInDifficultyMenu();
+	}
+	else {
+		ActivateButtonInnTextMenu();
+	}
+}
 
+void GameEngine::ActivateButtonInInMainMenu() {
+	auto currentMenuObject =
+		menuObjects[currentSubMenuIndex][currentSelectedMenuObject];
+	auto currentMenuObjectText = currentMenuObject->GetText();
+	if (currentMenuObjectText == playMenuOptionText) {
+		// TODO
+	}
+	else if (currentMenuObjectText == aboutMenuOptionText) {
+		// TODO
+	}
+	else if (currentMenuObjectText == difficultyMenuOptionText) {
+		// TODO
+	}
+}
+
+void GameEngine::ActivateButtonInInDifficultyMenu() {
+	auto currentMenuObject =
+		menuObjects[currentSubMenuIndex][currentSelectedMenuObject];
+	auto currentMenuObjectText = currentMenuObject->GetText();
+	if (currentMenuObjectText == easyMenuOptionText) {
+		// TODO
+	}
+	else if (currentMenuObjectText == mediumMenuOptionText) {
+		// TODO
+	}
+	else if (currentMenuObjectText == hardMenuOptionText) {
+		// TODO
+	}
+	else if (currentMenuObjectText == backButtonText) {
+		// TODO
+	}
+}
+
+void GameEngine::ActivateButtonInnTextMenu() {
+	// TODO: go up a menu
 }
 
 void GameEngine::SelectNextMenuObject(bool moveToNextElement) {
-	menuObjects[0][currentSelectedMenuObject]->SetSelectState(false);
+	menuObjects[currentSubMenuIndex][currentSelectedMenuObject]->SetSelectState(false);
 
 	currentSelectedMenuObject = moveToNextElement ?
 		currentSelectedMenuObject + 1 :
 		currentSelectedMenuObject - 1;
 	if (currentSelectedMenuObject < 0) {
-		currentSelectedMenuObject = menuObjects[0].size()-1;
+		currentSelectedMenuObject = menuObjects[currentSubMenuIndex].size()-1;
 	}
-	currentSelectedMenuObject %= menuObjects[0].size();
+	currentSelectedMenuObject %= menuObjects[currentSubMenuIndex].size();
 
-	menuObjects[0][currentSelectedMenuObject]->SetSelectState(true);
+	menuObjects[currentSubMenuIndex][currentSelectedMenuObject]->SetSelectState(true);
 }
 
 void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime) {
