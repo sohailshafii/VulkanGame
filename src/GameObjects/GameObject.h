@@ -118,7 +118,7 @@ public:
 		return markedForDeletion;
 	}
 
-	void SetMarkedForDeletion(bool value) {
+	void SetMarkedForDeletionInScene(bool value) {
 		markedForDeletion = value;
 	}
 	

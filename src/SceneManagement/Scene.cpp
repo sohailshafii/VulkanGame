@@ -9,6 +9,7 @@
 #include "Player/PlayerGameObjectBehavior.h"
 #include "GraphicsEngine.h"
 #include <iostream>
+#include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
 Scene::Scene(ResourceLoader* resourceLoader, GfxDeviceManager* gfxDeviceManager,
@@ -36,6 +37,11 @@ void Scene::CreateGraphicsEngine(VkSurfaceKHR surface, GLFWwindow* window) {
 
 void Scene::AddGameObject(std::shared_ptr<GameObject>
 						  const & newGameObject) {
+	// avoid duplicates
+	if (std::find(gameObjects.begin(), gameObjects.end(), newGameObject)
+		!= gameObjects.end()) {
+		return;
+	}
 	gameObjects.push_back(newGameObject);
 }
 
@@ -52,7 +58,7 @@ void Scene::RemoveGameObject(GameObject* gameObjectToRemove) {
 		if (gameObjects[i].get() == gameObjectToRemove) {
 			removalIndex = i;
 			gameObjects[i]->SetInitializedInEngine(false);
-			gameObjects[i]->SetMarkedForDeletion(false);
+			gameObjects[i]->SetMarkedForDeletionInScene(false);
 			break;
 		}
 	}
@@ -68,7 +74,7 @@ void Scene::RemoveGameObject(std::shared_ptr<GameObject> const & gameObjectToRem
 		if (gameObjects[i] == gameObjectToRemove) {
 			removalIndex = i;
 			gameObjects[i]->SetInitializedInEngine(false);
-			gameObjects[i]->SetMarkedForDeletion(false);
+			gameObjects[i]->SetMarkedForDeletionInScene(false);
 			break;
 		}
 	}

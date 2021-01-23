@@ -20,6 +20,7 @@ class Material;
 class GameEngine {
 public:
 	enum class GameMode : char { Menu = 0, Game };
+	enum class Difficulty : char { Easy = 0, Medium, Hard };
 
 	GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const & logicalDeviceManager,
@@ -74,7 +75,9 @@ private:
 	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
+	Difficulty currentDifficulty;
 
+	static constexpr int numMenus = 3;
 	static inline const std::string playMenuOptionText = "Play";
 	static inline const std::string aboutMenuOptionText = "About";
 	static inline const std::string difficultyMenuOptionText = "Difficulty";
@@ -101,9 +104,12 @@ private:
 	void HandleMainMenuControls(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
 	void ActivateButtonInCurrentMenu();
+	void AddMenuItems(int menuIndex);
+	void RemoveMenuItems(int menuIndex);
 	void ActivateButtonInInMainMenu();
 	void ActivateButtonInInDifficultyMenu();
-	void ActivateButtonInnTextMenu();
+	void ActivateButtonInAboutMenu();
+	void SetMenuSelectionIndices(int subIndex, int menuItemIndex);
 	void SelectNextMenuObject(bool moveUp);
 
 	void HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime);
