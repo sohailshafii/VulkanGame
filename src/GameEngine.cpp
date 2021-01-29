@@ -67,7 +67,7 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		fontTextureBuffer->GetBuffer(), fontTextureBuffer->GetTextureWidth(),
 		fontTextureBuffer->GetTextureHeight(), fontTextureBuffer->GetBytesPerPixel(),
 		gfxDeviceManager, logicalDeviceManager, commandPool);
-	
+
 	glm::vec3 characterScale = glm::vec3(0.4f, 0.4f, 0.4f);
 	glm::vec3 characterScaleDifficulty = glm::vec3(0.3f, 0.3f, 0.3f);
 	glm::vec3 characterScaleReduced = glm::vec3(0.25f, 0.25f, 0.25f);
@@ -104,8 +104,9 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 
-	// TODO: need actual text in this menu
-	menuObjects[2].push_back(std::make_shared<MenuObject>("Text\rTest",
+	menuObjects[2].push_back(std::make_shared<MenuObject>(
+		// TODO: make spaces work!
+		"This is a simple game developed using C++ and the Vulkan API.\nTODO",
 		glm::vec3(0.0f, 20.0f, 80.0f), characterScaleParagraph, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));

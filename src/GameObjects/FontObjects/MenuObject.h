@@ -20,7 +20,8 @@ class FontGameObjectBehavior;
 /// </summary>
 class MenuObject {
 public:
-	MenuObject(std::string const & menuText,
+	// it's a vector because it can be multiple lines
+	MenuObject(std::string const& menuText,
 		glm::vec3 const & objectPosition,
 		glm::vec3 const & scale,
 		bool isCentered,
@@ -45,7 +46,8 @@ private:
 	std::shared_ptr<Model> CreateModelForCharacter(
 		unsigned char character,
 		FontTextureBuffer* fontTextureBuffer,
-		float& advanceVal,
+		float& advanceValX,
+		float advanceValY,
 		float scale);
 
 	void ComputeWorldBoundsOfMenuObject(glm::vec3& min, glm::vec3& max,

@@ -21,20 +21,42 @@ MenuObject::MenuObject(std::string const& menuText,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
 	this->menuText = menuText;
-	float advanceVal = 0.0f;
+	float advanceValX = 0.0f;
+	float advanceValY = 0.0f;
+
+	const float localScale = 1.0f;
+	float maxCharacterHeight = 0.0f;
 	for (unsigned char character : menuText) {
+		if (character != '\n') {
+			auto& positioningInfo = fontTextureBuffer->GetPositioningInfo(character);
+			float currentHeight = positioningInfo.rows * localScale;
+			if (currentHeight > maxCharacterHeight) {
+				maxCharacterHeight = currentHeight;
+			}
+		}
+	}
+
+	const float lineSpacing = 5.0f;
+	for (unsigned char character : menuText) {
+		if (character == '\n') {
+			advanceValX = 0;
+			advanceValY -= (maxCharacterHeight + lineSpacing * localScale);
+			continue;
+		}
 		auto menuMaterial = GameObjectCreator::CreateMaterial(
 			DescriptorSetFunctions::MaterialType::Text,
 			textureSheetName, true, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 		auto fontBehavior = std::make_shared<FontGameObjectBehavior>(
 			glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		auto gameObjectModel = CreateModelForCharacter(
+			character,
+			fontTextureBuffer,
+			advanceValX,
+			advanceValY,
+			localScale);
 		auto newGameObject = GameObjectCreator::CreateGameObject(
-			menuMaterial, CreateModelForCharacter(
-				character,
-				fontTextureBuffer,
-				advanceVal,
-				1.0f),
+			menuMaterial, gameObjectModel,
 			fontBehavior,
 			glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
@@ -73,17 +95,19 @@ void MenuObject::SetSelectState(bool selectState) {
 /// local-to-world transformation, we affect their local
 /// coordinates so that its position in menu object is appropriate.
 /// If the object is "Test," affect the local coordinates of "e"
-/// so that it coems after "T" as both have the same local-to-world
+/// so that it comes after "T" as both have the same local-to-world
 /// transform.
 /// </summary>
 std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 	unsigned char character, FontTextureBuffer* fontTextureBuffer,
-	float &advanceVal,
+	float &advanceValX,
+	float advanceValY,
 	float scale) {
 
 	auto& positioningInfo = fontTextureBuffer->GetPositioningInfo(character);
-	float originX = positioningInfo.bitMapLeft * scale + advanceVal;
-	float offsetY =-(positioningInfo.rows - positioningInfo.bitMapTop) * scale;
+	float originX = positioningInfo.bitMapLeft * scale + advanceValX;
+	float offsetY =-(positioningInfo.rows - positioningInfo.bitMapTop) * scale
+		+ advanceValY;
 
 	std::shared_ptr<Model> characterModel = Model::CreateQuad(
 			glm::vec3(originX, offsetY, 0.0f),
@@ -115,7 +139,7 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 	modelVerts[3].texCoord[1] = textureCoordsBegin[1];
 
 	// each advance is 64 pixels
-	advanceVal += (positioningInfo.advanceX >> 6)* scale;
+	advanceValX += (positioningInfo.advanceX >> 6)* scale;
 
 	return characterModel;
 }
