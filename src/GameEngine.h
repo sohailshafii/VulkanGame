@@ -3,6 +3,8 @@
 #include <memory>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <unordered_map>
+#include <vector>
 #include "vulkan/vulkan.h"
 #include "SceneManagement/SceneLoader.h"
 #include "SceneManagement/Scene.h"
@@ -21,6 +23,8 @@ class GameEngine {
 public:
 	enum class GameMode : char { Menu = 0, Game };
 	enum class Difficulty : char { Easy = 0, Medium, Hard };
+
+	enum class MenuPart : char { Base = 0, Difficulty, About };
 
 	GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const & logicalDeviceManager,
@@ -70,17 +74,20 @@ private:
 	float fireInterval;
 
 	std::shared_ptr<Material> menuMaterial;
-	std::vector<std::shared_ptr<MenuObject>>* menuObjects;
-	int currentSelectedMenuObject, currentSubMenuIndex;
+	std::unordered_map<MenuPart, std::vector<std::shared_ptr<MenuObject>>> menuObjects;
+	int currentSelectedMenuObject;
+	MenuPart currentMenuPart;
 	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
 	Difficulty currentDifficulty;
+	GLFWwindow* window;
 
 	static constexpr int numMenus = 3;
 	static inline const std::string playMenuOptionText = "Play";
 	static inline const std::string aboutMenuOptionText = "About";
 	static inline const std::string difficultyMenuOptionText = "Difficulty";
+	static inline const std::string quitMenuOptionText = "Quit";
 	static inline const std::string easyMenuOptionText = "Easy";
 	static inline const std::string mediumMenuOptionText = "Medium";
 	static inline const std::string hardMenuOptionText = "Hard";
@@ -104,12 +111,12 @@ private:
 	void HandleMainMenuControls(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
 	void ActivateButtonInCurrentMenu();
-	void AddMenuItems(int menuIndex);
-	void RemoveMenuItems(int menuIndex);
+	void AddMenuItems(MenuPart menuPart);
+	void RemoveMenuItems(MenuPart menuPart);
 	void ActivateButtonInInMainMenu();
 	void ActivateButtonInInDifficultyMenu();
 	void ActivateButtonInAboutMenu();
-	void SetMenuSelectionIndices(int subIndex, int menuItemIndex);
+	void SetMenuSelectionIndices(MenuPart newMenuPart, int menuItemIndex);
 	void SelectNextMenuObject(bool moveUp);
 
 	void HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime);

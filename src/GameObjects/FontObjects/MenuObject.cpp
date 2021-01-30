@@ -11,7 +11,7 @@
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
 #include <algorithm>
 
-MenuObject::MenuObject(std::string const& menuText,
+MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 	glm::vec3 const & objectPosition,
 	glm::vec3 const & scale,
 	bool isCentered,
@@ -20,6 +20,7 @@ MenuObject::MenuObject(std::string const& menuText,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
+	this->menuType = menuType;
 	this->menuText = menuText;
 	float advanceValX = 0.0f;
 	float advanceValY = 0.0f;
@@ -50,6 +51,7 @@ MenuObject::MenuObject(std::string const& menuText,
 			advanceValX,
 			advanceValY,
 			localScale);
+		// TODO: why make game object per character? it's expensive
 		auto newGameObject = GameObjectCreator::CreateGameObject(
 			menuMaterial, gameObjectModel,
 			fontBehavior,

@@ -20,8 +20,11 @@ class FontGameObjectBehavior;
 /// </summary>
 class MenuObject {
 public:
+	enum class MenuType : char { Play = 0, About, Difficulty,
+		Quit, Easy, Medium, Hard, Back };
+
 	// it's a vector because it can be multiple lines
-	MenuObject(std::string const& menuText,
+	MenuObject(MenuType menuType, std::string const& menuText,
 		glm::vec3 const & objectPosition,
 		glm::vec3 const & scale,
 		bool isCentered,
@@ -37,6 +40,10 @@ public:
 	}
 
 	void SetSelectState(bool selectState);
+
+	MenuType GetMenuType() const {
+		return menuType;
+	}
 
 	std::string GetText() const {
 		return menuText;
@@ -56,5 +63,6 @@ private:
 	std::vector<std::shared_ptr<GameObject>> textGameObjects;
 	std::vector<std::shared_ptr<FontGameObjectBehavior>> behaviorObjects;
 	bool selectState;
+	MenuType menuType;
 	std::string menuText;
 };
