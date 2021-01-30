@@ -34,6 +34,14 @@ public:
 		return bytesPerPixel;
 	}
 
+	int GetMaxTextHeight() const {
+		return maxTextHeight;
+	}
+
+	int GetSpacingWidth() const {
+		return spacingWidth;
+	}
+
 	struct FontPositioningInfo {
 		FontPositioningInfo() : rows(0), width(0),
 			bitMapLeft(0), bitMapTop(0),
@@ -146,5 +154,7 @@ private:
 	unsigned int textureWidthPOT;
 	unsigned int textureHeightPOT;
 	unsigned int bytesPerPixel;
+	int maxTextHeight;
+	int spacingWidth;
 	std::map<unsigned char, FontPositioningInfo> fontPositioningInfos;
 };

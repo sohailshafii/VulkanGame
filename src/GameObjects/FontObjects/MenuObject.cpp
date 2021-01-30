@@ -25,24 +25,19 @@ MenuObject::MenuObject(std::string const& menuText,
 	float advanceValY = 0.0f;
 
 	const float localScale = 1.0f;
-	float maxCharacterHeight = 0.0f;
-	for (unsigned char character : menuText) {
-		if (character != '\n') {
-			auto& positioningInfo = fontTextureBuffer->GetPositioningInfo(character);
-			float currentHeight = positioningInfo.rows * localScale;
-			if (currentHeight > maxCharacterHeight) {
-				maxCharacterHeight = currentHeight;
-			}
-		}
-	}
-
-	const float lineSpacing = 5.0f;
+	float maxCharacterHeight = localScale*fontTextureBuffer->GetMaxTextHeight();
+	const float lineSpacing = maxCharacterHeight*0.5f;
+	const float spaceBetweenCharacters = localScale*fontTextureBuffer->GetSpacingWidth();
 	for (unsigned char character : menuText) {
 		if (character == '\n') {
 			advanceValX = 0;
-			advanceValY -= (maxCharacterHeight + lineSpacing * localScale);
+			advanceValY -= (maxCharacterHeight + lineSpacing);
 			continue;
 		}
+		else if (character == ' ') {
+			advanceValX += spaceBetweenCharacters;
+		}
+
 		auto menuMaterial = GameObjectCreator::CreateMaterial(
 			DescriptorSetFunctions::MaterialType::Text,
 			textureSheetName, true, resourceLoader, gfxDeviceManager,

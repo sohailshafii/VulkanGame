@@ -60,6 +60,9 @@ void FontTextureBuffer::BuildFonts(FT_Library freeTypeLibrary,
 
 	// have consistent height
 	FT_Set_Pixel_Sizes(face, 0, fontHeight);
+	bool setMaxHeight = false;
+	float spacingWidthSum = 0.0f;
+	unsigned int numValidFaces = 0;
 	for (unsigned char c = 0; c < 128; c++)
 	{
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
@@ -81,7 +84,18 @@ void FontTextureBuffer::BuildFonts(FT_Library freeTypeLibrary,
 			FontPositioningInfo(bitmap.rows,
 			bitmap.width, glyph->bitmap_left, glyph->bitmap_top,
 			glyph->advance.x, c)));
+
+		if (!setMaxHeight || maxTextHeight < bitmap.rows) {
+			setMaxHeight = true;
+			maxTextHeight = bitmap.rows;
+		}
+
+		spacingWidthSum += (float)bitmap.width;
+		numValidFaces++;
 	}
+
+	spacingWidthSum /= (float)numValidFaces;
+	spacingWidth = (int)spacingWidthSum;
 
 	FT_Done_Face(face);
 

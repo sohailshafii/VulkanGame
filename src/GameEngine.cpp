@@ -104,9 +104,13 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 
+	const char* gameInfo =
+		"This is a simple game developed using C++ and the Vulkan API,\n"
+		"written by Sohail Shafii. Use WASD to move left-right-up-down,\n"
+		"and space bar to shoot at mothership trying to kill you. I'm too\n"
+		"lazy to write any more instructions.";
 	menuObjects[2].push_back(std::make_shared<MenuObject>(
-		// TODO: make spaces work!
-		"This is a simple game developed using C++ and the Vulkan API.\nTODO",
+		gameInfo,
 		glm::vec3(0.0f, 20.0f, 80.0f), characterScaleParagraph, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
@@ -366,6 +370,12 @@ void GameEngine::ActivateButtonInInDifficultyMenu() {
 }
 
 void GameEngine::ActivateButtonInAboutMenu() {
+	auto currentMenuObject =
+		menuObjects[currentSubMenuIndex][currentSelectedMenuObject];
+	auto currentMenuObjectText = currentMenuObject->GetText();
+	if (currentMenuObjectText != backButtonText) {
+		return;
+	}
 	AddMenuItems(0);
 	RemoveMenuItems(2);
 	SetMenuSelectionIndices(0, 0);
