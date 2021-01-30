@@ -314,18 +314,20 @@ void GameEngine::ActivateButtonInInMainMenu() {
 	auto currentMenuObjectText = currentMenuObject->GetText();
 	
 	if (currentMenuObjectText == playMenuOptionText) {
-		// TODO enable game mode
+		UpdateGameMode(GameEngine::GameMode::Game);
 	}
 	else if (currentMenuObjectText == difficultyMenuOptionText) {
 		AddMenuItems(1);
 		SetMenuSelectionIndices(1, 0);
+
+		RemoveMenuItems(0);
 	}
 	else if (currentMenuObjectText == aboutMenuOptionText) {
 		AddMenuItems(2);
 		SetMenuSelectionIndices(2, 0);
-	}
 
-	RemoveMenuItems(0);
+		RemoveMenuItems(0);
+	}
 }
 
 void GameEngine::AddMenuItems(int menuIndex) {
