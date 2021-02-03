@@ -106,10 +106,11 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 	float offsetY =-(positioningInfo.rows - positioningInfo.bitMapTop) * scale
 		+ advanceValY;
 
+	// TODO: make it a triangle list instead, and add them together into one primitive
 	std::shared_ptr<Model> characterModel = Model::CreateQuad(
 			glm::vec3(originX, offsetY, 0.0f),
 			glm::vec3((float)positioningInfo.width * scale, 0.0f, 0.0f),
-			glm::vec3(0.0f, (float)positioningInfo.rows * scale, 0.0f));
+			glm::vec3(0.0f, (float)positioningInfo.rows * scale, 0.0f), true);
 	auto& modelVerts = characterModel->GetVertices();
 
 	float textureCoordsBegin[2] = {

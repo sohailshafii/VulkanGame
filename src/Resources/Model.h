@@ -77,7 +77,7 @@ public:
 	~Model();
 	
 	static std::shared_ptr<Model> CreateQuad(glm::vec3 const& quadOrigin,
-		glm::vec3 const& side1Vec, glm::vec3 const& side2Vec);
+		glm::vec3 const& side1Vec, glm::vec3 const& side2Vec, bool isTriangleStrip);
 
 	static std::shared_ptr<Model> CreatePlane(const glm::vec3& lowerLeft,
 		const glm::vec3& side1Vec, const glm::vec3& side2Vec,
@@ -153,6 +153,16 @@ public:
 	std::vector<ModelVert>& GetVertices() {
 		return vertices;
 	}
+
+	// TODO: make this work by fixing compiler error
+	/*void AppendVertsAndIndices(std::vector<uint32_t>& newVertices,
+		std::vector<uint32_t>& newIndices) {
+		vertices.reserve(vertices.size() + newVertices.size());
+		vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
+
+		indices.reserve(indices.size() + newIndices.size());
+		indices.insert(indices.end(), newIndices.begin(), newIndices.end());
+	}*/
 
 	TopologyType GetTopologyType() const {
 		return modelTopology;

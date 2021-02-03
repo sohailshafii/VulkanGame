@@ -399,7 +399,6 @@ void GameEngine::SetMenuSelectionIndices(MenuPart newMenuPart, int menuItemIndex
 	for (auto menuObject : currentSubMenu) {
 		menuObject->SetSelectState(currentSelectedMenuObj == menuObject);
 	}
-	
 }
 
 void GameEngine::SelectNextMenuObject(bool moveToNextElement) {

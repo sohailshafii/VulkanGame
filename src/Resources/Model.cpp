@@ -76,7 +76,8 @@ Model::~Model() {
 
 std::shared_ptr<Model> Model::CreateQuad(
 	glm::vec3 const& quadOrigin,
-	glm::vec3 const& side1Vec, glm::vec3 const& side2Vec) {
+	glm::vec3 const& side1Vec, glm::vec3 const& side2Vec,
+	bool isTriangleStrip) {
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
 
@@ -111,13 +112,24 @@ std::shared_ptr<Model> Model::CreateQuad(
 		glm::vec3(1.0f, 1.0f, 1.0f),
 		glm::vec2(1.0f, 0.0f)));
 
-	indices.push_back(0);
-	indices.push_back(1);
-	indices.push_back(2);
-	indices.push_back(3);
+	if (isTriangleStrip) {
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(2);
+		indices.push_back(3);
+	}
+	else {
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(2);
+		indices.push_back(2);
+		indices.push_back(1);
+		indices.push_back(3);
+	}
 
 	return std::make_shared<Model>(vertices, indices,
-		TopologyType::TriangleStrip);
+		isTriangleStrip ? TopologyType::TriangleStrip :
+		TopologyType::TriangleList);
 }
 
 std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
