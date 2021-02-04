@@ -154,15 +154,21 @@ public:
 		return vertices;
 	}
 
-	// TODO: make this work by fixing compiler error
-	/*void AppendVertsAndIndices(std::vector<uint32_t>& newVertices,
-		std::vector<uint32_t>& newIndices) {
+	void AppendVertsAndIndices(std::vector<ModelVert> const & newVertices,
+		std::vector<uint32_t> const & newIndices) {
+		// since the vertices have been appended to the end, their indices are
+		// effectively offsetted by the current size of the array
+		// so if there are N vertices, are adding M verts to it,
+		// the indices of M verts start at N, not at 0 as before
+		uint32_t offsetFromCurrentVerts = vertices.size();
 		vertices.reserve(vertices.size() + newVertices.size());
 		vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
 
 		indices.reserve(indices.size() + newIndices.size());
-		indices.insert(indices.end(), newIndices.begin(), newIndices.end());
-	}*/
+		for (size_t i = 0; i < newIndices.size(); i++) {
+			indices.push_back(newIndices[i] + offsetFromCurrentVerts);
+		}
+	}
 
 	TopologyType GetTopologyType() const {
 		return modelTopology;

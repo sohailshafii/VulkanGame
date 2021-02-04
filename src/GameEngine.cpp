@@ -339,21 +339,17 @@ void GameEngine::ActivateButtonInInMainMenu() {
 void GameEngine::AddMenuItems(MenuPart menuPart) {
 	auto currentMenu = menuObjects[menuPart];
 	for (auto menuItem : currentMenu) {
-		auto textGameObjects = menuItem->GetTextGameObjects();
-		for (auto textGameObject : textGameObjects) {
-			textGameObject->SetInitializedInEngine(false);
-			mainGameScene->AddGameObject(textGameObject);
-		}
+		auto textGameObject = menuItem->GetTextGameObject();
+		textGameObject->SetInitializedInEngine(false);
+		mainGameScene->AddGameObject(textGameObject);
 	}
 }
 
 void GameEngine::RemoveMenuItems(MenuPart menuPart) {
 	auto currenMenu = menuObjects[menuPart];
 	for (auto menuItem : currenMenu) {
-		auto textGameObjects = menuItem->GetTextGameObjects();
-		for (auto textGameObject : textGameObjects) {
-			textGameObject->SetMarkedForDeletionInScene(true);
-		}
+		auto textGameObject = menuItem->GetTextGameObject();
+		textGameObject->SetMarkedForDeletionInScene(true);
 	}
 }
 

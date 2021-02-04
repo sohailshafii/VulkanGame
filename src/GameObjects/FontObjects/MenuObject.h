@@ -34,9 +34,8 @@ public:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool);
 
-	std::vector<std::shared_ptr<GameObject>> const &
-		GetTextGameObjects() {
-		return textGameObjects;
+	std::shared_ptr<GameObject> GetTextGameObject() {
+		return textGameObject;
 	}
 
 	void SetSelectState(bool selectState);
@@ -60,8 +59,8 @@ private:
 	void ComputeWorldBoundsOfMenuObject(glm::vec3& min, glm::vec3& max,
 		glm::vec3 const& worldScale);
 
-	std::vector<std::shared_ptr<GameObject>> textGameObjects;
-	std::vector<std::shared_ptr<FontGameObjectBehavior>> behaviorObjects;
+	std::shared_ptr<GameObject> textGameObject;
+	std::shared_ptr<FontGameObjectBehavior> behaviorObject;
 	bool selectState;
 	MenuType menuType;
 	std::string menuText;
