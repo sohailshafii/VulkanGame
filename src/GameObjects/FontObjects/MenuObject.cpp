@@ -12,11 +12,11 @@
 #include <algorithm>
 
 MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
-	glm::vec3 const & objectPosition,
-	glm::vec3 const & scale,
+	glm::vec3 const& objectPosition,
+	glm::vec3 const& scale,
 	bool isCentered,
 	FontTextureBuffer* fontTextureBuffer,
-	std::string const & textureSheetName,
+	std::string const& textureSheetName,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
@@ -26,9 +26,9 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 	float advanceValY = 0.0f;
 
 	const float localScale = 1.0f;
-	float maxCharacterHeight = localScale*fontTextureBuffer->GetMaxTextHeight();
-	const float lineSpacing = maxCharacterHeight*0.5f;
-	const float spaceBetweenCharacters = localScale*fontTextureBuffer->GetSpacingWidth();
+	float maxCharacterHeight = localScale * fontTextureBuffer->GetMaxTextHeight();
+	const float lineSpacing = maxCharacterHeight * 0.5f;
+	const float spaceBetweenCharacters = localScale * fontTextureBuffer->GetSpacingWidth();
 	std::shared_ptr<Model> mainModel;
 	auto menuMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::Text,
@@ -80,6 +80,10 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 	localToWorldTransform = glm::scale(localToWorldTransform,
 		scale);
 	textGameObject->SetModelTransform(localToWorldTransform);
+	computedScale = max - min;
+	computedScale[0] = fabs(max[0]);
+	computedScale[1] = fabs(max[1]);
+	computedScale[2] = fabs(max[2]);
 
 	SetSelectState(false);
 }

@@ -12,6 +12,8 @@
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 #include "GameObjects/FontObjects/MenuObject.h"
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
+#include "GameObjects/FontObjects/MenuSelectorObjectBehavior.h"
+#include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "Resources/TextureCreator.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
@@ -106,6 +108,21 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		backButtonText, glm::vec3(0.0f, -20.0, 80.0f), characterScaleReduced, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
+
+	std::shared_ptr<Model> selectorModel = Model::CreateQuad(
+		glm::vec3(-0.5f,-0.5f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f), true);
+	auto selectorMaterial = GameObjectCreator::CreateMaterial(
+		DescriptorSetFunctions::MaterialType::UnlitColor,
+		"texture.jpg", false, resourceLoader, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
+	auto selectorBehaviorObj = std::make_shared<MenuSelectorObjectBehavior>(
+		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	difficultySelector = GameObjectCreator::CreateGameObject(
+		selectorMaterial, selectorModel, selectorBehaviorObj,
+		glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
+		logicalDeviceManager, commandPool);
 
 	const char* gameInfo =
 		"This is a simple game developed using C++ and the Vulkan API,\n"
@@ -322,6 +339,7 @@ void GameEngine::ActivateButtonInInMainMenu() {
 	else if (currentMenuType == MenuObject::MenuType::Difficulty) {
 		AddMenuItems(MenuPart::Difficulty);
 		SetMenuSelectionIndices(MenuPart::Difficulty, 0);
+		PositionDifficultySelector();
 
 		RemoveMenuItems(MenuPart::Base);
 	}
@@ -343,6 +361,11 @@ void GameEngine::AddMenuItems(MenuPart menuPart) {
 		textGameObject->SetInitializedInEngine(false);
 		mainGameScene->AddGameObject(textGameObject);
 	}
+
+	if (menuPart == MenuPart::Difficulty) {
+		difficultySelector->SetInitializedInEngine(false);
+		mainGameScene->AddGameObject(difficultySelector);
+	}
 }
 
 void GameEngine::RemoveMenuItems(MenuPart menuPart) {
@@ -351,6 +374,10 @@ void GameEngine::RemoveMenuItems(MenuPart menuPart) {
 		auto textGameObject = menuItem->GetTextGameObject();
 		textGameObject->SetMarkedForDeletionInScene(true);
 	}
+
+	if (menuPart == MenuPart::Difficulty) {
+		difficultySelector->SetMarkedForDeletionInScene(true);
+	}
 }
 
 void GameEngine::ActivateButtonInInDifficultyMenu() {
@@ -358,20 +385,47 @@ void GameEngine::ActivateButtonInInDifficultyMenu() {
 		menuObjects[currentMenuPart][currentSelectedMenuObject];
 	auto currentMenuType = currentMenuObject->GetMenuType();
 
+	bool movedDifficultySelector = false;
 	if (currentMenuType == MenuObject::MenuType::Easy) {
 		currentDifficulty = Difficulty::Easy;
+		PositionDifficultySelector();
 	}
 	else if (currentMenuType == MenuObject::MenuType::Medium) {
 		currentDifficulty = Difficulty::Medium;
+		PositionDifficultySelector();
 	}
 	else if (currentMenuType == MenuObject::MenuType::Hard) {
 		currentDifficulty = Difficulty::Hard;
+		PositionDifficultySelector();
 	}
 	else if (currentMenuType == MenuObject::MenuType::Back) {
 		AddMenuItems(MenuPart::Base);
 		RemoveMenuItems(MenuPart::Difficulty);
 		SetMenuSelectionIndices(MenuPart::Base, 0);
 	}
+}
+
+void GameEngine::PositionDifficultySelector() {
+	auto currentMenuObject = menuObjects[MenuPart::Difficulty][0];
+
+	if (currentDifficulty == Difficulty::Easy) {
+		currentMenuObject = menuObjects[MenuPart::Difficulty][0];
+	}
+	else if (currentDifficulty == Difficulty::Medium) {
+		currentMenuObject = menuObjects[MenuPart::Difficulty][1];
+	}
+	else {
+		currentMenuObject = menuObjects[MenuPart::Difficulty][2];
+	}
+
+	auto difficultyWorldPos =
+		currentMenuObject->GetTextGameObject()->GetWorldPosition();
+	auto menuObjectScale = currentMenuObject->GetScale();
+	difficultyWorldPos[0] -= 2.0f;
+	difficultyWorldPos[1] += 0.5f * menuObjectScale[1];
+	auto selectorTransform = glm::translate(glm::mat4(1.0f), difficultyWorldPos);
+	selectorTransform = glm::scale(selectorTransform, glm::vec3(2.0f));
+	difficultySelector->SetModelTransform(selectorTransform);
 }
 
 void GameEngine::ActivateButtonInAboutMenu() {

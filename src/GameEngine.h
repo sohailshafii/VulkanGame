@@ -73,8 +73,9 @@ private:
 	float lastFireTime;
 	float fireInterval;
 
-	std::shared_ptr<Material> menuMaterial;
 	std::unordered_map<MenuPart, std::vector<std::shared_ptr<MenuObject>>> menuObjects;
+	std::shared_ptr<GameObject> difficultySelector;
+
 	int currentSelectedMenuObject;
 	MenuPart currentMenuPart;
 	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
@@ -115,6 +116,7 @@ private:
 	void RemoveMenuItems(MenuPart menuPart);
 	void ActivateButtonInInMainMenu();
 	void ActivateButtonInInDifficultyMenu();
+	void PositionDifficultySelector();
 	void ActivateButtonInAboutMenu();
 	void SetMenuSelectionIndices(MenuPart newMenuPart, int menuItemIndex);
 	void SelectNextMenuObject(bool moveUp);

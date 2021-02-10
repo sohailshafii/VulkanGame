@@ -48,6 +48,10 @@ public:
 		return menuText;
 	}
 
+	glm::vec3 GetScale() const {
+		return computedScale;
+	}
+
 private:
 	std::shared_ptr<Model> CreateModelForCharacter(
 		unsigned char character,
@@ -64,4 +68,5 @@ private:
 	bool selectState;
 	MenuType menuType;
 	std::string menuText;
+	glm::vec3 computedScale;
 };

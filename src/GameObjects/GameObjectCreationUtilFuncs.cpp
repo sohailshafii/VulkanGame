@@ -26,6 +26,7 @@ std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 	return constructedGameObject;
 }
 
+// TODO: make a function for materials that don't need a texture
 std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 	DescriptorSetFunctions::MaterialType materialEnumType,
 	std::string const & mainTextureName,
