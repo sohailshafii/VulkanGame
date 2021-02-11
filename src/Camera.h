@@ -14,6 +14,9 @@ public:
 		float yaw, float pitch, float movementSpeed,
 		float mouseSensitivity);
 
+	void SetPositionYawPitch(const glm::vec3& position,
+		float yaw, float pitch);
+
 	glm::mat4 ConstructViewMatrix() const;
 
 	glm::vec3 GetWorldPosition() const {

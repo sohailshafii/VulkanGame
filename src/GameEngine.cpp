@@ -21,7 +21,7 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkSurfaceKHR surface, GLFWwindow* window,
 	VkCommandPool commandPool) {
-	SceneLoader::SceneSettings sceneSettings =
+	sceneSettings =
 		CreateSceneAndReturnSettings(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool, surface, window);
 	this->window = window;
@@ -146,6 +146,8 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 
 void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	currentGameMode = newGameMode;
+	mainCamera->SetPositionYawPitch(sceneSettings.cameraPosition,
+		sceneSettings.cameraYaw, sceneSettings.cameraPitch);
 	if (currentGameMode == GameMode::Menu) {
 		for (auto gameObject : normalGameObjects) {
 			gameObject->SetMarkedForDeletionInScene(true);

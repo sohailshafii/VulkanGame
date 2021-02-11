@@ -83,6 +83,7 @@ private:
 	class FontTextureBuffer* fontTextureBuffer;
 	Difficulty currentDifficulty;
 	GLFWwindow* window;
+	SceneLoader::SceneSettings sceneSettings;
 
 	static constexpr int numMenus = 3;
 	static inline const std::string playMenuOptionText = "Play";

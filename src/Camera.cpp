@@ -18,6 +18,14 @@ void Camera::InitializeCameraSystem(const glm::vec3& position,
 	UpdateCoordinateSystem();
 }
 
+void Camera::SetPositionYawPitch(const glm::vec3& position,
+	float yaw, float pitch) {
+	this->position = position;
+	this->yaw = yaw;
+	UpdateAndClampPitch(pitch);
+	UpdateCoordinateSystem();
+}
+
 glm::mat4 Camera::ConstructViewMatrix() const {
 	return glm::lookAt(position, position + forward, up);
 }
