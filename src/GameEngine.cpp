@@ -14,6 +14,7 @@
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
 #include "GameObjects/FontObjects/MenuSelectorObjectBehavior.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
+#include "GameObjects/Mothership/MothershipBehavior.h"
 #include "Resources/TextureCreator.h"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
@@ -127,7 +128,8 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	const char* gameInfo =
 		"This is a simple game developed using C++ and the Vulkan API,\n"
 		"written by Sohail Shafii. Use WASD to move left-right-up-down,\n"
-		"and space bar to shoot at mothership trying to kill you. I'm too\n"
+		"and the space bar to shoot at the mothership trying to kill you.\n"
+		"During game mode, press escape to go back to the menu. I'm too\n"
 		"lazy to write any more instructions.";
 	menuObjects[MenuPart::About].push_back(std::make_shared<MenuObject>(
 		MenuObject::MenuType::Play, gameInfo,
@@ -153,8 +155,14 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	else {
 		RemoveMenuItems(currentMenuPart);
 
+		// reset everything to what they were before
 		for (auto gameObject : normalGameObjects) {
 			mainGameScene->AddGameObject(gameObject);
+			MothershipBehavior* mothershipBehavior =
+				dynamic_cast<MothershipBehavior*>(gameObject->GetGameObjectBehavior());
+			if (mothershipBehavior) {
+				mothershipBehavior->Reboot();
+			}
 		}
 	}
 }
@@ -480,6 +488,10 @@ void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, flo
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		FireMainCannon(latestFrameTime);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		UpdateGameMode(GameMode::Menu);
 	}
 }
 

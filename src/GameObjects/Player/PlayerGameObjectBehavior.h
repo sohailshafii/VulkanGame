@@ -3,6 +3,7 @@
 #include "GameObjectBehavior.h"
 #include "Camera.h"
 
+// TODO: manage health
 class PlayerGameObjectBehavior : public GameObjectBehavior
 {
 public:

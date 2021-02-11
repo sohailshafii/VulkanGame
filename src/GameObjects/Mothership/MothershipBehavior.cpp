@@ -145,6 +145,14 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 	return true;
 }
 
+void MothershipBehavior::Reboot() {
+	if (currentShipStateBehavior != nullptr) {
+		delete currentShipStateBehavior;
+	}
+	currentHealth = maxHealth;
+	Initialize();
+}
+
 void MothershipBehavior::Initialize() {
 	currentShipStateBehavior = new MothershipIdleStateBehavior();
 }
