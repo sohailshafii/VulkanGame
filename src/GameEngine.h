@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include "vulkan/vulkan.h"
+#include <functional>
 #include "SceneManagement/SceneLoader.h"
 #include "SceneManagement/Scene.h"
 
@@ -63,6 +64,23 @@ public:
 		float frameTime, float latestFrameTime);
 	void ProcessKeyCallback(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
+
+	// see https://stackoverflow.com/questions/19382742/c-event-handling
+	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
+		std::vector<VkFence> const&,
+		std::vector<std::shared_ptr<GameObject>>&)> NewGameObjectsCreatedEvt;
+	std::vector<NewGameObjectsCreatedEvt> onNewGameObjects;
+
+	typedef std::function<void(std::vector<VkFence> const&,
+		std::vector<std::shared_ptr<GameObject>>&,
+		std::vector<std::shared_ptr<GameObject>>&)> GameObjectsRemovedEvt;
+	std::vector<GameObjectsRemovedEvt> onGameObjectsRemoved;
+
+	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
+		std::vector<VkFence> const&,
+		std::vector<std::shared_ptr<GameObject>>&,
+		std::vector<std::shared_ptr<GameObject>>&)> GameObjectsRemovedAddedEvt;
+	std::vector<GameObjectsRemovedAddedEvt> onGameObjectsRemovedAdded;
 
 private:
 	GameMode currentGameMode;

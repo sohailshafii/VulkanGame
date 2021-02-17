@@ -186,7 +186,9 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 		mainCamera->ConstructViewMatrix(),
 		graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 
-	// TODO: make this event driven to force decoupling
+	// TODO: have an event trigger this stuff, don't use update!
+	// this goes for additions AND removals. so fire events here, and let
+	// scene along engine do the work on their own
 	auto& gameObjects = mainGameScene->GetGameObjects();
 	bool atLeastOneUnitializedGameObject = false;
 	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
@@ -199,6 +201,7 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 		}
 	}
 
+	// TODO: make this event driven to force decoupling.
 	bool removedGameObjects = gameObjectsToRemove.size() > 0;
 	if (removedGameObjects) {
 		mainGameScene->RemoveGameObjects(gameObjectsToRemove);
