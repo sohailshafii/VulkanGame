@@ -49,14 +49,13 @@ void GraphicsEngine::AddAndInitializeNewGameObjects(
 	CreateDescriptorPoolAndSetsForGameObjects(gameObjects);
 }
 
-void GraphicsEngine::RecordCommandsForNewGameObjects(
+void GraphicsEngine::ReRecordCommandsForGameObjects(
 	GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
 	std::vector<VkFence> const & inFlightFences,
-	std::vector<std::shared_ptr<GameObject>>& newGameObjects,
 	std::vector<std::shared_ptr<GameObject>>& allGameObjects) {
-	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, newGameObjects);
-	CreateUniformBuffersForGameObjects(gfxDeviceManager, newGameObjects);
-	CreateDescriptorPoolAndSetsForGameObjects(newGameObjects);
+	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, allGameObjects);
+	CreateUniformBuffersForGameObjects(gfxDeviceManager, allGameObjects);
+	CreateDescriptorPoolAndSetsForGameObjects(allGameObjects);
 	
 	// TODO: should be done on separate thread
 	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
@@ -64,7 +63,7 @@ void GraphicsEngine::RecordCommandsForNewGameObjects(
 					std::numeric_limits<uint64_t>::max());
 	
 	CreateCommandBuffersForGameObjects(allGameObjects);
-	for (auto& gameObject : newGameObjects) {
+	for (auto& gameObject : allGameObjects) {
 		gameObject->SetInitializedInEngine(true);
 	}
 }
@@ -82,17 +81,26 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
 }
 
-void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
+void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
+	GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
 	std::vector<VkFence> const& inFlightFences,
-	std::vector<GameObject*>& gameObjectsToRemove,
+	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
 	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
 
+	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, allGameObjectsSansRemovals);
+	CreateUniformBuffersForGameObjects(gfxDeviceManager, allGameObjectsSansRemovals);
+	CreateDescriptorPoolAndSetsForGameObjects(allGameObjectsSansRemovals);
+
+	// TODO: should be done on separate thread
 	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 		inFlightFences.data(), VK_TRUE,
-		(uint32_t)std::numeric_limits<uint64_t>::max());
+		std::numeric_limits<uint64_t>::max());
 
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
+	for (auto& gameObject : allGameObjectsSansRemovals) {
+		gameObject->SetInitializedInEngine(true);
+	}
 }
 
 GraphicsEngine::~GraphicsEngine() {
@@ -217,6 +225,7 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	ResourceLoader* resourceLoader,
 	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	for (auto& gameObject : gameObjects) {
+		// avoid adding on that already exists
 		if (gameObjectToPipelineModule.find(gameObject) !=
 			gameObjectToPipelineModule.end())
 		{
@@ -264,6 +273,9 @@ void GraphicsEngine::CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDev
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
+		if (gameObject->GetInitializedInEngine()) {
+			continue;
+		}
 		gameObject->InitAndCreateUniformBuffers(gfxDeviceManager, numSwapChainImages);
 	}
 }
@@ -274,12 +286,16 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
 		// TODO: make descriptor set more configurable
+		if (gameObject->GetInitializedInEngine()) {
+			continue;
+		}
 		gameObject->CreateDescriptorPoolAndSets(numSwapChainImages);
 	}
 }
 
 // per object. have a ubo per object, then update that ubo based on the matrices associated
 // move render logic to this class!
+// TODO: record on separate thread
 void GraphicsEngine::CreateCommandBuffersForGameObjects(
 					std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	auto& commandBuffers = commandBufferModule->GetCommandBuffers();

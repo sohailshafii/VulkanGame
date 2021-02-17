@@ -187,26 +187,36 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 		graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 
 	// TODO: make this event driven to force decoupling
-	// TODO: scene with menu objects
 	auto& gameObjects = mainGameScene->GetGameObjects();
-	std::vector<std::shared_ptr<GameObject>> gameObjectsToInit;
+	bool atLeastOneUnitializedGameObject = false;
 	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
 	for (auto& gameObject : gameObjects) {
 		if (!gameObject->GetInitializedInEngine()) {
-			gameObjectsToInit.push_back(gameObject);
+			atLeastOneUnitializedGameObject = true;
 		}
 		else if (gameObject->GetMarkedForDeletion()) {
 			gameObjectsToRemove.push_back(gameObject);
 		}
 	}
 
-	if (gameObjectsToInit.size() > 0) {
-		graphicsEngine->RecordCommandsForNewGameObjects(gfxDeviceManager,
-			resourceLoader, inFlightFences, gameObjectsToInit, gameObjects);
+	bool removedGameObjects = gameObjectsToRemove.size() > 0;
+	if (removedGameObjects) {
+		mainGameScene->RemoveGameObjects(gameObjectsToRemove);
+		auto& allGameObjects = mainGameScene->GetGameObjects();
+		if (atLeastOneUnitializedGameObject) {
+			graphicsEngine->RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
+				gfxDeviceManager, resourceLoader, inFlightFences, gameObjectsToRemove,
+				gameObjects);
+		}
+		else {
+			graphicsEngine->RemoveGameObjectsAndRecordCommands(
+				inFlightFences, gameObjectsToRemove,
+				allGameObjects);
+		}
 	}
-
-	if (gameObjectsToRemove.size() > 0) {
-		RemoveGameObjects(gameObjectsToRemove, inFlightFences);
+	else if (atLeastOneUnitializedGameObject) {
+		graphicsEngine->ReRecordCommandsForGameObjects(gfxDeviceManager,
+			resourceLoader, inFlightFences, gameObjects);
 	}
 }
 
@@ -256,26 +266,6 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
 	mainGameScene->AddGameObject(newGameObject);
-}
-
-void GameEngine::RemoveGameObjects(
-	std::vector<GameObject*>& gameObjectsToRemove,
-	std::vector<VkFence> const& inFlightFences) {
-	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
-	auto& allGameObjects = mainGameScene->GetGameObjects();
-	graphicsEngine->RemoveGameObjectsAndRecordCommands(
-		inFlightFences, gameObjectsToRemove,
-		allGameObjects);
-}
-
-void GameEngine::RemoveGameObjects(
-	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
-	std::vector<VkFence> const& inFlightFences) {
-	mainGameScene->RemoveGameObjects(gameObjectsToRemove);
-	auto& allGameObjects = mainGameScene->GetGameObjects();
-	graphicsEngine->RemoveGameObjectsAndRecordCommands(
-		inFlightFences, gameObjectsToRemove,
-		allGameObjects);
 }
 
 void GameEngine::ProcessMouse(float xoffset, float yoffset) {

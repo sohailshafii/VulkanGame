@@ -73,8 +73,6 @@ VkCommandBuffer Common::BeginSingleTimeCommands(VkCommandPool commandPool,
 	return commandBuffer;
 }
 
-// TODO: it's often better to set up commands, and submit them to the
-// queue asynchronously as opposed to waiting like this
 void Common::EndSingleTimeCommands(VkCommandBuffer commandBuffer, VkCommandPool commandPool,
 	LogicalDeviceManager* logicalDeviceManager) {
 	vkEndCommandBuffer(commandBuffer);
@@ -120,8 +118,8 @@ void Common::TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
 
-	barrier.srcAccessMask = 0; // TODO
-	barrier.dstAccessMask = 0; // TODO
+	barrier.srcAccessMask = 0;
+	barrier.dstAccessMask = 0;
 
 	VkPipelineStageFlags sourceStage;
 	VkPipelineStageFlags destinationStage;

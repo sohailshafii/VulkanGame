@@ -104,12 +104,6 @@ private:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool);
 
-	void RemoveGameObjects(std::vector<GameObject*>& gameObjectsToRemove,
-		std::vector<VkFence> const& inFlightFences);
-	void RemoveGameObjects(std::vector<std::shared_ptr<GameObject>>
-		& gameObjectsToRemove,
-		std::vector<VkFence> const& inFlightFences);
-
 	void HandleMainMenuControls(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
 	void ActivateButtonInCurrentMenu();

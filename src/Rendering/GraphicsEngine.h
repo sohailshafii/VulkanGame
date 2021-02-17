@@ -32,9 +32,8 @@ public:
 	//PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
 	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
 
-	void RecordCommandsForNewGameObjects(GfxDeviceManager* gfxDeviceManager,
+	void ReRecordCommandsForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader, std::vector<VkFence> const & inFlightFences,
-		std::vector<std::shared_ptr<GameObject>>& newGameObjects,
 		std::vector<std::shared_ptr<GameObject>>& allGameObjects);
 	
 	void RemoveGameObjectsAndRecordCommands(
@@ -42,9 +41,10 @@ public:
 		std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
 		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
 
-	void RemoveGameObjectsAndRecordCommands(
+	void RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
+		GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
 		std::vector<VkFence> const& inFlightFences,
-		std::vector<GameObject*>& gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
 		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
 
 private:
