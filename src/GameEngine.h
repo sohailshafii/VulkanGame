@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <vector>
+#include <set>
 #include "vulkan/vulkan.h"
 #include <functional>
 #include "SceneManagement/SceneLoader.h"
@@ -69,18 +70,22 @@ public:
 	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
 		std::vector<VkFence> const&,
 		std::vector<std::shared_ptr<GameObject>>&)> NewGameObjectsCreatedEvt;
-	std::vector<NewGameObjectsCreatedEvt> onNewGameObjects;
-
 	typedef std::function<void(std::vector<VkFence> const&,
 		std::vector<std::shared_ptr<GameObject>>&,
 		std::vector<std::shared_ptr<GameObject>>&)> GameObjectsRemovedEvt;
-	std::vector<GameObjectsRemovedEvt> onGameObjectsRemoved;
-
 	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
 		std::vector<VkFence> const&,
 		std::vector<std::shared_ptr<GameObject>>&,
 		std::vector<std::shared_ptr<GameObject>>&)> GameObjectsRemovedAddedEvt;
-	std::vector<GameObjectsRemovedAddedEvt> onGameObjectsRemovedAdded;
+
+	void SubscribeToOnNewGameObjects(NewGameObjectsCreatedEvt* newEvent);
+	void UnsubscribeFromOnNewGameObjects(NewGameObjectsCreatedEvt* oldEvent);
+
+	void SubscribeToOnGameObjectsRemoved(GameObjectsRemovedEvt* newEvent);
+	void UnsubscribeFromOnGameObjectsRemoved(GameObjectsRemovedEvt* oldEvent);
+
+	void SubscribeToOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* newEvent);
+	void UnsubscribeFromOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* oldEvent);
 
 private:
 	GameMode currentGameMode;
@@ -102,6 +107,10 @@ private:
 	Difficulty currentDifficulty;
 	GLFWwindow* window;
 	SceneLoader::SceneSettings sceneSettings;
+
+	std::set<NewGameObjectsCreatedEvt*> onNewGameObjects;
+	std::set<GameObjectsRemovedEvt*> onGameObjectsRemoved;
+	std::set<GameObjectsRemovedAddedEvt*> onGameObjectsRemovedAdded;
 
 	static constexpr int numMenus = 3;
 	static inline const std::string playMenuOptionText = "Play";

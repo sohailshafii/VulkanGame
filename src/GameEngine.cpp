@@ -223,6 +223,47 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 	}
 }
 
+void GameEngine::SubscribeToOnNewGameObjects(NewGameObjectsCreatedEvt* newEvent) {
+	
+	onNewGameObjects.insert(newEvent);
+}
+
+void GameEngine::UnsubscribeFromOnNewGameObjects(NewGameObjectsCreatedEvt* oldEvent) {
+	auto it = std::find(onNewGameObjects.begin(),
+		onNewGameObjects.end(), oldEvent);
+	if (it != onNewGameObjects.end())
+	{
+		onNewGameObjects.erase(it);
+	}
+}
+
+void GameEngine::SubscribeToOnGameObjectsRemoved(GameObjectsRemovedEvt* newEvent) {
+	onGameObjectsRemoved.insert(newEvent);
+}
+
+void GameEngine::UnsubscribeFromOnGameObjectsRemoved(GameObjectsRemovedEvt* oldEvent) {
+	auto it = std::find(onGameObjectsRemoved.begin(),
+		onGameObjectsRemoved.end(), oldEvent);
+	if (it != onGameObjectsRemoved.end())
+	{
+		onGameObjectsRemoved.erase(it);
+	}
+}
+
+void GameEngine::SubscribeToOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* newEvent) {
+	onGameObjectsRemovedAdded.insert(newEvent);
+}
+
+void GameEngine::UnsubscribeFromOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* oldEvent) {
+	auto it = std::find(onGameObjectsRemovedAdded.begin(),
+		onGameObjectsRemovedAdded.end(), oldEvent);
+	if (it != onGameObjectsRemovedAdded.end())
+	{
+		onGameObjectsRemovedAdded.erase(it);
+	}
+}
+
+
 SceneLoader::SceneSettings GameEngine::CreateSceneAndReturnSettings(
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
