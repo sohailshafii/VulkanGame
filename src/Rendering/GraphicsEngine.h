@@ -34,18 +34,18 @@ public:
 
 	void ReRecordCommandsForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader, std::vector<VkFence> const & inFlightFences,
-		std::vector<std::shared_ptr<GameObject>>& allGameObjects);
+		std::vector<std::shared_ptr<GameObject>> const & allGameObjects);
 	
 	void RemoveGameObjectsAndRecordCommands(
 		std::vector<VkFence> const& inFlightFences,
-		std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
-		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals);
 
 	void RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
 		GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
 		std::vector<VkFence> const& inFlightFences,
-		std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
-		std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals);
 
 private:
 	// not owned by us
@@ -85,21 +85,21 @@ private:
 
 	void AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader,
-		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	void RemoveGraphicsPipelinesFromGameObjects(
-		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	void RemoveGraphicsPipelinesFromGameObjects(
 		std::vector<GameObject*>& gameObjects);
 
 	void CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
-		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	void CreateDescriptorPoolAndSetsForGameObjects(
-		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	void CreateCommandBuffersForGameObjects(
-		std::vector<std::shared_ptr<GameObject>>& gameObjects);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 
 	void RecordCommandForGameObjects(VkCommandBuffer& commandBuffer,
-		std::vector<std::shared_ptr<GameObject>>& gameObjects,
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects,
 		bool renderOnlyTransparent,
 		int commandBufferIndex);
 };

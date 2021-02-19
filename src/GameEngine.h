@@ -69,23 +69,34 @@ public:
 	// see https://stackoverflow.com/questions/19382742/c-event-handling
 	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
 		std::vector<VkFence> const&,
-		std::vector<std::shared_ptr<GameObject>>&)> NewGameObjectsCreatedEvt;
+		std::vector<std::shared_ptr<GameObject>> const &)> NewGameObjectsCreatedEvt;
 	typedef std::function<void(std::vector<VkFence> const&,
-		std::vector<std::shared_ptr<GameObject>>&,
-		std::vector<std::shared_ptr<GameObject>>&)> GameObjectsRemovedEvt;
+		std::vector<std::shared_ptr<GameObject>> const &,
+		std::vector<std::shared_ptr<GameObject>> const &)> GameObjectsRemovedEvt;
 	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
 		std::vector<VkFence> const&,
-		std::vector<std::shared_ptr<GameObject>>&,
-		std::vector<std::shared_ptr<GameObject>>&)> GameObjectsRemovedAddedEvt;
+		std::vector<std::shared_ptr<GameObject>> const &,
+		std::vector<std::shared_ptr<GameObject>> const &)> GameObjectsRemovedAddedEvt;
 
 	void SubscribeToOnNewGameObjects(NewGameObjectsCreatedEvt* newEvent);
 	void UnsubscribeFromOnNewGameObjects(NewGameObjectsCreatedEvt* oldEvent);
+	void InvokeOnNewGameObjectsEvent(GfxDeviceManager* gfxDeviceManager,
+		ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
+		std::vector<std::shared_ptr<GameObject>> const & allGameObjects);
 
 	void SubscribeToOnGameObjectsRemoved(GameObjectsRemovedEvt* newEvent);
 	void UnsubscribeFromOnGameObjectsRemoved(GameObjectsRemovedEvt* oldEvent);
+	void InvokeOnGameObjectsRemovedEvent(
+		std::vector<VkFence> const& inFlightFences,
+		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>> const & allGameObjects);
 
 	void SubscribeToOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* newEvent);
 	void UnsubscribeFromOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* oldEvent);
+	void InvokeOnGameObjectsRemovedAddedEvent(GfxDeviceManager* gfxDeviceManager,
+		ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
+		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>> const & allGameObjects);
 
 private:
 	GameMode currentGameMode;

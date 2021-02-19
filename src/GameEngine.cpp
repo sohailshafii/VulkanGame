@@ -205,7 +205,6 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 	bool removedGameObjects = gameObjectsToRemove.size() > 0;
 	if (removedGameObjects) {
 		mainGameScene->RemoveGameObjects(gameObjectsToRemove);
-		auto& allGameObjects = mainGameScene->GetGameObjects();
 		if (atLeastOneUnitializedGameObject) {
 			graphicsEngine->RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
 				gfxDeviceManager, resourceLoader, inFlightFences, gameObjectsToRemove,
@@ -214,7 +213,7 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 		else {
 			graphicsEngine->RemoveGameObjectsAndRecordCommands(
 				inFlightFences, gameObjectsToRemove,
-				allGameObjects);
+				gameObjects);
 		}
 	}
 	else if (atLeastOneUnitializedGameObject) {
@@ -224,7 +223,6 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 }
 
 void GameEngine::SubscribeToOnNewGameObjects(NewGameObjectsCreatedEvt* newEvent) {
-	
 	onNewGameObjects.insert(newEvent);
 }
 
@@ -234,6 +232,15 @@ void GameEngine::UnsubscribeFromOnNewGameObjects(NewGameObjectsCreatedEvt* oldEv
 	if (it != onNewGameObjects.end())
 	{
 		onNewGameObjects.erase(it);
+	}
+}
+
+void GameEngine::InvokeOnNewGameObjectsEvent(GfxDeviceManager* gfxDeviceManager,
+	ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
+	std::vector<std::shared_ptr<GameObject>> const & allGameObjects) {
+	for (auto newEvent : onNewGameObjects) {
+		(*newEvent)(gfxDeviceManager, resourceLoader,
+			inFlightFences, allGameObjects);
 	}
 }
 
@@ -250,6 +257,16 @@ void GameEngine::UnsubscribeFromOnGameObjectsRemoved(GameObjectsRemovedEvt* oldE
 	}
 }
 
+void GameEngine::InvokeOnGameObjectsRemovedEvent(
+	std::vector<VkFence> const& inFlightFences,
+	std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+	std::vector<std::shared_ptr<GameObject>> const & allGameObjects) {
+	for (auto removedEvent : onGameObjectsRemoved) {
+		(*removedEvent)(inFlightFences, gameObjectsToRemove,
+			allGameObjects);
+	}
+}
+
 void GameEngine::SubscribeToOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* newEvent) {
 	onGameObjectsRemovedAdded.insert(newEvent);
 }
@@ -263,6 +280,15 @@ void GameEngine::UnsubscribeFromOnGameObjectsRemovedAdded(GameObjectsRemovedAdde
 	}
 }
 
+void GameEngine::InvokeOnGameObjectsRemovedAddedEvent(GfxDeviceManager* gfxDeviceManager,
+		ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
+		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+		std::vector<std::shared_ptr<GameObject>> const & allGameObjects) {
+	for (auto removedAddedEvent : onGameObjectsRemovedAdded) {
+		(*removedAddedEvent)(gfxDeviceManager,
+			resourceLoader, inFlightFences, gameObjectsToRemove, allGameObjects);
+	}
+}
 
 SceneLoader::SceneSettings GameEngine::CreateSceneAndReturnSettings(
 	GfxDeviceManager* gfxDeviceManager,

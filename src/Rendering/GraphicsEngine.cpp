@@ -52,7 +52,7 @@ void GraphicsEngine::AddAndInitializeNewGameObjects(
 void GraphicsEngine::ReRecordCommandsForGameObjects(
 	GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
 	std::vector<VkFence> const & inFlightFences,
-	std::vector<std::shared_ptr<GameObject>>& allGameObjects) {
+	std::vector<std::shared_ptr<GameObject>> const & allGameObjects) {
 	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, allGameObjects);
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, allGameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(allGameObjects);
@@ -70,8 +70,8 @@ void GraphicsEngine::ReRecordCommandsForGameObjects(
 
 void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<VkFence> const& inFlightFences,
-	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
-	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
+	std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+	std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
 	// TODO: should be done on separate thread
 	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
@@ -84,8 +84,8 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
 	GfxDeviceManager* gfxDeviceManager, ResourceLoader* resourceLoader,
 	std::vector<VkFence> const& inFlightFences,
-	std::vector<std::shared_ptr<GameObject>>& gameObjectsToRemove,
-	std::vector<std::shared_ptr<GameObject>>& allGameObjectsSansRemovals) {
+	std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
+	std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
 
 	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, allGameObjectsSansRemovals);
@@ -223,7 +223,7 @@ void GraphicsEngine::CreateFramebuffers() {
 void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader,
-	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	for (auto& gameObject : gameObjects) {
 		// avoid adding on that already exists
 		if (gameObjectToPipelineModule.find(gameObject) !=
@@ -241,7 +241,7 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 }
 
 void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
-	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	for (auto& gameObject : gameObjects) {
 		if (gameObjectToPipelineModule.find(gameObject) !=
 			gameObjectToPipelineModule.end())
@@ -269,7 +269,7 @@ void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
 }
 
 void GraphicsEngine::CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
-										  std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+										  std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
@@ -281,7 +281,7 @@ void GraphicsEngine::CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDev
 }
 
 void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
-	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
@@ -297,7 +297,7 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 // move render logic to this class!
 // TODO: record on separate thread
 void GraphicsEngine::CreateCommandBuffersForGameObjects(
-					std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+					std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	auto& commandBuffers = commandBufferModule->GetCommandBuffers();
 	for (size_t i = 0; i < commandBuffers.size(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};
@@ -343,7 +343,7 @@ void GraphicsEngine::CreateCommandBuffersForGameObjects(
 }
 
 void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
-	std::vector<std::shared_ptr<GameObject>>& gameObjects,
+	std::vector<std::shared_ptr<GameObject>> const & gameObjects,
 	bool renderOnlyTransparent,
 	int commandBufferIndex) {
 	size_t numGameObjects = gameObjects.size();
