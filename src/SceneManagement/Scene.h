@@ -25,8 +25,6 @@ public:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		VkCommandPool commandPool);
 	~Scene();
-
-	void CreateGraphicsEngine(VkSurfaceKHR surface, GLFWwindow* window);
 	
 	void AddGameObject(std::shared_ptr<GameObject> const & newGameObject);
 	
@@ -59,8 +57,6 @@ public:
 		glm::mat4 const& viewMatrix, VkExtent2D swapChainExtent);
 	
 private:
-	GraphicsEngine* graphicsEngine;
-
 	std::vector<std::shared_ptr<GameObject>> gameObjects;
 	std::vector<std::shared_ptr<GameObject>> upcomingGameObjects;
 

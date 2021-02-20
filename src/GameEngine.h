@@ -66,38 +66,6 @@ public:
 	void ProcessKeyCallback(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
 
-	// see https://stackoverflow.com/questions/19382742/c-event-handling
-	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
-		std::vector<VkFence> const&,
-		std::vector<std::shared_ptr<GameObject>> const &)> NewGameObjectsCreatedEvt;
-	typedef std::function<void(std::vector<VkFence> const&,
-		std::vector<std::shared_ptr<GameObject>> const &,
-		std::vector<std::shared_ptr<GameObject>> const &)> GameObjectsRemovedEvt;
-	typedef std::function<void(GfxDeviceManager*, ResourceLoader*,
-		std::vector<VkFence> const&,
-		std::vector<std::shared_ptr<GameObject>> const &,
-		std::vector<std::shared_ptr<GameObject>> const &)> GameObjectsRemovedAddedEvt;
-
-	void SubscribeToOnNewGameObjects(NewGameObjectsCreatedEvt* newEvent);
-	void UnsubscribeFromOnNewGameObjects(NewGameObjectsCreatedEvt* oldEvent);
-	void InvokeOnNewGameObjectsEvent(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
-		std::vector<std::shared_ptr<GameObject>> const & allGameObjects);
-
-	void SubscribeToOnGameObjectsRemoved(GameObjectsRemovedEvt* newEvent);
-	void UnsubscribeFromOnGameObjectsRemoved(GameObjectsRemovedEvt* oldEvent);
-	void InvokeOnGameObjectsRemovedEvent(
-		std::vector<VkFence> const& inFlightFences,
-		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
-		std::vector<std::shared_ptr<GameObject>> const & allGameObjects);
-
-	void SubscribeToOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* newEvent);
-	void UnsubscribeFromOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* oldEvent);
-	void InvokeOnGameObjectsRemovedAddedEvent(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
-		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
-		std::vector<std::shared_ptr<GameObject>> const & allGameObjects);
-
 private:
 	GameMode currentGameMode;
 	std::shared_ptr<Camera> mainCamera;
@@ -118,10 +86,6 @@ private:
 	Difficulty currentDifficulty;
 	GLFWwindow* window;
 	SceneLoader::SceneSettings sceneSettings;
-
-	std::set<NewGameObjectsCreatedEvt*> onNewGameObjects;
-	std::set<GameObjectsRemovedEvt*> onGameObjectsRemoved;
-	std::set<GameObjectsRemovedAddedEvt*> onGameObjectsRemovedAdded;
 
 	static constexpr int numMenus = 3;
 	static inline const std::string playMenuOptionText = "Play";

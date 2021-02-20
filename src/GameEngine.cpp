@@ -186,9 +186,6 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 		mainCamera->ConstructViewMatrix(),
 		graphicsEngine->GetSwapChainManager()->GetSwapChainExtent());
 
-	// TODO: have an event trigger this stuff, don't use update!
-	// this goes for additions AND removals. so fire events here, and let
-	// scene along engine do the work on their own
 	auto& gameObjects = mainGameScene->GetGameObjects();
 	bool atLeastOneUnitializedGameObject = false;
 	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
@@ -201,7 +198,6 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 		}
 	}
 
-	// TODO: make this event driven to force decoupling.
 	bool removedGameObjects = gameObjectsToRemove.size() > 0;
 	if (removedGameObjects) {
 		mainGameScene->RemoveGameObjects(gameObjectsToRemove);
@@ -219,74 +215,6 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 	else if (atLeastOneUnitializedGameObject) {
 		graphicsEngine->ReRecordCommandsForGameObjects(gfxDeviceManager,
 			resourceLoader, inFlightFences, gameObjects);
-	}
-}
-
-void GameEngine::SubscribeToOnNewGameObjects(NewGameObjectsCreatedEvt* newEvent) {
-	onNewGameObjects.insert(newEvent);
-}
-
-void GameEngine::UnsubscribeFromOnNewGameObjects(NewGameObjectsCreatedEvt* oldEvent) {
-	auto it = std::find(onNewGameObjects.begin(),
-		onNewGameObjects.end(), oldEvent);
-	if (it != onNewGameObjects.end())
-	{
-		onNewGameObjects.erase(it);
-	}
-}
-
-void GameEngine::InvokeOnNewGameObjectsEvent(GfxDeviceManager* gfxDeviceManager,
-	ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
-	std::vector<std::shared_ptr<GameObject>> const & allGameObjects) {
-	for (auto newEvent : onNewGameObjects) {
-		(*newEvent)(gfxDeviceManager, resourceLoader,
-			inFlightFences, allGameObjects);
-	}
-}
-
-void GameEngine::SubscribeToOnGameObjectsRemoved(GameObjectsRemovedEvt* newEvent) {
-	onGameObjectsRemoved.insert(newEvent);
-}
-
-void GameEngine::UnsubscribeFromOnGameObjectsRemoved(GameObjectsRemovedEvt* oldEvent) {
-	auto it = std::find(onGameObjectsRemoved.begin(),
-		onGameObjectsRemoved.end(), oldEvent);
-	if (it != onGameObjectsRemoved.end())
-	{
-		onGameObjectsRemoved.erase(it);
-	}
-}
-
-void GameEngine::InvokeOnGameObjectsRemovedEvent(
-	std::vector<VkFence> const& inFlightFences,
-	std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
-	std::vector<std::shared_ptr<GameObject>> const & allGameObjects) {
-	for (auto removedEvent : onGameObjectsRemoved) {
-		(*removedEvent)(inFlightFences, gameObjectsToRemove,
-			allGameObjects);
-	}
-}
-
-void GameEngine::SubscribeToOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* newEvent) {
-	onGameObjectsRemovedAdded.insert(newEvent);
-}
-
-void GameEngine::UnsubscribeFromOnGameObjectsRemovedAdded(GameObjectsRemovedAddedEvt* oldEvent) {
-	auto it = std::find(onGameObjectsRemovedAdded.begin(),
-		onGameObjectsRemovedAdded.end(), oldEvent);
-	if (it != onGameObjectsRemovedAdded.end())
-	{
-		onGameObjectsRemovedAdded.erase(it);
-	}
-}
-
-void GameEngine::InvokeOnGameObjectsRemovedAddedEvent(GfxDeviceManager* gfxDeviceManager,
-		ResourceLoader* resourceLoader, std::vector<VkFence> const& inFlightFences,
-		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
-		std::vector<std::shared_ptr<GameObject>> const & allGameObjects) {
-	for (auto removedAddedEvent : onGameObjectsRemovedAdded) {
-		(*removedAddedEvent)(gfxDeviceManager,
-			resourceLoader, inFlightFences, gameObjectsToRemove, allGameObjects);
 	}
 }
 
