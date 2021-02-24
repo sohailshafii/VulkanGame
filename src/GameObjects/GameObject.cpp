@@ -31,7 +31,8 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	indexBufferMemory(VK_NULL_HANDLE),
 	commandPool(commandPool),
 	materialType(material->GetMaterialType()),
-	gfxDeviceManager(gfxDeviceManager) {
+	gfxDeviceManager(gfxDeviceManager),
+	vertUboData(nullptr), fragUboData(nullptr) {
 	SetupShaderNames();
 
 	gameObjectBehavior->SetGameObject(this);
@@ -102,6 +103,13 @@ void GameObject::CreateOrUpdateVertexBuffer(std::vector<VertexType> const & vert
 }
 
 GameObject::~GameObject() {
+	if (vertUboData != nullptr) {
+		delete vertUboData;
+	}
+	if (fragUboData != nullptr) {
+		delete fragUboData;
+	}
+
 	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexStagingBuffer, nullptr);
 	vkFreeMemory(logicalDeviceManager->GetDevice(), vertexStagingBufferMemory, nullptr);
 	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexBuffer, nullptr);
@@ -114,6 +122,20 @@ GameObject::~GameObject() {
 	vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
 	CleanUpUniformBuffers();
 	CleanUpDescriptorPool();
+}
+
+void GameObject::AllocateVBODataIfNecessary(size_t& uboSize,
+	uint32_t imageIndex, const glm::mat4& viewMatrix, float time, float deltaTime,
+	VkExtent2D swapChainExtent) {
+	vertUboData = gameObjectBehavior->CreateVertUBOData(uboSize, swapChainExtent,
+		viewMatrix, time, deltaTime);
+}
+
+void GameObject::AllocateFBODataIfNecessary(size_t &uboSize) {
+	if (fragUboData != nullptr) {
+		return;
+	}
+	fragUboData = gameObjectBehavior->CreateFragUBOData(uboSize);
 }
 
 void GameObject::SetupShaderNames() {
@@ -223,10 +245,9 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 								   float time, float deltaTime,
 								   VkExtent2D swapChainExtent) {
 	size_t uboSize = 0;
-	// TODO: avoid pesky allocations here
-	void* vertUboData = gameObjectBehavior->CreateVertUBOData(uboSize, swapChainExtent,
-		viewMatrix, time, deltaTime);
-	
+
+	AllocateVBODataIfNecessary(uboSize, imageIndex, viewMatrix,
+		time, deltaTime, swapChainExtent);
 	if (vertUboData != nullptr) {
 		void* data;
 		vkMapMemory(logicalDeviceManager->GetDevice(),
@@ -235,11 +256,9 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 		memcpy(data, vertUboData, uboSize);
 		vkUnmapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
-
-		delete vertUboData;
 	}
 
-	void* fragUboData = gameObjectBehavior->CreateFragUBOData(uboSize);
+	AllocateFBODataIfNecessary(uboSize);
 	if (fragUboData != nullptr) {
 		void* data;
 		vkMapMemory(logicalDeviceManager->GetDevice(),
@@ -248,7 +267,6 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 		memcpy(data, fragUboData, uboSize);
 		vkUnmapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersFrag[imageIndex]->GetUniformBufferMemory());
-		delete fragUboData;
 	}
 }
 
