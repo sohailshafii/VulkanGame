@@ -134,7 +134,6 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 				  commandPool);
 
 	std::shared_ptr<Model> gameObjectModel;
-	// TODO: allow having no model
 	if (modelType.find("Procedural") != std::string::npos)
 	{
 		auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
@@ -209,14 +208,9 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 						  std::shared_ptr<Material>& material,
 						  ResourceLoader* resourceLoader,
 						  GfxDeviceManager *gfxDeviceManager,
-						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager, VkCommandPool commandPool) {
+						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+						VkCommandPool commandPool) {
 	std::string materialToken = SafeGetToken(materialNode, "type");
-	// TODO: make material optional
-	if (materialToken == "None") {
-		// break out early as this doesn't require rendering
-		return;
-	}
-	
 	std::string mainTextureName = SafeGetToken(materialNode, "main_texture");
 	
 	DescriptorSetFunctions::MaterialType materialEnumType =

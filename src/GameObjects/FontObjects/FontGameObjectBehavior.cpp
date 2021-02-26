@@ -6,8 +6,8 @@ GameObjectBehavior::BehaviorStatus FontGameObjectBehavior::UpdateSelf(
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }
 
-// TODO: right now font knows its material is font, but that might not always be the case!
-// how to relate the two?
+// This assumes that our material is of a certain type (font shader)
+// so the UBO return is based on that
 void* FontGameObjectBehavior::CreateFragUBOData(size_t& uboSize) {
 	UniformBufferUnlitColor* ubo =
 		new UniformBufferUnlitColor();

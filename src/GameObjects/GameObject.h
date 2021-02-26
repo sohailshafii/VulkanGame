@@ -27,6 +27,7 @@ enum GameObjectType
 // depends on its type -- stationary, AI (enemy), or player
 class GameObject {
 public:
+	// TODO: make material and model option. in case object is invisible
 	GameObject(std::shared_ptr<Model> const& model,
 		std::shared_ptr<Material> const& material,
 		std::shared_ptr<GameObjectBehavior> behavior,
