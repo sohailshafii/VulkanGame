@@ -28,6 +28,9 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateDescriptorSetLayout(VkDevice
 		case MaterialType::BumpySurface:
 			descriptorSetLayout = CreateBumpySurfaceDescriptorSetLayout(device);
 			break;
+		default:
+			descriptorSetLayout = VK_NULL_HANDLE;
+			break;
 	}
 	return descriptorSetLayout;
 }
@@ -73,6 +76,10 @@ void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
 				textureCreator->GetTextureImageView(),
 				textureCreator->GetTextureImageSampler(),
 				bufferInfoVert);
+			break;
+		default:
+			descriptorSet = VK_NULL_HANDLE;
+			break;
 	}
 }
 
@@ -103,6 +110,9 @@ VkDescriptorPool DescriptorSetFunctions::CreateDescriptorPool(VkDevice device, M
 		case MaterialType::BumpySurface:
 			descriptorPool = CreateDescriptorPoolBumpySurface(device,
 				numSwapChainImages);
+			break;
+		default:
+			descriptorPool = VK_NULL_HANDLE;
 			break;
 	}
 	return descriptorPool;

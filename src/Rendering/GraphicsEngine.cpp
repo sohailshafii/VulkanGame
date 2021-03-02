@@ -10,9 +10,6 @@
 #include "Resources/TextureCreator.h"
 #include "Resources/ResourceLoader.h"
 
-// TODO renaming this to something else..it's not really a graphics engine, but 
-// something that gets recreated when something like the window or parts of the pipeline
-// change
 GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 	ResourceLoader *resourceLoader, VkSurfaceKHR surface,
@@ -225,6 +222,11 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	ResourceLoader* resourceLoader,
 	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	for (auto& gameObject : gameObjects) {
+		// avoid invisible objects
+		if (gameObject->IsInvisible()) {
+			continue;
+		}
+
 		// avoid adding on that already exists
 		if (gameObjectToPipelineModule.find(gameObject) !=
 			gameObjectToPipelineModule.end())
@@ -359,7 +361,17 @@ void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
 			continue;
 		}
 
+		// skip invisible objects
+		if (gameObject->IsInvisible()) {
+			continue;
+		}
+
 		PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject];
+
+		// skip if pipeline was not found
+		if (pipelineModule == nullptr) {
+			continue;
+		}
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipelineModule->GetPipeline());

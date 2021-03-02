@@ -190,7 +190,8 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 	bool atLeastOneUnitializedGameObject = false;
 	std::vector<std::shared_ptr<GameObject>> gameObjectsToRemove;
 	for (auto& gameObject : gameObjects) {
-		if (!gameObject->GetInitializedInEngine()) {
+		if (!gameObject->GetInitializedInEngine() &&
+			!gameObject->IsInvisible()) {
 			atLeastOneUnitializedGameObject = true;
 		}
 		else if (gameObject->GetMarkedForDeletion()) {
@@ -248,18 +249,11 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
 	// add player game object; this is necessary because enemies
 	// need to know where the player is
-	std::shared_ptr<Material> gameObjectMaterial =
-		GameObjectCreator::CreateMaterial(
-			DescriptorSetFunctions::MaterialType::UnlitColor,
-			"texture.jpg", false, resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
-	std::shared_ptr<Model> gameObjectModel = GameObjectCreator::LoadModelFromName(
-		"cube.obj", resourceLoader);
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
 		glm::vec3(0.0f, 0.0f, 4.0f));
 	std::shared_ptr<GameObject> newGameObject =
-		GameObjectCreator::CreateGameObject(gameObjectMaterial,
-			gameObjectModel,
+		GameObjectCreator::CreateGameObject(nullptr,
+			nullptr,
 			std::make_unique<PlayerGameObjectBehavior>(mainCamera),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);

@@ -30,7 +30,6 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	indexBuffer(VK_NULL_HANDLE),
 	indexBufferMemory(VK_NULL_HANDLE),
 	commandPool(commandPool),
-	materialType(material->GetMaterialType()),
 	gfxDeviceManager(gfxDeviceManager),
 	vertUboData(nullptr), fragUboData(nullptr) {
 	SetupShaderNames();
@@ -38,38 +37,51 @@ GameObject::GameObject(std::shared_ptr<Model> const& model,
 	gameObjectBehavior->SetGameObject(this);
 
 	descriptorSetLayout = DescriptorSetFunctions::CreateDescriptorSetLayout(
-		logicalDeviceManager->GetDevice(), materialType);
+		logicalDeviceManager->GetDevice(), GetMaterialType());
 
-	UpdateOrUpdateVertexBufferForMaterial(gfxDeviceManager,
-		commandPool, materialType);
-	CreateOrUpdateIndexBuffer(model->GetIndices(), gfxDeviceManager, commandPool);
+	CreateOrUpdateVertexBufferForMaterial(gfxDeviceManager,
+		commandPool);
+
+	CreateOrUpdateIndexBuffer(gfxDeviceManager, commandPool);
 }
 
-void GameObject::UpdateOrUpdateVertexBufferForMaterial(GfxDeviceManager* gfxDeviceManager,
-	VkCommandPool commandPool, DescriptorSetFunctions::MaterialType materialType) {
-	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor) {
-		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPos(),
-			gfxDeviceManager, commandPool);
+void GameObject::CreateOrUpdateVertexBufferForMaterial(GfxDeviceManager* gfxDeviceManager,
+	VkCommandPool commandPool) {
+	if (objModel == nullptr) {
+		vertexBuffer = VK_NULL_HANDLE;
+		vertexStagingBuffer = VK_NULL_HANDLE;
+		return;
 	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured) {
-		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosColorTexCoord(),
-			gfxDeviceManager, commandPool);
-	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::MotherShip) {
-		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosColorTexCoord(),
-			gfxDeviceManager, commandPool);
-	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::WavySurface) {
-		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosNormalColorTexCoord(),
-			gfxDeviceManager, commandPool);
-	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::BumpySurface) {
-		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosNormalColorTexCoord(),
-			gfxDeviceManager, commandPool);
-	}
-	else if (materialType == DescriptorSetFunctions::MaterialType::Text) {
-		CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosTex(),
-			gfxDeviceManager, commandPool);
+
+	switch (GetMaterialType()) {
+		case DescriptorSetFunctions::MaterialType::UnlitColor:
+			CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPos(),
+				gfxDeviceManager, commandPool);
+			break;
+		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+			CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosColorTexCoord(),
+				gfxDeviceManager, commandPool);
+			break;
+		case DescriptorSetFunctions::MaterialType::MotherShip:
+			CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosColorTexCoord(),
+				gfxDeviceManager, commandPool);
+			break;
+		case DescriptorSetFunctions::MaterialType::WavySurface:
+			CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosNormalColorTexCoord(),
+				gfxDeviceManager, commandPool);
+			break;
+		case DescriptorSetFunctions::MaterialType::BumpySurface:
+			CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosNormalColorTexCoord(),
+				gfxDeviceManager, commandPool);
+			break;
+		case DescriptorSetFunctions::MaterialType::Text:
+			CreateOrUpdateVertexBuffer(objModel->BuildAndReturnVertsPosTex(),
+				gfxDeviceManager, commandPool);
+			break;
+		default:
+			vertexBuffer = VK_NULL_HANDLE;
+			vertexStagingBuffer = VK_NULL_HANDLE;
+			break;
 	}
 }
 
@@ -78,6 +90,9 @@ void GameObject::CreateOrUpdateVertexBuffer(std::vector<VertexType> const & vert
 											GfxDeviceManager *gfxDeviceManager,
 											VkCommandPool commandPool) {
 	VkDeviceSize bufferSize = sizeof(vertices[0])*vertices.size();
+	if (bufferSize == 0) {
+		return;
+	}
 
 	if (vertexStagingBuffer == VK_NULL_HANDLE) {
 		Common::CreateBuffer(logicalDeviceManager.get(), gfxDeviceManager, bufferSize,
@@ -110,16 +125,35 @@ GameObject::~GameObject() {
 		delete fragUboData;
 	}
 
-	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexStagingBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->GetDevice(), vertexStagingBufferMemory, nullptr);
-	vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->GetDevice(), vertexBufferMemory, nullptr);
+	if (vertexStagingBuffer != VK_NULL_HANDLE) {
+		vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexStagingBuffer, nullptr);
+	}
+	if (vertexStagingBufferMemory != VK_NULL_HANDLE) {
+		vkFreeMemory(logicalDeviceManager->GetDevice(), vertexStagingBufferMemory, nullptr);
+	}
+	if (vertexBuffer != VK_NULL_HANDLE) {
+		vkDestroyBuffer(logicalDeviceManager->GetDevice(), vertexBuffer, nullptr);
+	}
+	if (vertexBufferMemory != VK_NULL_HANDLE) {
+		vkFreeMemory(logicalDeviceManager->GetDevice(), vertexBufferMemory, nullptr);
+	}
 	
-	vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexStagingBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->GetDevice(), indexStagingBufferMemory, nullptr);
-	vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexBuffer, nullptr);
-	vkFreeMemory(logicalDeviceManager->GetDevice(), indexBufferMemory, nullptr);
-	vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
+	if (indexStagingBuffer != VK_NULL_HANDLE) {
+		vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexStagingBuffer, nullptr);
+	}
+	if (indexStagingBufferMemory != VK_NULL_HANDLE) {
+		vkFreeMemory(logicalDeviceManager->GetDevice(), indexStagingBufferMemory, nullptr);
+	}
+	if (indexBuffer != VK_NULL_HANDLE) {
+		vkDestroyBuffer(logicalDeviceManager->GetDevice(), indexBuffer, nullptr);
+	}
+	if (indexBufferMemory != VK_NULL_HANDLE) {
+		vkFreeMemory(logicalDeviceManager->GetDevice(), indexBufferMemory, nullptr);
+	}
+	if (descriptorSetLayout != VK_NULL_HANDLE) {
+		vkDestroyDescriptorSetLayout(logicalDeviceManager->GetDevice(), descriptorSetLayout, nullptr);
+	}
+
 	CleanUpUniformBuffers();
 	CleanUpDescriptorPool();
 }
@@ -127,6 +161,9 @@ GameObject::~GameObject() {
 void GameObject::AllocateVBODataIfNecessary(size_t& uboSize,
 	uint32_t imageIndex, const glm::mat4& viewMatrix, float time, float deltaTime,
 	VkExtent2D swapChainExtent) {
+	if (IsInvisible()) {
+		return;
+	}
 	vertUboData = gameObjectBehavior->CreateVertUBOData(uboSize, swapChainExtent,
 		viewMatrix, time, deltaTime);
 }
@@ -135,11 +172,14 @@ void GameObject::AllocateFBODataIfNecessary(size_t &uboSize) {
 	if (fragUboData != nullptr) {
 		return;
 	}
+	if (IsInvisible()) {
+		return;
+	}
 	fragUboData = gameObjectBehavior->CreateFragUBOData(uboSize);
 }
 
 void GameObject::SetupShaderNames() {
-	switch (material->GetMaterialType()) {
+	switch (GetMaterialType()) {
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 			vertexShaderName = "UnlitColorVert.spv";
 			fragmentShaderName = "UnlitColorFrag.spv";
@@ -164,12 +204,20 @@ void GameObject::SetupShaderNames() {
 			vertexShaderName = "TextShaderVert.spv";
 			fragmentShaderName = "TextShaderFrag.spv";
 			break;
+		default:
+			vertexShaderName = "";
+			fragmentShaderName = "";
+			break;
 	}
 }
 
-void GameObject::CreateOrUpdateIndexBuffer(std::vector<uint32_t> const & indices,
-											GfxDeviceManager *gfxDeviceManager,
+void GameObject::CreateOrUpdateIndexBuffer(GfxDeviceManager *gfxDeviceManager,
 											VkCommandPool commandPool) {
+	if (objModel == nullptr) {
+		return;
+	}
+	std::vector<uint32_t> const& indices = objModel->GetIndices();
+
 	VkDeviceSize bufferSize = sizeof(indices[0])*indices.size();
 
 	if (indexStagingBuffer == VK_NULL_HANDLE) {
@@ -195,6 +243,9 @@ void GameObject::CreateOrUpdateIndexBuffer(std::vector<uint32_t> const & indices
 }
 
 void GameObject::CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager, size_t numSwapChainImages) {
+	if (IsInvisible()) {
+		return;
+	}
 	VkDeviceSize bufferSizeVert = GetMaterialUniformBufferSizeVert();
 	VkDeviceSize bufferSizeFrag = GetMaterialUniformBufferSizeFrag();
 	
@@ -244,8 +295,10 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 								   const glm::mat4& viewMatrix,
 								   float time, float deltaTime,
 								   VkExtent2D swapChainExtent) {
+	if (IsInvisible()) {
+		return;
+	}
 	size_t uboSize = 0;
-
 	AllocateVBODataIfNecessary(uboSize, imageIndex, viewMatrix,
 		time, deltaTime, swapChainExtent);
 	if (vertUboData != nullptr) {
@@ -271,19 +324,25 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 }
 
 void GameObject::UpdateVertexBufferWithLatestModelVerts() {
-	UpdateOrUpdateVertexBufferForMaterial(gfxDeviceManager,
-		commandPool, materialType);
+	CreateOrUpdateVertexBufferForMaterial(gfxDeviceManager,
+		commandPool);
 }
 
 void GameObject::CreateDescriptorPool(size_t numSwapChainImages) {
+	if (IsInvisible()) {
+		return;
+	}
 	descriptorPool = DescriptorSetFunctions::CreateDescriptorPool(logicalDeviceManager->GetDevice(),
-																  material->GetMaterialType(),
-																  numSwapChainImages);
+		GetMaterialType(), numSwapChainImages);
 	std::cout << descriptorPool << " belongs to "
-		<< static_cast<int>(material->GetMaterialType()) << ", with layout " << std::endl;
+		<< static_cast<int>(GetMaterialType()) << ", with layout " << std::endl;
 }
 
 void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
+	if (IsInvisible()) {
+		return;
+	}
+
 	std::vector<VkDescriptorSetLayout> layouts(numSwapChainImages,
 		descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
@@ -294,7 +353,7 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 	
 	std::cout << "about to allocate descriptor sets for pool "
 	<< descriptorPool << ", with layout " << descriptorSetLayout << ", material: " << 
-		static_cast<int>(material->GetMaterialType()) << std::endl;
+		static_cast<int>(GetMaterialType()) << std::endl;
 
 	descriptorSets.resize(numSwapChainImages);
 	if (vkAllocateDescriptorSets(logicalDeviceManager->GetDevice(), &allocInfo,
@@ -344,9 +403,12 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 		case DescriptorSetFunctions::MaterialType::MotherShip:
 			return sizeof(UniformBufferObjectModelViewProjRipple);
 			break;
-		default:
+		case DescriptorSetFunctions::MaterialType::BumpySurface:
+		case DescriptorSetFunctions::MaterialType::WavySurface:
 			return sizeof(UniformBufferObjectModelViewProjTime);
 			break;
+		default:
+			return 0;
 	}
 }
 
@@ -356,6 +418,9 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeFrag() {
 	if (materialType == DescriptorSetFunctions::MaterialType::UnlitColor ||
 		materialType == DescriptorSetFunctions::MaterialType::Text) {
 		bufferSizeFrag = sizeof(UniformBufferUnlitColor);
+	}
+	else if (materialType == DescriptorSetFunctions::MaterialType::Unspecified) {
+		bufferSizeFrag = 0;
 	}
 
 	return bufferSizeFrag;

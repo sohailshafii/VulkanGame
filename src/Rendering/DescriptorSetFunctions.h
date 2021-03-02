@@ -66,7 +66,7 @@ class TextureCreator;
 class DescriptorSetFunctions
 {
 public:
-	enum class MaterialType : char { UnlitColor = 0, UnlitTintedTextured,
+	enum class MaterialType : char { Unspecified = 0, UnlitColor, UnlitTintedTextured,
 		WavySurface, BumpySurface, MotherShip, Text };
 	
 	static VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,

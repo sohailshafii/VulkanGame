@@ -98,7 +98,14 @@ public:
 	}
 	
 	DescriptorSetFunctions::MaterialType GetMaterialType() const {
-		return material->GetMaterialType();
+		return material == nullptr ? DescriptorSetFunctions::MaterialType::Unspecified :
+			material->GetMaterialType();
+	}
+
+	bool IsInvisible() const {
+		return GetMaterialType() ==
+			DescriptorSetFunctions::MaterialType::Unspecified ||
+			objModel == nullptr;
 	}
 
 	VkPrimitiveTopology GetPrimitiveTopology() const {
@@ -161,7 +168,6 @@ private:
 	std::vector<VkDescriptorSet> descriptorSets;
 
 	VkCommandPool commandPool;
-	DescriptorSetFunctions::MaterialType materialType;
 	GfxDeviceManager* gfxDeviceManager; // TODO UGH, use smart pointer
 
 	bool initializedInEngine;
@@ -177,15 +183,14 @@ private:
 
 	void SetupShaderNames();
 	
-	void UpdateOrUpdateVertexBufferForMaterial(GfxDeviceManager* gfxDeviceManager,
-		VkCommandPool commandPool, DescriptorSetFunctions::MaterialType materialType);
+	void CreateOrUpdateVertexBufferForMaterial(GfxDeviceManager* gfxDeviceManager,
+		VkCommandPool commandPool);
 
 	template<typename VertexType>
 	void CreateOrUpdateVertexBuffer(std::vector<VertexType> const & vertices,
 									GfxDeviceManager *gfxDeviceManager,
 									VkCommandPool commandPool);
-	void CreateOrUpdateIndexBuffer(std::vector<uint32_t> const & indices,
-									GfxDeviceManager *gfxDeviceManager,
+	void CreateOrUpdateIndexBuffer(GfxDeviceManager *gfxDeviceManager,
 									VkCommandPool commandPool);
 	
 	void CreateUniformBuffers(GfxDeviceManager* gfxDeviceManager,

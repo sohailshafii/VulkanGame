@@ -18,9 +18,12 @@ void* GameObjectBehavior::CreateVertUBOData(size_t& uboSize,
 		case DescriptorSetFunctions::MaterialType::MotherShip:
 			return CreateUniformBufferModelViewProjRipple(uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
-		default:
+		case DescriptorSetFunctions::MaterialType::WavySurface:
+		case DescriptorSetFunctions::MaterialType::BumpySurface:
 			return CreateUniformBufferModelViewProjTime(uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
+		default:
+			return nullptr;
 	}
 }
 
