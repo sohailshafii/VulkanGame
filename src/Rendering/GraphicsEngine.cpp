@@ -123,11 +123,6 @@ void GraphicsEngine::CleanUpSwapChain() {
 		delete commandBufferModule;
 	}
 
-	for(auto pipelinePair : gameObjectToPipelineModule) {
-		if (pipelinePair.second != nullptr) {
-			delete pipelinePair.second;
-		}
-	}
 	gameObjectToPipelineModule.clear();
 	
 	if (renderPassModule != nullptr) {
@@ -233,7 +228,7 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 		{
 			continue;
 		}
-		gameObjectToPipelineModule[gameObject] = new PipelineModule(
+		gameObjectToPipelineModule[gameObject] = std::make_shared<PipelineModule>(
 			gameObject->GetVertexShaderName(), gameObject->GetFragmentShaderName(),
 			logicalDeviceManager->GetDevice(), swapChainManager->GetSwapChainExtent(),
 			gfxDeviceManager, resourceLoader, gameObject->GetDescriptorSetLayout(),
@@ -250,23 +245,7 @@ void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
 		{
 			continue;
 		}
-		delete gameObjectToPipelineModule[gameObject];
 		gameObjectToPipelineModule.erase(gameObject);
-	}
-}
-
-void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
-	std::vector<GameObject*>& gameObjects) {
-	for (auto gameObject : gameObjects) {
-		for (std::map<std::shared_ptr<GameObject>, PipelineModule*>::iterator
-			it = gameObjectToPipelineModule.begin();
-			it != gameObjectToPipelineModule.end(); ++it) {
-			if (it->first.get() == gameObject) {
-				delete it->second;
-				gameObjectToPipelineModule.erase(it->first);
-				break;
-			}
-		}
 	}
 }
 
@@ -366,7 +345,7 @@ void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
 			continue;
 		}
 
-		PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject];
+		PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject].get();
 
 		// skip if pipeline was not found
 		if (pipelineModule == nullptr) {

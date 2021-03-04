@@ -53,7 +53,8 @@ private:
 
 	SwapChainManager* swapChainManager;
 	RenderPassModule* renderPassModule;
-	std::map<std::shared_ptr<GameObject>, PipelineModule*> gameObjectToPipelineModule;
+	std::map<std::shared_ptr<GameObject>, std::shared_ptr<PipelineModule>>
+		gameObjectToPipelineModule;
 
 	VkImage colorImage;
 	VkDeviceMemory colorImageMemory;
@@ -88,8 +89,6 @@ private:
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	void RemoveGraphicsPipelinesFromGameObjects(
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
-	void RemoveGraphicsPipelinesFromGameObjects(
-		std::vector<GameObject*>& gameObjects);
 
 	void CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
