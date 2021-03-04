@@ -237,6 +237,21 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	}
 }
 
+std::shared_ptr<PipelineModule>
+	GraphicsEngine::FindExistingPipeline(std::shared_ptr<GameObject> const& gameObject) {
+	std::map<std::shared_ptr<GameObject>, std::shared_ptr<PipelineModule>>::iterator it;
+
+	for (it = gameObjectToPipelineModule.begin(); it != gameObjectToPipelineModule.end(); it++)
+	{
+		std::shared_ptr<PipelineModule> const & pipeline = it->second;
+		if (pipeline->MatchesMaterialAndTopologyTypes(gameObject->GetMaterialType(),
+			gameObject->GetPrimitiveTopology())) {
+			return pipeline;
+		}
+	}
+	return nullptr;
+}
+
 void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
 	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	for (auto& gameObject : gameObjects) {

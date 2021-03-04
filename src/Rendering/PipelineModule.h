@@ -28,10 +28,19 @@ public:
 		return graphicsPipeline;
 	}
 
+	bool MatchesMaterialAndTopologyTypes(DescriptorSetFunctions::MaterialType iMaterialType,
+		VkPrimitiveTopology iPrimitiveTopology) {
+		return this->materialType == iMaterialType &&
+			this->primitiveTopology == iPrimitiveTopology;
+	}
+
 private:
 	VkPipelineLayout pipelineLayout;
 	VkDevice device;
 	VkPipeline graphicsPipeline;
+
+	DescriptorSetFunctions::MaterialType materialType;
+	VkPrimitiveTopology primitiveTopology;
 
 	VkPipelineColorBlendAttachmentState SpecifyBlendStateForMaterial(
 		DescriptorSetFunctions::MaterialType materialType);

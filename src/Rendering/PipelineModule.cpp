@@ -12,8 +12,8 @@ PipelineModule::PipelineModule(const std::string& vertShaderName,
 	VkDescriptorSetLayout descriptorSetLayout,
 	VkRenderPass renderPass,
 	DescriptorSetFunctions::MaterialType materialType,
-	VkPrimitiveTopology primitiveTopology) {
-	this->device = device;
+	VkPrimitiveTopology primitiveTopology) : device(device),
+	materialType(materialType), primitiveTopology(primitiveTopology) {
 #if __APPLE__
 	std::shared_ptr<ShaderLoader> vertShaderModule = resourceLoader->GetShader(
 	"../../shaders/" + vertShaderName, device);
