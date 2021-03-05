@@ -80,7 +80,7 @@ private:
 
 	int currentSelectedMenuObject;
 	MenuPart currentMenuPart;
-	std::vector<std::shared_ptr<GameObject>> normalGameObjects;
+	std::vector<std::shared_ptr<GameObject>> startingGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
 	Difficulty currentDifficulty;

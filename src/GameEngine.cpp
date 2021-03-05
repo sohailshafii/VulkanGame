@@ -36,7 +36,7 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 		resourceLoader, commandPool);
 	auto& mainGameObjects = mainGameScene->GetGameObjects();
 	for (auto& gameObject : mainGameObjects) {
-		normalGameObjects.push_back(gameObject);
+		startingGameObjects.push_back(gameObject);
 	}
 	CreateMenuObjects(gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool);
@@ -149,7 +149,8 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	mainCamera->SetPositionYawPitch(sceneSettings.cameraPosition,
 		sceneSettings.cameraYaw, sceneSettings.cameraPitch);
 	if (currentGameMode == GameMode::Menu) {
-		for (auto gameObject : normalGameObjects) {
+		auto& mainGameObjects = mainGameScene->GetGameObjects();
+		for (auto gameObject : mainGameObjects) {
 			gameObject->SetMarkedForDeletionInScene(true);
 		}
 		AddMenuItems(MenuPart::Base);
@@ -158,8 +159,9 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 		RemoveMenuItems(currentMenuPart);
 
 		// reset everything to what they were before
-		for (auto gameObject : normalGameObjects) {
+		for (auto gameObject : startingGameObjects) {
 			mainGameScene->AddGameObject(gameObject);
+			gameObject->SetInitializedInEngine(false);
 			MothershipBehavior* mothershipBehavior =
 				dynamic_cast<MothershipBehavior*>(gameObject->GetGameObjectBehavior());
 			if (mothershipBehavior) {
