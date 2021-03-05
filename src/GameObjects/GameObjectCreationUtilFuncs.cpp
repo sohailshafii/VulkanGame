@@ -26,7 +26,6 @@ std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 	return constructedGameObject;
 }
 
-// TODO: make a function for materials that don't need a texture
 std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 	DescriptorSetFunctions::MaterialType materialEnumType,
 	std::string const & mainTextureName,
@@ -50,6 +49,12 @@ std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 
 	return std::make_shared<Material>(mainTexture,
 		materialEnumType);
+}
+
+std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
+	DescriptorSetFunctions::MaterialType materialEnumType,
+	glm::vec4 const& tintColor) {
+	return std::make_shared<Material>(materialEnumType, tintColor);
 }
 
 std::shared_ptr<Model> GameObjectCreator::LoadModelFromName(

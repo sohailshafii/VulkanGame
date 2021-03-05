@@ -115,9 +115,7 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		glm::vec3(1.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f), true);
 	auto selectorMaterial = GameObjectCreator::CreateMaterial(
-		DescriptorSetFunctions::MaterialType::UnlitColor,
-		"texture.jpg", false, resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+		DescriptorSetFunctions::MaterialType::UnlitColor);
 	auto selectorBehaviorObj = std::make_shared<MenuSelectorObjectBehavior>(
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	difficultySelector = GameObjectCreator::CreateGameObject(
