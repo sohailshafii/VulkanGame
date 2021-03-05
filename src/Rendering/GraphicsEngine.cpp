@@ -210,8 +210,6 @@ void GraphicsEngine::CreateFramebuffers() {
 	}
 }
 
-// TODO: group similar pipelines, if possible (i.e. game objects with similar pipelines
-// get drawn together)
 void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader,
@@ -228,12 +226,18 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 		{
 			continue;
 		}
-		gameObjectToPipelineModule[gameObject] = std::make_shared<PipelineModule>(
-			gameObject->GetVertexShaderName(), gameObject->GetFragmentShaderName(),
-			logicalDeviceManager->GetDevice(), swapChainManager->GetSwapChainExtent(),
-			gfxDeviceManager, resourceLoader, gameObject->GetDescriptorSetLayout(),
-			renderPassModule->GetRenderPass(), gameObject->GetMaterialType(),
-			gameObject->GetPrimitiveTopology());
+
+		// try to re-use pipelines
+		auto possibleExistingPipeline = FindExistingPipeline(gameObject);
+
+		gameObjectToPipelineModule[gameObject] = possibleExistingPipeline != nullptr ?
+			possibleExistingPipeline :
+			std::make_shared<PipelineModule>(
+				gameObject->GetVertexShaderName(), gameObject->GetFragmentShaderName(),
+				logicalDeviceManager->GetDevice(), swapChainManager->GetSwapChainExtent(),
+				gfxDeviceManager, resourceLoader, gameObject->GetDescriptorSetLayout(),
+				renderPassModule->GetRenderPass(), gameObject->GetMaterialType(),
+				gameObject->GetPrimitiveTopology());
 	}
 }
 
@@ -281,7 +285,6 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
-		// TODO: make descriptor set more configurable
 		if (gameObject->GetInitializedInEngine()) {
 			continue;
 		}
