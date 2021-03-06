@@ -20,10 +20,10 @@
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkSurfaceKHR surface, GLFWwindow* window,
-	VkCommandPool commandPool) {
+	VkCommandPool commandPool, VkCommandPoolCreateInfo poolInfo) {
 	sceneSettings =
 		CreateSceneAndReturnSettings(gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, commandPool, surface, window);
+		resourceLoader, commandPool, poolInfo, surface, window);
 	this->window = window;
 	mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 100.0f),
 		0.0f, 0.0f, 14.5f, 0.035f);
@@ -173,10 +173,11 @@ void GameEngine::RecreateGraphicsEngineForNewSwapchain(
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkSurfaceKHR surface, GLFWwindow* window,
-	VkCommandPool commandPool) {
+	VkCommandPool commandPool,
+	VkCommandPoolCreateInfo poolCreateInfo) {
 	delete graphicsEngine;
 	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, surface, window, commandPool, mainGameScene->GetGameObjects());
+		resourceLoader, surface, window, commandPool, poolCreateInfo, mainGameScene->GetGameObjects());
 }
 
 void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
@@ -223,6 +224,7 @@ SceneLoader::SceneSettings GameEngine::CreateSceneAndReturnSettings(
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader, VkCommandPool commandPool,
+	VkCommandPoolCreateInfo poolCreateInfo,
 	VkSurfaceKHR surface, GLFWwindow* window) {
 #if __APPLE__
 	std::string scenePath = "../../mainGameScene.json";
@@ -239,7 +241,7 @@ SceneLoader::SceneSettings GameEngine::CreateSceneAndReturnSettings(
 
 	graphicsEngine = new GraphicsEngine(gfxDeviceManager,
 		logicalDeviceManager, resourceLoader, surface, window,
-		commandPool, mainGameScene->GetGameObjects());
+		commandPool, poolCreateInfo, mainGameScene->GetGameObjects());
 
 	return sceneSettings;
 }

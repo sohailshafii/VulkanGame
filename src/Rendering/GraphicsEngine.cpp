@@ -13,7 +13,8 @@
 GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 	ResourceLoader *resourceLoader, VkSurfaceKHR surface,
-	GLFWwindow* window, VkCommandPool commandPool,
+	GLFWwindow* window, VkCommandPool mainCommandPool,
+	VkCommandPoolCreateInfo poolCreateInfo,
 	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	this->logicalDeviceManager = logicalDeviceManager;
 	CreateSwapChain(gfxDeviceManager, surface,
@@ -21,12 +22,16 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	CreateSwapChainImageViews();
 	CreateRenderPassModule(gfxDeviceManager);
 
-	CreateColorResources(gfxDeviceManager, commandPool);
-	CreateDepthResources(gfxDeviceManager, commandPool);
+	CreateColorResources(gfxDeviceManager, mainCommandPool);
+	CreateDepthResources(gfxDeviceManager, mainCommandPool);
 	CreateFramebuffers();
 	
-	commandBufferModule = new CommandBufferModule(swapChainFramebuffers.size(),
-		logicalDeviceManager->GetDevice(), commandPool);
+	// TODO: create one pool per thread. we want one thread per swap chain image
+	size_t numSwapchainImages = swapChainFramebuffers.size();
+	for (size_t i = 0; i < numSwapchainImages; i++) {
+		commandBufferModules.push_back(new CommandBufferModule(1,
+			logicalDeviceManager->GetDevice(), poolCreateInfo));
+	}
 
 	AddAndInitializeNewGameObjects(gfxDeviceManager, resourceLoader,
 								   gameObjects);
@@ -71,6 +76,8 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
 	// TODO: should be done on separate thread
+	// can't modify command buffer while in use. so create another command buffer
+	// to replace it. once queue is going to be submitted, swap em
 	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 		inFlightFences.data(), VK_TRUE,
 		std::numeric_limits<uint64_t>::max());
@@ -119,8 +126,15 @@ void GraphicsEngine::CleanUpSwapChain() {
 	vkDestroyImage(logicalDeviceManager->GetDevice(), depthImage, nullptr);
 	vkFreeMemory(logicalDeviceManager->GetDevice(), depthImageMemory, nullptr);
 
-	if (commandBufferModule != nullptr) {
-		delete commandBufferModule;
+	if (commandBufferModules.size() > 0) {
+		for (auto commandBufferModule : commandBufferModules) {
+			delete commandBufferModule;
+		}
+	}
+	if (commandBufferModulesPending.size() > 0) {
+		for (auto commandBufferModule : commandBufferModulesPending) {
+			delete commandBufferModule;
+		}
 	}
 
 	gameObjectToPipelineModule.clear();
@@ -297,13 +311,13 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 // TODO: record on separate thread
 void GraphicsEngine::CreateCommandBuffersForGameObjects(
 					std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
-	auto& commandBuffers = commandBufferModule->GetCommandBuffers();
-	for (size_t i = 0; i < commandBuffers.size(); i++) {
+	for (size_t i = 0; i < commandBufferModules.size(); i++) {
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-		if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+		auto& commandBuffer = commandBufferModules[i]->GetCommandBuffers()[0];
+		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to begin recording command buffer!");
 		}
 
@@ -324,18 +338,16 @@ void GraphicsEngine::CreateCommandBuffersForGameObjects(
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
 			VK_SUBPASS_CONTENTS_INLINE);
 
 		// render opaque objects first, then transparent
-		RecordCommandForGameObjects(commandBuffers[i],
-			gameObjects, false, i);
-		RecordCommandForGameObjects(commandBuffers[i],
-			gameObjects, true, i);
+		RecordCommandForGameObjects(commandBuffer, gameObjects, false, i);
+		RecordCommandForGameObjects(commandBuffer, gameObjects, true, i);
 
-		vkCmdEndRenderPass(commandBuffers[i]);
+		vkCmdEndRenderPass(commandBuffer);
 
-		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 	}

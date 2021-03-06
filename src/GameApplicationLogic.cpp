@@ -115,7 +115,7 @@ void GameApplicationLogic::InitVulkan() {
 
 	gameEngine = new GameEngine(GameEngine::GameMode::Menu,
 		gfxDeviceManager, logicalDeviceManager, resourceLoader,
-		surface, window, commandPool);
+		surface, window, commandPool, poolInfo);
 
 	CreateSyncObjects();
 }
@@ -144,14 +144,14 @@ void GameApplicationLogic::RecreateSwapChain() {
 	vkDeviceWaitIdle(logicalDeviceManager->GetDevice());
 
 	gameEngine->RecreateGraphicsEngineForNewSwapchain(gfxDeviceManager,
-		logicalDeviceManager, resourceLoader, surface, window, commandPool);
+		logicalDeviceManager, resourceLoader, surface, window, commandPool,
+		poolInfo);
 }
 
 void GameApplicationLogic::CreateCommandPool() {
 	GfxDeviceManager::QueueFamilyIndices queueFamilyIndices = gfxDeviceManager->
 		FindQueueFamilies(surface);
 
-	VkCommandPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 	// need to be able to re-record at some point
@@ -257,8 +257,8 @@ void GameApplicationLogic::DrawFrame(uint32_t imageIndex) {
 	submitInfo.pWaitDstStageMask = waitStages;
 
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &(
-		gameEngine->GetGraphicsEngine()->GetCommandBufferModule()->GetCommandBuffers()[imageIndex]);
+	submitInfo.pCommandBuffers = 
+		gameEngine->GetGraphicsEngine()->GetCommandBufferData(imageIndex);
 
 	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;

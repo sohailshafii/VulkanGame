@@ -6,7 +6,7 @@
 class CommandBufferModule {
 public:
 	CommandBufferModule(size_t numBuffers,
-		VkDevice logicalDevice, VkCommandPool commandPool);
+		VkDevice logicalDevice, VkCommandPoolCreateInfo poolInfo);
 	~CommandBufferModule();
 
 	std::vector<VkCommandBuffer>& GetCommandBuffers() {

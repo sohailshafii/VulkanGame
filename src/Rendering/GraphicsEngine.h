@@ -4,6 +4,7 @@
 #include "Common.h"
 #include "Resources/Model.h"
 #include "GameObjects/GameObject.h"
+#include "CommonBufferModule.h"
 #include <vector>
 #include <map>
 
@@ -12,7 +13,6 @@ class GfxDeviceManager;
 class LogicalDeviceManager;
 class RenderPassModule;
 class PipelineModule;
-class CommandBufferModule;
 struct GLFWwindow;
 class ImageTextureLoader;
 class ResourceLoader;
@@ -22,15 +22,17 @@ public:
 	GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 				   std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
 				   ResourceLoader *resourceLoader, VkSurfaceKHR surface,
-				   GLFWwindow* window, VkCommandPool commandPool,
+				   GLFWwindow* window, VkCommandPool mainCommandPool,
+					VkCommandPoolCreateInfo poolCreateInfo,
 				   std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	~GraphicsEngine();
 
 	SwapChainManager* GetSwapChainManager() { return swapChainManager; }
 	RenderPassModule* GetRenderPassModule() { return renderPassModule; }
-	//PipelineModule* GetPipelineModule() { return graphicsPipelineModule; }
-	CommandBufferModule* GetCommandBufferModule() { return commandBufferModule; }
+	// Right now image has one command buffer
+	VkCommandBuffer* GetCommandBufferData(int imageIndex) {
+		return commandBufferModules[imageIndex]->GetCommandBuffers().data(); }
 
 	void ReRecordCommandsForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader, std::vector<VkFence> const & inFlightFences,
@@ -66,7 +68,8 @@ private:
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
-	CommandBufferModule* commandBufferModule;
+	std::vector<CommandBufferModule*> commandBufferModules;
+	std::vector<CommandBufferModule*> commandBufferModulesPending;
 	
 	void AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
 										ResourceLoader* resourceLoader,

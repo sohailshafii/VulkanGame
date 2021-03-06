@@ -42,6 +42,7 @@ private:
 	VulkanInstance* instance;
 	GfxDeviceManager* gfxDeviceManager;
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
+	VkCommandPoolCreateInfo poolInfo;
 
 	VkSurfaceKHR surface;
 
