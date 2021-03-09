@@ -9,6 +9,7 @@
 #include "CommonBufferModule.h"
 #include "Resources/TextureCreator.h"
 #include "Resources/ResourceLoader.h"
+#include <thread>
 
 GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
@@ -26,7 +27,6 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	CreateDepthResources(gfxDeviceManager, mainCommandPool);
 	CreateFramebuffers();
 	
-	// TODO: create one pool per thread. we want one thread per swap chain image
 	size_t numSwapchainImages = swapChainFramebuffers.size();
 	for (size_t i = 0; i < numSwapchainImages; i++) {
 		commandBufferModules.push_back(new CommandBufferModule(1,
@@ -36,7 +36,7 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	AddAndInitializeNewGameObjects(gfxDeviceManager, resourceLoader,
 								   gameObjects);
 	
-	CreateCommandBuffersForGameObjects(gameObjects);
+	CreateCommandBuffersForGameObjects(gameObjects, commandBufferModules);
 	for (auto& gameObject : gameObjects) {
 		gameObject->SetInitializedInEngine(true);
 	}
@@ -59,12 +59,12 @@ void GraphicsEngine::ReRecordCommandsForGameObjects(
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, allGameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(allGameObjects);
 	
-	// TODO: should be done on separate thread
+	// TODO: should recording pending on different threads, then swap on main thread
 	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 					inFlightFences.data(), VK_TRUE,
 					std::numeric_limits<uint64_t>::max());
 	
-	CreateCommandBuffersForGameObjects(allGameObjects);
+	CreateCommandBuffersForGameObjects(allGameObjects, commandBufferModules);
 	for (auto& gameObject : allGameObjects) {
 		gameObject->SetInitializedInEngine(true);
 	}
@@ -82,7 +82,8 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 		inFlightFences.data(), VK_TRUE,
 		std::numeric_limits<uint64_t>::max());
 
-	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
+	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals,
+		commandBufferModules);
 }
 
 void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
@@ -101,7 +102,8 @@ void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
 		inFlightFences.data(), VK_TRUE,
 		std::numeric_limits<uint64_t>::max());
 
-	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals);
+	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals,
+		commandBufferModules);
 	for (auto& gameObject : allGameObjectsSansRemovals) {
 		gameObject->SetInitializedInEngine(true);
 	}
@@ -224,6 +226,7 @@ void GraphicsEngine::CreateFramebuffers() {
 	}
 }
 
+// TODO: create pipelines on multiple threads
 void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader,
@@ -306,57 +309,74 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 	}
 }
 
+void GraphicsEngine::RecordCommandBuffersForCommandBufferModule(
+	std::vector<std::shared_ptr<GameObject>> const& gameObjects,
+	CommandBufferModule* commandBufferModule,
+	VkFramebuffer swapChainFramebuffer,
+	int swapChainIndex) {
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+	auto& commandBuffer = commandBufferModule->GetCommandBuffers()[0];
+	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to begin recording command buffer!");
+	}
+
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderPassModule->GetRenderPass();
+	renderPassInfo.framebuffer = swapChainFramebuffer;
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	auto swapChainExtent = swapChainManager->GetSwapChainExtent();
+	renderPassInfo.renderArea.extent = swapChainExtent;
+
+	// order of clear values = order of attachments
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	//VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
+		VK_SUBPASS_CONTENTS_INLINE);
+
+	// render opaque objects first, then transparent
+	RecordCommandForGameObjects(commandBuffer, gameObjects, false, swapChainIndex);
+	RecordCommandForGameObjects(commandBuffer, gameObjects, true, swapChainIndex);
+
+	vkCmdEndRenderPass(commandBuffer);
+
+	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to record command buffer!");
+	}
+}
+
 // per object. have a ubo per object, then update that ubo based on the matrices associated
 // move render logic to this class!
-// TODO: record on separate thread
 void GraphicsEngine::CreateCommandBuffersForGameObjects(
-					std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
-	for (size_t i = 0; i < commandBufferModules.size(); i++) {
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-		auto& commandBuffer = commandBufferModules[i]->GetCommandBuffers()[0];
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to begin recording command buffer!");
-		}
-
-		VkRenderPassBeginInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = renderPassModule->GetRenderPass();
-		renderPassInfo.framebuffer = swapChainFramebuffers[i];
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		auto swapChainExtent = swapChainManager->GetSwapChainExtent();
-		renderPassInfo.renderArea.extent = swapChainExtent;
-
-		// order of clear values = order of attachments
-		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		//VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
-		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-		renderPassInfo.pClearValues = clearValues.data();
-
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo,
-			VK_SUBPASS_CONTENTS_INLINE);
-
-		// render opaque objects first, then transparent
-		RecordCommandForGameObjects(commandBuffer, gameObjects, false, i);
-		RecordCommandForGameObjects(commandBuffer, gameObjects, true, i);
-
-		vkCmdEndRenderPass(commandBuffer);
-
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to record command buffer!");
-		}
+					std::vector<std::shared_ptr<GameObject>> const & gameObjects,
+					std::vector<CommandBufferModule*> commandBufferModulesToUse) {
+	// right now we have one thread per swap chain image, could expand further on that
+	size_t numThreads = commandBufferModulesToUse.size();
+	std::vector<std::thread> threads(numThreads);
+	for (int i = 0; i < numThreads; i++) {
+		threads[i] = std::thread(
+			&GraphicsEngine::RecordCommandBuffersForCommandBufferModule, this,
+			gameObjects, commandBufferModulesToUse[i], swapChainFramebuffers[i], i);
+	}
+	
+	for (size_t i = 0; i < numThreads; i++) {
+		threads[i].join();
 	}
 }
 
 void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
 	std::vector<std::shared_ptr<GameObject>> const & gameObjects,
 	bool renderOnlyTransparent,
-	int commandBufferIndex) {
+	int swapChainIndex) {
 	size_t numGameObjects = gameObjects.size();
 	for (size_t objectIndex = 0; objectIndex < numGameObjects;
 		objectIndex++) {
@@ -392,7 +412,7 @@ void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
 		vkCmdBindIndexBuffer(commandBuffer, gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(commandBufferIndex),
+			pipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(swapChainIndex),
 			0, nullptr);
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
 			1, 0, 0, 0);

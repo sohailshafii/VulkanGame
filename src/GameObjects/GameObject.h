@@ -73,24 +73,24 @@ public:
 		return indexBuffer;
 	}
 	
-	VkBuffer GetUniformBufferVert(size_t index) const {
-		return uniformBuffersVert[index]->GetUniformBuffer();
+	VkBuffer GetUniformBufferVert(size_t swapChainIndex) const {
+		return uniformBuffersVert[swapChainIndex]->GetUniformBuffer();
 	}
 	
-	VkBuffer GetUniformBufferFrag(size_t index) const {
-		return uniformBuffersFrag[index]->GetUniformBuffer();
+	VkBuffer GetUniformBufferFrag(size_t swapChainIndex) const {
+		return uniformBuffersFrag[swapChainIndex]->GetUniformBuffer();
 	}
 	
-	VkDeviceMemory GetUniformBufferMemoryVert(size_t index) {
-		return uniformBuffersVert[index]->GetUniformBufferMemory();
+	VkDeviceMemory GetUniformBufferMemoryVert(size_t swapChainIndex) {
+		return uniformBuffersVert[swapChainIndex]->GetUniformBufferMemory();
 	}
 	
-	VkDeviceMemory GetUniformBufferMemoryFrag(size_t index) {
-		return uniformBuffersFrag[index]->GetUniformBufferMemory();
+	VkDeviceMemory GetUniformBufferMemoryFrag(size_t swapChainIndex) {
+		return uniformBuffersFrag[swapChainIndex]->GetUniformBufferMemory();
 	}
 	
-	VkDescriptorSet* GetDescriptorSetPtr(size_t index) {
-		return &descriptorSets[index];
+	VkDescriptorSet* GetDescriptorSetPtr(size_t swapChainIndex) {
+		return &descriptorSets[swapChainIndex];
 	}
 	
 	VkDescriptorSetLayout GetDescriptorSetLayout() const {

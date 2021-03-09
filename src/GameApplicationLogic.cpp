@@ -156,6 +156,7 @@ void GameApplicationLogic::CreateCommandPool() {
 	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 	// need to be able to re-record at some point
 	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.pNext = nullptr;
 
 	if (vkCreateCommandPool(logicalDeviceManager->GetDevice(), &poolInfo, nullptr,
 		&commandPool) != VK_SUCCESS) {

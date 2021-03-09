@@ -49,6 +49,12 @@ public:
 		std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
 		std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals);
 
+	void RecordCommandBuffersForCommandBufferModule(
+		std::vector<std::shared_ptr<GameObject>> const& gameObjects,
+		CommandBufferModule* commandBufferModule,
+		VkFramebuffer swapChainFramebuffer,
+		int swapChainIndex);
+
 private:
 	// not owned by us
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
@@ -68,6 +74,8 @@ private:
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
+	// so that we can parallelize command buffer recording
+	// create a vector of them
 	std::vector<CommandBufferModule*> commandBufferModules;
 	std::vector<CommandBufferModule*> commandBufferModulesPending;
 	
@@ -100,10 +108,13 @@ private:
 	void CreateDescriptorPoolAndSetsForGameObjects(
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	void CreateCommandBuffersForGameObjects(
-		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects,
+		std::vector<CommandBufferModule*> commandBufferModulesToUse);
 
 	void RecordCommandForGameObjects(VkCommandBuffer& commandBuffer,
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects,
 		bool renderOnlyTransparent,
-		int commandBufferIndex);
+		int swapChainIndex);
+
+	
 };
