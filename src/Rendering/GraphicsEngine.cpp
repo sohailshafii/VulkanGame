@@ -10,6 +10,7 @@
 #include "Resources/TextureCreator.h"
 #include "Resources/ResourceLoader.h"
 #include <thread>
+#include <iostream>
 
 GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager,
@@ -32,6 +33,11 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 		commandBufferModules.push_back(new CommandBufferModule(1,
 			logicalDeviceManager->GetDevice(), poolCreateInfo));
 	}
+	for (size_t i = 0; i < numSwapchainImages; i++) {
+		commandBufferModulesPending.push_back(new CommandBufferModule(1,
+			logicalDeviceManager->GetDevice(), poolCreateInfo));
+	}
+	pendingCommandModules = false;
 
 	AddAndInitializeNewGameObjects(gfxDeviceManager, resourceLoader,
 								   gameObjects);
@@ -59,15 +65,12 @@ void GraphicsEngine::ReRecordCommandsForGameObjects(
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, allGameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(allGameObjects);
 	
-	// TODO: should recording pending on different threads, then swap on main thread
-	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
-					inFlightFences.data(), VK_TRUE,
-					std::numeric_limits<uint64_t>::max());
-	
-	CreateCommandBuffersForGameObjects(allGameObjects, commandBufferModules);
+	CreateCommandBuffersForGameObjects(allGameObjects, commandBufferModulesPending);
 	for (auto& gameObject : allGameObjects) {
 		gameObject->SetInitializedInEngine(true);
 	}
+	pendingCommandModules = true;
+	std::cout << "record command buffers\n";
 }
 
 void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
@@ -75,15 +78,11 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
 	std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals) {
 	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
-	// TODO: should be done on separate thread
-	// can't modify command buffer while in use. so create another command buffer
-	// to replace it. once queue is going to be submitted, swap em
-	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
-		inFlightFences.data(), VK_TRUE,
-		std::numeric_limits<uint64_t>::max());
 
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals,
-		commandBufferModules);
+		commandBufferModulesPending);
+	pendingCommandModules = true;
+	std::cout << "remove game objects command buffers\n";
 }
 
 void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
@@ -97,16 +96,13 @@ void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, allGameObjectsSansRemovals);
 	CreateDescriptorPoolAndSetsForGameObjects(allGameObjectsSansRemovals);
 
-	// TODO: should be done on separate thread
-	vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
-		inFlightFences.data(), VK_TRUE,
-		std::numeric_limits<uint64_t>::max());
-
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals,
-		commandBufferModules);
+		commandBufferModulesPending);
 	for (auto& gameObject : allGameObjectsSansRemovals) {
 		gameObject->SetInitializedInEngine(true);
 	}
+	pendingCommandModules = true;
+	std::cout << "remove game objects, add a few, record command buffers\n";
 }
 
 GraphicsEngine::~GraphicsEngine() {
@@ -351,6 +347,22 @@ void GraphicsEngine::RecordCommandBuffersForCommandBufferModule(
 
 	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to record command buffer!");
+	}
+}
+
+void GraphicsEngine::Update(std::vector<VkFence> const& inFlightFences) {
+	if (pendingCommandModules) {
+		vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
+			inFlightFences.data(), VK_TRUE,
+			std::numeric_limits<uint64_t>::max());
+		// pending becomes active while active becomes pending
+		size_t numModules = commandBufferModules.size();
+		for (size_t i = 0; i < numModules; i++) {
+			auto* oldPtr = commandBufferModules[i];
+			commandBufferModules[i] = commandBufferModulesPending[i];
+			commandBufferModulesPending[i] = oldPtr;
+		}
+		pendingCommandModules = false;
 	}
 }
 

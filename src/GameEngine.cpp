@@ -218,6 +218,8 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 		graphicsEngine->ReRecordCommandsForGameObjects(gfxDeviceManager,
 			resourceLoader, inFlightFences, gameObjects);
 	}
+
+	graphicsEngine->Update(inFlightFences);
 }
 
 SceneLoader::SceneSettings GameEngine::CreateSceneAndReturnSettings(

@@ -55,6 +55,8 @@ public:
 		VkFramebuffer swapChainFramebuffer,
 		int swapChainIndex);
 
+	void Update(std::vector<VkFence> const& inFlightFences);
+
 private:
 	// not owned by us
 	std::shared_ptr<LogicalDeviceManager> logicalDeviceManager;
@@ -78,6 +80,7 @@ private:
 	// create a vector of them
 	std::vector<CommandBufferModule*> commandBufferModules;
 	std::vector<CommandBufferModule*> commandBufferModulesPending;
+	bool pendingCommandModules;
 	
 	void AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
 										ResourceLoader* resourceLoader,
@@ -115,6 +118,4 @@ private:
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects,
 		bool renderOnlyTransparent,
 		int swapChainIndex);
-
-	
 };
