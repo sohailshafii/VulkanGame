@@ -6,6 +6,7 @@
 #include "GameObjects/GameObject.h"
 #include "CommonBufferModule.h"
 #include <vector>
+#include <stack>
 #include <map>
 
 class SwapChainManager;
@@ -80,6 +81,7 @@ private:
 	// create a vector of them
 	std::vector<CommandBufferModule*> commandBufferModules;
 	std::vector<CommandBufferModule*> commandBufferModulesPending;
+	std::stack<std::shared_ptr<GameObject>> gameObjectsPipelinesPendingRemoval;
 	bool pendingCommandModules;
 	
 	void AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
@@ -103,8 +105,7 @@ private:
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	std::shared_ptr<PipelineModule>
 		FindExistingPipeline(std::shared_ptr<GameObject> const& gameObject);
-	void RemoveGraphicsPipelinesFromGameObjects(
-		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
+	void RemoveGraphicsPipelinesFromPendingGameObjects();
 
 	void CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);

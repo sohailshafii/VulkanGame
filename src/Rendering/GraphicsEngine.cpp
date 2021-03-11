@@ -77,12 +77,13 @@ void GraphicsEngine::RemoveGameObjectsAndRecordCommands(
 	std::vector<VkFence> const& inFlightFences,
 	std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
 	std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals) {
-	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
+	for (auto & gameObject : gameObjectsToRemove) {
+		gameObjectsPipelinesPendingRemoval.push(gameObject);
+	}
 
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals,
 		commandBufferModulesPending);
 	pendingCommandModules = true;
-	std::cout << "remove game objects command buffers\n";
 }
 
 void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
@@ -90,7 +91,9 @@ void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
 	std::vector<VkFence> const& inFlightFences,
 	std::vector<std::shared_ptr<GameObject>> const & gameObjectsToRemove,
 	std::vector<std::shared_ptr<GameObject>> const & allGameObjectsSansRemovals) {
-	RemoveGraphicsPipelinesFromGameObjects(gameObjectsToRemove);
+	for (auto& gameObject : gameObjectsToRemove) {
+		gameObjectsPipelinesPendingRemoval.push(gameObject);
+	}
 
 	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, allGameObjectsSansRemovals);
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, allGameObjectsSansRemovals);
@@ -269,9 +272,10 @@ std::shared_ptr<PipelineModule>
 	return nullptr;
 }
 
-void GraphicsEngine::RemoveGraphicsPipelinesFromGameObjects(
-	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
-	for (auto& gameObject : gameObjects) {
+void GraphicsEngine::RemoveGraphicsPipelinesFromPendingGameObjects() {
+	while (gameObjectsPipelinesPendingRemoval.size() > 0) {
+		std::shared_ptr<GameObject> gameObject = gameObjectsPipelinesPendingRemoval.top();
+		gameObjectsPipelinesPendingRemoval.pop();
 		if (gameObjectToPipelineModule.find(gameObject) !=
 			gameObjectToPipelineModule.end())
 		{
@@ -362,6 +366,7 @@ void GraphicsEngine::Update(std::vector<VkFence> const& inFlightFences) {
 			commandBufferModules[i] = commandBufferModulesPending[i];
 			commandBufferModulesPending[i] = oldPtr;
 		}
+		RemoveGraphicsPipelinesFromPendingGameObjects();
 		pendingCommandModules = false;
 	}
 }
