@@ -103,6 +103,9 @@ private:
 	void AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader,
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
+	void AddNewPipeline(std::shared_ptr<GameObject> gameObject,
+		GfxDeviceManager* gfxDeviceManager,
+		ResourceLoader* resourceLoader);
 	std::shared_ptr<PipelineModule>
 		FindExistingPipeline(std::shared_ptr<GameObject> const& gameObject);
 	void RemoveGraphicsPipelinesFromPendingGameObjects();

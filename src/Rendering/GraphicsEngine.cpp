@@ -225,11 +225,12 @@ void GraphicsEngine::CreateFramebuffers() {
 	}
 }
 
-// TODO: create pipelines on multiple threads
 void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader,
 	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
+	std::vector<std::shared_ptr<GameObject>> gameObjectsToCreatePipelinesFor;
+	
 	for (auto& gameObject : gameObjects) {
 		// avoid invisible objects
 		if (gameObject->IsInvisible()) {
@@ -245,16 +246,37 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 
 		// try to re-use pipelines
 		auto possibleExistingPipeline = FindExistingPipeline(gameObject);
-
-		gameObjectToPipelineModule[gameObject] = possibleExistingPipeline != nullptr ?
-			possibleExistingPipeline :
-			std::make_shared<PipelineModule>(
-				gameObject->GetVertexShaderName(), gameObject->GetFragmentShaderName(),
-				logicalDeviceManager->GetDevice(), swapChainManager->GetSwapChainExtent(),
-				gfxDeviceManager, resourceLoader, gameObject->GetDescriptorSetLayout(),
-				renderPassModule->GetRenderPass(), gameObject->GetMaterialType(),
-				gameObject->GetPrimitiveTopology());
+		if (possibleExistingPipeline == nullptr) {
+			gameObjectsToCreatePipelinesFor.push_back(gameObject);
+		}
+		else {
+			gameObjectToPipelineModule[gameObject] = possibleExistingPipeline;
+		}
 	}
+
+	int numPipelinesToCreates = gameObjectsToCreatePipelinesFor.size();
+	std::vector<std::thread> threads(numPipelinesToCreates);
+	for (int i = 0; i < numPipelinesToCreates; i++) {
+		threads[i] = std::thread(
+			&GraphicsEngine::AddNewPipeline, this, gameObjectsToCreatePipelinesFor[i],
+			gfxDeviceManager, resourceLoader);
+	}
+
+	for (size_t i = 0; i < numPipelinesToCreates; i++) {
+		threads[i].join();
+	}
+}
+
+void GraphicsEngine::AddNewPipeline(std::shared_ptr<GameObject> gameObject,
+	GfxDeviceManager* gfxDeviceManager,
+	ResourceLoader* resourceLoader) {
+	gameObjectToPipelineModule[gameObject] =
+		std::make_shared<PipelineModule>(
+			gameObject->GetVertexShaderName(), gameObject->GetFragmentShaderName(),
+			logicalDeviceManager->GetDevice(), swapChainManager->GetSwapChainExtent(),
+			gfxDeviceManager, resourceLoader, gameObject->GetDescriptorSetLayout(),
+			renderPassModule->GetRenderPass(), gameObject->GetMaterialType(),
+			gameObject->GetPrimitiveTopology());
 }
 
 std::shared_ptr<PipelineModule>
