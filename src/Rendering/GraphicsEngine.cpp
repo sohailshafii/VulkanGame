@@ -113,7 +113,6 @@ GraphicsEngine::~GraphicsEngine() {
 }
 
 void GraphicsEngine::CleanUpSwapChain() {
-	// TODO: verify not null throughout
 	for (size_t i = 0; i < swapChainFramebuffers.size(); i++) {
 		vkDestroyFramebuffer(logicalDeviceManager->GetDevice(), swapChainFramebuffers[i],
 			nullptr);
