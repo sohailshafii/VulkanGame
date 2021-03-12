@@ -104,6 +104,7 @@ private:
 		ResourceLoader* resourceLoader,
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 	void AddNewPipeline(std::shared_ptr<GameObject> gameObject,
+		std::shared_ptr<PipelineModule>* pipelineModulePtr,
 		GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader);
 	std::shared_ptr<PipelineModule>

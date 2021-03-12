@@ -256,21 +256,34 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 
 	int numPipelinesToCreates = gameObjectsToCreatePipelinesFor.size();
 	std::vector<std::thread> threads(numPipelinesToCreates);
+	std::vector<std::shared_ptr<PipelineModule>> pipelineModuleArrayPerGameObject;
+	pipelineModuleArrayPerGameObject.resize(numPipelinesToCreates);
+
+	// this should be ok, because each pipeline module in the array is allocated separately
+	// and exists in a separate location
 	for (int i = 0; i < numPipelinesToCreates; i++) {
 		threads[i] = std::thread(
 			&GraphicsEngine::AddNewPipeline, this, gameObjectsToCreatePipelinesFor[i],
+			pipelineModuleArrayPerGameObject.data()+i,
 			gfxDeviceManager, resourceLoader);
 	}
 
 	for (size_t i = 0; i < numPipelinesToCreates; i++) {
 		threads[i].join();
 	}
+
+	for (int i = 0; i < numPipelinesToCreates; i++) {
+		auto gameObject = gameObjectsToCreatePipelinesFor[i];
+		gameObjectToPipelineModule[gameObject] =
+			pipelineModuleArrayPerGameObject[i];
+	}
 }
 
 void GraphicsEngine::AddNewPipeline(std::shared_ptr<GameObject> gameObject,
+	std::shared_ptr<PipelineModule>* pipelineModulePtr,
 	GfxDeviceManager* gfxDeviceManager,
 	ResourceLoader* resourceLoader) {
-	gameObjectToPipelineModule[gameObject] =
+	*pipelineModulePtr =
 		std::make_shared<PipelineModule>(
 			gameObject->GetVertexShaderName(), gameObject->GetFragmentShaderName(),
 			logicalDeviceManager->GetDevice(), swapChainManager->GetSwapChainExtent(),
@@ -402,6 +415,8 @@ void GraphicsEngine::CreateCommandBuffersForGameObjects(
 	size_t numThreads = commandBufferModulesToUse.size();
 	std::vector<std::thread> threads(numThreads);
 	for (int i = 0; i < numThreads; i++) {
+		// this should be ok, because each command buffer module in the array is allocated separately
+		// and exists in a separate location
 		threads[i] = std::thread(
 			&GraphicsEngine::RecordCommandBuffersForCommandBufferModule, this,
 			gameObjects, commandBufferModulesToUse[i], swapChainFramebuffers[i], i);
