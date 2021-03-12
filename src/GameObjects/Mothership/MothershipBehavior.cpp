@@ -135,9 +135,9 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 		glm::vec3(1.0f, 0.0f, 0.f));
 
 	currentHealth -= damage;
-	// TODO: death
 	if (currentHealth < 0) {
 		currentHealth = 0;
+		Die();
 	}
 
 	AddNewRipple(surfacePointLocal);
@@ -150,6 +150,7 @@ void MothershipBehavior::Reboot() {
 		delete currentShipStateBehavior;
 	}
 	currentHealth = maxHealth;
+	killedSelf = false;
 	Initialize();
 }
 
@@ -506,4 +507,14 @@ void* MothershipBehavior::CreateUniformBufferModelViewProjRipple(
 
 	uboSize = sizeof(*ubo);
 	return ubo;
+}
+
+void MothershipBehavior::Die() {
+	if (killedSelf) {
+		return;
+	}
+
+	killedSelf = true;
+	gameObject->SetMarkedForDeletionInScene(true);
+	// TODO: do something cool here
 }

@@ -94,6 +94,8 @@ private:
 	std::vector<glm::vec3> originalModelColors;
 	float shudderStartTime;
 
+	bool killedSelf;
+
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,
 		float deltaTime);
@@ -121,6 +123,8 @@ private:
 
 	void UpdateUBORippleData(UniformBufferObjectModelViewProjRipple* ubo);
 	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
+
+	void Die();
 
 protected:
 	virtual void* CreateUniformBufferModelViewProjRipple(

@@ -290,7 +290,6 @@ void GameObject::UpdateState(float time, float deltaTime) {
 	}
 }
 
-// TODO: use push constants, more efficient
 void GameObject::UpdateVisualState(uint32_t imageIndex,
 								   const glm::mat4& viewMatrix,
 								   float time, float deltaTime,
