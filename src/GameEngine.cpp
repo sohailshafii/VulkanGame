@@ -77,36 +77,36 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 	glm::vec3 characterScaleParagraph = glm::vec3(0.1f, 0.1f, 0.1f);
 	// assemble menus here. only three of them
 	menuObjects[MenuPart::Base].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Play,
-		playMenuOptionText, glm::vec3(0.0f, 20.0f, 80.0f), characterScale, true,
+		playMenuOptionText, glm::vec3(0.0f, 20.0f, 0.0f) + textOrigin, characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects[MenuPart::Base].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Difficulty,
-		difficultyMenuOptionText, glm::vec3(0.0f, 10.0f, 80.0f), characterScale, true,
+		difficultyMenuOptionText, glm::vec3(0.0f, 10.0f, 0.0f) + textOrigin, characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects[MenuPart::Base].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::About,
-		aboutMenuOptionText, glm::vec3(0.0f, 0.0, 80.0f), characterScale, true,
+		aboutMenuOptionText, glm::vec3(0.0f, 0.0, 0.0f) + textOrigin, characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects[MenuPart::Base].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Quit,
-		quitMenuOptionText, glm::vec3(0.0f, -9.0, 80.0f), characterScale, true,
+		quitMenuOptionText, glm::vec3(0.0f, -9.0, 0.0f) + textOrigin, characterScale, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 
 	menuObjects[MenuPart::Difficulty].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Easy,
-		easyMenuOptionText, glm::vec3(0.0f, 15.0f, 80.0f), characterScaleDifficulty, true,
+		easyMenuOptionText, glm::vec3(0.0f, 15.0f, 0.0f) + textOrigin, characterScaleDifficulty, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects[MenuPart::Difficulty].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Medium,
-		mediumMenuOptionText, glm::vec3(0.0f, 5.0f, 80.0f), characterScaleDifficulty, true,
+		mediumMenuOptionText, glm::vec3(0.0f, 5.0f, 0.0f) + textOrigin, characterScaleDifficulty, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects[MenuPart::Difficulty].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Hard,
-		hardMenuOptionText, glm::vec3(0.0f, -5.0, 80.0f), characterScaleDifficulty, true,
+		hardMenuOptionText, glm::vec3(0.0f, -5.0, 0.0f) + textOrigin, characterScaleDifficulty, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects[MenuPart::Difficulty].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Back,
-		backButtonText, glm::vec3(0.0f, -20.0, 80.0f), characterScaleReduced, true,
+		backButtonText, glm::vec3(0.0f, -20.0, 0.0f) + textOrigin, characterScaleReduced, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 
@@ -131,11 +131,11 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		"lazy to write any more instructions.";
 	menuObjects[MenuPart::About].push_back(std::make_shared<MenuObject>(
 		MenuObject::MenuType::Play, gameInfo,
-		glm::vec3(0.0f, 20.0f, 80.0f), characterScaleParagraph, true,
+		glm::vec3(0.0f, 20.0f, 0.0f) + textOrigin, characterScaleParagraph, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 	menuObjects[MenuPart::About].push_back(std::make_shared<MenuObject>(MenuObject::MenuType::Back,
-		backButtonText, glm::vec3(0.0f, -10.0, 80.0f), characterScaleReduced, true,
+		backButtonText, glm::vec3(0.0f, -10.0, 0.0f) + textOrigin, characterScaleReduced, true,
 		fontTextureBuffer, textureSheetName, gfxDeviceManager, logicalDeviceManager,
 		resourceLoader, commandPool));
 
@@ -147,6 +147,7 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	mainCamera->SetPositionYawPitch(sceneSettings.cameraPosition,
 		sceneSettings.cameraYaw, sceneSettings.cameraPitch);
 	if (currentGameMode == GameMode::Menu) {
+		mainCamera->SetPosition(cameraMenuPos);
 		auto& mainGameObjects = mainGameScene->GetGameObjects();
 		for (auto gameObject : mainGameObjects) {
 			gameObject->SetMarkedForDeletionInScene(true);
@@ -155,7 +156,10 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	}
 	else {
 		RemoveMenuItems(currentMenuPart);
-
+		mainCamera->InitializeCameraSystem(sceneSettings.cameraPosition,
+			sceneSettings.cameraYaw, sceneSettings.cameraPitch,
+			sceneSettings.cameraMovementSpeed,
+			sceneSettings.cameraMouseSensitivity);
 		// reset everything to what they were before
 		for (auto gameObject : startingGameObjects) {
 			mainGameScene->AddGameObject(gameObject);

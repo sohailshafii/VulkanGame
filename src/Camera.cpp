@@ -7,6 +7,10 @@ Camera::Camera(const glm::vec3& position, float yaw, float pitch,
 		movementSpeed, mouseSensitivity);
 }
 
+void Camera::SetPosition(glm::vec3 const& position) {
+	this->position = position;
+}
+
 void Camera::InitializeCameraSystem(const glm::vec3& position,
 	float yaw, float pitch, float movementSpeed,
 	float mouseSensitivity) {

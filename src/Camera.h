@@ -14,6 +14,8 @@ public:
 		float yaw, float pitch, float movementSpeed,
 		float mouseSensitivity);
 
+	void SetPosition(glm::vec3 const& position);
+
 	void SetPositionYawPitch(const glm::vec3& position,
 		float yaw, float pitch);
 
