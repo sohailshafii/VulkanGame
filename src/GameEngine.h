@@ -99,6 +99,7 @@ private:
 	static inline const std::string backButtonText = "Back";
 	static inline const glm::vec3 textOrigin = glm::vec3(0.0f, 0.0f, 0.0f);
 	static inline const glm::vec3 cameraMenuPos = glm::vec3(0.0f, 0.0f, 80.0f);
+	static const bool mobileCamera = false;
 
 	SceneLoader::SceneSettings CreateSceneAndReturnSettings(
 		GfxDeviceManager* gfxDeviceManager,

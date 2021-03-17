@@ -466,22 +466,24 @@ void GameEngine::SelectNextMenuObject(bool moveToNextElement) {
 }
 
 void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime) {
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		mainCamera->MoveForward(frameTime);
+	if (mobileCamera) {
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			mainCamera->MoveForward(frameTime);
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+			mainCamera->MoveBackward(frameTime);
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+			mainCamera->MoveLeft(frameTime);
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			mainCamera->MoveRight(frameTime);
+		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		mainCamera->MoveBackward(frameTime);
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		mainCamera->MoveLeft(frameTime);
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		mainCamera->MoveRight(frameTime);
-	}
+
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
 		FireMainCannon(latestFrameTime);
 	}
-
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		UpdateGameMode(GameMode::Menu);
 	}

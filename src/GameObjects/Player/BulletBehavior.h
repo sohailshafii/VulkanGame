@@ -9,7 +9,7 @@ class BulletBehavior : public GameObjectBehavior
 public:
 	BulletBehavior();
 	BulletBehavior(Scene* const scene, glm::vec3 const & velocityVector,
-		float maxDistance = 220.0f);
+		float maxDistance = 300.0f);
 	
 	~BulletBehavior();
 
