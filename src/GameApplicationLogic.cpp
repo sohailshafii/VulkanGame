@@ -63,9 +63,9 @@ void GameApplicationLogic::KeyCallback(GLFWwindow* window, int key, int scancode
 }
 
 void GameApplicationLogic::ProcessInput(GLFWwindow* window,
-	float frameTime) {
+	float currentFrameTime) {
 	GameApplicationLogic::gameEngine->ProcessInput(window,
-		frameTime, lastFrameTime);
+		currentFrameTime, lastFrameTime);
 }
 
 void GameApplicationLogic::InitWindow() {
@@ -197,8 +197,8 @@ void GameApplicationLogic::MainLoop() {
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrameTime = (float)glfwGetTime();
 		float deltaTime = currentFrameTime - lastFrameTime;
+		GameApplicationLogic::ProcessInput(window, currentFrameTime);
 		lastFrameTime = currentFrameTime;
-		GameApplicationLogic::ProcessInput(window, deltaTime);
 
 		uint32_t imageIndex;
 		if (CanAcquireNextPresentableImageIndex(imageIndex)) {

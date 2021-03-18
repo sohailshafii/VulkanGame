@@ -63,7 +63,7 @@ public:
 
 	void ProcessMouse(float xoffset, float yoffset);
 	void ProcessInput(GLFWwindow* window,
-		float frameTime, float latestFrameTime);
+		float frameTime, float lastFrameTime);
 	void ProcessKeyCallback(GLFWwindow* window, int key,
 		int scancode, int action, int mods);
 
@@ -81,6 +81,7 @@ private:
 
 	int currentSelectedMenuObject;
 	MenuPart currentMenuPart;
+	int oldMouseState;
 	std::vector<std::shared_ptr<GameObject>> startingGameObjects;
 	std::shared_ptr<class TextureCreator> fontTextureSheet;
 	class FontTextureBuffer* fontTextureBuffer;
@@ -123,6 +124,6 @@ private:
 	void SetMenuSelectionIndices(MenuPart newMenuPart, int menuItemIndex);
 	void SelectNextMenuObject(bool moveUp);
 
-	void HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime);
+	void HandleMainGameControls(GLFWwindow* window, float frameTime, float lastFrameTime);
 	void FireMainCannon(float latestFrameTime);
 };

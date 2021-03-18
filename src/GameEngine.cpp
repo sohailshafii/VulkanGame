@@ -276,13 +276,13 @@ void GameEngine::ProcessMouse(float xoffset, float yoffset) {
 	mainCamera->ProcessMouse(xoffset, yoffset);
 }
 
-void GameEngine::ProcessInput(GLFWwindow* window, float frameTime, float latestFrameTime) {
+void GameEngine::ProcessInput(GLFWwindow* window, float frameTime, float lastFrameTime) {
 	// can't move around during menu mode
 	if (currentGameMode == GameMode::Menu) {
 		return;
 	}
 
-	HandleMainGameControls(window, frameTime, latestFrameTime);
+	HandleMainGameControls(window, frameTime, lastFrameTime);
 }
 
 void GameEngine::ProcessKeyCallback(GLFWwindow* window, int key,
@@ -465,7 +465,7 @@ void GameEngine::SelectNextMenuObject(bool moveToNextElement) {
 	menuObjects[currentMenuPart][currentSelectedMenuObject]->SetSelectState(true);
 }
 
-void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, float latestFrameTime) {
+void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, float lastFrameTime) {
 	if (mobileCamera) {
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			mainCamera->MoveForward(frameTime);
@@ -481,12 +481,17 @@ void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, flo
 		}
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		FireMainCannon(latestFrameTime);
+	int mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ||
+		(oldMouseState == GLFW_PRESS && mouseState == GLFW_RELEASE )) {
+		FireMainCannon(frameTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		UpdateGameMode(GameMode::Menu);
 	}
+
+	oldMouseState = mouseState;
 }
 
 void GameEngine::FireMainCannon(float latestFrameTime) {
