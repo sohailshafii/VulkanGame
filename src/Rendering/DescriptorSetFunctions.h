@@ -49,6 +49,8 @@ struct UniformBufferObjectModelViewProjRipple {
 	alignas(4) float time;
 	alignas(4) float shudderStartTime;
 	alignas(4) float shudderDuration;
+
+	alignas(4) float deathLerpVariable;
 };
 
 struct UniformBufferUnlitColor {

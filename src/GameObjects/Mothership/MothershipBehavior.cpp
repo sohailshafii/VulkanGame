@@ -16,6 +16,7 @@ const int MothershipBehavior::maxHealth = 7000;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
 const float MothershipBehavior::maxStalkDurationSeconds = 2.0f;
 const float MothershipBehavior::maxShudderDurationSeconds = 0.25f;
+const float MothershipBehavior::maxDeathDurationSeconds = 3.0f;
 
 MothershipBehavior::MothershipBehavior(Scene* const scene, float radius)
 	: GameObjectBehavior(scene), radius(radius), currentHealth(maxHealth) {
@@ -150,7 +151,7 @@ void MothershipBehavior::Reboot() {
 		delete currentShipStateBehavior;
 	}
 	currentHealth = maxHealth;
-	killedSelf = false;
+	deathStartTime = -1.0f;
 	Initialize();
 }
 
@@ -504,17 +505,18 @@ void* MothershipBehavior::CreateUniformBufferModelViewProjRipple(
 
 	UpdateUBORippleData(ubo);
 	UpdateUBOStalkData(ubo);
+	ubo->deathLerpVariable = deathStartTime < 0.0f ? 0.0f : deathStartTime;
 
 	uboSize = sizeof(*ubo);
 	return ubo;
 }
 
 void MothershipBehavior::Die() {
-	if (killedSelf) {
+	if (deathStartTime >= 0.0f) {
 		return;
 	}
 
-	killedSelf = true;
+	deathStartTime = currentFrameTime;
 	gameObject->SetMarkedForDeletionInScene(true);
 	// TODO: do something cool here
 }

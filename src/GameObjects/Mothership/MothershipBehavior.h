@@ -83,6 +83,7 @@ private:
 	static const float maxRippleDurationSeconds;
 	static const float maxStalkDurationSeconds;
 	static const float maxShudderDurationSeconds;
+	static const float maxDeathDurationSeconds;
 
 	ShipStateBehavior *currentShipStateBehavior;
 	float radius;
@@ -94,7 +95,7 @@ private:
 	std::vector<glm::vec3> originalModelColors;
 	float shudderStartTime;
 
-	bool killedSelf;
+	float deathStartTime;
 
 	void Initialize();
 	GameObjectBehavior::BehaviorStatus UpdateStateMachine(float time,

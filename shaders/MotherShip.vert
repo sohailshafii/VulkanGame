@@ -3,6 +3,8 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+#define PI 3.1415926538
+
 struct RipplePointLocal {
 	vec4 ripplePosition;
 	float rippleDuration;
@@ -27,6 +29,8 @@ layout(binding = 0) uniform UniformBufferObject {
 
 	float shudderStartTime;
 	float shudderDuration;
+
+	float deathLerpVariable;
 } ubo;
 
 layout(location = 0) in vec3 inPosition;
@@ -159,6 +163,20 @@ vec3 getNewStalkOffset(vec3 vertexPosition) {
 	return offsetVec;
 }
 
+// the lerp variable is provided by the program
+// it's always applied (we do this to avoid branching)
+// but the default value provided is zero to prevent it from doing anything
+vec3 deathOffset(vec3 originalVertexPos) {
+	float deathTimeLerp = ubo.deathLerpVariable;
+	// https://github.com/nicolausYes/easing-functions/blob/master/src/easing.cpp
+	// ease out bounce
+	float lerpValue = 1.0f - pow(2.0f, -6.0f * deathTimeLerp) *
+		abs(cos(deathTimeLerp * PI * 3.5f));
+	vec3 vectorToOrigin = -originalVertexPos;
+	vec3 displacement = lerpValue * -originalVertexPos;
+	return displacement;
+}
+
 void main() {
 	vec3 vertexPosition = inPosition;
 	// use original vertex position in effects
@@ -172,6 +190,8 @@ void main() {
 	vertexPosition += getNewVertexOffsetRipple(vertexPositionOriginal);
 
 	vertexPosition += getNewStalkOffset(vertexPositionOriginal);
+
+	vertexPosition += deathOffset(vertexPositionOriginal);
 
 	gl_Position = ubo.proj * ubo.view *
 		ubo.model * vec4(vertexPosition, 1.0);
