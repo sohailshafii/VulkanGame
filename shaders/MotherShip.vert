@@ -167,11 +167,10 @@ vec3 getNewStalkOffset(vec3 vertexPosition) {
 // it's always applied (we do this to avoid branching)
 // but the default value provided is zero to prevent it from doing anything
 vec3 deathOffset(vec3 originalVertexPos) {
-	float deathTimeLerp = ubo.deathLerpVariable;
-	// https://github.com/nicolausYes/easing-functions/blob/master/src/easing.cpp
+	// github.com/nicolausYes/easing-functions/blob/master/src/easing.cpp
 	// ease out bounce
-	float lerpValue = 1.0f - pow(2.0f, -6.0f * deathTimeLerp) *
-		abs(cos(deathTimeLerp * PI * 3.5f));
+	float lerpValue = 1.0f - pow(2.0f, -6.0f * ubo.deathLerpVariable) *
+		abs(cos(ubo.deathLerpVariable * PI * 3.5f));
 	vec3 vectorToOrigin = -originalVertexPos;
 	vec3 displacement = lerpValue * -originalVertexPos;
 	return displacement;
@@ -191,7 +190,7 @@ void main() {
 
 	vertexPosition += getNewStalkOffset(vertexPositionOriginal);
 
-	vertexPosition += deathOffset(vertexPositionOriginal);
+	vertexPosition += deathOffset(vertexPosition);
 
 	gl_Position = ubo.proj * ubo.view *
 		ubo.model * vec4(vertexPosition, 1.0);

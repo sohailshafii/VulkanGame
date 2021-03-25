@@ -8,11 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 // based on the shader. the stalk spends half its time rising
 const float MothershipBehavior::stalkRiseDuration = 0.5f;
 
-const int MothershipBehavior::maxHealth = 7000;
+const int MothershipBehavior::maxHealth = 300;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
 const float MothershipBehavior::maxStalkDurationSeconds = 2.0f;
 const float MothershipBehavior::maxShudderDurationSeconds = 0.25f;
@@ -136,7 +137,8 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 		glm::vec3(1.0f, 0.0f, 0.f));
 
 	currentHealth -= damage;
-	if (currentHealth < 0) {
+	std::cout << "Current health: " << currentHealth << std::endl;
+	if (currentHealth <= 0) {
 		currentHealth = 0;
 		Die();
 	}
@@ -165,7 +167,15 @@ GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(
 	RemoveOldRipples();
 	RemoveOldStalks();
 	if (currentHealth == 0) {
-		return GameObjectBehavior::BehaviorStatus::Destroyed;
+		bool destructionFinished =
+			(deathStartTime > 0.0f &&
+				currentFrameTime > (deathStartTime + maxDeathDurationSeconds));
+		if (destructionFinished) {
+			std::cout << "destruction finished\n";
+		}
+		return destructionFinished ?
+			GameObjectBehavior::BehaviorStatus::Destroyed :
+			GameObjectBehavior::BehaviorStatus::Normal;
 	}
 	
 	UpdateModelColorsBasedOnCurrentModifiers();
@@ -505,7 +515,14 @@ void* MothershipBehavior::CreateUniformBufferModelViewProjRipple(
 
 	UpdateUBORippleData(ubo);
 	UpdateUBOStalkData(ubo);
-	ubo->deathLerpVariable = deathStartTime < 0.0f ? 0.0f : deathStartTime;
+	if (deathStartTime < 0.0f) {
+		ubo->deathLerpVariable = 0.0f;
+	}
+	else {
+		ubo->deathLerpVariable = (currentFrameTime - deathStartTime) /
+			maxDeathDurationSeconds;
+		std::cout << "lerp variable " << ubo->deathLerpVariable << std::endl;
+	}
 
 	uboSize = sizeof(*ubo);
 	return ubo;
@@ -515,8 +532,7 @@ void MothershipBehavior::Die() {
 	if (deathStartTime >= 0.0f) {
 		return;
 	}
+	std::cout << "Dead!\n";
 
 	deathStartTime = currentFrameTime;
-	gameObject->SetMarkedForDeletionInScene(true);
-	// TODO: do something cool here
 }
