@@ -13,7 +13,7 @@
 // based on the shader. the stalk spends half its time rising
 const float MothershipBehavior::stalkRiseDuration = 0.5f;
 
-const int MothershipBehavior::maxHealth = 300;
+const int MothershipBehavior::maxHealth = 1000;
 const float MothershipBehavior::maxRippleDurationSeconds = 2.0f;
 const float MothershipBehavior::maxStalkDurationSeconds = 2.0f;
 const float MothershipBehavior::maxShudderDurationSeconds = 0.25f;

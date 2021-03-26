@@ -18,6 +18,7 @@ struct StalkPointLocal {
 
 const float stalkDuration = 2.0f;
 const float epsilon = 0.001f;
+const float noisePercentage = 0.1f;
 
 layout(binding = 0) uniform UniformBufferObject {
 	mat4 model;
@@ -173,7 +174,17 @@ vec3 deathOffset(vec3 originalVertexPos) {
 		abs(cos(ubo.deathLerpVariable * PI * 3.5f));
 	vec3 vectorToOrigin = -originalVertexPos;
 	vec3 displacement = lerpValue * -originalVertexPos;
-	return displacement;
+
+	vec3 oppositeDir = lerpValue * originalVertexPos;
+	float oppositeDirLen = length(oppositeDir);
+	float noiseMagn = noisePercentage*length(oppositeDirLen);
+	// normalize if magnitude > 0
+	if (oppositeDirLen > 0.0) {
+		oppositeDir = oppositeDir/oppositeDirLen;
+	}
+	oppositeDir *= noiseMagn*rand(vec2(ubo.time+originalVertexPos.x,
+		ubo.time+originalVertexPos.y));
+	return displacement + oppositeDir;//noisyPart;
 }
 
 void main() {
