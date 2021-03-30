@@ -63,6 +63,7 @@ void MothershipBehavior::SpawnPawn() {
 		float reducedRadius = radius * 0.7f;
 		glm::vec3 positionOnSphere = planePosition;
 		int numTries = 0;
+		// TODO: debug this
 		while (numTries < 10) {
 			glm::vec3 pointOnPlaneCrossingThroughSphere =
 				SamplePositionOnPlane(planePosition, planePosToPlayer,
@@ -89,10 +90,17 @@ void MothershipBehavior::SpawnPawn() {
 			glm::vec4(positionOnSphere, 1.0f);
 		AddNewStalk(surfacePointLocal);
 
+		// forward position is direction of stalk
+		glm::vec3 initialForward = positionOnSphere - planePosition;
+		if (glm::length(initialForward) < 0.0000001f) {
+			initialForward = glm::vec3(1.0f, 0.0f, 0.0f);
+		}
+		else {
+			initialForward = glm::normalize(initialForward);
+		}
 		scene->SpawnGameObject(Scene::SpawnType::Pawn,
-							   positionOnSphere,
-							   // forward position is direction of stalk
-							   glm::normalize(positionOnSphere - planePosition));
+								positionOnSphere,
+								initialForward);
 	}
 }
 
@@ -355,15 +363,16 @@ void MothershipBehavior::RemoveOldStalks() {
 glm::vec3 MothershipBehavior::SamplePositionOnPlane(glm::vec3 const& planePosition,
 	glm::vec3 const& planeNormal, float maxRadius) {
 	glm::vec3 vectorOnPlane = FindVectorPerpendicularToInputVec(planeNormal);
-	glm::vec3 vectorOnPlane2 = glm::cross(vectorOnPlane, planeNormal);
+	// right-handed
+	glm::vec3 vectorOnPlane2 = glm::cross(planeNormal, vectorOnPlane);
 	glm::normalize(vectorOnPlane2);
 	// make sure first vector is perpendicular to both
-	vectorOnPlane = glm::cross(planeNormal, vectorOnPlane2);
+	vectorOnPlane = glm::cross(vectorOnPlane2, planeNormal);
 
 	// now we have a coordinate system. time to sample
 	// on unit circle
 	float randAngle = 3.14f * ((float)rand() / RAND_MAX);
-	return maxRadius * cos(randAngle) * vectorOnPlane +
+	return planePosition + maxRadius * cos(randAngle) * vectorOnPlane +
 		maxRadius * sin(randAngle) * vectorOnPlane2;
 }
 
@@ -381,15 +390,15 @@ glm::vec3 MothershipBehavior::FindVectorPerpendicularToInputVec(
 	// the most perpendicular one has the smallest dot product
 	if (dot1 < dot2 && dot1 < dot3) {
 		// subtract out the parallel part
-		perpVec = candidate1 - inputVector * (candidate1 * inputVector);
+		perpVec = candidate1 - inputVector * dot1;
 	}
 	else if (dot2 < dot1 && dot2 < dot3) {
 		// subtract out the parallel part
-		perpVec = candidate2 - inputVector * (candidate2 * inputVector);
+		perpVec = candidate2 - inputVector * dot2;
 	}
 	else {
 		// subtract out the parallel part
-		perpVec = candidate3 - inputVector * (candidate3 * inputVector);
+		perpVec = candidate3 - inputVector * dot2;
 	}
 	glm::normalize(perpVec);
 	return perpVec;
