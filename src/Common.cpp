@@ -2,6 +2,8 @@
 #include "LogicalDeviceManager.h"
 #include "GfxDeviceManager.h"
 #include <stdexcept>
+#define GLM_FORCE_RADIANS
+#include <glm/gtc/matrix_transform.hpp>
 
 VkImageView Common::CreateImageView(VkImage image, VkFormat format,
 	VkImageAspectFlags aspectFlags, uint32_t mipLevels,
@@ -274,4 +276,11 @@ void Common::CopyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPoo
 	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
 	Common::EndSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
+}
+
+glm::mat4 Common::ConstructProjectionMatrix(uint32_t width, uint32_t height) {
+	glm::mat4 projectionMat = glm::perspective(glm::radians(45.0f), width / (float)height, nearPlaneDistance,
+		farPlaneDistance);
+	projectionMat[1][1] *= -1; // flip Y -- opposite of opengl
+	return projectionMat;
 }

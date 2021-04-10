@@ -53,7 +53,7 @@ void GameApplicationLogic::MouseCallback(GLFWwindow* window,
 	float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
 	lastX = (float)xpos;
 	lastY = (float)ypos;
-	GameApplicationLogic::gameEngine->ProcessMouse(xoffset, yoffset);
+	GameApplicationLogic::gameEngine->ProcessMouse(xpos, ypos, xoffset, yoffset);
 }
 
 void GameApplicationLogic::KeyCallback(GLFWwindow* window, int key, int scancode,
@@ -78,8 +78,6 @@ void GameApplicationLogic::InitWindow() {
 	glfwSetWindowUserPointer(window, this);
 	glfwSetCursorPosCallback(window, MouseCallback);
 	glfwSetKeyCallback(window, KeyCallback);
-	// for fps mode we want to capture the mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 }
 

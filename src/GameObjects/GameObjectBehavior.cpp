@@ -1,6 +1,7 @@
 #include "GameObjectBehavior.h"
 #include "GameObject.h"
 #include "DescriptorSetFunctions.h"
+#include "Common.h"
 
 void* GameObjectBehavior::CreateVertUBOData(size_t& uboSize,
 	VkExtent2D const& swapChainExtent, const glm::mat4& viewMatrix,
@@ -40,9 +41,8 @@ void* GameObjectBehavior::CreateUniformBufferModelViewProj(
 		new UniformBufferObjectModelViewProj();
 	ubo->model = GetModelMatrix();
 	ubo->view = viewMatrix;
-	ubo->proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
-	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
 
 	uboSize = sizeof(*ubo);
 	return ubo;
@@ -57,9 +57,8 @@ void* GameObjectBehavior::CreateUniformBufferModelViewProjColor(
 		new UniformBufferObjectModelViewProjColor();
 	ubo->model = GetModelMatrix();
 	ubo->view = viewMatrix;
-	ubo->proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
-	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
 	ubo->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	uboSize = sizeof(*ubo);
@@ -75,10 +74,8 @@ void* GameObjectBehavior::CreateUniformBufferModelViewProjRipple(
 		new UniformBufferObjectModelViewProjRipple();
 	ubo->model = GetModelMatrix();
 	ubo->view = viewMatrix;
-	ubo->proj = glm::perspective(glm::radians(45.0f),
-		swapChainExtent.width / (float)swapChainExtent.height,
-		0.1f, 1000.0f);
-	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
 
 	uboSize = sizeof(*ubo);
 	return ubo;
@@ -93,9 +90,8 @@ void* GameObjectBehavior::CreateUniformBufferModelViewProjTime(
 		new UniformBufferObjectModelViewProjTime();
 	ubo->model = GetModelMatrix();
 	ubo->view = viewMatrix;
-	ubo->proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
-	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
 	ubo->time = time;
 
 	uboSize = sizeof(*ubo);

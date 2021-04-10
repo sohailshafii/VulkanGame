@@ -61,7 +61,8 @@ public:
 			forwardDir);
 	}
 
-	void ProcessMouse(float xoffset, float yoffset);
+	void ProcessMouse(float xpos, float ypos,
+		float xoffset, float yoffset);
 	void ProcessInput(GLFWwindow* window,
 		float frameTime, float lastFrameTime);
 	void ProcessKeyCallback(GLFWwindow* window, int key,
@@ -88,6 +89,7 @@ private:
 	Difficulty currentDifficulty;
 	GLFWwindow* window;
 	SceneLoader::SceneSettings sceneSettings;
+	float mouseXPos, mouseYPos;
 
 	static constexpr int numMenus = 3;
 	static inline const std::string playMenuOptionText = "Play";
@@ -101,6 +103,7 @@ private:
 	static inline const glm::vec3 textOrigin = glm::vec3(0.0f, 0.0f, 0.0f);
 	static inline const glm::vec3 cameraMenuPos = glm::vec3(0.0f, 0.0f, 80.0f);
 	static const bool mobileCamera = false;
+	static const bool staticView = true;
 
 	SceneLoader::SceneSettings CreateSceneAndReturnSettings(
 		GfxDeviceManager* gfxDeviceManager,
@@ -126,4 +129,6 @@ private:
 
 	void HandleMainGameControls(GLFWwindow* window, float frameTime, float lastFrameTime);
 	void FireMainCannon(float latestFrameTime);
+
+	glm::vec3 GetCurrentMouseAsWorldCoords();
 };

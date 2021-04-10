@@ -10,6 +10,9 @@ class GfxDeviceManager;
 
 class Common {
 public:
+	static constexpr float nearPlaneDistance = 0.1f;
+	static constexpr float farPlaneDistance = 1000.0f;
+
 	static VkImageView CreateImageView(VkImage image, VkFormat format,
 		VkImageAspectFlags aspectFlags, uint32_t mipLevels,
 		LogicalDeviceManager* logicalDeviceManager);
@@ -44,6 +47,8 @@ public:
 		VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	
 	static void CopyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+	static glm::mat4 ConstructProjectionMatrix(uint32_t width, uint32_t height);
 };
 
 

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include "Common.h"
 
 // based on the shader. the stalk spends half its time rising
 const float MothershipBehavior::stalkRiseDuration = 0.5f;
@@ -63,7 +64,6 @@ void MothershipBehavior::SpawnPawn() {
 		float reducedRadius = radius * 0.7f;
 		glm::vec3 positionOnSphere = planePosition;
 		int numTries = 0;
-		// TODO: debug this
 		while (numTries < 10) {
 			glm::vec3 pointOnPlaneCrossingThroughSphere =
 				SamplePositionOnPlane(planePosition, planePosToPlayer,
@@ -514,9 +514,8 @@ void* MothershipBehavior::CreateUniformBufferModelViewProjRipple(
 		new UniformBufferObjectModelViewProjRipple();
 	ubo->model = GetModelMatrix();
 	ubo->view = viewMatrix;
-	ubo->proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width /
-		(float)swapChainExtent.height, 0.1f, 1000.0f);
-	ubo->proj[1][1] *= -1; // flip Y -- opposite of opengl
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
 	ubo->time = time;
 
 	ubo->shudderDuration = maxShudderDurationSeconds;

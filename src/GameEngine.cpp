@@ -16,6 +16,9 @@
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
 #include "Resources/TextureCreator.h"
+#define GLM_FORCE_LEFT_HANDED
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <iostream>
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -268,9 +271,13 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 	mainGameScene->AddGameObject(newGameObject);
 }
 
-void GameEngine::ProcessMouse(float xoffset, float yoffset) {
+void GameEngine::ProcessMouse(float xpos, float ypos,
+	float xoffset, float yoffset) {
+	mouseXPos = xpos;
+	mouseYPos = ypos;
 	// can't move around during menu mode
-	if (currentGameMode == GameMode::Menu) {
+	if (currentGameMode == GameMode::Menu ||
+		staticView) {
 		return;
 	}
 	mainCamera->ProcessMouse(xoffset, yoffset);
@@ -465,7 +472,8 @@ void GameEngine::SelectNextMenuObject(bool moveToNextElement) {
 	menuObjects[currentMenuPart][currentSelectedMenuObject]->SetSelectState(true);
 }
 
-void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, float lastFrameTime) {
+void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime,
+	float lastFrameTime) {
 	if (mobileCamera) {
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			mainCamera->MoveForward(frameTime);
@@ -497,7 +505,40 @@ void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime, flo
 void GameEngine::FireMainCannon(float latestFrameTime) {
 	if (latestFrameTime > (lastFireTime + fireInterval)) {
 		lastFireTime = latestFrameTime;
-		SpawnGameObject(Scene::SpawnType::Bullet, mainCamera->GetWorldPosition(),
-			mainCamera->GetForwardDirection());
+		glm::vec3 mouseCoords = GetCurrentMouseAsWorldCoords();
+		std::cout << mouseCoords[0] << " " << mouseCoords[1] << " " <<
+			mouseCoords[2] << std::endl;
+		auto direction = mainCamera->GetForwardDirection();
+		direction = glm::vec3(0.0f, 0.0f, -100.0f) - mouseCoords;
+		direction = glm::normalize(direction);
+		std::cout << direction[0] << " " << direction[1] << " " <<
+			direction[2] << std::endl;
+		SpawnGameObject(Scene::SpawnType::Bullet, mouseCoords,
+			direction);
 	}
+}
+
+glm::vec3 GameEngine::GetCurrentMouseAsWorldCoords() {
+	glm::vec4 mousePosWithDepth(mouseXPos, mouseYPos, 0.98f, 1.0f);
+	// restrict to normalized space, but keep in mind that y increases downwards
+	// in screen space
+	// go from that to clip space, which is restrict to [-1, 1]
+	VkExtent2D extent2D = graphicsEngine->GetSwapChainManager()->GetSwapChainExtent();
+	float screenWidth = extent2D.width;
+	float screenHeight = extent2D.height;
+	mousePosWithDepth[0] = ((mouseXPos + 0.5f) / extent2D.width) * 2.0f - 1.0f;
+	// y is flipped in projection matrix
+	mousePosWithDepth[1] = 2.0f*((mouseYPos + 0.5f) / extent2D.height) - 1.0f;
+
+	glm::mat4 viewMatrix = mainCamera->ConstructViewMatrix();
+	glm::mat4 projectionMatrix = Common::ConstructProjectionMatrix(extent2D.width,
+		extent2D.height);
+	glm::mat4 projectionViewInv = glm::inverse(projectionMatrix * viewMatrix);
+	glm::vec4 worldSpaceMouseCoords = projectionViewInv * mousePosWithDepth;
+
+	float wInv = 1.0f / worldSpaceMouseCoords[3];
+	glm::vec3 worldCoords(worldSpaceMouseCoords[0] * wInv,
+		worldSpaceMouseCoords[1] * wInv, worldSpaceMouseCoords[2] * wInv);
+
+	return worldCoords;
 }
