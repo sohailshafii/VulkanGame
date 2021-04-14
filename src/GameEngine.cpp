@@ -505,20 +505,18 @@ void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime,
 void GameEngine::FireMainCannon(float latestFrameTime) {
 	if (latestFrameTime > (lastFireTime + fireInterval)) {
 		lastFireTime = latestFrameTime;
-		glm::vec3 mouseCoords = GetCurrentMouseAsWorldCoords();
+		glm::vec3 mouseCoords;
+		glm::vec3 direction;
+		GetCurrentMouseWorldCoordAndDir(mouseCoords, direction);
 		std::cout << mouseCoords[0] << " " << mouseCoords[1] << " " <<
 			mouseCoords[2] << std::endl;
-		auto direction = mainCamera->GetForwardDirection();
-		direction = glm::vec3(0.0f, 0.0f, -100.0f) - mouseCoords;
-		direction = glm::normalize(direction);
-		std::cout << direction[0] << " " << direction[1] << " " <<
-			direction[2] << std::endl;
 		SpawnGameObject(Scene::SpawnType::Bullet, mouseCoords,
 			direction);
 	}
 }
 
-glm::vec3 GameEngine::GetCurrentMouseAsWorldCoords() {
+void GameEngine::GetCurrentMouseWorldCoordAndDir(glm::vec3& mouseCoords,
+	glm::vec3& direction) {
 	glm::vec4 mousePosWithDepth(mouseXPos, mouseYPos, 0.98f, 1.0f);
 	// restrict to normalized space, but keep in mind that y increases downwards
 	// in screen space
@@ -537,8 +535,21 @@ glm::vec3 GameEngine::GetCurrentMouseAsWorldCoords() {
 	glm::vec4 worldSpaceMouseCoords = projectionViewInv * mousePosWithDepth;
 
 	float wInv = 1.0f / worldSpaceMouseCoords[3];
-	glm::vec3 worldCoords(worldSpaceMouseCoords[0] * wInv,
+	mouseCoords = glm::vec3(worldSpaceMouseCoords[0] * wInv,
 		worldSpaceMouseCoords[1] * wInv, worldSpaceMouseCoords[2] * wInv);
-
-	return worldCoords;
+	// the further we are from the center in clip space, the more the direction extends
+	// out toward the periphery of the mother ship
+	// TODO: this is weird, consider ortho camera instead
+	float xTValue = mousePosWithDepth[0];
+	float yTValue = mousePosWithDepth[1];
+	// map to unit circle
+	// https://www.xarg.org/2017/07/how-to-map-a-square-to-a-circle/
+	float mappedXExtentMotherShip = xTValue * sqrt(1.0f - yTValue * yTValue * 0.5f);
+	float mappedYExtentMotherShip = yTValue * sqrt(1.0f - xTValue * xTValue * 0.5f);
+	// multiply by radius
+	mappedXExtentMotherShip *= 100.0f;
+	mappedYExtentMotherShip *=-100.0f;
+	direction = glm::vec3(mappedXExtentMotherShip, mappedYExtentMotherShip,
+		-100.0f) - mouseCoords;
+	direction = glm::normalize(direction);
 }

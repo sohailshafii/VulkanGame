@@ -130,5 +130,6 @@ private:
 	void HandleMainGameControls(GLFWwindow* window, float frameTime, float lastFrameTime);
 	void FireMainCannon(float latestFrameTime);
 
-	glm::vec3 GetCurrentMouseAsWorldCoords();
+	void GetCurrentMouseWorldCoordAndDir(glm::vec3& mouseCoords,
+		glm::vec3& direction);
 };
