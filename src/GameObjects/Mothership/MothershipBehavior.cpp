@@ -1,5 +1,6 @@
 #include "MothershipBehavior.h"
 #include "MothershipIdleStateBehavior.h"
+#include "MothershipWakeBehavior.h"
 #include "GameObjectCreationUtilFuncs.h"
 #include "DescriptorSetFunctions.h"
 #include "GameObject.h"
@@ -166,7 +167,7 @@ void MothershipBehavior::Reboot() {
 }
 
 void MothershipBehavior::Initialize() {
-	currentShipStateBehavior = new MothershipIdleStateBehavior();
+	currentShipStateBehavior = new MothershipWakeBehavior();
 }
 
 GameObjectBehavior::BehaviorStatus MothershipBehavior::UpdateStateMachine(

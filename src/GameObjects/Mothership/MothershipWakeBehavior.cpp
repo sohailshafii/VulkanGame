@@ -7,15 +7,33 @@
 #include <iostream>
 
 MothershipWakeBehavior::MothershipWakeBehavior() {
-	// TODO
+	wakeTime = -1.0f;
 }
 
 ShipStateBehavior* MothershipWakeBehavior::UpdateAndGetNextState(
 	MothershipBehavior & motherShip,
 	float time, float deltaTime) {
+	if (wakeTime < 0.0f) {
+		InitializeIfRequired(motherShip, time);
+	}
 
 	ShipStateBehavior* nextShipState = this;
-	// TODO
+	
+	float endTime = wakeTime + spawnDuration;
+	if (time < endTime) {
+
+	}
+	else {
+		nextShipState = new MothershipIdleStateBehavior();
+		motherShip.SetWorldPosition(originalMothershipPosition);
+	}
+
 	return nextShipState;
+}
+
+void MothershipWakeBehavior::InitializeIfRequired(MothershipBehavior const & motherShip,
+	float time) {
+	wakeTime = time;
+	originalMothershipPosition = motherShip.GetWorldPosition();
 }
 

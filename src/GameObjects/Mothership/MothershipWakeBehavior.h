@@ -16,4 +16,13 @@ public:
 	}
 
 private:
+	void InitializeIfRequired(MothershipBehavior const& motherShip,
+		float time);
+
+	static inline const glm::vec3 startOffset = glm::vec3(0.0f, 50.0f, -50.0f);
+	static constexpr float spawnDuration = 4.0f;
+
+	float wakeTime;
+	glm::mat4 modelMatrix;
+	glm::vec3 originalMothershipPosition;
 };
