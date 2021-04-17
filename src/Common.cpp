@@ -279,7 +279,8 @@ void Common::CopyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPoo
 }
 
 glm::mat4 Common::ConstructProjectionMatrix(uint32_t width, uint32_t height) {
-	glm::mat4 projectionMat = glm::perspective(glm::radians(45.0f), width / (float)height, nearPlaneDistance,
+	glm::mat4 projectionMat = glm::perspective(glm::radians(45.0f),
+		width / (float)height, nearPlaneDistance,
 		farPlaneDistance);
 	projectionMat[1][1] *= -1; // flip Y -- opposite of opengl
 	return projectionMat;

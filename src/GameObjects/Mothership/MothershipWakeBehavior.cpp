@@ -21,7 +21,12 @@ ShipStateBehavior* MothershipWakeBehavior::UpdateAndGetNextState(
 	
 	float endTime = wakeTime + spawnDuration;
 	if (time < endTime) {
-
+		float t = (time - wakeTime) / spawnDuration;
+		// as time progresses, make the offset from start position smaller
+		// so that we lerp to start position
+		glm::vec3 newMothershipPosition = originalMothershipPosition +
+			(1.0f - t) * startOffset;
+		motherShip.SetWorldPosition(newMothershipPosition);
 	}
 	else {
 		nextShipState = new MothershipIdleStateBehavior();
