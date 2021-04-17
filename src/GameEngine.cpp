@@ -505,13 +505,8 @@ void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime,
 void GameEngine::FireMainCannon(float latestFrameTime) {
 	if (latestFrameTime > (lastFireTime + fireInterval)) {
 		lastFireTime = latestFrameTime;
-		glm::vec3 mouseCoords;
-		glm::vec3 direction;
-		GetCurrentMouseWorldCoordAndDir(mouseCoords, direction);
-		std::cout << mouseCoords[0] << " " << mouseCoords[1] << " " <<
-			mouseCoords[2] << std::endl;
-		SpawnGameObject(Scene::SpawnType::Bullet, mouseCoords,
-			direction);
+		SpawnGameObject(Scene::SpawnType::Bullet, mainCamera->GetWorldPosition(),
+			mainCamera->GetForwardDirection());
 	}
 }
 
@@ -539,7 +534,6 @@ void GameEngine::GetCurrentMouseWorldCoordAndDir(glm::vec3& mouseCoords,
 		worldSpaceMouseCoords[1] * wInv, worldSpaceMouseCoords[2] * wInv);
 	// the further we are from the center in clip space, the more the direction extends
 	// out toward the periphery of the mother ship
-	// TODO: this is weird, consider ortho camera instead
 	float xTValue = mousePosWithDepth[0];
 	float yTValue = mousePosWithDepth[1];
 	// map to unit circle

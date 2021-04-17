@@ -79,6 +79,7 @@ void GameApplicationLogic::InitWindow() {
 	glfwSetCursorPosCallback(window, MouseCallback);
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 void GameApplicationLogic::FramebufferResizeCallback(GLFWwindow* window,
