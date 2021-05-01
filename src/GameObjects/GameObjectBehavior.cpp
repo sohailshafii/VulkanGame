@@ -29,7 +29,21 @@ void* GameObjectBehavior::CreateVertUBOData(size_t& uboSize,
 }
 
 void* GameObjectBehavior::CreateFragUBOData(size_t& uboSize) {
-	return nullptr;
+	UniformBufferUnlitColor* ubo =
+		new UniformBufferUnlitColor();
+	ubo->objectColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+	uboSize = sizeof(*ubo);
+
+	switch (gameObject->GetMaterialType())
+	{
+		case DescriptorSetFunctions::MaterialType::UnlitColor:
+		case DescriptorSetFunctions::MaterialType::Text:
+			return CreateFBOUniformBufferColor(uboSize);
+		default:
+			return nullptr;
+	}
+	return ubo;
 }
 
 void* GameObjectBehavior::CreateUniformBufferModelViewProj(
@@ -93,6 +107,15 @@ void* GameObjectBehavior::CreateUniformBufferModelViewProjTime(
 	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 	ubo->time = time;
+
+	uboSize = sizeof(*ubo);
+	return ubo;
+}
+
+void* GameObjectBehavior::CreateFBOUniformBufferColor(size_t& uboSize) {
+	UniformBufferUnlitColor* ubo =
+		new UniformBufferUnlitColor();
+	ubo->objectColor = glm::vec4(0.0f, 0.4f, 0.4f, 1.0f);
 
 	uboSize = sizeof(*ubo);
 	return ubo;

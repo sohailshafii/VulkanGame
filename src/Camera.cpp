@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <iostream>
 
 Camera::Camera(const glm::vec3& position, float yaw, float pitch,
 	float movementSpeed, float mouseSensitivity) {
@@ -35,25 +36,26 @@ glm::mat4 Camera::ConstructViewMatrix() const {
 }
 
 void Camera::MoveForward(float deltaTime) {
-	position += forward * movementSpeed * deltaTime;
+	// prevent vertical movement
+	position += glm::vec3(forward[0], 0.0f, forward[2]) * movementSpeed * deltaTime;
 }
 
 void Camera::MoveBackward(float deltaTime) {
-	position -= forward * movementSpeed * deltaTime;
+	position -= glm::vec3(forward[0], 0.0f, forward[2]) * movementSpeed * deltaTime;
 }
 
 void Camera::MoveRight(float deltaTime) {
-	position += right * movementSpeed * deltaTime;
+	position += glm::vec3(right[0], 0.0f, right[2]) * movementSpeed * deltaTime;
 }
 
 void Camera::MoveLeft(float deltaTime) {
-	position -= right * movementSpeed * deltaTime;
+	position -= glm::vec3(right[0], 0.0f, right[2]) * movementSpeed * deltaTime;
 }
 
 void Camera::ProcessMouse(float mouseXMovement, float mouseYMovement) {
 	mouseXMovement *= mouseSensitivity;
 	mouseYMovement *= mouseSensitivity;
-
+	
 	yaw += mouseXMovement;
 	UpdateAndClampPitch(pitch + mouseYMovement);
 

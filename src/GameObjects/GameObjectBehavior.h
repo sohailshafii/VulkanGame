@@ -91,4 +91,6 @@ protected:
 		const glm::mat4& viewMatrix,
 		float time,
 		float deltaTime);
+
+	virtual void* CreateFBOUniformBufferColor(size_t& uboSize);
 };

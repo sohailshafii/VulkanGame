@@ -46,4 +46,6 @@ private:
 	float yaw, pitch;
 	float movementSpeed;
 	float mouseSensitivity;
+
+	glm::vec3 boundsMin, boundsMax;
 };

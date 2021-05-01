@@ -3,34 +3,35 @@
 	{
 		"camera":
 		{
-			"position":[0.0, 3.0, 250.0],
+			"position":[0.0, 0.2, 0.0],
 			"yaw":-90.0,
 			"pitch":0.0,
-			"movement_speed":14.5,
+			"movement_speed":0.005,
 			"mouse_sensitivity":0.035
 		}
 	},
 	"game_objects":
 	[
 		{
+			"type":"Stationary",
 			"model":"Procedural",
-			"type":"Mothership",
-			"ship_radius":100.0,
 			"material":
 			{
-				"type":"MotherShip",
+				"type":"UnlitColor",
 				"main_texture":"texture.jpg"
 			},
 			"transformation":
 			{
-				"position":[0.0, 0.0,-100.0],
-				"scale":[20.0, 20.0, 20.0]
+				"position":[-500.0, 0.0,-500.0]
 			},
 			"meta_data":
 			{
-				"primitive_type":"icosahedron",
-				"radius":5.0,
-				"num_subdivisions":3
+				"primitive_type":"quad",
+				"lower_left":[0.0,0.0,0.0],
+				"side_1_vec":[1000.0,0.0,0.0],
+				"side_2_vec":[0.0,0.0,1000.0],
+				"num_side_1_points":1000,
+				"num_side_2_points":1000
 			}
 		}
 	],

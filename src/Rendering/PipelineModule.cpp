@@ -127,7 +127,8 @@ std::shared_ptr<ShaderLoader> fragShaderModule = resourceLoader->GetShader(
 		materialType == DescriptorSetFunctions::MaterialType::MotherShip ||
 		materialType == DescriptorSetFunctions::MaterialType::BumpySurface ||
 		materialType == DescriptorSetFunctions::MaterialType::WavySurface ||
-		materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
+		materialType == DescriptorSetFunctions::MaterialType::UnlitTintedTextured ||
+		materialType == DescriptorSetFunctions::MaterialType::UnlitColor;
 	rasterizer.polygonMode = usePolygonLineMode ? VK_POLYGON_MODE_LINE :
 		VK_POLYGON_MODE_FILL;
 	// TODO: revert width code. also need a device feature store to see what we can use (see LogicalDeviceManager)

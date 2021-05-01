@@ -29,7 +29,7 @@ GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceMana
 		resourceLoader, commandPool, poolInfo, surface, window);
 	this->window = window;
 	mainCamera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 100.0f),
-		0.0f, 0.0f, 14.5f, 0.035f);
+		0.0f, 0.0f, 0.5f, 0.035f);
 	mainCamera->InitializeCameraSystem(sceneSettings.cameraPosition,
 		sceneSettings.cameraYaw, sceneSettings.cameraPitch,
 		sceneSettings.cameraMovementSpeed,
