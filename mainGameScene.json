@@ -3,7 +3,7 @@
 	{
 		"camera":
 		{
-			"position":[0.0, 0.2, 0.0],
+			"position":[0.0, 0.5, 0.0],
 			"yaw":-90.0,
 			"pitch":0.0,
 			"movement_speed":0.005,
@@ -26,12 +26,13 @@
 			},
 			"meta_data":
 			{
-				"primitive_type":"quad",
+				"primitive_type":"plane",
 				"lower_left":[0.0,0.0,0.0],
 				"side_1_vec":[1000.0,0.0,0.0],
 				"side_2_vec":[0.0,0.0,1000.0],
 				"num_side_1_points":1000,
-				"num_side_2_points":1000
+				"num_side_2_points":1000,
+				"noise_type":"none"
 			}
 		}
 	],
