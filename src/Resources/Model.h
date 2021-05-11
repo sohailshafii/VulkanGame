@@ -79,13 +79,13 @@ public:
 	static std::shared_ptr<Model> CreateQuad(glm::vec3 const& quadOrigin,
 		glm::vec3 const& side1Vec, glm::vec3 const& side2Vec, bool isTriangleStrip);
 
-	static std::shared_ptr<Model> CreateBox(glm::vec3 const& boxOrigin,
+	static std::shared_ptr<Model> CreateBox(glm::vec3 const& boxCenter,
 		glm::vec3 const& right, glm::vec3 const& up,
-		glm::vec3 const& forward, bool isTriangleStrip);
+		glm::vec3 const& forward);
 
 	static void AddVerticesAndAppendIndices(std::vector<ModelVert> const & originalVerts,
 		std::vector<ModelVert>& destinationVerts, std::vector<uint32_t>& indices,
-		uint32_t indexOffset, bool isTriangleStrip);
+		uint32_t indexOffset);
 
 	static std::shared_ptr<Model> CreatePlane(const glm::vec3& lowerLeft,
 		const glm::vec3& side1Vec, const glm::vec3& side2Vec,

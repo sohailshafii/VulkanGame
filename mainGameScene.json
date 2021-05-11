@@ -34,6 +34,27 @@
 				"num_side_2_points":1000,
 				"noise_type":"none"
 			}
+		},
+		{
+			"type":"Stationary",
+			"model":"Procedural",
+			"material":
+			{
+				"type":"UnlitColor",
+				"main_texture":"texture.jpg"
+			},
+			"transformation":
+			{
+				"position":[0.0, 0.55,-7.0]
+			},
+			"meta_data":
+			{
+				"primitive_type":"box",
+				"box_center":[0.0, 0.0, 0.0],
+				"right_vec":[1.0, 0.0, 0.0],
+				"up_vec":[0.0, 1.0, 0.0],
+				"forward_vec":[0.0, 0.0, 1.0]
+			}
 		}
 	],
 	"lights":

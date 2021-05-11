@@ -150,6 +150,18 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 				glm::vec3((float)side2Vec[0], (float)side2Vec[1], (float)side2Vec[2]),
 				true);
 		}
+		else if (primitiveType == "box") {
+			auto boxCenter = SafeGetToken(metaDataNode, "box_center");
+			auto rightVec = SafeGetToken(metaDataNode, "right_vec");
+			auto upVec = SafeGetToken(metaDataNode, "up_vec");
+			auto forwardVec = SafeGetToken(metaDataNode, "forward_vec");
+
+			gameObjectModel = Model::CreateBox(
+				glm::vec3((float)boxCenter[0], (float)boxCenter[1], (float)boxCenter[2]),
+				glm::vec3((float)rightVec[0], (float)rightVec[1], (float)rightVec[2]),
+				glm::vec3((float)upVec[0], (float)upVec[1], (float)upVec[2]),
+				glm::vec3((float)forwardVec[0], (float)forwardVec[1], (float)forwardVec[2]));
+		}
 		else if (primitiveType == "plane") {
 			auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
 			auto lowerLeftPos = SafeGetToken(metaDataNode, "lower_left");

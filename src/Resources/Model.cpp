@@ -132,74 +132,103 @@ std::shared_ptr<Model> Model::CreateQuad(
 		TopologyType::TriangleList);
 }
 
-std::shared_ptr<Model> Model::CreateBox(glm::vec3 const& boxOrigin,
+std::shared_ptr<Model> Model::CreateBox(glm::vec3 const& boxCenter,
 	glm::vec3 const& right, glm::vec3 const& up,
-	glm::vec3 const& forward, bool isTriangleStrip)
-{
+	glm::vec3 const& forward) {
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
-	std::shared_ptr<Model> bottomSide = Model::CreateQuad(
-		boxOrigin, forward, right, isTriangleStrip);
+	
+	glm::vec3 boxOrigin = boxCenter - 0.5f *
+		(right + up + forward);
+
 	uint32_t indexOffset = 0;
+	/*std::shared_ptr<Model> bottomSide = Model::CreateQuad(
+		boxOrigin, right, forward, isTriangleStrip);;
 	AddVerticesAndAppendIndices(bottomSide->vertices,
 		vertices, indices, indexOffset, true);
 
-	auto& bottomVerts = bottomSide->vertices;
 	std::shared_ptr<Model> topSide = Model::CreateQuad(
-		boxOrigin + up, forward, right, isTriangleStrip);
+		boxOrigin + up, right, forward, isTriangleStrip);
 	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(bottomSide->vertices,
+	AddVerticesAndAppendIndices(topSide->vertices,
 		vertices, indices, indexOffset, true);
 
 	std::shared_ptr<Model> frontSide = Model::CreateQuad(
 		boxOrigin, right, up, isTriangleStrip);
 	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(bottomSide->vertices,
+	AddVerticesAndAppendIndices(frontSide->vertices,
 		vertices, indices, indexOffset, true);
 
 	std::shared_ptr<Model> backSide = Model::CreateQuad(
 		boxOrigin + forward, up, right, isTriangleStrip);
 	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(bottomSide->vertices,
+	AddVerticesAndAppendIndices(backSide->vertices,
 		vertices, indices, indexOffset, true);
 
 	std::shared_ptr<Model> leftSide = Model::CreateQuad(
 		boxOrigin, up, forward, isTriangleStrip);
 	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(bottomSide->vertices,
+	AddVerticesAndAppendIndices(leftSide->vertices,
 		vertices, indices, indexOffset, true);
 	
 	std::shared_ptr<Model> rightSide = Model::CreateQuad(
 		boxOrigin + right, forward, up, isTriangleStrip);
 	indexOffset += isTriangleStrip ? 4 : 6;
+	AddVerticesAndAppendIndices(rightSide->vertices,
+		vertices, indices, indexOffset, true);*/
+
+	std::shared_ptr<Model> backSide = Model::CreateQuad(
+		boxOrigin, up, right, false);
+	AddVerticesAndAppendIndices(backSide->vertices,
+		vertices, indices, indexOffset);
+
+	std::shared_ptr<Model> frontSide = Model::CreateQuad(
+		boxOrigin + forward, right, up, false);
+	indexOffset += 4;
+	AddVerticesAndAppendIndices(frontSide->vertices,
+		vertices, indices, indexOffset);
+	
+	std::shared_ptr<Model> leftSide = Model::CreateQuad(
+		boxOrigin, forward, up, false);
+	indexOffset += 4;
+	AddVerticesAndAppendIndices(leftSide->vertices,
+		vertices, indices, indexOffset);
+
+	std::shared_ptr<Model> rightSide = Model::CreateQuad(
+		boxOrigin + right, up, forward, false);
+	indexOffset += 4;
+	AddVerticesAndAppendIndices(rightSide->vertices,
+		vertices, indices, indexOffset);
+
+	std::shared_ptr<Model> topSide = Model::CreateQuad(
+		boxOrigin + up, forward, right, false);
+	indexOffset += 4;
+	AddVerticesAndAppendIndices(topSide->vertices,
+		vertices, indices, indexOffset);
+
+	std::shared_ptr<Model> bottomSide = Model::CreateQuad(
+		boxOrigin, right, forward, false);
+	indexOffset += 4;
 	AddVerticesAndAppendIndices(bottomSide->vertices,
-		vertices, indices, indexOffset, true);
+		vertices, indices, indexOffset);
 
 	return std::make_shared<Model>(vertices, indices,
-		isTriangleStrip ? TopologyType::TriangleStrip :
 		TopologyType::TriangleList);
 }
 
 void Model::AddVerticesAndAppendIndices(std::vector<ModelVert> const& originalVerts,
 	std::vector<ModelVert>& destinationVerts, std::vector<uint32_t>& indices,
-	uint32_t indexOffset, bool isTriangleStrip) {
+	uint32_t indexOffset) {
 	for (auto& vert : originalVerts) {
 		destinationVerts.push_back(vert);
 	}
-	if (isTriangleStrip) {
-		indices.push_back(indexOffset);
-		indices.push_back(indexOffset + 1);
-		indices.push_back(indexOffset + 2);
-		indices.push_back(indexOffset + 3);
-	}
-	else {
-		indices.push_back(indexOffset);
-		indices.push_back(indexOffset + 1);
-		indices.push_back(indexOffset + 2);
-		indices.push_back(indexOffset + 2);
-		indices.push_back(indexOffset + 1);
-		indices.push_back(indexOffset + 3);
-	}
+	
+	indices.push_back(indexOffset);
+	indices.push_back(indexOffset + 1);
+	indices.push_back(indexOffset + 2);
+	indices.push_back(indexOffset + 2);
+	indices.push_back(indexOffset + 1);
+	indices.push_back(indexOffset + 3);
 }
 
 std::shared_ptr<Model> Model::CreatePlane(const glm::vec3& lowerLeft,
