@@ -2,12 +2,11 @@
 #include "Resources/TextureCreator.h"
 
 Material::Material(std::shared_ptr<TextureCreator>const &
-		 texture, DescriptorSetFunctions::MaterialType material,
-		glm::vec4 const& tintColor) : textureCreator(texture),
-		materialType(material), tintColor(tintColor){
+			texture, DescriptorSetFunctions::MaterialType material,
+			nlohmann::json const& materialNode) : textureCreator(texture),
+		materialType(material) {
 }
 
 Material::Material(DescriptorSetFunctions::MaterialType material,
-	glm::vec4 const& tintColor) : textureCreator(nullptr), materialType(material),
-	tintColor(tintColor) {
+	nlohmann::json const& materialNode) : textureCreator(nullptr), materialType(material) {
 }

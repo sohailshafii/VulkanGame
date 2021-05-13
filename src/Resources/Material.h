@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include "DescriptorSetFunctions.h"
+#include "nlohmann/json.hpp"
 
 class TextureCreator;
 
@@ -9,10 +10,10 @@ class Material {
 public:
 	Material(std::shared_ptr<TextureCreator>const & texture,
 			DescriptorSetFunctions::MaterialType material,
-			glm::vec4 const & tintColor = glm::vec4(0.0f));
+			nlohmann::json const & materialNode);
 
 	Material(DescriptorSetFunctions::MaterialType material,
-			glm::vec4 const& tintColor = glm::vec4(0.0f));
+		nlohmann::json const& materialNode);
 	
 	TextureCreator* GetTextureLoader() {
 		return textureCreator.get();
