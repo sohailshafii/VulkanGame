@@ -29,6 +29,7 @@ std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 	DescriptorSetFunctions::MaterialType materialEnumType,
 	std::string const & mainTextureName,
+	nlohmann::json const& materialNode,
 	bool isRawTexture,
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager* gfxDeviceManager,
@@ -48,7 +49,7 @@ std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 			logicalDeviceManager, commandPool);
 
 	return std::make_shared<Material>(mainTexture,
-		materialEnumType);
+		materialEnumType, materialNode);
 }
 
 std::shared_ptr<Material> GameObjectCreator::CreateMaterial(

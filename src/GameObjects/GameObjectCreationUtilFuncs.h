@@ -7,6 +7,7 @@
 #include "DescriptorSetFunctions.h"
 #include "NoiseGenerator.h"
 #include "DescriptorSetFunctions.h"
+#include "nlohmann/json.hpp"
 
 class GameObject;
 class GameObjectBehavior;
@@ -32,6 +33,7 @@ public:
 	static std::shared_ptr<Material> CreateMaterial(
 		DescriptorSetFunctions::MaterialType materialEnumType,
 		std::string const& mainTextureName,
+		nlohmann::json const& materialNode,
 		bool isRawTexture,
 		ResourceLoader* resourceLoader,
 		GfxDeviceManager* gfxDeviceManager,

@@ -9,6 +9,7 @@
 #include "GameObjects/FontObjects/FontGameObjectBehavior.h"
 #include "GameObjects/GameObject.h"
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
+#include "nlohmann/json.hpp"
 #include <algorithm>
 
 MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
@@ -30,9 +31,10 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 	const float lineSpacing = maxCharacterHeight * 0.5f;
 	const float spaceBetweenCharacters = localScale * fontTextureBuffer->GetSpacingWidth();
 	std::shared_ptr<Model> mainModel;
+	nlohmann::json dummyNode;
 	auto menuMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::Text,
-		textureSheetName, true, resourceLoader, gfxDeviceManager,
+		textureSheetName, dummyNode, true, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	for (unsigned char character : menuText) {
 		if (character == '\n') {

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
+#include "nlohmann/json.hpp"
 
 Scene::Scene(ResourceLoader* resourceLoader,
 	GfxDeviceManager* gfxDeviceManager,
@@ -117,9 +118,10 @@ void Scene::SpawnGameObject(SpawnType spawnType,
 
 void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition,
 								glm::vec3 const& forwardDirection) {
+	nlohmann::json dummyNode;
 	std::shared_ptr<Material> gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
-		"texture.jpg", false, resourceLoader, gfxDeviceManager,
+		"texture.jpg", dummyNode, false, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	std::shared_ptr<Model> gameObjectModel =
 		Model::CreateIcosahedron(1.0f, 2);
@@ -136,9 +138,10 @@ void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition,
 
 void Scene::SpawnBulletGameObject(glm::vec3 const& spawnPosition,
 	glm::vec3 const& forwardDir) {
+	nlohmann::json dummyNode;
 	std::shared_ptr gameObjectMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured,
-		"texture.jpg", false, resourceLoader, gfxDeviceManager,
+		"texture.jpg", dummyNode, false, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 	std::shared_ptr gameObjectModel = GameObjectCreator::LoadModelFromName(
 		"cube.obj", resourceLoader);

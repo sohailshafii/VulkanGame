@@ -13,7 +13,7 @@ public:
 			nlohmann::json const & materialNode);
 
 	Material(DescriptorSetFunctions::MaterialType material,
-		nlohmann::json const& materialNode);
+		glm::vec4 const & tintColor);
 	
 	TextureCreator* GetTextureLoader() {
 		return textureCreator.get();
@@ -45,4 +45,6 @@ private:
 	std::shared_ptr<TextureCreator> textureCreator;
 	DescriptorSetFunctions::MaterialType materialType;
 	glm::vec4 tintColor;
+
+	nlohmann::json materialNode;
 };

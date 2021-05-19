@@ -216,16 +216,16 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 }
 
 static void SetupMaterial(const nlohmann::json& materialNode,
-						  std::shared_ptr<Material>& material,
-						  ResourceLoader* resourceLoader,
-						  GfxDeviceManager *gfxDeviceManager,
-						  std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-						VkCommandPool commandPool) {
+	std::shared_ptr<Material>& material,
+	ResourceLoader* resourceLoader,
+	GfxDeviceManager* gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	VkCommandPool commandPool) {
 	std::string materialToken = SafeGetToken(materialNode, "type");
 	std::string mainTextureName = SafeGetToken(materialNode, "main_texture");
-	
+
 	DescriptorSetFunctions::MaterialType materialEnumType =
-	DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
+		DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
 	if (materialToken == "UnlitColor") {
 		materialEnumType = DescriptorSetFunctions::MaterialType::UnlitColor;
 	}
@@ -241,9 +241,12 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	else if (materialToken == "MotherShip") {
 		materialEnumType = DescriptorSetFunctions::MaterialType::MotherShip;
 	}
-	
+	nlohmann::json metadataNode;
+	if (ContainsToken(materialNode, "meta_data")) {
+		metadataNode = SafeGetToken(materialNode, "meta_data");
+	}
 	material = GameObjectCreator::CreateMaterial(materialEnumType,
-		mainTextureName, false, resourceLoader, gfxDeviceManager,
+		mainTextureName, metadataNode, false, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
 }
 
