@@ -8,12 +8,11 @@ layout(binding = 2) uniform UniformBufferObject {
 } ubo;
 
 layout(location = 0) in vec2 texCoords;
-layout(location = 1) in vec4 fragColor;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
 	float textSample = texture(texSampler, texCoords).r;
-	outColor = fragColor*vec4(textSample.r, textSample.r, textSample.r,
+	outColor = ubo.colorTint*vec4(textSample.r, textSample.r, textSample.r,
 		textSample.r);
 }

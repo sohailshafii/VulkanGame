@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include <glm/glm.hpp>
+#include "nlohmann/json.hpp"
 
 class LogicalDeviceManager;
 class GfxDeviceManager;
@@ -12,6 +13,12 @@ class Common {
 public:
 	static constexpr float nearPlaneDistance = 0.1f;
 	static constexpr float farPlaneDistance = 1000.0f;
+
+	static bool ContainsToken(const nlohmann::json& jsonObj,
+		const std::string& key);
+
+	static nlohmann::json SafeGetToken(const nlohmann::json& jsonObj,
+		const std::string& key);
 
 	static VkImageView CreateImageView(VkImage image, VkFormat format,
 		VkImageAspectFlags aspectFlags, uint32_t mipLevels,

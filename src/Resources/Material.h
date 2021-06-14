@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "DescriptorSetFunctions.h"
 #include "nlohmann/json.hpp"
+#include "Common.h"
+#include <iostream>
 
 class TextureCreator;
 
@@ -13,7 +15,7 @@ public:
 			nlohmann::json const & materialNode);
 
 	Material(DescriptorSetFunctions::MaterialType material,
-		glm::vec4 const & tintColor);
+		nlohmann::json const& materialNode = nlohmann::json());
 	
 	TextureCreator* GetTextureLoader() {
 		return textureCreator.get();
@@ -23,8 +25,11 @@ public:
 		return materialType;
 	}
 
-	glm::vec4 GetTintColor() const {
-		return tintColor;
+	glm::vec4 GetVec4(std::string propertyName) const {
+		std::cout << materialNode << std::endl;
+		auto tintColorObj = Common::SafeGetToken(materialNode, propertyName);
+		return glm::vec4((float)tintColorObj[0], (float)tintColorObj[1],
+			(float)tintColorObj[2], (float)tintColorObj[3]);
 	}
 	
 	void SetImageTextureLoader(std::shared_ptr<TextureCreator>const &
@@ -37,14 +42,9 @@ public:
 		materialType = material;
 	}
 
-	void SetTintColor(glm::vec4 const& tintColor) {
-		this->tintColor = tintColor;
-	}
-
 private:
 	std::shared_ptr<TextureCreator> textureCreator;
 	DescriptorSetFunctions::MaterialType materialType;
-	glm::vec4 tintColor;
 
 	nlohmann::json materialNode;
 };

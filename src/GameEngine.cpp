@@ -16,9 +16,11 @@
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
 #include "Resources/TextureCreator.h"
+#include "Common.h"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <iostream>
+#include "nlohmann/json.hpp"
 
 GameEngine::GameEngine(GameMode currentGameMode, GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
@@ -117,8 +119,12 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		glm::vec3(-0.5f,-0.5f, 0.0f),
 		glm::vec3(1.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f), true);
+	nlohmann::json metadataNode = {
+		{"tint_color",{1.0f, 1.0f, 1.0f, 1.0f }}
+	};
 	auto selectorMaterial = GameObjectCreator::CreateMaterial(
-		DescriptorSetFunctions::MaterialType::UnlitColor);
+		DescriptorSetFunctions::MaterialType::UnlitColor,
+		metadataNode);
 	auto selectorBehaviorObj = std::make_shared<MenuSelectorObjectBehavior>(
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	difficultySelector = GameObjectCreator::CreateGameObject(

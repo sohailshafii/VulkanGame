@@ -4,6 +4,24 @@
 #include <stdexcept>
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
+#include <exception>
+#include <sstream>
+
+bool Common::ContainsToken(const nlohmann::json& jsonObj,
+	const std::string& key) {
+	return (jsonObj.find(key) != jsonObj.end());
+}
+
+nlohmann::json Common::SafeGetToken(const nlohmann::json& jsonObj,
+	const std::string& key) {
+	if (ContainsToken(jsonObj, key)) {
+		return jsonObj[key];
+	}
+	std::stringstream exceptionMsg;
+	exceptionMsg << "Could not find key: " << key
+		<< " in JSON object: " << jsonObj << ".\n";
+	throw exceptionMsg;
+}
 
 VkImageView Common::CreateImageView(VkImage image, VkFormat format,
 	VkImageAspectFlags aspectFlags, uint32_t mipLevels,

@@ -6,15 +6,12 @@
 void* GameObjectBehavior::CreateVertUBOData(size_t& uboSize,
 	VkExtent2D const& swapChainExtent, const glm::mat4& viewMatrix,
 	float time, float deltaTime) {
-	
 	switch (gameObject->GetMaterialType())
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-			return CreateUniformBufferModelViewProj(uboSize,
-				swapChainExtent, viewMatrix, time, deltaTime);
 		case DescriptorSetFunctions::MaterialType::Text:
-			return CreateUniformBufferModelViewProjColor(uboSize,
+			return CreateUniformBufferModelViewProj(uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
 		case DescriptorSetFunctions::MaterialType::MotherShip:
 			return CreateUniformBufferModelViewProjRipple(uboSize,
@@ -25,6 +22,26 @@ void* GameObjectBehavior::CreateVertUBOData(size_t& uboSize,
 				swapChainExtent, viewMatrix, time, deltaTime);
 		default:
 			return nullptr;
+	}
+}
+
+void GameObjectBehavior::UpdateVertUBOData(void* vboData,
+	VkExtent2D const& swapChainExtent, const glm::mat4& viewMatrix,
+	float time, float deltaTime) {
+	switch (gameObject->GetMaterialType())
+	{
+		case DescriptorSetFunctions::MaterialType::UnlitColor:
+		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
+		case DescriptorSetFunctions::MaterialType::Text:
+			return UpdateUniformBufferModelViewProj(vboData,
+				swapChainExtent, viewMatrix, time, deltaTime);
+		case DescriptorSetFunctions::MaterialType::MotherShip:
+			return UpdateUniformBufferModelViewProjRipple(vboData,
+				swapChainExtent, viewMatrix, time, deltaTime);
+		case DescriptorSetFunctions::MaterialType::WavySurface:
+		case DescriptorSetFunctions::MaterialType::BumpySurface:
+			return UpdateUniformBufferModelViewProjTime(vboData,
+				swapChainExtent, viewMatrix, time, deltaTime);
 	}
 }
 
@@ -46,6 +63,15 @@ void* GameObjectBehavior::CreateFragUBOData(size_t& uboSize) {
 	return ubo;
 }
 
+void GameObjectBehavior::UpdateFragUBOData(void* vboData) {
+	switch (gameObject->GetMaterialType())
+	{
+	case DescriptorSetFunctions::MaterialType::UnlitColor:
+	case DescriptorSetFunctions::MaterialType::Text:
+		return UpdateFBOUniformBufferColor(vboData);
+	}
+}
+
 void* GameObjectBehavior::CreateUniformBufferModelViewProj(
 	size_t& uboSize, VkExtent2D const& swapChainExtent,
 	const glm::mat4& viewMatrix,
@@ -58,24 +84,7 @@ void* GameObjectBehavior::CreateUniformBufferModelViewProj(
 	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 
-	uboSize = sizeof(*ubo);
-	return ubo;
-}
-
-void* GameObjectBehavior::CreateUniformBufferModelViewProjColor(
-	size_t& uboSize, VkExtent2D const& swapChainExtent,
-	const glm::mat4& viewMatrix,
-	float time,
-	float deltaTime) {
-	UniformBufferObjectModelViewProjColor* ubo =
-		new UniformBufferObjectModelViewProjColor();
-	ubo->model = GetModelMatrix();
-	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
-		swapChainExtent.height);
-	ubo->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	uboSize = sizeof(*ubo);
+	uboSize = sizeof(UniformBufferObjectModelViewProj);// *ubo);
 	return ubo;
 }
 
@@ -112,6 +121,46 @@ void* GameObjectBehavior::CreateUniformBufferModelViewProjTime(
 	return ubo;
 }
 
+void GameObjectBehavior::UpdateUniformBufferModelViewProj(
+	void* uboVoid, VkExtent2D const& swapChainExtent,
+	const glm::mat4& viewMatrix,
+	float time,
+	float deltaTime) {
+	UniformBufferObjectModelViewProj* ubo =
+		(UniformBufferObjectModelViewProj*)uboVoid;
+	ubo->model = GetModelMatrix();
+	ubo->view = viewMatrix;
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
+}
+
+void GameObjectBehavior::UpdateUniformBufferModelViewProjRipple(
+	void* uboVoid, VkExtent2D const& swapChainExtent,
+	const glm::mat4& viewMatrix,
+	float time,
+	float deltaTime) {
+	UniformBufferObjectModelViewProjRipple* ubo =
+		(UniformBufferObjectModelViewProjRipple*)uboVoid;
+	ubo->model = GetModelMatrix();
+	ubo->view = viewMatrix;
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
+}
+
+void GameObjectBehavior::UpdateUniformBufferModelViewProjTime(
+	void* uboVoid, VkExtent2D const& swapChainExtent,
+	const glm::mat4& viewMatrix,
+	float time,
+	float deltaTime) {
+	UniformBufferObjectModelViewProjTime* ubo =
+		(UniformBufferObjectModelViewProjTime*)uboVoid;
+	ubo->model = GetModelMatrix();
+	ubo->view = viewMatrix;
+	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+		swapChainExtent.height);
+	ubo->time = time;
+}
+
 void* GameObjectBehavior::CreateFBOUniformBufferColor(size_t& uboSize) {
 	UniformBufferUnlitColor* ubo =
 		new UniformBufferUnlitColor();
@@ -119,4 +168,8 @@ void* GameObjectBehavior::CreateFBOUniformBufferColor(size_t& uboSize) {
 
 	uboSize = sizeof(*ubo);
 	return ubo;
+}
+
+void GameObjectBehavior::UpdateFBOUniformBufferColor(void* uboVoid) {
+	// re-implement in all child classes
 }

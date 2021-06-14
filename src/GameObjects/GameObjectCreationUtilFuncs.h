@@ -42,7 +42,7 @@ public:
 
 	static std::shared_ptr<Material> CreateMaterial(
 		DescriptorSetFunctions::MaterialType materialEnumType,
-		glm::vec4 const& tintColor = glm::vec4(0.0f));
+		nlohmann::json const& materialNode = nlohmann::json());
 
 	static std::shared_ptr<Model> LoadModelFromName(
 		std::string const& modelName,

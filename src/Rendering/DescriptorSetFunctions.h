@@ -12,13 +12,6 @@ struct UniformBufferObjectModelViewProj {
 	alignas(16) glm::mat4 proj;
 };
 
-struct UniformBufferObjectModelViewProjColor {
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
-	alignas(16) glm::vec4 color;
-};
-
 struct UniformBufferObjectModelViewProjTime {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
@@ -63,6 +56,7 @@ struct UniformBufferObjectLighting {
 
 class LogicalDeviceManager;
 class TextureCreator;
+class Material;
 
 // Defines descriptor sets for different, pre-defined materials
 class DescriptorSetFunctions
@@ -74,10 +68,8 @@ public:
 	static VkDescriptorSetLayout CreateDescriptorSetLayout(VkDevice device,
 														   MaterialType materialType);
 	static void UpdateDescriptorSet(VkDevice device,
-									MaterialType materialType,
+									std::shared_ptr<Material> const & material,
 									VkDescriptorSet descriptorSet,
-									TextureCreator* imageTextureLoader,
-									glm::vec4 const & tintColor,
 									VkDescriptorBufferInfo* bufferInfoVert,
 									VkDescriptorBufferInfo* bufferInfoFrag);
 	

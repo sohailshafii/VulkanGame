@@ -174,7 +174,9 @@ private:
 	bool markedForDeletion;
 
 	void* vertUboData;
+	size_t vertUboSize;
 	void* fragUboData;
+	size_t fragUboSize;
 	
 	void AllocateVBODataIfNecessary(size_t& uboSize, uint32_t imageIndex,
 		const glm::mat4& viewMatrix, float time, float deltaTime,

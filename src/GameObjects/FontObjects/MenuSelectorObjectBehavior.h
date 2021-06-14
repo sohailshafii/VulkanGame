@@ -39,9 +39,5 @@ private:
 	glm::vec4 color;
 
 protected:
-	virtual void* CreateUniformBufferModelViewProjColor(
-		size_t& uboSize, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime) override;
+	virtual void UpdateFBOUniformBufferColor(void* uboVoid) override;
 };

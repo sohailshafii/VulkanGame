@@ -16,6 +16,7 @@
 #include "Scene.h"
 #include "nlohmann/json.hpp"
 #include "Math/PerlinNoise.h"
+#include "Common.h"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -84,22 +85,6 @@ void SceneLoader::DeserializeJSONFileIntoScene(
 	}
 }
 
-static bool ContainsToken(const nlohmann::json& jsonObj,
-						  const std::string& key) {
-	return (jsonObj.find(key) != jsonObj.end());
-}
-
-static inline nlohmann::json SafeGetToken(const nlohmann::json& jsonObj,
-	const std::string& key) {
-	if (ContainsToken(jsonObj, key)) {
-		return jsonObj[key];
-	}
-	std::stringstream exceptionMsg;
-	exceptionMsg << "Could not find key: " << key
-		<< " in JSON object: " << jsonObj << ".\n";
-	throw exceptionMsg;
-}
-
 void AdjustSceneSettings(const nlohmann::json& jsonObj,
 	SceneLoader::SceneSettings& sceneSettings) {
 	auto cameraNode = jsonObj["camera"];
@@ -125,8 +110,8 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	GfxDeviceManager *gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool) {
-	std::string modelType = SafeGetToken(jsonObj, "model");
-	auto materialNode = SafeGetToken(jsonObj, "material");
+	std::string modelType = Common::SafeGetToken(jsonObj, "model");
+	auto materialNode = Common::SafeGetToken(jsonObj, "material");
 	
 	std::shared_ptr<Material> newMaterial;
 	SetupMaterial(materialNode, newMaterial, resourceLoader,
@@ -136,13 +121,13 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	std::shared_ptr<Model> gameObjectModel;
 	if (modelType.find("Procedural") != std::string::npos)
 	{
-		auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
-		std::string primitiveType = SafeGetToken(metaDataNode, "primitive_type");
+		auto metaDataNode = Common::SafeGetToken(jsonObj, "meta_data");
+		std::string primitiveType = Common::SafeGetToken(metaDataNode, "primitive_type");
 		
 		if (primitiveType == "quad") {
-			auto lowerLeftPos = SafeGetToken(metaDataNode, "lower_left");
-			auto side1Vec = SafeGetToken(metaDataNode, "side_1_vec");
-			auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
+			auto lowerLeftPos = Common::SafeGetToken(metaDataNode, "lower_left");
+			auto side1Vec = Common::SafeGetToken(metaDataNode, "side_1_vec");
+			auto side2Vec = Common::SafeGetToken(metaDataNode, "side_2_vec");
 			
 			gameObjectModel = Model::CreateQuad(
 				glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
@@ -151,10 +136,10 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 				true);
 		}
 		else if (primitiveType == "box") {
-			auto boxCenter = SafeGetToken(metaDataNode, "box_center");
-			auto rightVec = SafeGetToken(metaDataNode, "right_vec");
-			auto upVec = SafeGetToken(metaDataNode, "up_vec");
-			auto forwardVec = SafeGetToken(metaDataNode, "forward_vec");
+			auto boxCenter = Common::SafeGetToken(metaDataNode, "box_center");
+			auto rightVec = Common::SafeGetToken(metaDataNode, "right_vec");
+			auto upVec = Common::SafeGetToken(metaDataNode, "up_vec");
+			auto forwardVec = Common::SafeGetToken(metaDataNode, "forward_vec");
 
 			gameObjectModel = Model::CreateBox(
 				glm::vec3((float)boxCenter[0], (float)boxCenter[1], (float)boxCenter[2]),
@@ -163,17 +148,17 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 				glm::vec3((float)forwardVec[0], (float)forwardVec[1], (float)forwardVec[2]));
 		}
 		else if (primitiveType == "plane") {
-			auto metaDataNode = SafeGetToken(jsonObj, "meta_data");
-			auto lowerLeftPos = SafeGetToken(metaDataNode, "lower_left");
-			auto side1Vec = SafeGetToken(metaDataNode, "side_1_vec");
-			auto side2Vec = SafeGetToken(metaDataNode, "side_2_vec");
-			unsigned int numSide1Pnts = SafeGetToken(metaDataNode, "num_side_1_points");
-			unsigned int numSide2Pnts = SafeGetToken(metaDataNode, "num_side_2_points");
+			auto metaDataNode = Common::SafeGetToken(jsonObj, "meta_data");
+			auto lowerLeftPos = Common::SafeGetToken(metaDataNode, "lower_left");
+			auto side1Vec = Common::SafeGetToken(metaDataNode, "side_1_vec");
+			auto side2Vec = Common::SafeGetToken(metaDataNode, "side_2_vec");
+			unsigned int numSide1Pnts = Common::SafeGetToken(metaDataNode, "num_side_1_points");
+			unsigned int numSide2Pnts = Common::SafeGetToken(metaDataNode, "num_side_2_points");
 			
-			std::string noiseType = SafeGetToken(metaDataNode, "noise_type");
+			std::string noiseType = Common::SafeGetToken(metaDataNode, "noise_type");
 			if (noiseType == "perlin" || noiseType == "none") {
-				uint32_t numNoiseLayers = ContainsToken(metaDataNode, "num_noise_layers") ? 
-					SafeGetToken(metaDataNode, "num_noise_layers") : 0;
+				uint32_t numNoiseLayers = Common::ContainsToken(metaDataNode, "num_noise_layers") ?
+					Common::SafeGetToken(metaDataNode, "num_noise_layers") : 0;
 				gameObjectModel = Model::CreatePlane(
 					glm::vec3((float)lowerLeftPos[0], (float)lowerLeftPos[1], (float)lowerLeftPos[2]),
 					glm::vec3((float)side1Vec[0], (float)side1Vec[1], (float)side1Vec[2]),
@@ -189,8 +174,8 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 			}
 		}
 		else if (primitiveType == "icosahedron") {
-			float radius = SafeGetToken(metaDataNode, "radius");
-			uint32_t numSubdiv = SafeGetToken(metaDataNode, "num_subdivisions");
+			float radius = Common::SafeGetToken(metaDataNode, "radius");
+			uint32_t numSubdiv = Common::SafeGetToken(metaDataNode, "num_subdivisions");
 			gameObjectModel = Model::CreateIcosahedron(radius, numSubdiv);
 		}
 		else {
@@ -204,7 +189,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 			modelType, resourceLoader);
 	}
 	
-	auto transformationNode = SafeGetToken(jsonObj, "transformation");
+	auto transformationNode = Common::SafeGetToken(jsonObj, "transformation");
 	glm::mat4 localToWorldTransform(1.0f);
 	SetupTransformation(transformationNode, localToWorldTransform);
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior =
@@ -221,8 +206,8 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool) {
-	std::string materialToken = SafeGetToken(materialNode, "type");
-	std::string mainTextureName = SafeGetToken(materialNode, "main_texture");
+	std::string materialToken = Common::SafeGetToken(materialNode, "type");
+	std::string mainTextureName = Common::SafeGetToken(materialNode, "main_texture");
 
 	DescriptorSetFunctions::MaterialType materialEnumType =
 		DescriptorSetFunctions::MaterialType::UnlitTintedTextured;
@@ -242,8 +227,8 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 		materialEnumType = DescriptorSetFunctions::MaterialType::MotherShip;
 	}
 	nlohmann::json metadataNode;
-	if (ContainsToken(materialNode, "meta_data")) {
-		metadataNode = SafeGetToken(materialNode, "meta_data");
+	if (Common::ContainsToken(materialNode, "meta_data")) {
+		metadataNode = Common::SafeGetToken(materialNode, "meta_data");
 	}
 	material = GameObjectCreator::CreateMaterial(materialEnumType,
 		mainTextureName, metadataNode, false, resourceLoader, gfxDeviceManager,
@@ -253,16 +238,16 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 static void SetupTransformation(const nlohmann::json& transformNode,
 								glm::mat4& localToWorld) {
 	localToWorld = glm::mat4(1.0f);
-	if (ContainsToken(transformNode, "position")) {
-		auto positionNode = SafeGetToken(transformNode, "position");
+	if (Common::ContainsToken(transformNode, "position")) {
+		auto positionNode = Common::SafeGetToken(transformNode, "position");
 		auto position = glm::vec3((float)positionNode[0],
 					(float)positionNode[1],
 					(float)positionNode[2]);
 		localToWorld = glm::translate(localToWorld,
 			position);
 	}
-	if (ContainsToken(transformNode, "rotation")) {
-		auto rotationNode = SafeGetToken(transformNode, "rotation");
+	if (Common::ContainsToken(transformNode, "rotation")) {
+		auto rotationNode = Common::SafeGetToken(transformNode, "rotation");
 		auto rotation = glm::vec3((float)rotationNode[0],
 			(float)rotationNode[1], (float)rotationNode[2]);
 		localToWorld = glm::rotate(localToWorld,
@@ -276,8 +261,8 @@ static void SetupTransformation(const nlohmann::json& transformNode,
 									glm::vec3(0.0f, 0.0f, 1.0f));
 		
 	}
-	if (ContainsToken(transformNode, "scale")) {
-		auto scaleNode = SafeGetToken(transformNode, "scale");
+	if (Common::ContainsToken(transformNode, "scale")) {
+		auto scaleNode = Common::SafeGetToken(transformNode, "scale");
 		auto scale = glm::vec3((float)scaleNode[0], (float)scaleNode[1],
 			(float)scaleNode[2]);
 		localToWorld = glm::scale(localToWorld,

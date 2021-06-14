@@ -161,6 +161,9 @@ GameObject::~GameObject() {
 void GameObject::AllocateVBODataIfNecessary(size_t& uboSize,
 	uint32_t imageIndex, const glm::mat4& viewMatrix, float time, float deltaTime,
 	VkExtent2D swapChainExtent) {
+	if (vertUboData != nullptr) {
+		return;
+	}
 	if (IsInvisible()) {
 		return;
 	}
@@ -297,26 +300,34 @@ void GameObject::UpdateVisualState(uint32_t imageIndex,
 	if (IsInvisible()) {
 		return;
 	}
-	size_t uboSize = 0;
-	AllocateVBODataIfNecessary(uboSize, imageIndex, viewMatrix,
+
+	
+	AllocateVBODataIfNecessary(vertUboSize, imageIndex, viewMatrix,
 		time, deltaTime, swapChainExtent);
+	gameObjectBehavior->UpdateVertUBOData(vertUboData,
+		swapChainExtent, viewMatrix, time, deltaTime);
 	if (vertUboData != nullptr) {
 		void* data;
 		vkMapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
-			uboSize, 0, &data);
-		memcpy(data, vertUboData, uboSize);
+			vertUboSize, 0, &data);
+		if (vertUboSize != uniformBuffersVert[imageIndex]->GetBufferSize()) {
+			int breakVar;
+			breakVar = 1;
+		}
+		memcpy(data, vertUboData, vertUboSize);
 		vkUnmapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
 	}
 
-	AllocateFBODataIfNecessary(uboSize);
+	AllocateFBODataIfNecessary(fragUboSize);
+	gameObjectBehavior->UpdateFragUBOData(fragUboData);
 	if (fragUboData != nullptr) {
 		void* data;
 		vkMapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersFrag[imageIndex]->GetUniformBufferMemory(), 0,
-			uboSize, 0, &data);
-		memcpy(data, fragUboData, uboSize);
+			fragUboSize, 0, &data);
+		memcpy(data, fragUboData, fragUboSize);
 		vkUnmapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersFrag[imageIndex]->GetUniformBufferMemory());
 	}
@@ -372,10 +383,8 @@ void GameObject::CreateDescriptorSets(size_t numSwapChainImages) {
 		bufferInfoFrag.range = uniformBuffersFrag[i]->GetBufferSize();
 
 		DescriptorSetFunctions::UpdateDescriptorSet(logicalDeviceManager->GetDevice(),
-			material->GetMaterialType(),
+			material,
 			descriptorSets[i],
-			material->GetTextureLoader(),
-			material->GetTintColor(),
 			&bufferInfoVert,
 			&bufferInfoFrag);
 	}
@@ -394,10 +403,8 @@ VkDeviceSize GameObject::GetMaterialUniformBufferSizeVert()
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::UnlitTintedTextured:
-			return sizeof(UniformBufferObjectModelViewProj);
-			break;
 		case DescriptorSetFunctions::MaterialType::Text:
-			return sizeof(UniformBufferObjectModelViewProjColor);
+			return sizeof(UniformBufferObjectModelViewProj);
 			break;
 		case DescriptorSetFunctions::MaterialType::MotherShip:
 			return sizeof(UniformBufferObjectModelViewProjRipple);

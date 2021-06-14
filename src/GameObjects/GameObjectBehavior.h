@@ -55,8 +55,11 @@ public:
 	// depends on material used
 	void* CreateVertUBOData(size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix, float time, float deltaTime);
+	void UpdateVertUBOData(void* vboData, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix, float time, float deltaTime);
 
 	virtual void* CreateFragUBOData(size_t& uboSize);
+	void UpdateFragUBOData(void* vboData);
 
 protected:
 	// because a model matrix will mix up rotation and scale
@@ -76,11 +79,6 @@ protected:
 		const glm::mat4& viewMatrix,
 		float time,
 		float deltaTime);
-	virtual void* CreateUniformBufferModelViewProjColor(
-			size_t& uboSize, VkExtent2D const& swapChainExtent,
-			const glm::mat4& viewMatrix,
-			float time,
-			float deltaTime);
 	virtual void* CreateUniformBufferModelViewProjRipple(
 		size_t& uboSize, VkExtent2D const& swapChainExtent,
 		const glm::mat4& viewMatrix,
@@ -92,5 +90,22 @@ protected:
 		float time,
 		float deltaTime);
 
+	virtual void UpdateUniformBufferModelViewProj(
+		void * uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void UpdateUniformBufferModelViewProjRipple(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void UpdateUniformBufferModelViewProjTime(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+
 	virtual void* CreateFBOUniformBufferColor(size_t& uboSize);
+	virtual void UpdateFBOUniformBufferColor(void* uboVoid);
 };

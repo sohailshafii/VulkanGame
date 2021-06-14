@@ -1,6 +1,7 @@
 #include "DescriptorSetFunctions.h"
 #include "LogicalDeviceManager.h"
 #include "Resources/TextureCreator.h"
+#include "Resources/Material.h"
 #include <array>
 #include <stdexcept>
 
@@ -36,18 +37,22 @@ VkDescriptorSetLayout DescriptorSetFunctions::CreateDescriptorSetLayout(VkDevice
 }
 
 void DescriptorSetFunctions::UpdateDescriptorSet(VkDevice device,
-												 MaterialType materialType,
-												 VkDescriptorSet descriptorSet,
-												 TextureCreator* textureCreator,
-												 glm::vec4 const & tintColor,
-												 VkDescriptorBufferInfo* bufferInfoVert,
-												 VkDescriptorBufferInfo* bufferInfoFrag) {
+												std::shared_ptr<Material> const & material,
+												VkDescriptorSet descriptorSet,
+												VkDescriptorBufferInfo* bufferInfoVert,
+												VkDescriptorBufferInfo* bufferInfoFrag) {
+	auto materialType = material->GetMaterialType();
+	auto textureCreator = material->GetTextureLoader();
+	glm::vec4 tintColor(1.0f, 1.0f, 1.0f, 1.0f);
+
 	switch (materialType) {
 		case MaterialType::UnlitColor:
+			tintColor = material->GetVec4("tint_color");
 			UpdateDescriptorSetUnlitColor(device, descriptorSet, tintColor,
 				bufferInfoVert, bufferInfoFrag);
 			break;
 		case MaterialType::Text:
+			tintColor = material->GetVec4("tint_color");
 			UpdateDescriptorSetText(device, descriptorSet, tintColor,
 				textureCreator->GetTextureImageView(),
 				textureCreator->GetTextureImageSampler(),

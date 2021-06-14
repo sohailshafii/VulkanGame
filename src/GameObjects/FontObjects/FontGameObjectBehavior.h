@@ -35,13 +35,9 @@ public:
 
 	virtual void* CreateFragUBOData(size_t& uboSize) override;
 
+protected:
+	virtual void UpdateFBOUniformBufferColor(void* uboVoid) override;
+
 private:
 	glm::vec4 color;
-
-protected:
-	virtual void* CreateUniformBufferModelViewProjColor(
-		size_t& uboSize, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime) override;
 };

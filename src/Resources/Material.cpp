@@ -8,6 +8,6 @@ Material::Material(std::shared_ptr<TextureCreator>const &
 }
 
 Material::Material(DescriptorSetFunctions::MaterialType material,
-	glm::vec4 const& tintColor) : textureCreator(nullptr),
-	materialType(material), tintColor(tintColor) {
+	nlohmann::json const& materialNode) : textureCreator(nullptr),
+	materialType(material), materialNode(materialNode) {
 }

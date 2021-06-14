@@ -18,7 +18,11 @@
 			"material":
 			{
 				"type":"UnlitColor",
-				"main_texture":"texture.jpg"
+				"main_texture":"texture.jpg",
+				"meta_data":
+				{
+					"tint_color":[0.0, 0.2, 0.2, 1.0]
+				}
 			},
 			"transformation":
 			{

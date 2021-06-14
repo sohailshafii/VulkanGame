@@ -16,6 +16,10 @@
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameEngine.h"
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #if __APPLE__
 const std::string MODEL_PATH = "../../models/chalet.obj";
 const std::string CUBE_MODEL_PATH = "../../models/cube.obj";
@@ -327,5 +331,7 @@ void GameApplicationLogic::CleanUp() {
 	glfwDestroyWindow(window);
 
 	glfwTerminate();
+
+	_CrtDumpMemoryLeaks();
 }
 

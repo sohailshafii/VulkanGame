@@ -54,8 +54,8 @@ std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 
 std::shared_ptr<Material> GameObjectCreator::CreateMaterial(
 	DescriptorSetFunctions::MaterialType materialEnumType,
-	glm::vec4 const& tintColor) {
-	return std::make_shared<Material>(materialEnumType, tintColor);
+	nlohmann::json const& materialNode) {
+	return std::make_shared<Material>(materialEnumType, materialNode);
 }
 
 std::shared_ptr<Model> GameObjectCreator::LoadModelFromName(
