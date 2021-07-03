@@ -40,7 +40,7 @@
 			}
 		},
 		{
-			"type":"Stationary",
+			"type":"BasicTurret",
 			"model":"Procedural",
 			"material":
 			{

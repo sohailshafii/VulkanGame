@@ -1,10 +1,10 @@
-#include "MothershipBehavior.h"
-#include "MothershipIdleStateBehavior.h"
-#include "MothershipWakeBehavior.h"
-#include "GameObjectCreationUtilFuncs.h"
-#include "DescriptorSetFunctions.h"
-#include "GameObject.h"
-#include "Model.h"
+#include "GameObjects/Mothership/MothershipBehavior.h"
+#include "GameObjects/Mothership/MothershipIdleStateBehavior.h"
+#include "GameObjects/Mothership/MothershipWakeBehavior.h"
+#include "GameObjects/GameObjectCreationUtilFuncs.h"
+#include "Rendering/DescriptorSetFunctions.h"
+#include "GameObjects/MeshGameObject.h"
+#include "Resources/Model.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>

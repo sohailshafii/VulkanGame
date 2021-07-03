@@ -332,6 +332,8 @@ void GameApplicationLogic::CleanUp() {
 
 	glfwTerminate();
 
+	int* test = new int[10];
+
 	_CrtDumpMemoryLeaks();
 }
 

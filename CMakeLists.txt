@@ -13,6 +13,7 @@ AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/GameObjects/FontObjects SOURCE_FI
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/GameObjects/Mothership SOURCE_FILES)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/GameObjects/Msc SOURCE_FILES)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/GameObjects/Player SOURCE_FILES)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/GameObjects/Turrets SOURCE_FILES)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/SceneManagement SOURCE_FILES) 
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/Resources SOURCE_FILES)  
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/src/Rendering SOURCE_FILES) 
@@ -41,6 +42,11 @@ target_include_directories(VulkanGame
 		"${PROJECT_SOURCE_DIR}/src/"
 		"${PROJECT_SOURCE_DIR}/src/Math"
 		"${PROJECT_SOURCE_DIR}/src/GameObjects"
+		"${PROJECT_SOURCE_DIR}/src/GameObjects/FontObjects"
+		"${PROJECT_SOURCE_DIR}/src/GameObjects/Mothership"
+		"${PROJECT_SOURCE_DIR}/src/GameObjects/Msc"
+		"${PROJECT_SOURCE_DIR}/src/GameObjects/Player"
+		"${PROJECT_SOURCE_DIR}/src/GameObjects/Turrets"
 		"${PROJECT_SOURCE_DIR}/src/SceneManagement"
 		"${PROJECT_SOURCE_DIR}/src/Resources"
 		"${PROJECT_SOURCE_DIR}/src/ThirdParty"

@@ -1,13 +1,13 @@
 
 #include "GameObjectCreationUtilFuncs.h"
 #include "Resources/ResourceLoader.h"
-#include "GameObjects/GameObject.h"
+#include "GameObjects/MeshGameObject.h"
 #include "GameObjects/GameObjectBehavior.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
 #include "Resources/Model.h"
 
-std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
+std::shared_ptr<MeshGameObject> GameObjectCreator::CreateMeshGameObject(
 	std::shared_ptr<Material> const & material,
 	std::shared_ptr<Model> const & gameObjectModel,
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior,
@@ -16,11 +16,14 @@ std::shared_ptr<GameObject> GameObjectCreator::CreateGameObject(
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool) {
-	std::shared_ptr<GameObject> constructedGameObject =
-		std::make_shared<GameObject>(gameObjectModel, material,
+	std::shared_ptr<MeshGameObject> constructedGameObject =
+		std::make_shared<MeshGameObject>(
 			gameObjectBehavior,
 			gfxDeviceManager,
-			logicalDeviceManager, commandPool);
+			logicalDeviceManager,
+			commandPool,
+			gameObjectModel,
+			material);
 	constructedGameObject->SetModelTransform(localToWorldTransform);
 
 	return constructedGameObject;

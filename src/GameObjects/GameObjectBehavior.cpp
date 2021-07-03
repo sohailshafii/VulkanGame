@@ -1,6 +1,6 @@
-#include "GameObjectBehavior.h"
-#include "GameObject.h"
-#include "DescriptorSetFunctions.h"
+#include "GameObjects/GameObjectBehavior.h"
+#include "GameObjects/MeshGameObject.h"
+#include "Rendering/DescriptorSetFunctions.h"
 #include "Common.h"
 
 void* GameObjectBehavior::CreateVertUBOData(size_t& uboSize,

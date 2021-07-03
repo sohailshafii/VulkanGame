@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "SwapChainManager.h"
 #include "SceneManagement/SceneLoader.h"
+#include "GameObjects/MeshGameObject.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
@@ -127,10 +128,12 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		metadataNode);
 	auto selectorBehaviorObj = std::make_shared<MenuSelectorObjectBehavior>(
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	difficultySelector = GameObjectCreator::CreateGameObject(
-		selectorMaterial, selectorModel, selectorBehaviorObj,
-		glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+	difficultySelector = std::static_pointer_cast<GameObject>(
+			GameObjectCreator::CreateMeshGameObject(
+			selectorMaterial, selectorModel, selectorBehaviorObj,
+			glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool)
+		);
 
 	const char* gameInfo =
 		"This is a simple game developed using C++ and the Vulkan API,\n"
@@ -269,11 +272,11 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
 		glm::vec3(0.0f, 0.0f, 4.0f));
 	std::shared_ptr<GameObject> newGameObject =
-		GameObjectCreator::CreateGameObject(nullptr,
+		std::static_pointer_cast<GameObject>(GameObjectCreator::CreateMeshGameObject(nullptr,
 			nullptr,
 			std::make_unique<PlayerGameObjectBehavior>(mainCamera),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
+			logicalDeviceManager, commandPool));
 	mainGameScene->AddGameObject(newGameObject);
 }
 

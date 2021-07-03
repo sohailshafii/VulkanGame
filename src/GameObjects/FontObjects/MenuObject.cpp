@@ -7,7 +7,7 @@
 #include "Resources/Material.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/FontObjects/FontGameObjectBehavior.h"
-#include "GameObjects/GameObject.h"
+#include "GameObjects/MeshGameObject.h"
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
 #include "nlohmann/json.hpp"
 #include <algorithm>
@@ -68,7 +68,7 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 
 	behaviorObject = std::make_shared<FontGameObjectBehavior>(
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	textGameObject = GameObjectCreator::CreateGameObject(
+	textGameObject = GameObjectCreator::CreateMeshGameObject(
 		menuMaterial, mainModel,
 		behaviorObject,
 		glm::mat4(1.0f), resourceLoader, gfxDeviceManager,

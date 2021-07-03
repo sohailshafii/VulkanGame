@@ -5,7 +5,8 @@
 #include "GameObjectCreationUtilFuncs.h"
 #include "Mothership/PawnBehavior.h"
 #include "Player/BulletBehavior.h"
-#include "GameObject.h"
+#include "GameObjects/GameObject.h"
+#include "GameObjects/MeshGameObject.h"
 #include "Player/PlayerGameObjectBehavior.h"
 #include "GraphicsEngine.h"
 #include <iostream>
@@ -129,7 +130,7 @@ void Scene::SpawnPawnGameObject(glm::vec3 const& spawnPosition,
 		spawnPosition);
 
 	std::shared_ptr<GameObject> newGameObject =
-		GameObjectCreator::CreateGameObject(gameObjectMaterial,
+		GameObjectCreator::CreateMeshGameObject(gameObjectMaterial,
 			gameObjectModel, std::make_unique<PawnBehavior>(this, forwardDirection),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
@@ -149,11 +150,12 @@ void Scene::SpawnBulletGameObject(glm::vec3 const& spawnPosition,
 		spawnPosition);
 
 	std::shared_ptr<GameObject> newGameObject =
-		GameObjectCreator::CreateGameObject(gameObjectMaterial,
+		std::static_pointer_cast<GameObject>(
+			GameObjectCreator::CreateMeshGameObject(gameObjectMaterial,
 			gameObjectModel, std::make_unique<BulletBehavior>(this,
 				forwardDir),
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool);
+			logicalDeviceManager, commandPool));
 	upcomingGameObjects.push_back(newGameObject);
 }
 

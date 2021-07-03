@@ -11,7 +11,7 @@ class LogicalDeviceManager;
 class ResourceLoader;
 class Model;
 class Material;
-class GameObject;
+class MeshGameObject;
 class FontTextureBuffer;
 class FontGameObjectBehavior;
 
@@ -34,7 +34,7 @@ public:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool);
 
-	std::shared_ptr<GameObject> GetTextGameObject() {
+	std::shared_ptr<MeshGameObject> GetTextGameObject() {
 		return textGameObject;
 	}
 
@@ -63,7 +63,7 @@ private:
 	void ComputeWorldBoundsOfMenuObject(glm::vec3& min, glm::vec3& max,
 		glm::vec3 const& worldScale);
 
-	std::shared_ptr<GameObject> textGameObject;
+	std::shared_ptr<MeshGameObject> textGameObject;
 	std::shared_ptr<FontGameObjectBehavior> behaviorObject;
 	bool selectState;
 	MenuType menuType;

@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "SceneManagement/Scene.h"
 
+class MeshGameObject;
+
 class GameObjectBehavior {
 public:
 	enum class BehaviorStatus : char { Normal = 0, Destroyed };
@@ -47,7 +49,7 @@ public:
 		this->scene = scene;
 	}
 
-	void SetGameObject(GameObject* gameObject) {
+	void SetGameObject(MeshGameObject* gameObject) {
 		this->gameObject = gameObject;
 	}
 
@@ -70,7 +72,7 @@ protected:
 	// should be deleted after. Need to enforce proper destruction order somehow
 	// with shared pointers as opposed to using classical pointers.
 	Scene * scene;
-	class GameObject* gameObject;
+	MeshGameObject* gameObject;
 
 	// these can be overwritten by inheritors
 	// assuming specific behaviors want to write to UBOs differently

@@ -1,12 +1,14 @@
 #include "SceneManagement/SceneLoader.h"
 
 #include "GameObjects/GameObject.h"
+#include "GameObjects/MeshGameObject.h"
 #include "GameObjects/GameObjectBehavior.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
 #include "GameObjects/Mothership/PawnBehavior.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
+#include "GameObjects/Turrets/BasicTurretBehavior.h"
 #include "Resources/ResourceLoader.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
@@ -194,7 +196,7 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	SetupTransformation(transformationNode, localToWorldTransform);
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior =
 		SetupGameObjectBehavior(jsonObj, scene);
-	constructedGameObject = GameObjectCreator::CreateGameObject(
+	constructedGameObject = GameObjectCreator::CreateMeshGameObject(
 		newMaterial, gameObjectModel, gameObjectBehavior,
 		localToWorldTransform, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
@@ -286,6 +288,9 @@ std::shared_ptr<GameObjectBehavior> SetupGameObjectBehavior(
 	}
 	else if (gameObjectBehaviorStr == "Pawn") {
 		newGameObjBehavior = std::make_shared<PawnBehavior>();
+	}
+	else if (gameObjectBehaviorStr == "BasicTurret") {
+		newGameObjBehavior = std::make_shared<BasicTurretBehavior>();
 	}
 	else {
 		std::stringstream exceptionMsg;

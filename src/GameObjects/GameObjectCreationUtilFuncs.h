@@ -9,7 +9,7 @@
 #include "DescriptorSetFunctions.h"
 #include "nlohmann/json.hpp"
 
-class GameObject;
+class MeshGameObject;
 class GameObjectBehavior;
 class Material;
 class Model;
@@ -19,7 +19,7 @@ class LogicalDeviceManager;
 
 class GameObjectCreator {
 public:
-	static std::shared_ptr<GameObject> CreateGameObject(
+	static std::shared_ptr<MeshGameObject> CreateMeshGameObject(
 		std::shared_ptr<Material> const& material,
 		std::shared_ptr<Model> const& gameObjectModel,
 		std::shared_ptr<GameObjectBehavior> gameObjectBehavior,
