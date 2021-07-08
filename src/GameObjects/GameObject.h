@@ -4,6 +4,7 @@
 #include "Resources/Model.h"
 #include "GameObjects/GameObjectBehavior.h"
 #include <memory>
+#include <vector>
 
 /// <summary>
 /// A standard game object that is by default, invisible.
@@ -100,7 +101,27 @@ public:
 	virtual void CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 	}
 
+	int NumChildGameObjects() const {
+		return 0;
+	}
+
+	std::shared_ptr<GameObject> GetChildGameObject(int index) {
+		return childGameObjects[index];
+	}
+
+	void AddChildGameObject(std::shared_ptr<GameObject> const & newChild) {
+		childGameObjects.push_back(newChild);
+	}
+
+	void RemoveChildGameObject(std::shared_ptr<GameObject> const& childToRm) {
+		auto removeItr = std::remove_if(childGameObjects.begin(), childGameObjects.end(),
+			[childToRm](std::shared_ptr<GameObject> const& currChild)
+			{ return childToRm == currChild; });
+		childGameObjects.erase(removeItr, childGameObjects.end());
+	}
+
 protected:
+	std::vector<std::shared_ptr<GameObject>> childGameObjects;
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior;
 
 	std::shared_ptr<Model> objModel;

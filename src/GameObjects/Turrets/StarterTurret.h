@@ -3,7 +3,7 @@
 #include "Gameobjects/GameObject.h"
 
 // A turret containing many child game objects
-public StarterTurret : public GameObject{
+public StarterTurret : public GameObject {
 public:
 	StarterTurret(std::shared_ptr<GameObjectBehavior> behavior,
 		GfxDeviceManager* gfxDeviceManager,
