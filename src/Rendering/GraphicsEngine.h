@@ -123,4 +123,7 @@ private:
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects,
 		bool renderOnlyTransparent,
 		int swapChainIndex);
+	void RecordCommandForGameObject(VkCommandBuffer& commandBuffer,
+		std::shared_ptr<GameObject> const & gameObject, bool renderOnlyTransparent,
+		int swapChainIndex);
 };

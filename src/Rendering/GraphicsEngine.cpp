@@ -310,8 +310,7 @@ void GraphicsEngine::RemoveGraphicsPipelinesFromPendingGameObjects() {
 	while (gameObjectsPipelinesPendingRemoval.size() > 0) {
 		std::shared_ptr<GameObject> gameObject = gameObjectsPipelinesPendingRemoval.top();
 		gameObjectsPipelinesPendingRemoval.pop();
-		if (gameObjectToPipelineModule.find(gameObject) !=
-			gameObjectToPipelineModule.end())
+		if (gameObjectToPipelineModule.find(gameObject) == gameObjectToPipelineModule.end())
 		{
 			continue;
 		}
@@ -406,7 +405,6 @@ void GraphicsEngine::Update(std::vector<VkFence> const& inFlightFences) {
 }
 
 // per object. have a ubo per object, then update that ubo based on the matrices associated
-// move render logic to this class!
 void GraphicsEngine::CreateCommandBuffersForGameObjects(
 					std::vector<std::shared_ptr<GameObject>> const & gameObjects,
 					std::vector<CommandBufferModule*> commandBufferModulesToUse) {
@@ -434,42 +432,53 @@ void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
 	for (size_t objectIndex = 0; objectIndex < numGameObjects;
 		objectIndex++) {
 		auto& gameObject = gameObjects[objectIndex];
-		auto materialType = gameObject->GetMaterialType();
-		bool isTransparentMat = materialType ==
-			DescriptorSetFunctions::MaterialType::Text;
-		// skip object is it does not pass our render-type test
-		if (isTransparentMat && !renderOnlyTransparent ||
-			!isTransparentMat && renderOnlyTransparent) {
-			continue;
+		RecordCommandForGameObject(commandBuffer, gameObject, renderOnlyTransparent,
+			swapChainIndex);
+		size_t numChildren = gameObject->GetNumChildGameObjects();
+		for (size_t childIndex = 0; childIndex < numChildren; childIndex++) {
+			RecordCommandForGameObject(commandBuffer, gameObject->GetChildGameObject(childIndex),
+				renderOnlyTransparent, swapChainIndex);
 		}
-
-		// skip invisible objects
-		if (gameObject->IsInvisible()) {
-			continue;
-		}
-
-		PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject].get();
-
-		// skip if pipeline was not found
-		if (pipelineModule == nullptr) {
-			continue;
-		}
-
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipelineModule->GetPipeline());
-		// bind our vertex buffers
-		VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-		vkCmdBindIndexBuffer(commandBuffer, gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(swapChainIndex),
-			0, nullptr);
-		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
-			1, 0, 0, 0);
 	}
 }
 
+void GraphicsEngine::RecordCommandForGameObject(VkCommandBuffer& commandBuffer,
+	std::shared_ptr<GameObject> const & gameObject, bool renderOnlyTransparent,
+	int swapChainIndex) {
+	auto materialType = gameObject->GetMaterialType();
+	bool isTransparentMat = materialType ==
+		DescriptorSetFunctions::MaterialType::Text;
+	// skip object is it does not pass our render-type test
+	if (isTransparentMat && !renderOnlyTransparent ||
+		!isTransparentMat && renderOnlyTransparent) {
+		return;
+	}
+
+	// skip invisible objects
+	if (gameObject->IsInvisible()) {
+		return;
+	}
+
+	PipelineModule* pipelineModule = gameObjectToPipelineModule[gameObject].get();
+
+	// skip if pipeline was not found
+	if (pipelineModule == nullptr) {
+		return;
+	}
+
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipelineModule->GetPipeline());
+	// bind our vertex buffers
+	VkBuffer vertexBuffers[] = { gameObject->GetVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+	vkCmdBindIndexBuffer(commandBuffer, gameObject->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipelineModule->GetLayout(), 0, 1, gameObject->GetDescriptorSetPtr(swapChainIndex),
+		0, nullptr);
+	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(gameObject->GetModel()->GetIndices().size()),
+		1, 0, 0, 0);
+}
  

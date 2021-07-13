@@ -101,11 +101,11 @@ public:
 	virtual void CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 	}
 
-	int NumChildGameObjects() const {
-		return 0;
+	size_t GetNumChildGameObjects() const {
+		return childGameObjects.size();
 	}
 
-	std::shared_ptr<GameObject> GetChildGameObject(int index) {
+	std::shared_ptr<GameObject> GetChildGameObject(size_t index) {
 		return childGameObjects[index];
 	}
 
@@ -129,4 +129,9 @@ protected:
 
 	bool initializedInEngine;
 	bool markedForDeletion;
+
+private:
+	void UpdateChildrenStates(float time, float deltaTime);
+	void UpdateChildrenVisualStates(uint32_t imageIndex, const glm::mat4& viewMatrix,
+		float time, float deltaTime, VkExtent2D swapChainExtent);
 };
