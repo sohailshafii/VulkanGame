@@ -33,7 +33,7 @@ void GameObject::UpdateChildrenStates(float time, float deltaTime) {
 void GameObject::UpdateChildrenVisualStates(uint32_t imageIndex,
 	const glm::mat4& viewMatrix, float time, float deltaTime, VkExtent2D swapChainExtent) {
 	for (auto& gameObject : childGameObjects) {
-		gameObject->UpdateChildrenVisualStates(imageIndex, viewMatrix, time,
+		gameObject->UpdateVisualState(imageIndex, viewMatrix, time,
 			deltaTime, swapChainExtent);
 	}
 }

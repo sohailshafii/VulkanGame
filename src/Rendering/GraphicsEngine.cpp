@@ -19,8 +19,7 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 	VkCommandPoolCreateInfo poolCreateInfo,
 	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
 	this->logicalDeviceManager = logicalDeviceManager;
-	CreateSwapChain(gfxDeviceManager, surface,
-		window);
+	CreateSwapChain(gfxDeviceManager, surface, window);
 	CreateSwapChainImageViews();
 	CreateRenderPassModule(gfxDeviceManager);
 
@@ -41,11 +40,6 @@ GraphicsEngine::GraphicsEngine(GfxDeviceManager* gfxDeviceManager,
 
 	AddAndInitializeNewGameObjects(gfxDeviceManager, resourceLoader,
 								   gameObjects);
-	
-	CreateCommandBuffersForGameObjects(gameObjects, commandBufferModules);
-	for (auto& gameObject : gameObjects) {
-		gameObject->SetInitializedInEngine(true);
-	}
 }
 
 void GraphicsEngine::AddAndInitializeNewGameObjects(
@@ -55,6 +49,19 @@ void GraphicsEngine::AddAndInitializeNewGameObjects(
 	AddGraphicsPipelinesFromGameObjects(gfxDeviceManager, resourceLoader, gameObjects);
 	CreateUniformBuffersForGameObjects(gfxDeviceManager, gameObjects);
 	CreateDescriptorPoolAndSetsForGameObjects(gameObjects);
+
+	CreateCommandBuffersForGameObjects(gameObjects, commandBufferModules);
+	InitializeGameObjectsRecursively(gameObjects);
+}
+
+void GraphicsEngine::InitializeGameObjectsRecursively(
+	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+	for (auto& gameObject : gameObjects) {
+		gameObject->SetInitializedInEngine(true);
+		if (gameObject->GetNumChildGameObjects() > 0) {
+			InitializeGameObjectsRecursively(gameObject->GetChildren());
+		}
+	}
 }
 
 void GraphicsEngine::ReRecordCommandsForGameObjects(
@@ -230,28 +237,7 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	std::vector<std::shared_ptr<GameObject>> gameObjectsToCreatePipelinesFor;
 	
-	for (auto& gameObject : gameObjects) {
-		// avoid invisible objects
-		if (gameObject->IsInvisible()) {
-			continue;
-		}
-
-		// avoid adding on that already exists
-		if (gameObjectToPipelineModule.find(gameObject) !=
-			gameObjectToPipelineModule.end())
-		{
-			continue;
-		}
-
-		// try to re-use pipelines
-		auto possibleExistingPipeline = FindExistingPipeline(gameObject);
-		if (possibleExistingPipeline == nullptr) {
-			gameObjectsToCreatePipelinesFor.push_back(gameObject);
-		}
-		else {
-			gameObjectToPipelineModule[gameObject] = possibleExistingPipeline;
-		}
-	}
+	RecursivelyCollectGameObjectsToCreatePipelinesFor(gameObjects, gameObjectsToCreatePipelinesFor);
 
 	int numPipelinesToCreates = gameObjectsToCreatePipelinesFor.size();
 	std::vector<std::thread> threads(numPipelinesToCreates);
@@ -273,8 +259,31 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 
 	for (int i = 0; i < numPipelinesToCreates; i++) {
 		auto gameObject = gameObjectsToCreatePipelinesFor[i];
+		// TODO: it's possible for new game objects to have duplicate pipelines, consider
+		// filtering those out too
 		gameObjectToPipelineModule[gameObject] =
 			pipelineModuleArrayPerGameObject[i];
+	}
+}
+
+void GraphicsEngine::RecursivelyCollectGameObjectsToCreatePipelinesFor(
+	std::vector<std::shared_ptr<GameObject>> const& gameObjects,
+	std::vector<std::shared_ptr<GameObject>>& gameObjectsToCreatePipelinesFor) {
+	for (auto& gameObject : gameObjects) {
+		// avoid invisible objects, or ones that already have pipelines
+		if (!gameObject->IsInvisible() && gameObjectToPipelineModule.find(gameObject) ==
+			gameObjectToPipelineModule.end()) {
+			auto possibleExistingPipeline = FindExistingPipeline(gameObject);
+			if (possibleExistingPipeline == nullptr) {
+				gameObjectsToCreatePipelinesFor.push_back(gameObject);
+			}
+			else {
+				gameObjectToPipelineModule[gameObject] = possibleExistingPipeline;
+			}
+		}
+		
+		auto& children = gameObject->GetChildren();
+		RecursivelyCollectGameObjectsToCreatePipelinesFor(children, gameObjectsToCreatePipelinesFor);
 	}
 }
 
@@ -310,11 +319,24 @@ void GraphicsEngine::RemoveGraphicsPipelinesFromPendingGameObjects() {
 	while (gameObjectsPipelinesPendingRemoval.size() > 0) {
 		std::shared_ptr<GameObject> gameObject = gameObjectsPipelinesPendingRemoval.top();
 		gameObjectsPipelinesPendingRemoval.pop();
-		if (gameObjectToPipelineModule.find(gameObject) == gameObjectToPipelineModule.end())
+		if (gameObjectToPipelineModule.find(gameObject) != gameObjectToPipelineModule.end())
 		{
-			continue;
+			gameObjectToPipelineModule.erase(gameObject);
 		}
-		gameObjectToPipelineModule.erase(gameObject);
+
+		RemoveGameObjectToPipelineRecursive(gameObject);
+	}
+}
+
+void GraphicsEngine::RemoveGameObjectToPipelineRecursive(std::shared_ptr<GameObject> const& gameObject) {
+	size_t numChildGameObjects = gameObject->GetNumChildGameObjects();
+	for (size_t childIndex = 0; childIndex < numChildGameObjects; childIndex++) {
+		auto& childGameObject = gameObject->GetChildGameObject(childIndex);
+		if (gameObjectToPipelineModule.find(childGameObject) !=
+			gameObjectToPipelineModule.end()) {
+			gameObjectToPipelineModule.erase(childGameObject);
+		}
+		RemoveGameObjectToPipelineRecursive(childGameObject);
 	}
 }
 
@@ -323,10 +345,13 @@ void GraphicsEngine::CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDev
 	const std::vector<VkImage>& swapChainImages = swapChainManager->GetSwapChainImages();
 	size_t numSwapChainImages = swapChainImages.size();
 	for(auto& gameObject : gameObjects) {
+		// if parent is initialized, then children are too
 		if (gameObject->GetInitializedInEngine()) {
 			continue;
 		}
 		gameObject->InitAndCreateUniformBuffers(gfxDeviceManager, numSwapChainImages);
+		auto& children = gameObject->GetChildren();
+		CreateUniformBuffersForGameObjects(gfxDeviceManager, children);
 	}
 }
 
@@ -339,6 +364,8 @@ void GraphicsEngine::CreateDescriptorPoolAndSetsForGameObjects(
 			continue;
 		}
 		gameObject->CreateDescriptorPoolAndSets(numSwapChainImages);
+		auto& children = gameObject->GetChildren();
+		CreateDescriptorPoolAndSetsForGameObjects(children);
 	}
 }
 
@@ -434,9 +461,9 @@ void GraphicsEngine::RecordCommandForGameObjects(VkCommandBuffer &commandBuffer,
 		auto& gameObject = gameObjects[objectIndex];
 		RecordCommandForGameObject(commandBuffer, gameObject, renderOnlyTransparent,
 			swapChainIndex);
-		size_t numChildren = gameObject->GetNumChildGameObjects();
-		for (size_t childIndex = 0; childIndex < numChildren; childIndex++) {
-			RecordCommandForGameObject(commandBuffer, gameObject->GetChildGameObject(childIndex),
+		auto& children = gameObject->GetChildren();
+		if (!children.empty()) {
+			RecordCommandForGameObjects(commandBuffer, children,
 				renderOnlyTransparent, swapChainIndex);
 		}
 	}

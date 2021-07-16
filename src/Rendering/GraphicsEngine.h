@@ -87,6 +87,7 @@ private:
 	void AddAndInitializeNewGameObjects(GfxDeviceManager* gfxDeviceManager,
 										ResourceLoader* resourceLoader,
 										std::vector<std::shared_ptr<GameObject>>& gameObjects);
+	void InitializeGameObjectsRecursively(std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
 	void CleanUpSwapChain();
 	void CreateSwapChain(GfxDeviceManager* gfxDeviceManager,
@@ -103,6 +104,8 @@ private:
 	void AddGraphicsPipelinesFromGameObjects(GfxDeviceManager* gfxDeviceManager,
 		ResourceLoader* resourceLoader,
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
+	void RecursivelyCollectGameObjectsToCreatePipelinesFor(std::vector<std::shared_ptr<GameObject>> const& gameObjects,
+		std::vector<std::shared_ptr<GameObject>>& gameObjectsToCreatePipelinesFor);
 	void AddNewPipeline(std::shared_ptr<GameObject> gameObject,
 		std::shared_ptr<PipelineModule>* pipelineModulePtr,
 		GfxDeviceManager* gfxDeviceManager,
@@ -110,6 +113,7 @@ private:
 	std::shared_ptr<PipelineModule>
 		FindExistingPipeline(std::shared_ptr<GameObject> const& gameObject);
 	void RemoveGraphicsPipelinesFromPendingGameObjects();
+	void RemoveGameObjectToPipelineRecursive(std::shared_ptr<GameObject> const& gameObject);
 
 	void CreateUniformBuffersForGameObjects(GfxDeviceManager* gfxDeviceManager,
 		std::vector<std::shared_ptr<GameObject>> const & gameObjects);

@@ -109,6 +109,10 @@ public:
 		return childGameObjects[index];
 	}
 
+	std::vector<std::shared_ptr<GameObject>> & GetChildren() {
+		return childGameObjects;
+	}
+
 	void AddChildGameObject(std::shared_ptr<GameObject> const & newChild) {
 		childGameObjects.push_back(newChild);
 	}
