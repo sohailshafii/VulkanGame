@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "SwapChainManager.h"
 #include "SceneManagement/SceneLoader.h"
+#include "GameObjects/GameObject.h"
 #include "GameObjects/MeshGameObject.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
@@ -271,12 +272,12 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 	// need to know where the player is
 	glm::mat4 localToWorldTransform = glm::translate(glm::mat4(1.0f),
 		glm::vec3(0.0f, 0.0f, 4.0f));
+
 	std::shared_ptr<GameObject> newGameObject =
-		std::static_pointer_cast<GameObject>(GameObjectCreator::CreateMeshGameObject(nullptr,
-			nullptr,
-			std::make_unique<PlayerGameObjectBehavior>(mainCamera),
-			localToWorldTransform, resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool));
+		std::make_shared<GameObject>(
+			std::make_unique<PlayerGameObjectBehavior>(mainCamera));;
+	newGameObject->SetModelTransform(localToWorldTransform);
+
 	mainGameScene->AddGameObject(newGameObject);
 }
 

@@ -2,10 +2,12 @@
 
 #include "Gameobjects/GameObject.h"
 
-// A turret containing many child game objects
-public StarterTurret : public GameObject {
+/// <summary>
+/// The cheapest stationary available.
+/// </summary>
+class BasicTurret : public GameObject {
 public:
-	StarterTurret(std::shared_ptr<GameObjectBehavior> behavior,
+	BasicTurret(std::shared_ptr<GameObjectBehavior> behavior,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		VkCommandPool commandPool);
