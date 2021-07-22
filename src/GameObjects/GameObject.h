@@ -38,7 +38,7 @@ public:
 	}
 
 	glm::vec3 GetWorldPosition() const {
-		return gameObjectBehavior->GetWorldPosition();
+		return gameObjectBehavior->GetRelativePosition();
 	}
 
 	void SetModelTransform(const glm::mat4& model) {

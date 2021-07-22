@@ -41,7 +41,7 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 	else if (currentVelocity < -maxVelocityMagnitude) {
 		currentVelocity = -maxVelocityMagnitude;
 	}
-	glm::vec3 bulletPosition = GetWorldPosition();
+	glm::vec3 bulletPosition = GetRelativePosition();
 	bulletPosition += currentVelocity * velocityVector;
 	distanceTraveled += currentVelocity;
 	if (distanceTraveled > maxDistance) {
@@ -68,7 +68,7 @@ void BulletBehavior::CheckForCollisions(glm::vec3 const & bulletPosition) {
 		GameObjectBehavior* behavInst = gameObject->GetGameObjectBehavior();
 		PawnBehavior* pawnBehav = dynamic_cast<PawnBehavior*>(behavInst);
 		if (pawnBehav != nullptr) {
-			auto pawnPos = pawnBehav->GetWorldPosition();
+			auto pawnPos = pawnBehav->GetRelativePosition();
 			auto vecToPawnPos = bulletPosition - pawnPos;
 			if (glm::length(vecToPawnPos) < 2.0f) {
 				destroyed = true;

@@ -57,7 +57,7 @@ void MothershipBehavior::SpawnPawn() {
 		// hit sphere from the inside). But this probably would never
 		// happen
 		auto playerWorldPosition = playerGameObject->GetWorldPosition();
-		auto planePosition = GetWorldPosition();
+		auto planePosition = GetRelativePosition();
 		auto planePosToPlayer = playerWorldPosition - planePosition;
 		planePosToPlayer = glm::normalize(planePosToPlayer);
 		float planeDistance =-glm::dot(planePosition, planePosToPlayer);
@@ -111,7 +111,7 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 		return false;
 	}
 
-	glm::vec3 worldPosition = GetWorldPosition();
+	glm::vec3 worldPosition = GetRelativePosition();
 	glm::vec3 vectorFromCenter = possibleHitPosition - worldPosition;
 	float vecFromCenterMagn = glm::length(vectorFromCenter);
 	if (vecFromCenterMagn > radius) {

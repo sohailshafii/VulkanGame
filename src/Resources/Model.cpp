@@ -142,40 +142,6 @@ std::shared_ptr<Model> Model::CreateBox(glm::vec3 const& boxCenter,
 		(right + up + forward);
 
 	uint32_t indexOffset = 0;
-	/*std::shared_ptr<Model> bottomSide = Model::CreateQuad(
-		boxOrigin, right, forward, isTriangleStrip);;
-	AddVerticesAndAppendIndices(bottomSide->vertices,
-		vertices, indices, indexOffset, true);
-
-	std::shared_ptr<Model> topSide = Model::CreateQuad(
-		boxOrigin + up, right, forward, isTriangleStrip);
-	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(topSide->vertices,
-		vertices, indices, indexOffset, true);
-
-	std::shared_ptr<Model> frontSide = Model::CreateQuad(
-		boxOrigin, right, up, isTriangleStrip);
-	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(frontSide->vertices,
-		vertices, indices, indexOffset, true);
-
-	std::shared_ptr<Model> backSide = Model::CreateQuad(
-		boxOrigin + forward, up, right, isTriangleStrip);
-	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(backSide->vertices,
-		vertices, indices, indexOffset, true);
-
-	std::shared_ptr<Model> leftSide = Model::CreateQuad(
-		boxOrigin, up, forward, isTriangleStrip);
-	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(leftSide->vertices,
-		vertices, indices, indexOffset, true);
-	
-	std::shared_ptr<Model> rightSide = Model::CreateQuad(
-		boxOrigin + right, forward, up, isTriangleStrip);
-	indexOffset += isTriangleStrip ? 4 : 6;
-	AddVerticesAndAppendIndices(rightSide->vertices,
-		vertices, indices, indexOffset, true);*/
 
 	std::shared_ptr<Model> backSide = Model::CreateQuad(
 		boxOrigin, up, right, false);

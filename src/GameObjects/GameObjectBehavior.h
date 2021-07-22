@@ -34,13 +34,15 @@ public:
 		return modelMatrix;
 	}
 
-	void SetWorldPosition(glm::vec3 const& worldPos) {
-		modelMatrix[3][0] = worldPos[0];
-		modelMatrix[3][1] = worldPos[1];
-		modelMatrix[3][2] = worldPos[2];
+	// Can be relative to world if base game object in scene graph,
+	// or relative to parent.
+	void SetRelativePosition(glm::vec3 const& relativePos) {
+		modelMatrix[3][0] = relativePos[0];
+		modelMatrix[3][1] = relativePos[1];
+		modelMatrix[3][2] = relativePos[2];
 	}
 
-	glm::vec3 GetWorldPosition() const {
+	glm::vec3 GetRelativePosition() const {
 		return glm::vec3(modelMatrix[3][0], modelMatrix[3][1],
 			modelMatrix[3][2]);
 	}

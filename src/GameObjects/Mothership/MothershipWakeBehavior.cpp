@@ -26,11 +26,11 @@ ShipStateBehavior* MothershipWakeBehavior::UpdateAndGetNextState(
 		// so that we lerp to start position
 		glm::vec3 newMothershipPosition = originalMothershipPosition +
 			(1.0f - t) * startOffset;
-		motherShip.SetWorldPosition(newMothershipPosition);
+		motherShip.SetRelativePosition(newMothershipPosition);
 	}
 	else {
 		nextShipState = new MothershipIdleStateBehavior();
-		motherShip.SetWorldPosition(originalMothershipPosition);
+		motherShip.SetRelativePosition(originalMothershipPosition);
 	}
 
 	return nextShipState;
@@ -39,6 +39,6 @@ ShipStateBehavior* MothershipWakeBehavior::UpdateAndGetNextState(
 void MothershipWakeBehavior::InitializeIfRequired(MothershipBehavior const & motherShip,
 	float time) {
 	wakeTime = time;
-	originalMothershipPosition = motherShip.GetWorldPosition();
+	originalMothershipPosition = motherShip.GetRelativePosition();
 }
 
