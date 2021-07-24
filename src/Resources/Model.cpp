@@ -138,8 +138,7 @@ std::shared_ptr<Model> Model::CreateBox(glm::vec3 const& boxCenter,
 	std::vector<ModelVert> vertices;
 	std::vector<uint32_t> indices;
 	
-	glm::vec3 boxOrigin = boxCenter - 0.5f *
-		(right + up + forward);
+	glm::vec3 boxOrigin = boxCenter - 0.5f * (right + up + forward);
 
 	uint32_t indexOffset = 0;
 

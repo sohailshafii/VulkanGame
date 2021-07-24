@@ -9,6 +9,7 @@
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Turrets/BasicTurretBehavior.h"
+#include "GameObjects/Turrets/BasicTurret.h"
 #include "Resources/ResourceLoader.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
@@ -196,10 +197,19 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	SetupTransformation(transformationNode, localToWorldTransform);
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior =
 		SetupGameObjectBehavior(jsonObj, scene);
-	constructedGameObject = GameObjectCreator::CreateMeshGameObject(
-		newMaterial, gameObjectModel, gameObjectBehavior,
-		localToWorldTransform, resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+	// TODO: change functionality so that it's driven by game object type
+	bool isTurret = jsonObj["type"] == "BasicTurret";
+	if (isTurret) {
+		constructedGameObject = std::make_shared<BasicTurret>
+			(scene, gameObjectBehavior, gfxDeviceManager,
+			logicalDeviceManager, resourceLoader, commandPool);
+	}
+	else {
+		constructedGameObject = GameObjectCreator::CreateMeshGameObject(
+			newMaterial, gameObjectModel, gameObjectBehavior,
+			localToWorldTransform, resourceLoader, gfxDeviceManager,
+			logicalDeviceManager, commandPool);
+	}
 }
 
 static void SetupMaterial(const nlohmann::json& materialNode,

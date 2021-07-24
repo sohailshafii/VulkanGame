@@ -51,15 +51,15 @@ void GraphicsEngine::AddAndInitializeNewGameObjects(
 	CreateDescriptorPoolAndSetsForGameObjects(gameObjects);
 
 	CreateCommandBuffersForGameObjects(gameObjects, commandBufferModules);
-	InitializeGameObjectsRecursively(gameObjects);
+	SetGameObjectsInitalizedRecursively(gameObjects);
 }
 
-void GraphicsEngine::InitializeGameObjectsRecursively(
-	std::vector<std::shared_ptr<GameObject>>& gameObjects) {
+void GraphicsEngine::SetGameObjectsInitalizedRecursively(
+	std::vector<std::shared_ptr<GameObject>> const & gameObjects) {
 	for (auto& gameObject : gameObjects) {
 		gameObject->SetInitializedInEngine(true);
 		if (gameObject->GetNumChildGameObjects() > 0) {
-			InitializeGameObjectsRecursively(gameObject->GetChildren());
+			SetGameObjectsInitalizedRecursively(gameObject->GetChildren());
 		}
 	}
 }
@@ -73,9 +73,7 @@ void GraphicsEngine::ReRecordCommandsForGameObjects(
 	CreateDescriptorPoolAndSetsForGameObjects(allGameObjects);
 	
 	CreateCommandBuffersForGameObjects(allGameObjects, commandBufferModulesPending);
-	for (auto& gameObject : allGameObjects) {
-		gameObject->SetInitializedInEngine(true);
-	}
+	SetGameObjectsInitalizedRecursively(allGameObjects);
 	pendingCommandModules = true;
 	std::cout << "record command buffers\n";
 }
@@ -108,9 +106,7 @@ void GraphicsEngine::RemoveGameObjectsAndReRecordCommandsForAddedGameObjects(
 
 	CreateCommandBuffersForGameObjects(allGameObjectsSansRemovals,
 		commandBufferModulesPending);
-	for (auto& gameObject : allGameObjectsSansRemovals) {
-		gameObject->SetInitializedInEngine(true);
-	}
+	SetGameObjectsInitalizedRecursively(allGameObjectsSansRemovals);
 	pendingCommandModules = true;
 	std::cout << "remove game objects, add a few, record command buffers\n";
 }
@@ -241,16 +237,15 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 
 	int numPipelinesToCreates = gameObjectsToCreatePipelinesFor.size();
 	std::vector<std::thread> threads(numPipelinesToCreates);
-	std::vector<std::shared_ptr<PipelineModule>> pipelineModuleArrayPerGameObject;
-	pipelineModuleArrayPerGameObject.resize(numPipelinesToCreates);
+	std::vector<std::shared_ptr<PipelineModule>> pipelineModulePerGameObject;
+	pipelineModulePerGameObject.resize(numPipelinesToCreates);
 
 	// this should be ok, because each pipeline module in the array is allocated separately
 	// and exists in a separate location
 	for (int i = 0; i < numPipelinesToCreates; i++) {
 		threads[i] = std::thread(
 			&GraphicsEngine::AddNewPipeline, this, gameObjectsToCreatePipelinesFor[i],
-			pipelineModuleArrayPerGameObject.data()+i,
-			gfxDeviceManager, resourceLoader);
+			pipelineModulePerGameObject.data() + i, gfxDeviceManager, resourceLoader);
 	}
 
 	for (size_t i = 0; i < numPipelinesToCreates; i++) {
@@ -262,7 +257,7 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 		// TODO: it's possible for new game objects to have duplicate pipelines, consider
 		// filtering those out too
 		gameObjectToPipelineModule[gameObject] =
-			pipelineModuleArrayPerGameObject[i];
+			pipelineModulePerGameObject[i];
 	}
 }
 
@@ -273,7 +268,7 @@ void GraphicsEngine::RecursivelyCollectGameObjectsToCreatePipelinesFor(
 		// avoid invisible objects, or ones that already have pipelines
 		if (!gameObject->IsInvisible() && gameObjectToPipelineModule.find(gameObject) ==
 			gameObjectToPipelineModule.end()) {
-			auto possibleExistingPipeline = FindExistingPipeline(gameObject);
+			auto possibleExistingPipeline = FindMatchingPipelineFromAnotherGameObject(gameObject);
 			if (possibleExistingPipeline == nullptr) {
 				gameObjectsToCreatePipelinesFor.push_back(gameObject);
 			}
@@ -300,10 +295,9 @@ void GraphicsEngine::AddNewPipeline(std::shared_ptr<GameObject> gameObject,
 			gameObject->GetPrimitiveTopology());
 }
 
-std::shared_ptr<PipelineModule>
-	GraphicsEngine::FindExistingPipeline(std::shared_ptr<GameObject> const& gameObject) {
+std::shared_ptr<PipelineModule> GraphicsEngine::FindMatchingPipelineFromAnotherGameObject(
+		std::shared_ptr<GameObject> const& gameObject) {
 	std::map<std::shared_ptr<GameObject>, std::shared_ptr<PipelineModule>>::iterator it;
-
 	for (it = gameObjectToPipelineModule.begin(); it != gameObjectToPipelineModule.end(); it++)
 	{
 		std::shared_ptr<PipelineModule> const & pipeline = it->second;
@@ -416,6 +410,7 @@ void GraphicsEngine::RecordCommandBuffersForCommandBufferModule(
 
 void GraphicsEngine::Update(std::vector<VkFence> const& inFlightFences) {
 	if (pendingCommandModules) {
+		// have to wait for device to become available
 		vkWaitForFences(logicalDeviceManager->GetDevice(), (uint32_t)inFlightFences.size(),
 			inFlightFences.data(), VK_TRUE,
 			std::numeric_limits<uint64_t>::max());
@@ -493,6 +488,7 @@ void GraphicsEngine::RecordCommandForGameObject(VkCommandBuffer& commandBuffer,
 		return;
 	}
 
+	// TODO: we can possibly organize game objects based on similar pipelines
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 		pipelineModule->GetPipeline());
 	// bind our vertex buffers
