@@ -35,21 +35,21 @@ glm::mat4 Camera::ConstructViewMatrix() const {
 	return glm::lookAt(position, position + forward, up);
 }
 
-void Camera::MoveForward(float deltaTime) {
+void Camera::MoveForward() {
 	// prevent vertical movement
-	position += glm::vec3(forward[0], 0.0f, forward[2]) * movementSpeed * deltaTime;
+	position += glm::vec3(forward[0], 0.0f, forward[2]) * movementSpeed;
 }
 
-void Camera::MoveBackward(float deltaTime) {
-	position -= glm::vec3(forward[0], 0.0f, forward[2]) * movementSpeed * deltaTime;
+void Camera::MoveBackward() {
+	position -= glm::vec3(forward[0], 0.0f, forward[2]) * movementSpeed;
 }
 
-void Camera::MoveRight(float deltaTime) {
-	position += glm::vec3(right[0], 0.0f, right[2]) * movementSpeed * deltaTime;
+void Camera::MoveRight() {
+	position += glm::vec3(right[0], 0.0f, right[2]) * movementSpeed;
 }
 
-void Camera::MoveLeft(float deltaTime) {
-	position -= glm::vec3(right[0], 0.0f, right[2]) * movementSpeed * deltaTime;
+void Camera::MoveLeft() {
+	position -= glm::vec3(right[0], 0.0f, right[2]) * movementSpeed;
 }
 
 void Camera::ProcessMouse(float mouseXMovement, float mouseYMovement) {

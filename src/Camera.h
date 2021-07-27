@@ -29,10 +29,10 @@ public:
 		return forward;
 	}
 
-	void MoveForward(float deltaTime);
-	void MoveBackward(float deltaTime);
-	void MoveRight(float deltaTime);
-	void MoveLeft(float deltaTime);
+	void MoveForward();
+	void MoveBackward();
+	void MoveRight();
+	void MoveLeft();
 
 	void ProcessMouse(float mouseXMovement, float mouseYMovement);
 

@@ -129,12 +129,11 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		metadataNode);
 	auto selectorBehaviorObj = std::make_shared<MenuSelectorObjectBehavior>(
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	difficultySelector = std::static_pointer_cast<GameObject>(
-			GameObjectCreator::CreateMeshGameObject(
+	difficultySelector = 
+		GameObjectCreator::CreateMeshGameObject(
 			selectorMaterial, selectorModel, selectorBehaviorObj,
 			glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
-			logicalDeviceManager, commandPool)
-		);
+			logicalDeviceManager, commandPool);
 
 	const char* gameInfo =
 		"This is a simple game developed using C++ and the Vulkan API,\n"
@@ -194,7 +193,8 @@ void GameEngine::RecreateGraphicsEngineForNewSwapchain(
 	VkCommandPoolCreateInfo poolCreateInfo) {
 	delete graphicsEngine;
 	graphicsEngine = new GraphicsEngine(gfxDeviceManager, logicalDeviceManager,
-		resourceLoader, surface, window, commandPool, poolCreateInfo, mainGameScene->GetGameObjects());
+		resourceLoader, surface, window, commandPool, poolCreateInfo,
+		mainGameScene->GetGameObjects());
 }
 
 void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
@@ -486,16 +486,16 @@ void GameEngine::HandleMainGameControls(GLFWwindow* window, float frameTime,
 	float lastFrameTime) {
 	if (mobileCamera) {
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-			mainCamera->MoveForward(frameTime);
+			mainCamera->MoveForward();
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			mainCamera->MoveBackward(frameTime);
+			mainCamera->MoveBackward();
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-			mainCamera->MoveLeft(frameTime);
+			mainCamera->MoveLeft();
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-			mainCamera->MoveRight(frameTime);
+			mainCamera->MoveRight();
 		}
 	}
 

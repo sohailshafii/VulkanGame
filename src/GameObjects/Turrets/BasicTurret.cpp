@@ -18,7 +18,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
 	auto upVec =  glm::vec3(0.0f, 1.0f, 0.0f);
 	auto forwardVec = glm::vec3(0.0f, 0.0f, 1.0f);
-	auto baseModel = Model::CreateBox(boxCenter, rightVec,upVec, forwardVec);
+	auto baseModel = Model::CreateBox(boxCenter, rightVec, upVec, forwardVec);
 	
 	nlohmann::json metadataNode = {
 		{"tint_color",{1.0f, 0.0f, 0.0f, 1.0f }}
@@ -30,7 +30,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto baseBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
 	glm::mat4 relativeTransform(1.0f);
 	relativeTransform = glm::translate(relativeTransform,
-		glm::vec3(0.0f,-1.0f, 0.0f));
+		glm::vec3(0.0f, 0.0f, 0.0f));
 	auto constructedGameObject = GameObjectCreator::CreateMeshGameObject(
 		material, baseModel, baseBehavior,
 		relativeTransform, resourceLoader, gfxDeviceManager,
@@ -39,10 +39,10 @@ BasicTurret::BasicTurret(Scene* const scene,
 		(constructedGameObject));
 
 	// top of turret
-	boxCenter = glm::vec3(0.5f, 0.75f, 0.5f);
-	rightVec = glm::vec3(25.0f, 0.0f, 0.0f);
-	upVec = glm::vec3(0.0f, 25.0f, 0.0f);
-	forwardVec = glm::vec3(0.0f, 0.0f, 25.0f);
+	boxCenter = glm::vec3(0.5f, 1.25f, 0.5f);
+	rightVec = glm::vec3(0.50f, 0.0f, 0.0f);
+	upVec = glm::vec3(0.0f, 0.50f, 0.0f);
+	forwardVec = glm::vec3(0.0f, 0.0f, 0.50f);
 	auto turretTopModel = Model::CreateBox(boxCenter, rightVec, upVec, forwardVec);
 	metadataNode = {
 		{"tint_color",{0.0f, 1.0f, 0.0f, 1.0f }}

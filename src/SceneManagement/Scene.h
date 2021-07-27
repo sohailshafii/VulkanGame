@@ -58,6 +58,7 @@ public:
 	
 private:
 	std::vector<std::shared_ptr<GameObject>> gameObjects;
+	// game objects spawned this frame and reserved for the next frame
 	std::vector<std::shared_ptr<GameObject>> upcomingGameObjects;
 
 	// we don't own these pointers; should be shared ptrs ideally
