@@ -16,7 +16,7 @@ public:
 	}
 
 private:
-	void InitializeIfRequired(MothershipBehavior const& motherShip,
+	void InitializeIfRequired(MothershipBehavior & motherShip,
 		float time);
 
 	static inline const glm::vec3 startOffset = glm::vec3(0.0f, 50.0f, -50.0f);

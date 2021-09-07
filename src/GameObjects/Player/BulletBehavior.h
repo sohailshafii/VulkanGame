@@ -27,4 +27,6 @@ private:
 	bool destroyed;
 
 	void CheckForCollisions(glm::vec3 const & bulletPosition);
+	bool CheckForCollisionsRecursive(glm::vec3 const& bulletPosition,
+		std::vector<std::shared_ptr<GameObject>> const & gameObjects);
 };

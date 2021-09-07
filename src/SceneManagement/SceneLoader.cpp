@@ -3,6 +3,7 @@
 #include "GameObjects/GameObject.h"
 #include "GameObjects/MeshGameObject.h"
 #include "GameObjects/GameObjectBehavior.h"
+#include "GameObjects/Mothership/Mothership.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
 #include "GameObjects/Mothership/PawnBehavior.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
@@ -197,12 +198,15 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	SetupTransformation(transformationNode, localToWorldTransform);
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior =
 		SetupGameObjectBehavior(jsonObj, scene);
-	// TODO: change functionality so that it's driven by game object type
-	bool isTurret = jsonObj["type"] == "BasicTurret";
-	if (isTurret) {
+	if (jsonObj["type"] == "BasicTurret") {
 		constructedGameObject = std::make_shared<BasicTurret>
 			(scene, gameObjectBehavior, gfxDeviceManager,
 			logicalDeviceManager, resourceLoader, commandPool);
+	}
+	else if (jsonObj["type"] == "Mothership") {
+		constructedGameObject = std::make_shared<Mothership>(gameObjectBehavior,
+			gfxDeviceManager, logicalDeviceManager, commandPool, gameObjectModel,
+			newMaterial);
 	}
 	else {
 		constructedGameObject = GameObjectCreator::CreateMeshGameObject(

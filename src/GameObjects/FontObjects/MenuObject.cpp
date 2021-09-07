@@ -20,7 +20,8 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 	std::string const& textureSheetName,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-	ResourceLoader* resourceLoader, VkCommandPool commandPool) {
+	ResourceLoader* resourceLoader, VkCommandPool commandPool) :
+		MeshGameObject(gfxDeviceManager, logicalDeviceManager, commandPool) {
 	this->menuType = menuType;
 	this->menuText = menuText;
 	float advanceValX = 0.0f;
@@ -35,7 +36,7 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 		{"tint_color",{1.0f, 1.0f, 1.0f, 1.0f }}
 	};
 
-	auto menuMaterial = GameObjectCreator::CreateMaterial(
+	material = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::Text,
 		textureSheetName, metadataNode, true, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool);
@@ -57,22 +58,18 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 			localScale);
 		// if main model has not been created yet, initialize it
 		// to be the main model, otherwise append
-		if (mainModel == nullptr) {
-			mainModel = gameObjectModel;
+		if (objModel == nullptr) {
+			objModel = gameObjectModel;
 		}
 		else {
-			mainModel->AppendVertsAndIndices(gameObjectModel->GetVertices(),
+			objModel->AppendVertsAndIndices(gameObjectModel->GetVertices(),
 				gameObjectModel->GetIndices());
 		}
 	}
 
-	behaviorObject = std::make_shared<FontGameObjectBehavior>(
+	gameObjectBehavior = std::make_shared<FontGameObjectBehavior>(
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	textGameObject = GameObjectCreator::CreateMeshGameObject(
-		menuMaterial, mainModel,
-		behaviorObject,
-		glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+	InitializeMeshState();
 
 	// if centered, find out how what the center of the phrase is
 	// then move back by that amount
@@ -84,7 +81,7 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 		objectPosition - center);
 	localToWorldTransform = glm::scale(localToWorldTransform,
 		scale);
-	textGameObject->SetModelTransform(localToWorldTransform);
+	SetLocalTransform(localToWorldTransform);
 	computedScale = max - min;
 	computedScale[0] = fabs(max[0]);
 	computedScale[1] = fabs(max[1]);
@@ -95,8 +92,23 @@ MenuObject::MenuObject(MenuType menuType, std::string const& menuText,
 
 void MenuObject::SetSelectState(bool selectState) {
 	this->selectState = selectState;
-	behaviorObject->SetColor(selectState ? glm::vec4(0.0f, 1.0f, 1.0f, 1.0f) :
+	SetColor(selectState ? glm::vec4(0.0f, 1.0f, 1.0f, 1.0f) :
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+}
+
+void* MenuObject::CreateFBOUniformBufferColor(size_t& uboSize) {
+	UniformBufferUnlitColor* ubo =
+		new UniformBufferUnlitColor();
+	ubo->objectColor = color;
+
+	uboSize = sizeof(*ubo);
+	return ubo;
+}
+
+void MenuObject::UpdateFBOUniformBufferColor(void* uboVoid) {
+	UniformBufferUnlitColor* ubo =
+		(UniformBufferUnlitColor*)uboVoid;
+	ubo->objectColor = color;
 }
 
 /// <summary>
@@ -157,8 +169,7 @@ std::shared_ptr<Model> MenuObject::CreateModelForCharacter(
 void MenuObject::ComputeWorldBoundsOfMenuObject(glm::vec3& min, glm::vec3& max,
 	glm::vec3 const& worldScale) {
 	bool minSet = false, maxSet = false;
-	auto textModel = textGameObject->GetModel();
-	auto& verts = textModel->GetVertices();
+	auto& verts = objModel->GetVertices();
 	for (auto& vert : verts) {
 		auto& pos = vert.position;
 		if (!minSet) {

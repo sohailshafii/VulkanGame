@@ -2,6 +2,7 @@
 #include "MothershipIdleStateBehavior.h"
 #include "MothershipFiringLevel1Behavior.h"
 #include "MothershipBehavior.h"
+#include "GameObjects/GameObject.h"
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -26,19 +27,19 @@ ShipStateBehavior* MothershipWakeBehavior::UpdateAndGetNextState(
 		// so that we lerp to start position
 		glm::vec3 newMothershipPosition = originalMothershipPosition +
 			(1.0f - t) * startOffset;
-		motherShip.SetRelativePosition(newMothershipPosition);
+		motherShip.GetGameObject()->SetLocalPosition(newMothershipPosition);
 	}
 	else {
 		nextShipState = new MothershipIdleStateBehavior();
-		motherShip.SetRelativePosition(originalMothershipPosition);
+		motherShip.GetGameObject()->SetLocalPosition(originalMothershipPosition);
 	}
 
 	return nextShipState;
 }
 
-void MothershipWakeBehavior::InitializeIfRequired(MothershipBehavior const & motherShip,
+void MothershipWakeBehavior::InitializeIfRequired(MothershipBehavior & motherShip,
 	float time) {
 	wakeTime = time;
-	originalMothershipPosition = motherShip.GetRelativePosition();
+	originalMothershipPosition = motherShip.GetGameObject()->GetLocalPosition();
 }
 

@@ -38,7 +38,7 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 		return GameObjectBehavior::BehaviorStatus::Normal;
 	}
 
-	glm::vec3 pawnPosition = GetRelativePosition();
+	glm::vec3 pawnPosition = gameObject->GetWorldPosition();
 
 	if (IsCloseToPlayer(playerGameObject, pawnPosition)) {
 		currentPawnState = Destroyed;
@@ -47,10 +47,8 @@ GameObjectBehavior::BehaviorStatus PawnBehavior::UpdateSelf(float time,
 
 	pawnPosition = ComputeMovement(playerGameObject, time,
 		deltaTime);
-
-	modelMatrix[3][0] = pawnPosition[0];
-	modelMatrix[3][1] = pawnPosition[1];
-	modelMatrix[3][2] = pawnPosition[2];
+	
+	gameObject->SetLocalPosition(pawnPosition);
 
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }
@@ -70,7 +68,7 @@ glm::vec3 PawnBehavior::ComputeMovement(std::shared_ptr<GameObject>
 										const & playerGameObject,
 										float currentTime,
 										float deltaTime) {
-	glm::vec3 pawnPosition = GetRelativePosition();
+	glm::vec3 pawnPosition = gameObject->GetWorldPosition();
 
 	switch (currentPawnState) {
 		case JustCreated:

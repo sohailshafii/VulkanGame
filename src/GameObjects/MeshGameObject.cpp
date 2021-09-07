@@ -10,14 +10,15 @@
 
 MeshGameObject::MeshGameObject(
 	std::shared_ptr<GameObjectBehavior> behavior,
-	GfxDeviceManager *gfxDeviceManager,
+	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool,
 	std::shared_ptr<Model> const& model,
 	std::shared_ptr<Material> const& material) :
 	GameObject(behavior, model, material),
 	logicalDeviceManager(logicalDeviceManager),
-	descriptorPool(nullptr),
+	descriptorPool(VK_NULL_HANDLE),
+	descriptorSetLayout(VK_NULL_HANDLE),
 	vertexStagingBuffer(VK_NULL_HANDLE),
 	vertexStagingBufferMemory(VK_NULL_HANDLE),
 	vertexBuffer(VK_NULL_HANDLE),
@@ -29,6 +30,27 @@ MeshGameObject::MeshGameObject(
 	commandPool(commandPool),
 	gfxDeviceManager(gfxDeviceManager),
 	vertUboData(nullptr), fragUboData(nullptr) {
+	InitializeMeshState();
+}
+
+MeshGameObject::MeshGameObject(GfxDeviceManager* gfxDeviceManager,
+	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+	VkCommandPool commandPool) : gfxDeviceManager(gfxDeviceManager),
+	logicalDeviceManager(logicalDeviceManager), commandPool(commandPool),
+	descriptorPool(VK_NULL_HANDLE),
+	descriptorSetLayout(VK_NULL_HANDLE),
+	vertexStagingBuffer(VK_NULL_HANDLE),
+	vertexStagingBufferMemory(VK_NULL_HANDLE),
+	vertexBuffer(VK_NULL_HANDLE),
+	vertexBufferMemory(VK_NULL_HANDLE),
+	indexStagingBuffer(VK_NULL_HANDLE),
+	indexStagingBufferMemory(VK_NULL_HANDLE),
+	indexBuffer(VK_NULL_HANDLE),
+	indexBufferMemory(VK_NULL_HANDLE),
+	vertUboData(nullptr), fragUboData(nullptr){
+}
+
+void MeshGameObject::InitializeMeshState() {
 	SetupShaderNames();
 
 	gameObjectBehavior->SetGameObject(this);
@@ -164,7 +186,7 @@ void MeshGameObject::AllocateVBODataIfNecessary(size_t& uboSize,
 	if (IsInvisible()) {
 		return;
 	}
-	vertUboData = gameObjectBehavior->CreateVertUBOData(uboSize, swapChainExtent,
+	vertUboData = CreateVertUBOData(uboSize, swapChainExtent,
 		viewMatrix, time, deltaTime);
 }
 
@@ -175,7 +197,7 @@ void MeshGameObject::AllocateFBODataIfNecessary(size_t &uboSize) {
 	if (IsInvisible()) {
 		return;
 	}
-	fragUboData = gameObjectBehavior->CreateFragUBOData(uboSize);
+	fragUboData = CreateFragUBOData(uboSize);
 }
 
 void MeshGameObject::SetupShaderNames() {
@@ -300,7 +322,7 @@ void MeshGameObject::UpdateVisualState(uint32_t imageIndex,
 	
 	AllocateVBODataIfNecessary(vertUboSize, imageIndex, viewMatrix,
 		time, deltaTime, swapChainExtent);
-	gameObjectBehavior->UpdateVertUBOData(vertUboData,
+	UpdateVertUBOData(vertUboData,
 		swapChainExtent, viewMatrix, time, deltaTime);
 	if (vertUboData != nullptr) {
 		void* data;
@@ -317,7 +339,7 @@ void MeshGameObject::UpdateVisualState(uint32_t imageIndex,
 	}
 
 	AllocateFBODataIfNecessary(fragUboSize);
-	gameObjectBehavior->UpdateFragUBOData(fragUboData);
+	UpdateFragUBOData(fragUboData);
 	if (fragUboData != nullptr) {
 		void* data;
 		vkMapMemory(logicalDeviceManager->GetDevice(),

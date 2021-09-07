@@ -24,7 +24,7 @@ std::shared_ptr<MeshGameObject> GameObjectCreator::CreateMeshGameObject(
 			commandPool,
 			gameObjectModel,
 			material);
-	constructedGameObject->SetModelTransform(localToWorldTransform);
+	constructedGameObject->SetLocalTransform(localToWorldTransform);
 
 	return constructedGameObject;
 }

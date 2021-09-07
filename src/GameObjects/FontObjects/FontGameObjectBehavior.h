@@ -33,11 +33,6 @@ public:
 	virtual GameObjectBehavior::BehaviorStatus UpdateSelf(float time,
 		float deltaTime) override;
 
-	virtual void* CreateFragUBOData(size_t& uboSize) override;
-
-protected:
-	virtual void UpdateFBOUniformBufferColor(void* uboVoid) override;
-
 private:
 	glm::vec4 color;
 };

@@ -3,7 +3,7 @@
 #include "Gameobjects/GameObject.h"
 
 /// <summary>
-/// The cheapest stationary available.
+/// The cheapest turret available.
 /// </summary>
 class BasicTurret : public GameObject {
 public:

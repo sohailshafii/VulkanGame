@@ -34,8 +34,14 @@ public:
 		VkCommandPool commandPool,
 		std::shared_ptr<Model> const& model = nullptr,
 		std::shared_ptr<Material> const& material = nullptr);
+
+	MeshGameObject(GfxDeviceManager* gfxDeviceManager,
+		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
+		VkCommandPool commandPool);
 	
 	~MeshGameObject();
+
+	void InitializeMeshState();
 
 	virtual bool IsInvisible() const override {
 		return GetMaterialType() ==
@@ -103,7 +109,7 @@ public:
 						   float time, float deltaTime,
 						   VkExtent2D swapChainExtent) override;
 	
-	void UpdateVertexBufferWithLatestModelVerts();
+	virtual void UpdateVertexBufferWithLatestModelVerts() override;
 	
 private:
 	std::string vertexShaderName;

@@ -32,6 +32,8 @@ public:
 	int GetCurrentHealth() const {
 		return currentHealth;
 	}
+
+	void UpdateUBOBehaviorData(UniformBufferObjectModelViewProjRipple* ubo);
 	
 	// this is a value that is matched against the value
 	// in the mothership shader file. reference by pawn
@@ -126,11 +128,4 @@ private:
 	void UpdateUBOStalkData(UniformBufferObjectModelViewProjRipple* ubo);
 
 	void Die();
-
-protected:
-	virtual void* CreateUniformBufferModelViewProjRipple(
-		size_t& uboSize, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime) override;
 };

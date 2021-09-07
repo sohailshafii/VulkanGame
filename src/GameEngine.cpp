@@ -14,6 +14,7 @@
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 #include "GameObjects/FontObjects/MenuObject.h"
 #include "GameObjects/FontObjects/FontTextureBuffer.h"
+#include "GameObjects/FontObjects/MenuObject.h"
 #include "GameObjects/FontObjects/MenuSelectorObjectBehavior.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
@@ -128,12 +129,13 @@ void GameEngine::CreateMenuObjects(GfxDeviceManager* gfxDeviceManager,
 		DescriptorSetFunctions::MaterialType::UnlitColor,
 		metadataNode);
 	auto selectorBehaviorObj = std::make_shared<MenuSelectorObjectBehavior>(
-		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	difficultySelector = 
+		mainGameScene, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	difficultySelector =
 		GameObjectCreator::CreateMeshGameObject(
 			selectorMaterial, selectorModel, selectorBehaviorObj,
 			glm::mat4(1.0f), resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
+	difficultySelector->SetLocalTransform(glm::mat4(1.0f));
 
 	const char* gameInfo =
 		"This is a simple game developed using C++ and the Vulkan API,\n"
@@ -275,8 +277,8 @@ void GameEngine::CreatePlayerGameObject(GfxDeviceManager* gfxDeviceManager,
 
 	std::shared_ptr<GameObject> newGameObject =
 		std::make_shared<GameObject>(
-			std::make_unique<PlayerGameObjectBehavior>(mainCamera));;
-	newGameObject->SetModelTransform(localToWorldTransform);
+			std::make_unique<PlayerGameObjectBehavior>(mainCamera));
+	newGameObject->SetLocalTransform(localToWorldTransform);
 
 	mainGameScene->AddGameObject(newGameObject);
 }
@@ -374,9 +376,8 @@ void GameEngine::ActivateButtonInInMainMenu() {
 void GameEngine::AddMenuItems(MenuPart menuPart) {
 	auto currentMenu = menuObjects[menuPart];
 	for (auto menuItem : currentMenu) {
-		auto textGameObject = menuItem->GetTextGameObject();
-		textGameObject->SetInitializedInEngine(false);
-		mainGameScene->AddGameObject(textGameObject);
+		menuItem->SetInitializedInEngine(false);
+		mainGameScene->AddGameObject(menuItem);
 	}
 
 	if (menuPart == MenuPart::Difficulty) {
@@ -388,8 +389,7 @@ void GameEngine::AddMenuItems(MenuPart menuPart) {
 void GameEngine::RemoveMenuItems(MenuPart menuPart) {
 	auto currenMenu = menuObjects[menuPart];
 	for (auto menuItem : currenMenu) {
-		auto textGameObject = menuItem->GetTextGameObject();
-		textGameObject->SetMarkedForDeletionInScene(true);
+		menuItem->SetMarkedForDeletionInScene(true);
 	}
 
 	if (menuPart == MenuPart::Difficulty) {
@@ -435,14 +435,13 @@ void GameEngine::PositionDifficultySelector() {
 		currentMenuObject = menuObjects[MenuPart::Difficulty][2];
 	}
 
-	auto difficultyWorldPos =
-		currentMenuObject->GetTextGameObject()->GetWorldPosition();
+	auto difficultyWorldPos = currentMenuObject->GetWorldPosition();
 	auto menuObjectScale = currentMenuObject->GetScale();
 	difficultyWorldPos[0] -= 2.0f;
 	difficultyWorldPos[1] += 0.5f * menuObjectScale[1];
 	auto selectorTransform = glm::translate(glm::mat4(1.0f), difficultyWorldPos);
 	selectorTransform = glm::scale(selectorTransform, glm::vec3(2.0f));
-	difficultySelector->SetModelTransform(selectorTransform);
+	difficultySelector->SetLocalTransform(selectorTransform);
 }
 
 void GameEngine::ActivateButtonInAboutMenu() {

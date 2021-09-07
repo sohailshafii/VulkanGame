@@ -14,7 +14,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	ResourceLoader* resourceLoader,
 	VkCommandPool commandPool) : GameObject(behavior, nullptr, nullptr) {
 	// base of turret
-	auto boxCenter = glm::vec3(0.5f, 0.5f, 0.5f);
+	auto boxCenter = glm::vec3(0.0f, 0.5f, 0.0f);
 	auto rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
 	auto upVec =  glm::vec3(0.0f, 1.0f, 0.0f);
 	auto forwardVec = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -30,7 +30,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto baseBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
 	glm::mat4 relativeTransform(1.0f);
 	relativeTransform = glm::translate(relativeTransform,
-		glm::vec3(0.0f, 0.0f, 0.0f));
+		glm::vec3(0.0f, 0.0f,-2.0f));
 	auto constructedGameObject = GameObjectCreator::CreateMeshGameObject(
 		material, baseModel, baseBehavior,
 		relativeTransform, resourceLoader, gfxDeviceManager,
@@ -43,7 +43,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	rightVec = glm::vec3(0.50f, 0.0f, 0.0f);
 	upVec = glm::vec3(0.0f, 0.50f, 0.0f);
 	forwardVec = glm::vec3(0.0f, 0.0f, 0.50f);
-	auto turretTopModel = Model::CreateBox(boxCenter, rightVec, upVec, forwardVec);
+	auto turretTopModel = Model::CreateIcosahedron(0.25f, 2);
 	metadataNode = {
 		{"tint_color",{0.0f, 1.0f, 0.0f, 1.0f }}
 	};
@@ -52,6 +52,8 @@ BasicTurret::BasicTurret(Scene* const scene,
 		metadataNode);
 	auto topBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
 	relativeTransform = glm::mat4(1.0f);
+	relativeTransform = glm::translate(relativeTransform,
+		glm::vec3(0.0f, 1.25f, 0.0f));
 	auto turretTop = GameObjectCreator::CreateMeshGameObject(
 		topMaterial, turretTopModel, topBehavior,
 		relativeTransform, resourceLoader, gfxDeviceManager,

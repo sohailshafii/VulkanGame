@@ -2,6 +2,7 @@
 #include "MothershipFiringLevel2Behavior.h"
 #include "MothershipBehavior.h"
 #include "MothershipIdleStateBehavior.h"
+#include "GameObjects/GameObject.h"
 #include <iostream>
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,9 +30,9 @@ ShipStateBehavior* MothershipFiringLevel1Behavior::UpdateAndGetNextState(
 		}
 	}
 
-	modelMatrix = glm::rotate(motherShip.GetModelMatrix(),
+	modelMatrix = glm::rotate(motherShip.GetGameObject()->GetLocalTransform(),
 		-0.1f * deltaTime, axisOfRotation);
-	motherShip.SetModelMatrix(modelMatrix);
+	motherShip.GetGameObject()->SetLocalTransform(modelMatrix);
 
 	return nextShipState;
 }

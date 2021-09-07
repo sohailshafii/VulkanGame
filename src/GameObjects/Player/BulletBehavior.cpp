@@ -41,22 +41,22 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 	else if (currentVelocity < -maxVelocityMagnitude) {
 		currentVelocity = -maxVelocityMagnitude;
 	}
-	glm::vec3 bulletPosition = GetRelativePosition();
-	bulletPosition += currentVelocity * velocityVector;
+	glm::vec3 bulletPosition = gameObject->GetWorldPosition();
+	glm::vec3 translation = currentVelocity * velocityVector;
+	bulletPosition += translation;
 	distanceTraveled += currentVelocity;
 	if (distanceTraveled > maxDistance) {
 		destroyed = true;
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
 	CheckForCollisions(bulletPosition);
+
+	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), translation);
+	gameObject->AffectByTransform(translationMat);
 	
 	if (destroyed) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;
 	}
-
-	modelMatrix[3][0] = bulletPosition[0];
-	modelMatrix[3][1] = bulletPosition[1];
-	modelMatrix[3][2] = bulletPosition[2];
 
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }
@@ -64,16 +64,22 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 void BulletBehavior::CheckForCollisions(glm::vec3 const & bulletPosition) {
 	std::vector<std::shared_ptr<GameObject>>& gameObjects =
 		scene->GetGameObjects();
+	CheckForCollisionsRecursive(bulletPosition, gameObjects);
+}
+
+bool BulletBehavior::CheckForCollisionsRecursive(
+	glm::vec3 const& bulletPosition,
+	std::vector<std::shared_ptr<GameObject>> const& gameObjects) {
 	for (std::shared_ptr<GameObject> const& gameObject : gameObjects) {
 		GameObjectBehavior* behavInst = gameObject->GetGameObjectBehavior();
 		PawnBehavior* pawnBehav = dynamic_cast<PawnBehavior*>(behavInst);
 		if (pawnBehav != nullptr) {
-			auto pawnPos = pawnBehav->GetRelativePosition();
+			auto pawnPos = pawnBehav->GetGameObject()->GetWorldPosition();
 			auto vecToPawnPos = bulletPosition - pawnPos;
 			if (glm::length(vecToPawnPos) < 2.0f) {
 				destroyed = true;
 				pawnBehav->Destroy();
-				break;
+				return true;
 			}
 		}
 
@@ -85,8 +91,16 @@ void BulletBehavior::CheckForCollisions(glm::vec3 const & bulletPosition) {
 		if (motherBehav != nullptr) {
 			if (motherBehav->TakeDamageIfHit(10, bulletPosition)) {
 				destroyed = true;
-				break;
+				return true;
 			}
 		}
+
+		std::vector<std::shared_ptr<GameObject>> const & children =
+			gameObject->GetChildren();
+		if (CheckForCollisionsRecursive(bulletPosition, children)) {
+			return true;
+		}
 	}
+
+	return false;
 }

@@ -11,6 +11,10 @@
 /// </summary>
 class GameObject {
 public:
+	GameObject() : gameObjectBehavior(nullptr), objModel(nullptr),
+		material(nullptr), initializedInEngine(false),
+		markedForDeletion(false), localTransform(1.0f),
+		parentRelativeTransform(1.0f), localToWorld(1.0f) { }
 	GameObject(std::shared_ptr<GameObjectBehavior> behavior,
 		std::shared_ptr<Model> const& model = nullptr,
 		std::shared_ptr<Material> const& material = nullptr);
@@ -33,16 +37,54 @@ public:
 		return gameObjectBehavior.get();
 	}
 
-	glm::mat4 const& GetModelTransform() const {
-		return gameObjectBehavior->GetModelMatrix();
-	}
-
 	glm::vec3 GetWorldPosition() const {
-		return gameObjectBehavior->GetRelativePosition();
+		return glm::vec3(localToWorld[3][0], localToWorld[3][1],
+			localToWorld[3][2]);
 	}
 
-	void SetModelTransform(const glm::mat4& model) {
-		gameObjectBehavior->SetModelMatrix(model);
+	glm::mat4 GetLocalToWorld() const {
+		return localToWorld;
+	}
+
+	void AffectByTransform(glm::mat4 const & otherTransform) {
+		this->localTransform = this->localTransform * otherTransform;
+		this->localToWorld = this->parentRelativeTransform *
+			this->localTransform;
+	}
+
+	void SetLocalPosition(glm::vec3 const& pos) {
+		localTransform[3][0] = pos[0];
+		localTransform[3][1] = pos[1];
+		localTransform[3][2] = pos[2];
+		this->localToWorld = this->parentRelativeTransform *
+			this->localTransform;
+	}
+
+	glm::vec3 GetLocalPosition() const {
+		return glm::vec3(localTransform[3][0], localTransform[3][1],
+			localTransform[3][2]);
+	}
+
+	void SetLocalTransform(const glm::mat4& model) {
+		this->localTransform = model;
+		this->localToWorld = this->parentRelativeTransform * this->localTransform;
+		for (auto& gameObject : childGameObjects) {
+			gameObject->SetParentRelativeTransform(localToWorld);
+		}
+	}
+
+	glm::mat4 GetLocalTransform() const {
+		return localToWorld;
+	}
+
+	void SetParentRelativeTransform(const glm::mat4& model) {
+		this->parentRelativeTransform = model;
+		this->localToWorld = this->parentRelativeTransform * this->localTransform;
+		if (childGameObjects.size() > 0) {
+			for (auto& gameObject : childGameObjects) {
+				gameObject->SetParentRelativeTransform(localToWorld);
+			}
+		}
 	}
 
 	bool GetInitializedInEngine() const {
@@ -66,6 +108,7 @@ public:
 		float time, float deltaTime,
 		VkExtent2D swapChainExtent);
 
+	// TODO: move these to visual class for game object
 	virtual VkBuffer GetVertexBuffer() const {
 		return VK_NULL_HANDLE;
 	}
@@ -124,6 +167,20 @@ public:
 		childGameObjects.erase(removeItr, childGameObjects.end());
 	}
 
+	virtual void UpdateVertexBufferWithLatestModelVerts() {
+		// empty by default
+	}
+
+	// provide specific information to callers about UBO.
+	// depends on material used
+	void* CreateVertUBOData(size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix, float time, float deltaTime);
+	void UpdateVertUBOData(void* vboData, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix, float time, float deltaTime);
+
+	virtual void* CreateFragUBOData(size_t& uboSize);
+	void UpdateFragUBOData(void* vboData);
+
 protected:
 	std::vector<std::shared_ptr<GameObject>> childGameObjects;
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior;
@@ -133,6 +190,47 @@ protected:
 
 	bool initializedInEngine;
 	bool markedForDeletion;
+
+	glm::mat4 localTransform;
+	glm::mat4 parentRelativeTransform;
+	glm::mat4 localToWorld;
+
+	// these can be overwritten by inheritors
+	// assuming specific behaviors want to write to UBOs differently
+	virtual void* CreateUniformBufferModelViewProj(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void* CreateUniformBufferModelViewProjRipple(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void* CreateUniformBufferModelViewProjTime(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+
+	virtual void UpdateUniformBufferModelViewProj(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void UpdateUniformBufferModelViewProjRipple(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void UpdateUniformBufferModelViewProjTime(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+
+	virtual void* CreateFBOUniformBufferColor(size_t& uboSize);
+	virtual void UpdateFBOUniformBufferColor(void* uboVoid);
 
 private:
 	void UpdateChildrenStates(float time, float deltaTime);

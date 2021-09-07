@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
+#include "GameObjects/MeshGameObject.h"
 
 class GfxDeviceManager;
 class LogicalDeviceManager;
@@ -18,7 +19,7 @@ class FontGameObjectBehavior;
 /// <summary>
 /// A menu item that renders as a phrase or sentence.
 /// </summary>
-class MenuObject {
+class MenuObject : public MeshGameObject {
 public:
 	enum class MenuType : char { Play = 0, About, Difficulty,
 		Quit, Easy, Medium, Hard, Back };
@@ -34,11 +35,15 @@ public:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader, VkCommandPool commandPool);
 
-	std::shared_ptr<MeshGameObject> GetTextGameObject() {
-		return textGameObject;
+	void SetSelectState(bool selectState);
+
+	glm::vec4 GetColor() const {
+		return color;
 	}
 
-	void SetSelectState(bool selectState);
+	void SetColor(glm::vec4 const& color) {
+		this->color = color;
+	}
 
 	MenuType GetMenuType() const {
 		return menuType;
@@ -52,6 +57,9 @@ public:
 		return computedScale;
 	}
 
+	virtual void* CreateFBOUniformBufferColor(size_t& uboSize) override;
+	virtual void UpdateFBOUniformBufferColor(void* uboVoid) override;
+
 private:
 	std::shared_ptr<Model> CreateModelForCharacter(
 		unsigned char character,
@@ -63,8 +71,7 @@ private:
 	void ComputeWorldBoundsOfMenuObject(glm::vec3& min, glm::vec3& max,
 		glm::vec3 const& worldScale);
 
-	std::shared_ptr<MeshGameObject> textGameObject;
-	std::shared_ptr<FontGameObjectBehavior> behaviorObject;
+	glm::vec4 color;
 	bool selectState;
 	MenuType menuType;
 	std::string menuText;

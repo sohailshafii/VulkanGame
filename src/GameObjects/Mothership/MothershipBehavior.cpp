@@ -57,7 +57,7 @@ void MothershipBehavior::SpawnPawn() {
 		// hit sphere from the inside). But this probably would never
 		// happen
 		auto playerWorldPosition = playerGameObject->GetWorldPosition();
-		auto planePosition = GetRelativePosition();
+		auto planePosition = gameObject->GetWorldPosition();
 		auto planePosToPlayer = playerWorldPosition - planePosition;
 		planePosToPlayer = glm::normalize(planePosToPlayer);
 		float planeDistance =-glm::dot(planePosition, planePosToPlayer);
@@ -86,7 +86,7 @@ void MothershipBehavior::SpawnPawn() {
 		}
 		
 		// create new stalk. then pawn that corresponds to stalk
-		glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
+		glm::mat4 worldToModelMat = glm::inverse(gameObject->GetLocalToWorld());
 		glm::vec4 surfacePointLocal = worldToModelMat *
 			glm::vec4(positionOnSphere, 1.0f);
 		AddNewStalk(surfacePointLocal);
@@ -111,7 +111,7 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 		return false;
 	}
 
-	glm::vec3 worldPosition = GetRelativePosition();
+	glm::vec3 worldPosition = gameObject->GetWorldPosition();
 	glm::vec3 vectorFromCenter = possibleHitPosition - worldPosition;
 	float vecFromCenterMagn = glm::length(vectorFromCenter);
 	if (vecFromCenterMagn > radius) {
@@ -131,7 +131,7 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 
 	vectorFromCenter /= vecFromCenterMagn;
 	glm::vec3 surfacePoint = worldPosition + vectorFromCenter * radius;
-	glm::mat4 worldToModelMat = glm::inverse(modelMatrix);
+	glm::mat4 worldToModelMat = glm::inverse(gameObject->GetLocalToWorld());
 	glm::vec4 surfacePointLocal = worldToModelMat * glm::vec4(surfacePoint, 1.0f);
 
 	glm::vec3 surfacePointLocalVec3(glm::vec3(surfacePointLocal[0],
@@ -155,6 +155,22 @@ bool MothershipBehavior::TakeDamageIfHit(int damage,
 	AddNewRipple(surfacePointLocal);
 	std::cout << "Current health after taking damage: " << currentHealth << std::endl;
 	return true;
+}
+
+void MothershipBehavior::UpdateUBOBehaviorData(
+	UniformBufferObjectModelViewProjRipple* ubo) {
+	ubo->shudderDuration = maxShudderDurationSeconds;
+	ubo->shudderStartTime = shudderStartTime;
+
+	UpdateUBORippleData(ubo);
+	UpdateUBOStalkData(ubo);
+	if (deathStartTime < 0.0f) {
+		ubo->deathLerpVariable = 0.0f;
+	}
+	else {
+		ubo->deathLerpVariable = (currentFrameTime - deathStartTime) /
+			maxDeathDurationSeconds;
+	}
 }
 
 void MothershipBehavior::Reboot() {
@@ -504,37 +520,6 @@ void MothershipBehavior::UpdateUBOStalkData(
 			stalkPointLocal.stalkSpawnTime = -1.0f;
 		}
 	}
-}
-
-void* MothershipBehavior::CreateUniformBufferModelViewProjRipple(
-	size_t& uboSize, VkExtent2D const& swapChainExtent,
-	const glm::mat4& viewMatrix,
-	float time,
-	float deltaTime) {
-	UniformBufferObjectModelViewProjRipple* ubo =
-		new UniformBufferObjectModelViewProjRipple();
-	ubo->model = GetModelMatrix();
-	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
-		swapChainExtent.height);
-	ubo->time = time;
-
-	ubo->shudderDuration = maxShudderDurationSeconds;
-	ubo->shudderStartTime = shudderStartTime;
-
-	UpdateUBORippleData(ubo);
-	UpdateUBOStalkData(ubo);
-	if (deathStartTime < 0.0f) {
-		ubo->deathLerpVariable = 0.0f;
-	}
-	else {
-		ubo->deathLerpVariable = (currentFrameTime - deathStartTime) /
-			maxDeathDurationSeconds;
-		std::cout << "lerp variable " << ubo->deathLerpVariable << std::endl;
-	}
-
-	uboSize = sizeof(*ubo);
-	return ubo;
 }
 
 void MothershipBehavior::Die() {
