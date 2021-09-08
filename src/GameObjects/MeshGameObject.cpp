@@ -15,7 +15,7 @@ MeshGameObject::MeshGameObject(
 	VkCommandPool commandPool,
 	std::shared_ptr<Model> const& model,
 	std::shared_ptr<Material> const& material) :
-	GameObject(behavior, model, material),
+	GameObject(behavior),
 	logicalDeviceManager(logicalDeviceManager),
 	descriptorPool(VK_NULL_HANDLE),
 	descriptorSetLayout(VK_NULL_HANDLE),
@@ -29,13 +29,15 @@ MeshGameObject::MeshGameObject(
 	indexBufferMemory(VK_NULL_HANDLE),
 	commandPool(commandPool),
 	gfxDeviceManager(gfxDeviceManager),
-	vertUboData(nullptr), fragUboData(nullptr) {
+	vertUboData(nullptr), fragUboData(nullptr),
+	objModel(model), material(material) {
 	InitializeMeshState();
 }
 
 MeshGameObject::MeshGameObject(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-	VkCommandPool commandPool) : gfxDeviceManager(gfxDeviceManager),
+	VkCommandPool commandPool) : GameObject(),
+	gfxDeviceManager(gfxDeviceManager),
 	logicalDeviceManager(logicalDeviceManager), commandPool(commandPool),
 	descriptorPool(VK_NULL_HANDLE),
 	descriptorSetLayout(VK_NULL_HANDLE),
@@ -47,7 +49,8 @@ MeshGameObject::MeshGameObject(GfxDeviceManager* gfxDeviceManager,
 	indexStagingBufferMemory(VK_NULL_HANDLE),
 	indexBuffer(VK_NULL_HANDLE),
 	indexBufferMemory(VK_NULL_HANDLE),
-	vertUboData(nullptr), fragUboData(nullptr){
+	vertUboData(nullptr), fragUboData(nullptr),
+	objModel(nullptr), material(nullptr) {
 }
 
 void MeshGameObject::InitializeMeshState() {

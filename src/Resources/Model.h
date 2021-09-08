@@ -168,7 +168,7 @@ public:
 		// effectively offsetted by the current size of the array
 		// so if there are N vertices, are adding M verts to it,
 		// the indices of M verts start at N, not at 0 as before
-		uint32_t offsetFromCurrentVerts = vertices.size();
+		uint32_t offsetFromCurrentVerts = (uint32_t)vertices.size();
 		vertices.reserve(vertices.size() + newVertices.size());
 		vertices.insert(vertices.end(), newVertices.begin(), newVertices.end());
 

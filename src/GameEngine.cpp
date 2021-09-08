@@ -474,7 +474,7 @@ void GameEngine::SelectNextMenuObject(bool moveToNextElement) {
 		currentSelectedMenuObject + 1 :
 		currentSelectedMenuObject - 1;
 	if (currentSelectedMenuObject < 0) {
-		currentSelectedMenuObject = menuObjects[currentMenuPart].size()-1;
+		currentSelectedMenuObject = (int)menuObjects[currentMenuPart].size() - 1;
 	}
 	currentSelectedMenuObject %= menuObjects[currentMenuPart].size();
 
@@ -526,8 +526,6 @@ void GameEngine::GetCurrentMouseWorldCoordAndDir(glm::vec3& mouseCoords,
 	// in screen space
 	// go from that to clip space, which is restrict to [-1, 1]
 	VkExtent2D extent2D = graphicsEngine->GetSwapChainManager()->GetSwapChainExtent();
-	float screenWidth = extent2D.width;
-	float screenHeight = extent2D.height;
 	mousePosWithDepth[0] = ((mouseXPos + 0.5f) / extent2D.width) * 2.0f - 1.0f;
 	// y is flipped in projection matrix
 	mousePosWithDepth[1] = 2.0f*((mouseYPos + 0.5f) / extent2D.height) - 1.0f;

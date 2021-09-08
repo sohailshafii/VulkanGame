@@ -34,11 +34,11 @@ public:
 		return bytesPerPixel;
 	}
 
-	int GetMaxTextHeight() const {
+	unsigned int GetMaxTextHeight() const {
 		return maxTextHeight;
 	}
 
-	int GetSpacingWidth() const {
+	unsigned int GetSpacingWidth() const {
 		return spacingWidth;
 	}
 
@@ -126,11 +126,11 @@ private:
 			}
 		}
 
-		int rows;
-		int width;
-		int pitch;
+		unsigned int rows;
+		unsigned int width;
+		unsigned int pitch;
 		unsigned char* buffer;
-		int heightOffset,
+		unsigned int heightOffset,
 			widthOffset;
 		unsigned char character;
 	};
@@ -154,7 +154,7 @@ private:
 	unsigned int textureWidthPOT;
 	unsigned int textureHeightPOT;
 	unsigned int bytesPerPixel;
-	int maxTextHeight;
-	int spacingWidth;
+	unsigned int maxTextHeight;
+	unsigned int spacingWidth;
 	std::map<unsigned char, FontPositioningInfo> fontPositioningInfos;
 };

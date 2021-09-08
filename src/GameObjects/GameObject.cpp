@@ -1,11 +1,16 @@
 #include "GameObject.h"
 
-GameObject::GameObject(std::shared_ptr<GameObjectBehavior> behavior,
-	std::shared_ptr<Model> const& model,
-	std::shared_ptr<Material> const& material) :
+GameObject::GameObject() :
+	gameObjectBehavior(nullptr),
+	initializedInEngine(false),
+	markedForDeletion(false),
+	localTransform(1.0f),
+	parentRelativeTransform(1.0f),
+	localToWorld(1.0f) {
+}
+
+GameObject::GameObject(std::shared_ptr<GameObjectBehavior> behavior) :
 	gameObjectBehavior(behavior),
-	objModel(model),
-	material(material),
 	initializedInEngine(false),
 	markedForDeletion(false),
 	localTransform(1.0f),

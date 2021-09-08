@@ -57,7 +57,7 @@ void GameApplicationLogic::MouseCallback(GLFWwindow* window,
 	float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
 	lastX = (float)xpos;
 	lastY = (float)ypos;
-	GameApplicationLogic::gameEngine->ProcessMouse(xpos, ypos, xoffset, yoffset);
+	GameApplicationLogic::gameEngine->ProcessMouse((float)xpos, (float)ypos, xoffset, yoffset);
 }
 
 void GameApplicationLogic::KeyCallback(GLFWwindow* window, int key, int scancode,

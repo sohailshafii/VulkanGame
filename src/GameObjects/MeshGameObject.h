@@ -41,6 +41,11 @@ public:
 	
 	~MeshGameObject();
 
+	virtual DescriptorSetFunctions::MaterialType GetMaterialType() const override {
+		return material == nullptr ? DescriptorSetFunctions::MaterialType::Unspecified :
+			material->GetMaterialType();
+	}
+
 	void InitializeMeshState();
 
 	virtual bool IsInvisible() const override {
@@ -111,6 +116,10 @@ public:
 	
 	virtual void UpdateVertexBufferWithLatestModelVerts() override;
 	
+protected:
+	std::shared_ptr<Model> objModel;
+	std::shared_ptr<Material> material;
+
 private:
 	std::string vertexShaderName;
 	std::string fragmentShaderName;

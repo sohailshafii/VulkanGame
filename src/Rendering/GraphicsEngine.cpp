@@ -235,7 +235,7 @@ void GraphicsEngine::AddGraphicsPipelinesFromGameObjects(
 	
 	RecursivelyCollectGameObjectsToCreatePipelinesFor(gameObjects, gameObjectsToCreatePipelinesFor);
 
-	int numPipelinesToCreates = gameObjectsToCreatePipelinesFor.size();
+	int numPipelinesToCreates = (int)gameObjectsToCreatePipelinesFor.size();
 	std::vector<std::thread> threads(numPipelinesToCreates);
 	std::vector<std::shared_ptr<PipelineModule>> pipelineModulePerGameObject;
 	pipelineModulePerGameObject.resize(numPipelinesToCreates);

@@ -11,18 +11,14 @@
 /// </summary>
 class GameObject {
 public:
-	GameObject() : gameObjectBehavior(nullptr), objModel(nullptr),
-		material(nullptr), initializedInEngine(false),
-		markedForDeletion(false), localTransform(1.0f),
-		parentRelativeTransform(1.0f), localToWorld(1.0f) { }
-	GameObject(std::shared_ptr<GameObjectBehavior> behavior,
-		std::shared_ptr<Model> const& model = nullptr,
-		std::shared_ptr<Material> const& material = nullptr);
+	GameObject();
+
+	GameObject(std::shared_ptr<GameObjectBehavior> behavior);
+
 	virtual ~GameObject();
 
-	DescriptorSetFunctions::MaterialType GetMaterialType() const {
-		return material == nullptr ? DescriptorSetFunctions::MaterialType::Unspecified :
-			material->GetMaterialType();
+	virtual DescriptorSetFunctions::MaterialType GetMaterialType() const {
+		return DescriptorSetFunctions::MaterialType::Unspecified;
 	}
 
 	virtual bool IsInvisible() const {
@@ -184,9 +180,6 @@ public:
 protected:
 	std::vector<std::shared_ptr<GameObject>> childGameObjects;
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior;
-
-	std::shared_ptr<Model> objModel;
-	std::shared_ptr<Material> material;
 
 	bool initializedInEngine;
 	bool markedForDeletion;

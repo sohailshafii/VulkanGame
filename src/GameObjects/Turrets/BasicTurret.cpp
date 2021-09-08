@@ -12,7 +12,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader,
-	VkCommandPool commandPool) : GameObject(behavior, nullptr, nullptr) {
+	VkCommandPool commandPool) : GameObject(behavior) {
 	// base of turret
 	auto boxCenter = glm::vec3(0.0f, 0.5f, 0.0f);
 	auto rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
