@@ -96,7 +96,7 @@ void MenuObject::SetSelectState(bool selectState) {
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
-void* MenuObject::CreateFBOUniformBufferColor(size_t& uboSize) {
+void* MenuObject::CreateFragUniformBufferColor(size_t& uboSize) {
 	UniformBufferUnlitColor* ubo =
 		new UniformBufferUnlitColor();
 	ubo->objectColor = color;
@@ -105,7 +105,7 @@ void* MenuObject::CreateFBOUniformBufferColor(size_t& uboSize) {
 	return ubo;
 }
 
-void MenuObject::UpdateFBOUniformBufferColor(void* uboVoid) {
+void MenuObject::UpdateFragUniformBufferColor(void* uboVoid) {
 	UniformBufferUnlitColor* ubo =
 		(UniformBufferUnlitColor*)uboVoid;
 	ubo->objectColor = color;

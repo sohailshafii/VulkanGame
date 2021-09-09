@@ -167,16 +167,6 @@ public:
 		// empty by default
 	}
 
-	// provide specific information to callers about UBO.
-	// depends on material used
-	void* CreateVertUBOData(size_t& uboSize, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix, float time, float deltaTime);
-	void UpdateVertUBOData(void* vboData, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix, float time, float deltaTime);
-
-	virtual void* CreateFragUBOData(size_t& uboSize);
-	void UpdateFragUBOData(void* vboData);
-
 protected:
 	std::vector<std::shared_ptr<GameObject>> childGameObjects;
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior;
@@ -187,43 +177,6 @@ protected:
 	glm::mat4 localTransform;
 	glm::mat4 parentRelativeTransform;
 	glm::mat4 localToWorld;
-
-	// these can be overwritten by inheritors
-	// assuming specific behaviors want to write to UBOs differently
-	virtual void* CreateUniformBufferModelViewProj(
-		size_t& uboSize, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime);
-	virtual void* CreateUniformBufferModelViewProjRipple(
-		size_t& uboSize, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime);
-	virtual void* CreateUniformBufferModelViewProjTime(
-		size_t& uboSize, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime);
-
-	virtual void UpdateUniformBufferModelViewProj(
-		void* uboVoid, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime);
-	virtual void UpdateUniformBufferModelViewProjRipple(
-		void* uboVoid, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime);
-	virtual void UpdateUniformBufferModelViewProjTime(
-		void* uboVoid, VkExtent2D const& swapChainExtent,
-		const glm::mat4& viewMatrix,
-		float time,
-		float deltaTime);
-
-	virtual void* CreateFBOUniformBufferColor(size_t& uboSize);
-	virtual void UpdateFBOUniformBufferColor(void* uboVoid);
 
 private:
 	void UpdateChildrenStates(float time, float deltaTime);

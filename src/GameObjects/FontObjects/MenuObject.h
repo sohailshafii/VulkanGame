@@ -57,8 +57,8 @@ public:
 		return computedScale;
 	}
 
-	virtual void* CreateFBOUniformBufferColor(size_t& uboSize) override;
-	virtual void UpdateFBOUniformBufferColor(void* uboVoid) override;
+	virtual void* CreateFragUniformBufferColor(size_t& uboSize) override;
+	virtual void UpdateFragUniformBufferColor(void* uboVoid) override;
 
 private:
 	std::shared_ptr<Model> CreateModelForCharacter(

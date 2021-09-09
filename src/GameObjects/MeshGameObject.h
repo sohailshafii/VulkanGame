@@ -149,10 +149,8 @@ private:
 	void* fragUboData;
 	size_t fragUboSize;
 	
-	void AllocateVBODataIfNecessary(size_t& uboSize, uint32_t imageIndex,
-		const glm::mat4& viewMatrix, float time, float deltaTime,
-		VkExtent2D swapChainExtent);
-	void AllocateFBODataIfNecessary(size_t& uboSize);
+	
+	void AllocateFragUBODataIfNecessary(size_t& uboSize);
 
 	void SetupShaderNames();
 	
@@ -176,4 +174,52 @@ private:
 	
 	VkDeviceSize GetMaterialUniformBufferSizeVert();
 	VkDeviceSize GetMaterialUniformBufferSizeFrag();
+
+	void AllocateVertexUBODataIfNecessary(size_t& uboSize, uint32_t imageIndex,
+		const glm::mat4& viewMatrix, float time, float deltaTime,
+		VkExtent2D swapChainExtent);
+	void* CreateVertUBOData(size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix, float time, float deltaTime);
+	void UpdateVertUBOData(void* vboData, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix, float time, float deltaTime);
+
+	void* CreateFragUBOData(size_t& uboSize);
+	void UpdateFragUBOData(void* vboData);
+
+	// these can be overwritten by inheritors
+	// assuming specific behaviors want to write to uniform buffers differently
+	virtual void* CreateUniformBufferModelViewProj(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void* CreateUniformBufferModelViewProjRipple(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void* CreateUniformBufferModelViewProjTime(
+		size_t& uboSize, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+
+	virtual void UpdateUniformBufferModelViewProj(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void UpdateUniformBufferModelViewProjRipple(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+	virtual void UpdateUniformBufferModelViewProjTime(
+		void* uboVoid, VkExtent2D const& swapChainExtent,
+		const glm::mat4& viewMatrix,
+		float time,
+		float deltaTime);
+
+	virtual void* CreateFragUniformBufferColor(size_t& uboSize);
+	virtual void UpdateFragUniformBufferColor(void* uboVoid);
 };
