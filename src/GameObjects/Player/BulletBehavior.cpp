@@ -52,7 +52,7 @@ GameObjectBehavior::BehaviorStatus BulletBehavior::UpdateSelf(float time,
 	CheckForCollisions(bulletPosition);
 
 	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), translation);
-	gameObject->AffectByTransform(translationMat);
+	gameObject->AffectLocalTransform(translationMat);
 	
 	if (destroyed) {
 		return GameObjectBehavior::BehaviorStatus::Destroyed;

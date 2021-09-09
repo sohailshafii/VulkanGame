@@ -42,18 +42,22 @@ public:
 		return localToWorld;
 	}
 
-	void AffectByTransform(glm::mat4 const & otherTransform) {
+	void AffectLocalTransform(glm::mat4 const & otherTransform) {
 		this->localTransform = this->localTransform * otherTransform;
 		this->localToWorld = this->parentRelativeTransform *
 			this->localTransform;
+
+		UpdateChildTransforms();
 	}
 
-	void SetLocalPosition(glm::vec3 const& pos) {
+	void SetLocalPosition(glm::vec3 const & pos) {
 		localTransform[3][0] = pos[0];
 		localTransform[3][1] = pos[1];
 		localTransform[3][2] = pos[2];
 		this->localToWorld = this->parentRelativeTransform *
 			this->localTransform;
+
+		UpdateChildTransforms();
 	}
 
 	glm::vec3 GetLocalPosition() const {
@@ -61,26 +65,29 @@ public:
 			localTransform[3][2]);
 	}
 
-	void SetLocalTransform(const glm::mat4& model) {
+	void SetLocalTransform(glm::mat4 const & model) {
 		this->localTransform = model;
 		this->localToWorld = this->parentRelativeTransform * this->localTransform;
-		for (auto& gameObject : childGameObjects) {
-			gameObject->SetParentRelativeTransform(localToWorld);
-		}
+
+		UpdateChildTransforms();
 	}
 
 	glm::mat4 GetLocalTransform() const {
 		return localToWorld;
 	}
 
-	void SetParentRelativeTransform(const glm::mat4& model) {
+	void SetParentRelativeTransform(glm::mat4 const & model) {
 		this->parentRelativeTransform = model;
 		this->localToWorld = this->parentRelativeTransform * this->localTransform;
-		if (childGameObjects.size() > 0) {
-			for (auto& gameObject : childGameObjects) {
-				gameObject->SetParentRelativeTransform(localToWorld);
-			}
-		}
+
+		UpdateChildTransforms();
+	}
+
+	void SetWorldTransform(glm::mat4 const& matrix) {
+		// affect local transform in such a way that world transform is affected
+		this->localToWorld = matrix;
+		this->localTransform = glm::inverse(this->parentRelativeTransform) * this->localToWorld;
+		UpdateChildTransforms();
 	}
 
 	bool GetInitializedInEngine() const {
@@ -154,6 +161,7 @@ public:
 
 	void AddChildGameObject(std::shared_ptr<GameObject> const & newChild) {
 		childGameObjects.push_back(newChild);
+		newChild->SetParentRelativeTransform(localToWorld);
 	}
 
 	void RemoveChildGameObject(std::shared_ptr<GameObject> const& childToRm) {
@@ -177,6 +185,14 @@ protected:
 	glm::mat4 localTransform;
 	glm::mat4 parentRelativeTransform;
 	glm::mat4 localToWorld;
+
+	void UpdateChildTransforms() {
+		if (childGameObjects.size() > 0) {
+			for (auto& gameObject : childGameObjects) {
+				gameObject->SetParentRelativeTransform(localToWorld);
+			}
+		}
+	}
 
 private:
 	void UpdateChildrenStates(float time, float deltaTime);

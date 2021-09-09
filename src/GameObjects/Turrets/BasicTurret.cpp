@@ -60,4 +60,8 @@ BasicTurret::BasicTurret(Scene* const scene,
 		logicalDeviceManager, commandPool);
 	childGameObjects.push_back(std::static_pointer_cast<GameObject>
 		(turretTop));
+
+	// TODO: find better way to do this
+	// TODO: relative transforms not working
+	UpdateChildTransforms();
 }
