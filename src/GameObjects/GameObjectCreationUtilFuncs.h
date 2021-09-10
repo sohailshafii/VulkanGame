@@ -27,7 +27,8 @@ public:
 		ResourceLoader* resourceLoader,
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-		VkCommandPool commandPool);
+		VkCommandPool commandPool,
+		std::string const& name = "");
 
 	// create some useful functions for more complicated stuff
 	static std::shared_ptr<Material> CreateMaterial(

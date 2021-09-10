@@ -12,13 +12,16 @@ BasicTurret::BasicTurret(Scene* const scene,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader,
-	VkCommandPool commandPool) : GameObject(behavior) {
+	VkCommandPool commandPool,
+	glm::mat4 const& localToWorldTransform) : GameObject(behavior) {
 	// base of turret
 	auto boxCenter = glm::vec3(0.0f, 0.5f, 0.0f);
 	auto rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
 	auto upVec =  glm::vec3(0.0f, 1.0f, 0.0f);
 	auto forwardVec = glm::vec3(0.0f, 0.0f, 1.0f);
 	auto baseModel = Model::CreateBox(boxCenter, rightVec, upVec, forwardVec);
+	localTransform = localToWorldTransform;
+	localToWorld = localToWorldTransform;
 	
 	nlohmann::json metadataNode = {
 		{"tint_color",{1.0f, 0.0f, 0.0f, 1.0f }}
@@ -30,7 +33,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto baseBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
 	glm::mat4 relativeTransform(1.0f);
 	relativeTransform = glm::translate(relativeTransform,
-		glm::vec3(0.0f, 0.0f,-2.0f));
+		glm::vec3(0.0f,-0.2f, 0.0));
 	auto constructedGameObject = GameObjectCreator::CreateMeshGameObject(
 		material, baseModel, baseBehavior,
 		relativeTransform, resourceLoader, gfxDeviceManager,
@@ -57,7 +60,8 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto turretTop = GameObjectCreator::CreateMeshGameObject(
 		topMaterial, turretTopModel, topBehavior,
 		relativeTransform, resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
+		logicalDeviceManager, commandPool,
+		"turretTop");
 	childGameObjects.push_back(std::static_pointer_cast<GameObject>
 		(turretTop));
 

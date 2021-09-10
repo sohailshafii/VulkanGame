@@ -33,11 +33,13 @@ public:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		VkCommandPool commandPool,
 		std::shared_ptr<Model> const& model = nullptr,
-		std::shared_ptr<Material> const& material = nullptr);
+		std::shared_ptr<Material> const& material = nullptr,
+		std::string const & name = "");
 
 	MeshGameObject(GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-		VkCommandPool commandPool);
+		VkCommandPool commandPool,
+		std::string const& name = "");
 	
 	~MeshGameObject();
 

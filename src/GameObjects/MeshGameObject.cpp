@@ -14,8 +14,9 @@ MeshGameObject::MeshGameObject(
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool,
 	std::shared_ptr<Model> const& model,
-	std::shared_ptr<Material> const& material) :
-	GameObject(behavior),
+	std::shared_ptr<Material> const& material,
+	std::string const & name) :
+	GameObject(behavior, name),
 	logicalDeviceManager(logicalDeviceManager),
 	descriptorPool(VK_NULL_HANDLE),
 	descriptorSetLayout(VK_NULL_HANDLE),
@@ -36,7 +37,8 @@ MeshGameObject::MeshGameObject(
 
 MeshGameObject::MeshGameObject(GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-	VkCommandPool commandPool) : GameObject(),
+	VkCommandPool commandPool,
+	std::string const& name) : GameObject(name),
 	gfxDeviceManager(gfxDeviceManager),
 	logicalDeviceManager(logicalDeviceManager), commandPool(commandPool),
 	descriptorPool(VK_NULL_HANDLE),

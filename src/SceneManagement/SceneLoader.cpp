@@ -201,12 +201,12 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	if (jsonObj["type"] == "BasicTurret") {
 		constructedGameObject = std::make_shared<BasicTurret>
 			(scene, gameObjectBehavior, gfxDeviceManager,
-			logicalDeviceManager, resourceLoader, commandPool);
+			logicalDeviceManager, resourceLoader, commandPool, localToWorldTransform);
 	}
 	else if (jsonObj["type"] == "Mothership") {
 		constructedGameObject = std::make_shared<Mothership>(gameObjectBehavior,
 			gfxDeviceManager, logicalDeviceManager, commandPool, gameObjectModel,
-			newMaterial);
+			newMaterial, localToWorldTransform);
 	}
 	else {
 		constructedGameObject = GameObjectCreator::CreateMeshGameObject(

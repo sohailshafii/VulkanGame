@@ -1,21 +1,24 @@
 #include "GameObject.h"
 
-GameObject::GameObject() :
+GameObject::GameObject(std::string const& name) :
 	gameObjectBehavior(nullptr),
 	initializedInEngine(false),
 	markedForDeletion(false),
 	localTransform(1.0f),
 	parentRelativeTransform(1.0f),
-	localToWorld(1.0f) {
+	localToWorld(1.0f),
+	name(name) {
 }
 
-GameObject::GameObject(std::shared_ptr<GameObjectBehavior> behavior) :
+GameObject::GameObject(std::shared_ptr<GameObjectBehavior> behavior,
+	std::string const & name) :
 	gameObjectBehavior(behavior),
 	initializedInEngine(false),
 	markedForDeletion(false),
 	localTransform(1.0f),
 	parentRelativeTransform(1.0f),
-	localToWorld(1.0f) {
+	localToWorld(1.0f),
+	name(name) {
 }
 
 GameObject::~GameObject() {

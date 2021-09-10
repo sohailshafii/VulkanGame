@@ -12,7 +12,8 @@ public:
 		GfxDeviceManager* gfxDeviceManager,
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader,
-		VkCommandPool commandPool);
+		VkCommandPool commandPool,
+		glm::mat4 const& localToWorldTransform);
 private:
 };
 

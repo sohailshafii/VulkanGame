@@ -11,9 +11,10 @@
 /// </summary>
 class GameObject {
 public:
-	GameObject();
+	GameObject(std::string const& name = "");
 
-	GameObject(std::shared_ptr<GameObjectBehavior> behavior);
+	GameObject(std::shared_ptr<GameObjectBehavior> behavior,
+		std::string const& name = "");
 
 	virtual ~GameObject();
 
@@ -175,6 +176,14 @@ public:
 		// empty by default
 	}
 
+	std::string GetName() const {
+		return name;
+	}
+
+	void SetName(std::string const& name) {
+		this->name = name;
+	}
+
 protected:
 	std::vector<std::shared_ptr<GameObject>> childGameObjects;
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior;
@@ -185,6 +194,8 @@ protected:
 	glm::mat4 localTransform;
 	glm::mat4 parentRelativeTransform;
 	glm::mat4 localToWorld;
+
+	std::string name;
 
 	void UpdateChildTransforms() {
 		if (childGameObjects.size() > 0) {

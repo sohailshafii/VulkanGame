@@ -11,7 +11,8 @@ public:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		VkCommandPool commandPool,
 		std::shared_ptr<Model> const& model,
-		std::shared_ptr<Material> const& material);
+		std::shared_ptr<Material> const& material,
+		glm::mat4 const & localToWorldTransform);
 
 protected:
 	virtual void* CreateUniformBufferModelViewProjRipple(

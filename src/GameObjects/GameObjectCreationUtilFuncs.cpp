@@ -8,14 +8,15 @@
 #include "Resources/Model.h"
 
 std::shared_ptr<MeshGameObject> GameObjectCreator::CreateMeshGameObject(
-	std::shared_ptr<Material> const & material,
-	std::shared_ptr<Model> const & gameObjectModel,
+	std::shared_ptr<Material> const& material,
+	std::shared_ptr<Model> const& gameObjectModel,
 	std::shared_ptr<GameObjectBehavior> gameObjectBehavior,
-	glm::mat4 const & localToWorldTransform,
+	glm::mat4 const& localToWorldTransform,
 	ResourceLoader* resourceLoader,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
-	VkCommandPool commandPool) {
+	VkCommandPool commandPool,
+	std::string const & name) {
 	std::shared_ptr<MeshGameObject> constructedGameObject =
 		std::make_shared<MeshGameObject>(
 			gameObjectBehavior,
@@ -23,7 +24,8 @@ std::shared_ptr<MeshGameObject> GameObjectCreator::CreateMeshGameObject(
 			logicalDeviceManager,
 			commandPool,
 			gameObjectModel,
-			material);
+			material,
+			name);
 	constructedGameObject->SetLocalTransform(localToWorldTransform);
 
 	return constructedGameObject;

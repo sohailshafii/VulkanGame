@@ -7,11 +7,14 @@ Mothership::Mothership(std::shared_ptr<GameObjectBehavior> behavior,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	VkCommandPool commandPool,
 	std::shared_ptr<Model> const& model,
-	std::shared_ptr<Material> const& material) :
+	std::shared_ptr<Material> const& material,
+	glm::mat4 const& localToWorldTransform) :
 		MeshGameObject(behavior, gfxDeviceManager, logicalDeviceManager,
 			commandPool, model, material) {
 	mothershipBehavior =
 		std::dynamic_pointer_cast<MothershipBehavior>(behavior);
+	localTransform = localToWorldTransform;
+	localToWorld = localToWorldTransform;
 }
 
 void* Mothership::CreateUniformBufferModelViewProjRipple(
