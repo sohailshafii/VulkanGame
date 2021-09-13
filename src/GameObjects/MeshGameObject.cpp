@@ -302,6 +302,9 @@ void MeshGameObject::UpdateVisualState(uint32_t imageIndex,
 								   const glm::mat4& viewMatrix,
 								   float time, float deltaTime,
 								   VkExtent2D swapChainExtent) {
+	
+	GameObject::UpdateVisualState(imageIndex, viewMatrix,
+		time, deltaTime, swapChainExtent);
 	if (IsInvisible()) {
 		return;
 	}
@@ -315,10 +318,6 @@ void MeshGameObject::UpdateVisualState(uint32_t imageIndex,
 		vkMapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersVert[imageIndex]->GetUniformBufferMemory(), 0,
 			vertUboSize, 0, &data);
-		if (vertUboSize != uniformBuffersVert[imageIndex]->GetBufferSize()) {
-			int breakVar;
-			breakVar = 1;
-		}
 		memcpy(data, vertUboData, vertUboSize);
 		vkUnmapMemory(logicalDeviceManager->GetDevice(),
 			uniformBuffersVert[imageIndex]->GetUniformBufferMemory());
@@ -519,12 +518,12 @@ void* MeshGameObject::CreateFragUBOData(size_t& uboSize) {
 	return ubo;
 }
 
-void MeshGameObject::UpdateFragUBOData(void* vboData) {
+void MeshGameObject::UpdateFragUBOData(void* uboData){
 	switch (GetMaterialType())
 	{
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
 		case DescriptorSetFunctions::MaterialType::Text:
-			return UpdateFragUniformBufferColor(vboData);
+			return UpdateFragUniformBufferColor(uboData);
 	}
 }
 
@@ -627,5 +626,5 @@ void* MeshGameObject::CreateFragUniformBufferColor(size_t& uboSize) {
 }
 
 void MeshGameObject::UpdateFragUniformBufferColor(void* uboVoid) {
-	// re-implement in all child classes
+	// implement in child classes
 }

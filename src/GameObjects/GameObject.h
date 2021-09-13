@@ -6,6 +6,9 @@
 #include <memory>
 #include <vector>
 
+// TODO: make a mesh renderer component
+// then, make material responsible for ubo functionality, and
+// make them components of game object
 /// <summary>
 /// A standard game object that is by default, invisible.
 /// </summary>
@@ -48,7 +51,7 @@ public:
 		this->localToWorld = this->parentRelativeTransform *
 			this->localTransform;
 
-		UpdateChildTransforms();
+		SyncChildTransforms();
 	}
 
 	void SetLocalPosition(glm::vec3 const & pos) {
@@ -58,7 +61,7 @@ public:
 		this->localToWorld = this->parentRelativeTransform *
 			this->localTransform;
 
-		UpdateChildTransforms();
+		SyncChildTransforms();
 	}
 
 	glm::vec3 GetLocalPosition() const {
@@ -70,7 +73,7 @@ public:
 		this->localTransform = model;
 		this->localToWorld = this->parentRelativeTransform * this->localTransform;
 
-		UpdateChildTransforms();
+		SyncChildTransforms();
 	}
 
 	glm::mat4 GetLocalTransform() const {
@@ -81,14 +84,14 @@ public:
 		this->parentRelativeTransform = model;
 		this->localToWorld = this->parentRelativeTransform * this->localTransform;
 
-		UpdateChildTransforms();
+		SyncChildTransforms();
 	}
 
 	void SetWorldTransform(glm::mat4 const& matrix) {
 		// affect local transform in such a way that world transform is affected
 		this->localToWorld = matrix;
 		this->localTransform = glm::inverse(this->parentRelativeTransform) * this->localToWorld;
-		UpdateChildTransforms();
+		SyncChildTransforms();
 	}
 
 	bool GetInitializedInEngine() const {
@@ -156,7 +159,10 @@ public:
 		return childGameObjects[index];
 	}
 
-	std::vector<std::shared_ptr<GameObject>> & GetChildren() {
+	// Since one has to modify a child's transform when adding it as a child
+	// of the current one, it's not possible add them directly. AddChildGameObject
+	// has to be used instead since that performs adding children correctly.
+	std::vector<std::shared_ptr<GameObject>> const & GetChildren() {
 		return childGameObjects;
 	}
 
@@ -169,6 +175,7 @@ public:
 		auto removeItr = std::remove_if(childGameObjects.begin(), childGameObjects.end(),
 			[childToRm](std::shared_ptr<GameObject> const& currChild)
 			{ return childToRm == currChild; });
+		removeItr[0]->SetParentRelativeTransform(glm::mat4(1.0f));
 		childGameObjects.erase(removeItr, childGameObjects.end());
 	}
 
@@ -197,7 +204,7 @@ protected:
 
 	std::string name;
 
-	void UpdateChildTransforms() {
+	void SyncChildTransforms() {
 		if (childGameObjects.size() > 0) {
 			for (auto& gameObject : childGameObjects) {
 				gameObject->SetParentRelativeTransform(localToWorld);

@@ -22,6 +22,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto baseModel = Model::CreateBox(boxCenter, rightVec, upVec, forwardVec);
 	localTransform = localToWorldTransform;
 	localToWorld = localToWorldTransform;
+	name = "BasicTurret";
 	
 	nlohmann::json metadataNode = {
 		{"tint_color",{1.0f, 0.0f, 0.0f, 1.0f }}
@@ -37,8 +38,9 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto constructedGameObject = GameObjectCreator::CreateMeshGameObject(
 		material, baseModel, baseBehavior,
 		relativeTransform, resourceLoader, gfxDeviceManager,
-		logicalDeviceManager, commandPool);
-	childGameObjects.push_back(std::static_pointer_cast<GameObject>
+		logicalDeviceManager, commandPool,
+		"turretBase");
+	AddChildGameObject(std::static_pointer_cast<GameObject>
 		(constructedGameObject));
 
 	// top of turret
@@ -62,10 +64,8 @@ BasicTurret::BasicTurret(Scene* const scene,
 		relativeTransform, resourceLoader, gfxDeviceManager,
 		logicalDeviceManager, commandPool,
 		"turretTop");
-	childGameObjects.push_back(std::static_pointer_cast<GameObject>
+	AddChildGameObject(std::static_pointer_cast<GameObject>
 		(turretTop));
-
-	// TODO: find better way to do this
-	// TODO: relative transforms not working
-	UpdateChildTransforms();
+	// TODO: build basic turret structure
+	// TODO:  make turret AI
 }
