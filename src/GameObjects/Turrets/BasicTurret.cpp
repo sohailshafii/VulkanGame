@@ -16,13 +16,17 @@ BasicTurret::BasicTurret(Scene* const scene,
 	glm::mat4 const& localToWorldTransform) : GameObject(behavior) {
 	localTransform = localToWorldTransform;
 	localToWorld = localToWorldTransform;
+	float const turretWidth = 0.75f;
+	float const turretDepth = 0.75f;
+	float const turretHeight = 0.75f;
 
 	// base of turret
-	auto boxCenter = glm::vec3(0.0f,-0.1f, 0.0f);
-	auto rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
-	auto upVec = glm::vec3(0.0f, 0.2f, 0.0f);
-	auto forwardVec = glm::vec3(0.0f, 0.0f, 1.0f);
-	auto baseModel = Model::CreateBox(boxCenter, rightVec, upVec, forwardVec);
+	auto baseCenter = glm::vec3(0.0f, 0.0f, 0.0f);
+	auto baseRightVec = glm::vec3(turretWidth, 0.0f, 0.0f);
+	auto baseUpVec = glm::vec3(0.0f, turretHeight*0.25f, 0.0f);
+	auto baseForwardVec = glm::vec3(0.0f, 0.0f, turretDepth);
+	auto baseModel = Model::CreateBox(baseCenter, baseRightVec,
+		baseUpVec, baseForwardVec);
 	nlohmann::json metadataNode = {
 		{"tint_color",{0.0f, 1.0f, 0.0f, 1.0f }}
 	};
@@ -30,21 +34,22 @@ BasicTurret::BasicTurret(Scene* const scene,
 		DescriptorSetFunctions::MaterialType::UnlitColor,
 		metadataNode);
 	auto baseBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
-	glm::mat4 relativeTransform(1.0f);
-	relativeTransform = glm::translate(relativeTransform,
-		glm::vec3(0.0f, -0.2f, 0.0));
+	glm::mat4 baseRelTransform(1.0f);
+	baseRelTransform = glm::translate(baseRelTransform,
+		baseUpVec * 0.5f);
 	AddSubMesh(baseMaterial, baseModel, baseBehavior,
-		relativeTransform, gfxDeviceManager,
+		baseRelTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
 		commandPool,
 		"turretBase");
 
 	// body of turret
-	boxCenter = glm::vec3(0.0f, 0.5f, 0.0f);
-	rightVec = glm::vec3(1.0f, 0.0f, 0.0f);
-	upVec =  glm::vec3(0.0f, 1.0f, 0.0f);
-	forwardVec = glm::vec3(0.0f, 0.0f, 1.0f);
-	auto bodyModel = Model::CreateBox(boxCenter, rightVec, upVec, forwardVec);
+	auto boxRightVec = glm::vec3(turretWidth, 0.0f, 0.0f);
+	auto boxUpVec =  glm::vec3(0.0f, turretHeight, 0.0f);
+	auto boxForwardVec = glm::vec3(0.0f, 0.0f, turretDepth);
+	auto boxCenter = glm::vec3(0.0f, 0.0f, 0.0f);
+	auto bodyModel = Model::CreateBox(boxCenter, boxRightVec,
+		boxUpVec, boxForwardVec);
 	name = "BasicTurret";
 	metadataNode = {
 		{"tint_color",{1.0f, 0.0f, 0.0f, 1.0f }}
@@ -52,34 +57,31 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto bodyMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitColor,
 		metadataNode);
-	relativeTransform = glm::mat4(1.0f);
-	relativeTransform = glm::translate(relativeTransform,
-		glm::vec3(0.0f,-0.2f, 0.0));
+	auto boxRelativeTransform = glm::mat4(1.0f);
+	boxRelativeTransform = glm::translate(boxRelativeTransform,
+		baseUpVec + boxUpVec * 0.5f);
 	AddSubMesh(bodyMaterial, bodyModel,
 		std::make_shared<StationaryGameObjectBehavior>(scene),
-		relativeTransform, gfxDeviceManager,
+		boxRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
 		commandPool,
 		"turretBody");
 
 	// top of turret
-	/*boxCenter = glm::vec3(0.5f, 1.25f, 0.5f);
-	rightVec = glm::vec3(0.50f, 0.0f, 0.0f);
-	upVec = glm::vec3(0.0f, 0.50f, 0.0f);
-	forwardVec = glm::vec3(0.0f, 0.0f, 0.50f);*/
-	auto turretTopModel = Model::CreateIcosahedron(0.25f, 2);
+	float topRadius = 0.3f;
+	auto turretTopModel = Model::CreateIcosahedron(topRadius, 2);
 	metadataNode = {
 		{"tint_color",{0.0f, 1.0f, 0.0f, 1.0f }}
 	};
 	auto topMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitColor,
 		metadataNode);
-	relativeTransform = glm::mat4(1.0f);
-	relativeTransform = glm::translate(relativeTransform,
-		glm::vec3(0.0f, 1.25f, 0.0f));
+	auto topRelativeTransform = glm::mat4(1.0f);
+	topRelativeTransform = glm::translate(topRelativeTransform,
+		baseUpVec + boxUpVec * (1.0f + topRadius));
 	AddSubMesh(topMaterial, turretTopModel,
 		std::make_shared<StationaryGameObjectBehavior>(scene),
-		relativeTransform, gfxDeviceManager,
+		topRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
 		commandPool,
 		"turretTop");

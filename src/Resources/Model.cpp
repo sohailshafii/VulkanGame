@@ -10,6 +10,8 @@
 #include "Math/PerlinNoise.h"
 #include "Math/CommonMath.h"
 
+// TODO: http://www.songho.ca/opengl/gl_cylinder.html
+
 Model::Model(const std::string& modelPath) {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
