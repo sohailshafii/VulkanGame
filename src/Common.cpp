@@ -303,3 +303,8 @@ glm::mat4 Common::ConstructProjectionMatrix(uint32_t width, uint32_t height) {
 	projectionMat[1][1] *= -1; // flip Y -- opposite of opengl
 	return projectionMat;
 }
+
+glm::vec3 Common::GetCartesianFromSphericalCoords(float azimRadians, float polarRadians, float radius) {
+	float rTimesSinPolar = radius * sin(polarRadians);
+	return glm::vec3(cos(azimRadians) * rTimesSinPolar, radius * cos(polarRadians), sin(azimRadians) * rTimesSinPolar);
+}

@@ -16,7 +16,7 @@ public:
 		glm::mat4 const& localToWorldTransform);
 
 private:
-	void AddSubMesh(
+	std::shared_ptr<GameObject> AddSubMeshAndReturnGameObject(
 		std::shared_ptr<Material> const& material,
 		std::shared_ptr<Model> const& baseModel,
 		std::shared_ptr<GameObjectBehavior> const& behavior,
@@ -25,6 +25,7 @@ private:
 		std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 		ResourceLoader* resourceLoader,
 		VkCommandPool commandPool,
-		std::string const& name);
+		std::string const& name,
+		GameObject* parent);
 };
 
