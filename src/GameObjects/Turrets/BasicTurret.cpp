@@ -7,6 +7,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+const float BasicTurret::turretWidth = 0.6f;
+const float BasicTurret::turretDepth = 0.6f;
+const float BasicTurret::turretHeight = 0.6f;
+const float BasicTurret::topRadius = 0.3f;
+
 BasicTurret::BasicTurret(Scene* const scene,
 	std::shared_ptr<GameObjectBehavior> behavior,
 	GfxDeviceManager* gfxDeviceManager,
@@ -16,10 +21,6 @@ BasicTurret::BasicTurret(Scene* const scene,
 	glm::mat4 const& localToWorldTransform) : GameObject(behavior) {
 	localTransform = localToWorldTransform;
 	localToWorld = localToWorldTransform;
-	float const turretWidth = 0.6f;
-	float const turretDepth = 0.6f;
-	float const turretHeight = 0.6f;
-
 	// base of turret
 	auto baseCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 	auto baseRightVec = glm::vec3(turretWidth, 0.0f, 0.0f);
@@ -33,11 +34,11 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto baseMaterial = GameObjectCreator::CreateMaterial(
 		DescriptorSetFunctions::MaterialType::UnlitColor,
 		metadataNode);
-	auto baseBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
 	glm::mat4 baseRelTransform(1.0f);
 	baseRelTransform = glm::translate(baseRelTransform,
 		baseUpVec * 0.5f);
-	AddSubMeshAndReturnGameObject(baseMaterial, baseModel, baseBehavior,
+	turretBase = AddSubMeshAndReturnGameObject(baseMaterial, baseModel,
+		std::make_shared<StationaryGameObjectBehavior>(scene),
 		baseRelTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
 		commandPool, "turretBase", this);
@@ -59,14 +60,13 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto boxRelativeTransform = glm::mat4(1.0f);
 	boxRelativeTransform = glm::translate(boxRelativeTransform,
 		baseUpVec + boxUpVec * 0.5f);
-	AddSubMeshAndReturnGameObject(bodyMaterial, bodyModel,
+	turretBody = AddSubMeshAndReturnGameObject(bodyMaterial, bodyModel,
 		std::make_shared<StationaryGameObjectBehavior>(scene),
 		boxRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
 		commandPool, "turretBody", this);
 
 	// top of turret
-	float topRadius = 0.3f;
 	auto turretTopModel = Model::CreateIcosahedron(topRadius, 2);
 	metadataNode = {
 		{"tint_color",{0.0f, 1.0f, 0.0f, 1.0f }}
@@ -78,7 +78,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	glm::vec3 topCenter = baseUpVec + boxUpVec * (1.0f + topRadius);
 	topRelativeTransform = glm::translate(topRelativeTransform,
 		topCenter);
-	auto turretTop = AddSubMeshAndReturnGameObject(topMaterial, turretTopModel,
+	turretTop = AddSubMeshAndReturnGameObject(topMaterial, turretTopModel,
 		std::make_shared<StationaryGameObjectBehavior>(scene),
 		topRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
@@ -88,7 +88,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto gunRightVec = glm::vec3(turretWidth * 0.08f, 0.0f, 0.0f);
 	auto gunUpVec = glm::vec3(0.0f, turretHeight * 0.08f, 0.0f);
 	auto gunForwardVec = glm::vec3(0.0f, 0.0f, gunLength);
-	auto gunCenter = glm::vec3(0.0f, 0.0f, 0.0f);
+	gunCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 	auto gunModel = Model::CreateBox(gunCenter, gunRightVec,
 		gunUpVec, gunForwardVec);
 	metadataNode = {
@@ -98,39 +98,18 @@ BasicTurret::BasicTurret(Scene* const scene,
 		DescriptorSetFunctions::MaterialType::UnlitColor,
 		metadataNode);
 	auto gunBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
-	glm::mat4 gunRelativeTransform(1.0f);
 	float azim = glm::radians(80.0f);
 	float polar = glm::radians(90.0f);
-	//gunRelativeTransform = glm::rotate(gunRelativeTransform, azim, glm::vec3(0.0f, 1.0f, 0.0f));
-	//gunRelativeTransform = glm::rotate(gunRelativeTransform, polar, glm::vec3(1.0f, 0.0f, 0.0f));
-	//gunForwardVec = glm::mat3(gunRelativeTransform) * gunForwardVec;
-	glm::vec3 gunCartesianCoords = Common::GetCartesianFromSphericalCoords(azim,
-		polar, topRadius);
-	glm::vec3 lookAt = glm::normalize(gunCartesianCoords - gunCenter);
-	glm::vec3 up(0.0f, 1.0f, 0.0f);
-	if (glm::dot(up, lookAt) > 0.99f) {
-		up = glm::vec3(-0.2f, 0.8f, 0.0f);
-		up = glm::normalize(up);
-	}
-	glm::vec3 right = glm::cross(up, lookAt);
-	// fix up
-	up = glm::cross(lookAt, right);
-	glm::mat4 rotationM(1.0f);
-	rotationM[0] = glm::vec4(right, 0.0f);
-	rotationM[1] = glm::vec4(up, 0.0f);
-	rotationM[2] = glm::vec4(lookAt, 0.0f);
-
-	// rotate the gun so that it faces outwards 
-	gunRelativeTransform = glm::translate(gunRelativeTransform,
-		gunCartesianCoords + lookAt * gunLength * 0.5f);
-	gunRelativeTransform *= rotationM;
-	AddSubMeshAndReturnGameObject(gunMaterial, gunModel, gunBehavior,
+	glm::mat4  gunRelativeTransform = GetGunTransformForSphericalCoords(azim, polar);
+	turretGun = AddSubMeshAndReturnGameObject(gunMaterial, gunModel, gunBehavior,
 		gunRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
 		commandPool, "turretGun", turretTop.get());
+}
 
-	// TODO: build basic turret structure
-	// TODO:  make turret AI
+void BasicTurret::SetGunTransformForSphericalCoords(float azim, float polar) {
+	auto newTransform = GetGunTransformForSphericalCoords(azim, polar);
+	turretGun->SetLocalTransform(newTransform);
 }
 
 std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
@@ -153,4 +132,31 @@ std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
 		(constructedGameObject);
 	parent->AddChildGameObject(returnedGameObject);
 	return returnedGameObject;
+}
+
+glm::mat4 BasicTurret::GetGunTransformForSphericalCoords(float azim, float polar) {
+	glm::mat4 gunRelativeTransform(1.0f);
+	glm::vec3 gunCartesianCoords = Common::GetCartesianFromSphericalCoords(azim,
+		polar, topRadius);
+	glm::vec3 lookAt = glm::normalize(gunCartesianCoords - gunCenter);
+	glm::vec3 up(0.0f, 1.0f, 0.0f);
+	if (glm::dot(up, lookAt) > 0.99f) {
+		up = glm::vec3(-0.2f, 0.8f, 0.0f);
+		up = glm::normalize(up);
+	}
+	glm::vec3 right = glm::cross(up, lookAt);
+	// fix up
+	up = glm::cross(lookAt, right);
+	glm::mat4 rotationM(1.0f);
+	rotationM[0] = glm::vec4(right, 0.0f);
+	rotationM[1] = glm::vec4(up, 0.0f);
+	rotationM[2] = glm::vec4(lookAt, 0.0f);
+
+	// rotate the gun so that it faces outwards
+	float gunLength = turretDepth * 0.3f;
+	gunRelativeTransform = glm::translate(gunRelativeTransform,
+		gunCartesianCoords + lookAt * gunLength * 0.5f);
+	gunRelativeTransform *= rotationM;
+
+	return gunRelativeTransform;
 }
