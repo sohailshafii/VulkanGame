@@ -214,6 +214,7 @@ void GameEngine::UpdateFrame(float time, float deltaTime, uint32_t imageIndex,
 			!gameObject->IsInvisible()) {
 			atLeastOneUnitializedGameObject = true;
 		}
+		// TODO: what if a child is marked for deletion but parent is not?
 		else if (gameObject->GetMarkedForDeletion()) {
 			gameObjectsToRemove.push_back(gameObject);
 		}
