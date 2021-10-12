@@ -182,10 +182,6 @@ MeshGameObject::~MeshGameObject() {
 	CleanUpDescriptorPool();
 }
 
-
-
-
-
 void MeshGameObject::SetupShaderNames() {
 	switch (GetMaterialType()) {
 		case DescriptorSetFunctions::MaterialType::UnlitColor:
@@ -291,18 +287,10 @@ void MeshGameObject::CreateDescriptorPoolAndSets(size_t numSwapChainImages) {
 	CreateDescriptorSets(numSwapChainImages);
 }
 
-void MeshGameObject::UpdateState(float time, float deltaTime) {
-	auto behaviorStatus = gameObjectBehavior->UpdateSelf(time, deltaTime);
-	if (behaviorStatus == GameObjectBehavior::BehaviorStatus::Destroyed) {
-		markedForDeletion = true;
-	}
-}
-
 void MeshGameObject::UpdateVisualState(uint32_t imageIndex,
 								   const glm::mat4& viewMatrix,
 								   float time, float deltaTime,
 								   VkExtent2D swapChainExtent) {
-	
 	GameObject::UpdateVisualState(imageIndex, viewMatrix,
 		time, deltaTime, swapChainExtent);
 	if (IsInvisible()) {

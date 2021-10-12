@@ -4,6 +4,7 @@
 #include "StationaryGameObjectBehavior.h"
 #include "GameObjects/GameObject.h"
 #include "GameObjects/MeshGameObject.h"
+#include "GameObjects/Turrets/BasicTurretBehavior.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -13,12 +14,15 @@ const float BasicTurret::turretHeight = 0.6f;
 const float BasicTurret::topRadius = 0.3f;
 
 BasicTurret::BasicTurret(Scene* const scene,
-	std::shared_ptr<GameObjectBehavior> behavior,
+	std::shared_ptr<BasicTurretBehavior> const& behavior,
 	GfxDeviceManager* gfxDeviceManager,
 	std::shared_ptr<LogicalDeviceManager> const& logicalDeviceManager,
 	ResourceLoader* resourceLoader,
 	VkCommandPool commandPool,
 	glm::mat4 const& localToWorldTransform) : GameObject(behavior) {
+	behavior->SetTurret(this);
+	name = "BasicTurret";
+
 	localTransform = localToWorldTransform;
 	localToWorld = localToWorldTransform;
 	// base of turret

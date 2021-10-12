@@ -3,6 +3,8 @@
 
 GameObjectBehavior::BehaviorStatus PlayerGameObjectBehavior::UpdateSelf(
 	float time, float deltaTime) {
-	this->GetGameObject()->SetLocalPosition(playerCamera->GetWorldPosition());
+	if (this->GetGameObject() != nullptr) {
+		this->GetGameObject()->SetLocalPosition(playerCamera->GetWorldPosition());
+	}
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }

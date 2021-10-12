@@ -6,6 +6,7 @@
 #include "GameObjects/Mothership/Mothership.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
 #include "GameObjects/Mothership/PawnBehavior.h"
+#include "GameObjects/GameObjectBehavior.h"
 #include "GameObjects/Player/PlayerGameObjectBehavior.h"
 #include "GameObjects/Msc/StationaryGameObjectBehavior.h"
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
@@ -50,10 +51,6 @@ static void SetupMaterial(const nlohmann::json& materialNode,
 
 static void SetupTransformation(const nlohmann::json& transformNode,
 								glm::mat4& localToWorld);
-
-static std::shared_ptr<GameObjectBehavior> SetupGameObjectBehavior(
-	const nlohmann::json& gameObjectNode,
-	Scene* const scene);
 
 void SceneLoader::DeserializeJSONFileIntoScene(
 	ResourceLoader* resourceLoader,
@@ -196,23 +193,38 @@ static void SetUpGameObject(const nlohmann::json& jsonObj,
 	auto transformationNode = Common::SafeGetToken(jsonObj, "transformation");
 	glm::mat4 localToWorldTransform(1.0f);
 	SetupTransformation(transformationNode, localToWorldTransform);
-	std::shared_ptr<GameObjectBehavior> gameObjectBehavior =
-		SetupGameObjectBehavior(jsonObj, scene);
-	if (jsonObj["type"] == "BasicTurret") {
+
+	std::string gameObjectType = jsonObj["type"];
+	if (gameObjectType == "BasicTurret") {
 		constructedGameObject = std::make_shared<BasicTurret>
-			(scene, gameObjectBehavior, gfxDeviceManager,
+			(scene, std::make_shared<BasicTurretBehavior>(), gfxDeviceManager,
 			logicalDeviceManager, resourceLoader, commandPool, localToWorldTransform);
 	}
-	else if (jsonObj["type"] == "Mothership") {
-		constructedGameObject = std::make_shared<Mothership>(gameObjectBehavior,
+	else if (gameObjectType == "Mothership") {
+		constructedGameObject = std::make_shared<Mothership>(
+			std::make_shared<MothershipBehavior>(scene, jsonObj["ship_radius"]),
 			gfxDeviceManager, logicalDeviceManager, commandPool, gameObjectModel,
 			newMaterial, localToWorldTransform);
 	}
-	else {
+	else if (gameObjectType == "Stationary" || gameObjectType == "Pawn") {
+		std::shared_ptr<GameObjectBehavior> gameObjectBehavior = nullptr;
+		if (gameObjectType == "Pawn") {
+			gameObjectBehavior = std::make_shared<PawnBehavior>();
+		}
+		else {
+			gameObjectBehavior = std::make_shared<StationaryGameObjectBehavior>();
+		}
+
 		constructedGameObject = GameObjectCreator::CreateMeshGameObject(
 			newMaterial, gameObjectModel, gameObjectBehavior,
 			localToWorldTransform, resourceLoader, gfxDeviceManager,
 			logicalDeviceManager, commandPool);
+	}
+	else {
+		std::stringstream exceptionMsg;
+			exceptionMsg << "Could not understand game object type: " << gameObjectType
+			<< std::endl;
+			throw exceptionMsg;
 	}
 }
 
@@ -285,32 +297,4 @@ static void SetupTransformation(const nlohmann::json& transformNode,
 									glm::vec3(scale[0], scale[1],
 									scale[2]));
 	}
-}
-
-std::shared_ptr<GameObjectBehavior> SetupGameObjectBehavior(
-	const nlohmann::json& gameObjectNode,
-	Scene* const scene) {
-	std::string gameObjectBehaviorStr = gameObjectNode["type"];
-	std::shared_ptr<GameObjectBehavior> newGameObjBehavior;
-	if (gameObjectBehaviorStr == "Stationary") {
-		newGameObjBehavior = std::make_shared<StationaryGameObjectBehavior>();
-	}
-	else if (gameObjectBehaviorStr == "Mothership") {
-		float shipRadius = gameObjectNode["ship_radius"];
-		newGameObjBehavior = std::make_shared<MothershipBehavior>(scene,
-			shipRadius);
-	}
-	else if (gameObjectBehaviorStr == "Pawn") {
-		newGameObjBehavior = std::make_shared<PawnBehavior>();
-	}
-	else if (gameObjectBehaviorStr == "BasicTurret") {
-		newGameObjBehavior = std::make_shared<BasicTurretBehavior>();
-	}
-	else {
-		std::stringstream exceptionMsg;
-		exceptionMsg << "Don't understand game object behavior type: " << gameObjectBehaviorStr;
-		throw exceptionMsg;
-	}
-	
-	return newGameObjBehavior;
 }

@@ -4,5 +4,6 @@
 
 GameObjectBehavior::BehaviorStatus FontGameObjectBehavior::UpdateSelf(
 	float time, float deltaTime) {
+
 	return GameObjectBehavior::BehaviorStatus::Normal;
 }

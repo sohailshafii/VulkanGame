@@ -111,10 +111,9 @@ public:
 	
 	virtual void CreateDescriptorPoolAndSets(size_t numSwapChainImages) override;
 	
-	virtual void UpdateState(float time, float deltaTime) override;
 	virtual void UpdateVisualState(uint32_t imageIndex, const glm::mat4& viewMatrix,
-						   float time, float deltaTime,
-						   VkExtent2D swapChainExtent) override;
+									float time, float deltaTime,
+									VkExtent2D swapChainExtent) override;
 	
 	virtual void UpdateVertexBufferWithLatestModelVerts() override;
 	

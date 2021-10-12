@@ -25,6 +25,12 @@ GameObject::~GameObject() {
 }
 
 void GameObject::UpdateState(float time, float deltaTime) {
+	if (gameObjectBehavior != nullptr) {
+		auto behaviorStatus = gameObjectBehavior->UpdateSelf(time, deltaTime);
+		if (behaviorStatus == GameObjectBehavior::BehaviorStatus::Destroyed) {
+			markedForDeletion = true;
+		}
+	}
 	UpdateChildrenStates(time, deltaTime);
 }
 
