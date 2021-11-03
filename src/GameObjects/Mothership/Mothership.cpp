@@ -1,6 +1,7 @@
 
 #include "Mothership.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
+#include "Math/CommonMath.h"
 
 Mothership::Mothership(std::shared_ptr<GameObjectBehavior> behavior,
 	GfxDeviceManager* gfxDeviceManager,
@@ -26,7 +27,7 @@ void* Mothership::CreateUniformBufferModelViewProjRipple(
 		new UniformBufferObjectModelViewProjRipple();
 	ubo->model = GetLocalToWorld();
 	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+	ubo->proj = CommonMath::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 	ubo->time = time;
 

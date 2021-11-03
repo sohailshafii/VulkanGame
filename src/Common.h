@@ -11,9 +11,6 @@ class GfxDeviceManager;
 
 class Common {
 public:
-	static constexpr float nearPlaneDistance = 0.1f;
-	static constexpr float farPlaneDistance = 1000.0f;
-
 	static bool ContainsToken(const nlohmann::json& jsonObj,
 		const std::string& key);
 
@@ -55,9 +52,7 @@ public:
 	
 	static void CopyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPool commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
-	static glm::mat4 ConstructProjectionMatrix(uint32_t width, uint32_t height);
-
-	static glm::vec3 GetCartesianFromSphericalCoords(float azimRadians, float polarRadians, float radius);
+	
 };
 
 

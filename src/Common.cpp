@@ -296,15 +296,3 @@ void Common::CopyBuffer(LogicalDeviceManager* logicalDeviceManager, VkCommandPoo
 	Common::EndSingleTimeCommands(commandBuffer, commandPool, logicalDeviceManager);
 }
 
-glm::mat4 Common::ConstructProjectionMatrix(uint32_t width, uint32_t height) {
-	glm::mat4 projectionMat = glm::perspective(glm::radians(45.0f),
-		width / (float)height, nearPlaneDistance,
-		farPlaneDistance);
-	projectionMat[1][1] *= -1; // flip Y -- opposite of opengl
-	return projectionMat;
-}
-
-glm::vec3 Common::GetCartesianFromSphericalCoords(float azimRadians, float polarRadians, float radius) {
-	float rTimesSinPolar = radius * sin(polarRadians);
-	return glm::vec3(cos(azimRadians) * rTimesSinPolar, radius * cos(polarRadians), sin(azimRadians) * rTimesSinPolar);
-}

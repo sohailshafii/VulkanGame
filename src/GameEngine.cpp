@@ -19,6 +19,7 @@
 #include "GameObjects/GameObjectCreationUtilFuncs.h"
 #include "GameObjects/Mothership/MothershipBehavior.h"
 #include "Resources/TextureCreator.h"
+#include "Math/CommonMath.h"
 #include "Common.h"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -163,7 +164,7 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 	if (currentGameMode == GameMode::Menu) {
 		mainCamera->SetPosition(cameraMenuPos);
 		auto& mainGameObjects = mainGameScene->GetGameObjects();
-		for (auto gameObject : mainGameObjects) {
+		for (auto & gameObject : mainGameObjects) {
 			gameObject->SetMarkedForDeletionInScene(true);
 		}
 		AddMenuItems(MenuPart::Base);
@@ -175,7 +176,7 @@ void GameEngine::UpdateGameMode(GameMode newGameMode) {
 			sceneSettings.cameraMovementSpeed,
 			sceneSettings.cameraMouseSensitivity);
 		// reset everything to what they were before
-		for (auto gameObject : startingGameObjects) {
+		for (auto & gameObject : startingGameObjects) {
 			mainGameScene->AddGameObject(gameObject);
 			gameObject->SetInitializedInEngine(false);
 			MothershipBehavior* mothershipBehavior =
@@ -349,7 +350,7 @@ void GameEngine::ActivateButtonInCurrentMenu() {
 }
 
 void GameEngine::ActivateButtonInInMainMenu() {
-	auto currentMenuObject =
+	auto & currentMenuObject =
 		menuObjects[currentMenuPart][currentSelectedMenuObject];
 	auto currentMenuType = currentMenuObject->GetMenuType();
 	
@@ -375,8 +376,8 @@ void GameEngine::ActivateButtonInInMainMenu() {
 }
 
 void GameEngine::AddMenuItems(MenuPart menuPart) {
-	auto currentMenu = menuObjects[menuPart];
-	for (auto menuItem : currentMenu) {
+	auto & currentMenu = menuObjects[menuPart];
+	for (auto & menuItem : currentMenu) {
 		menuItem->SetInitializedInEngine(false);
 		mainGameScene->AddGameObject(menuItem);
 	}
@@ -388,8 +389,8 @@ void GameEngine::AddMenuItems(MenuPart menuPart) {
 }
 
 void GameEngine::RemoveMenuItems(MenuPart menuPart) {
-	auto currenMenu = menuObjects[menuPart];
-	for (auto menuItem : currenMenu) {
+	auto & currenMenu = menuObjects[menuPart];
+	for (auto & menuItem : currenMenu) {
 		menuItem->SetMarkedForDeletionInScene(true);
 	}
 
@@ -399,7 +400,7 @@ void GameEngine::RemoveMenuItems(MenuPart menuPart) {
 }
 
 void GameEngine::ActivateButtonInInDifficultyMenu() {
-	auto currentMenuObject =
+	auto & currentMenuObject =
 		menuObjects[currentMenuPart][currentSelectedMenuObject];
 	auto currentMenuType = currentMenuObject->GetMenuType();
 
@@ -424,7 +425,7 @@ void GameEngine::ActivateButtonInInDifficultyMenu() {
 }
 
 void GameEngine::PositionDifficultySelector() {
-	auto currentMenuObject = menuObjects[MenuPart::Difficulty][0];
+	auto & currentMenuObject = menuObjects[MenuPart::Difficulty][0];
 
 	if (currentDifficulty == Difficulty::Easy) {
 		currentMenuObject = menuObjects[MenuPart::Difficulty][0];
@@ -446,7 +447,7 @@ void GameEngine::PositionDifficultySelector() {
 }
 
 void GameEngine::ActivateButtonInAboutMenu() {
-	auto currentMenuObject =
+	auto & currentMenuObject =
 		menuObjects[currentMenuPart][currentSelectedMenuObject];
 	auto currentMenuType = currentMenuObject->GetMenuType();
 
@@ -461,9 +462,9 @@ void GameEngine::ActivateButtonInAboutMenu() {
 void GameEngine::SetMenuSelectionIndices(MenuPart newMenuPart, int menuItemIndex) {
 	currentMenuPart = newMenuPart;
 	currentSelectedMenuObject = menuItemIndex;
-	auto currentSubMenu = menuObjects[currentMenuPart];
-	auto currentSelectedMenuObj = currentSubMenu[currentSelectedMenuObject];
-	for (auto menuObject : currentSubMenu) {
+	auto & currentSubMenu = menuObjects[currentMenuPart];
+	auto & currentSelectedMenuObj = currentSubMenu[currentSelectedMenuObject];
+	for (auto & menuObject : currentSubMenu) {
 		menuObject->SetSelectState(currentSelectedMenuObj == menuObject);
 	}
 }
@@ -532,7 +533,7 @@ void GameEngine::GetCurrentMouseWorldCoordAndDir(glm::vec3& mouseCoords,
 	mousePosWithDepth[1] = 2.0f*((mouseYPos + 0.5f) / extent2D.height) - 1.0f;
 
 	glm::mat4 viewMatrix = mainCamera->ConstructViewMatrix();
-	glm::mat4 projectionMatrix = Common::ConstructProjectionMatrix(extent2D.width,
+	glm::mat4 projectionMatrix = CommonMath::ConstructProjectionMatrix(extent2D.width,
 		extent2D.height);
 	glm::mat4 projectionViewInv = glm::inverse(projectionMatrix * viewMatrix);
 	glm::vec4 worldSpaceMouseCoords = projectionViewInv * mousePosWithDepth;

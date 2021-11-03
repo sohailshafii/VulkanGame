@@ -5,6 +5,7 @@
 #include "GameObjects/GameObject.h"
 #include "GameObjects/MeshGameObject.h"
 #include "GameObjects/Turrets/BasicTurretBehavior.h"
+#include "Math/CommonMath.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -104,7 +105,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto gunBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
 	float azim = glm::radians(80.0f);
 	float polar = glm::radians(90.0f);
-	glm::mat4  gunRelativeTransform = GetGunTransformForSphericalCoords(azim, polar);
+	glm::mat4  gunRelativeTransform = GetTransformForSphericalCoords(azim, polar);
 	turretGun = AddSubMeshAndReturnGameObject(gunMaterial, gunModel, gunBehavior,
 		gunRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
@@ -112,8 +113,12 @@ BasicTurret::BasicTurret(Scene* const scene,
 }
 
 void BasicTurret::SetGunTransformForSphericalCoords(float azim, float polar) {
-	auto newTransform = GetGunTransformForSphericalCoords(azim, polar);
+	auto newTransform = GetTransformForSphericalCoords(azim, polar);
 	turretGun->SetLocalTransform(newTransform);
+}
+
+void BasicTurret::SetGunLookRotation(glm::vec3 const& lookAtPoint) {
+	// TODO
 }
 
 std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
@@ -138,19 +143,13 @@ std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
 	return returnedGameObject;
 }
 
-glm::mat4 BasicTurret::GetGunTransformForSphericalCoords(float azim, float polar) {
+glm::mat4 BasicTurret::GetTransformForSphericalCoords(float azim, float polar) {
 	glm::mat4 gunRelativeTransform(1.0f);
-	glm::vec3 gunCartesianCoords = Common::GetCartesianFromSphericalCoords(azim,
+	glm::vec3 gunCartesianCoords = CommonMath::GetCartesianFromSphericalCoords(azim,
 		polar, topRadius);
 	glm::vec3 lookAt = glm::normalize(gunCartesianCoords - gunCenter);
-	glm::vec3 up(0.0f, 1.0f, 0.0f);
-	if (glm::dot(up, lookAt) > 0.99f) {
-		up = glm::vec3(-0.2f, 0.8f, 0.0f);
-		up = glm::normalize(up);
-	}
-	glm::vec3 right = glm::cross(up, lookAt);
-	// fix up
-	up = glm::cross(lookAt, right);
+	glm::vec3 right, up;
+	CommonMath::CreateCoordinateSystemForLookDir(lookAt, up, right);
 	glm::mat4 rotationM(1.0f);
 	rotationM[0] = glm::vec4(right, 0.0f);
 	rotationM[1] = glm::vec4(up, 0.0f);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Gameobjects/GameObject.h"
+#include "Math/CommonMath.h"
 
 class BasicTurretBehavior;
 
@@ -19,6 +20,7 @@ public:
 		glm::mat4 const& localToWorldTransform);
 
 	void SetGunTransformForSphericalCoords(float azim, float polar);
+	void SetGunLookRotation(glm::vec3 const& lookAtPoint);
 
 private:
 	std::shared_ptr<GameObject> AddSubMeshAndReturnGameObject(
@@ -33,13 +35,14 @@ private:
 		std::string const& name,
 		GameObject* parent);
 
-	glm::mat4 GetGunTransformForSphericalCoords(float azim, float polar);
+	glm::mat4 GetTransformForSphericalCoords(float azim, float polar);
 
 	std::shared_ptr<GameObject> turretBase;
 	std::shared_ptr<GameObject> turretBody;
 	std::shared_ptr<GameObject> turretTop;
 	std::shared_ptr<GameObject> turretGun;
 	glm::vec3 gunCenter;
+	CommonMath::Quaternion currentRotation;
 
 	static const float turretWidth;
 	static const float turretDepth;

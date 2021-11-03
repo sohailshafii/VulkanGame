@@ -3,7 +3,7 @@
 #include "Vertex.h"
 #include "GfxDeviceManager.h"
 #include "LogicalDeviceManager.h"
-#include "Common.h"
+#include "Math/CommonMath.h"
 #include "Resources/TextureCreator.h"
 
 #include <iostream>
@@ -524,7 +524,7 @@ void* MeshGameObject::CreateUniformBufferModelViewProj(
 		new UniformBufferObjectModelViewProj();
 	ubo->model = localToWorld;
 	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+	ubo->proj = CommonMath::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 
 	uboSize = sizeof(UniformBufferObjectModelViewProj);
@@ -540,7 +540,7 @@ void* MeshGameObject::CreateUniformBufferModelViewProjRipple(
 		new UniformBufferObjectModelViewProjRipple();
 	ubo->model = localToWorld;
 	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+	ubo->proj = CommonMath::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 
 	uboSize = sizeof(*ubo);
@@ -556,7 +556,7 @@ void* MeshGameObject::CreateUniformBufferModelViewProjTime(
 		new UniformBufferObjectModelViewProjTime();
 	ubo->model = localToWorld;
 	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+	ubo->proj = CommonMath::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 	ubo->time = time;
 
@@ -573,7 +573,7 @@ void MeshGameObject::UpdateUniformBufferModelViewProj(
 		(UniformBufferObjectModelViewProj*)uboVoid;
 	ubo->model = localToWorld;
 	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+	ubo->proj = CommonMath::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 }
 
@@ -586,7 +586,7 @@ void MeshGameObject::UpdateUniformBufferModelViewProjRipple(
 		(UniformBufferObjectModelViewProjRipple*)uboVoid;
 	ubo->model = localToWorld;
 	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+	ubo->proj = CommonMath::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 }
 
@@ -599,7 +599,7 @@ void MeshGameObject::UpdateUniformBufferModelViewProjTime(
 		(UniformBufferObjectModelViewProjTime*)uboVoid;
 	ubo->model = localToWorld;
 	ubo->view = viewMatrix;
-	ubo->proj = Common::ConstructProjectionMatrix(swapChainExtent.width,
+	ubo->proj = CommonMath::ConstructProjectionMatrix(swapChainExtent.width,
 		swapChainExtent.height);
 	ubo->time = time;
 }
