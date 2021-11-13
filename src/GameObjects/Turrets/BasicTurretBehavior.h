@@ -29,10 +29,9 @@ private:
 	static const int maxHealth;
 
 	// TODO: need slerp in turret class
-	int idleNewAzim, idleNewPolar;
 	int idleTransitionTime;
 
 	void Shoot();
 	void Cooldown();
-	void Idle();
+	void Idle(float currentTime);
 };

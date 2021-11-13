@@ -9,6 +9,7 @@ BasicTurretBehavior::BasicTurretBehavior(Scene* scene)
 	: GameObjectBehavior(scene) {
 	currentTurretState = TurretState::Idling;
 	currentHealth = maxHealth;
+	idleTransitionTime = -1.0f;
 }
 
 GameObjectBehavior::BehaviorStatus BasicTurretBehavior::UpdateSelf(float time,
@@ -26,7 +27,7 @@ GameObjectBehavior::BehaviorStatus BasicTurretBehavior::UpdateSelf(float time,
 			currentBehaviorState = GameObjectBehavior::BehaviorStatus::Destroyed;
 			break;
 		default:
-			Idle();
+			Idle(time);
 			break;
 	}
 
@@ -45,6 +46,13 @@ void BasicTurretBehavior::Cooldown() {
 	// TODO
 }
 
-void BasicTurretBehavior::Idle() {
-	// TODO
+void BasicTurretBehavior::Idle(float currentTime) {
+	if (idleTransitionTime < -1.0f) {
+		idleTransitionTime = currentTime + 2.0f;
+	}
+
+	if (idleTransitionTime < currentTime) {
+		// TODO make turret look somewhere else
+		idleTransitionTime = currentTime + 2.0f;
+	}
 }

@@ -35,7 +35,13 @@ private:
 		std::string const& name,
 		GameObject* parent);
 
-	glm::mat4 GetTransformForSphericalCoords(float azim, float polar);
+	float GetGunLength() const {
+		return turretDepth * 0.3f;
+	}
+
+	glm::mat4 GetTransformLookAtPoint(glm::vec3 const& lookAtPoint);
+	glm::mat4 GetTransformForSphericalCoords(float azim, float polar,
+		glm::vec3 & lookAtPoint);
 
 	std::shared_ptr<GameObject> turretBase;
 	std::shared_ptr<GameObject> turretBody;
@@ -43,6 +49,7 @@ private:
 	std::shared_ptr<GameObject> turretGun;
 	glm::vec3 gunCenter;
 	CommonMath::Quaternion currentRotation;
+	glm::vec3 currentLookPoint;
 
 	static const float turretWidth;
 	static const float turretDepth;

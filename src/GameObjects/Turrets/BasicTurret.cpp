@@ -89,7 +89,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 		logicalDeviceManager, resourceLoader,
 		commandPool, "turretTop", this);
 
-	float gunLength = turretDepth * 0.3f;
+	float gunLength = GetGunLength();
 	auto gunRightVec = glm::vec3(turretWidth * 0.08f, 0.0f, 0.0f);
 	auto gunUpVec = glm::vec3(0.0f, turretHeight * 0.08f, 0.0f);
 	auto gunForwardVec = glm::vec3(0.0f, 0.0f, gunLength);
@@ -105,7 +105,8 @@ BasicTurret::BasicTurret(Scene* const scene,
 	auto gunBehavior = std::make_shared<StationaryGameObjectBehavior>(scene);
 	float azim = glm::radians(80.0f);
 	float polar = glm::radians(90.0f);
-	glm::mat4  gunRelativeTransform = GetTransformForSphericalCoords(azim, polar);
+	glm::mat4 gunRelativeTransform = GetTransformForSphericalCoords(azim, polar,
+		currentLookPoint);
 	turretGun = AddSubMeshAndReturnGameObject(gunMaterial, gunModel, gunBehavior,
 		gunRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
@@ -113,12 +114,14 @@ BasicTurret::BasicTurret(Scene* const scene,
 }
 
 void BasicTurret::SetGunTransformForSphericalCoords(float azim, float polar) {
-	auto newTransform = GetTransformForSphericalCoords(azim, polar);
+	auto newTransform = GetTransformForSphericalCoords(azim, polar, currentLookPoint);
 	turretGun->SetLocalTransform(newTransform);
 }
 
 void BasicTurret::SetGunLookRotation(glm::vec3 const& lookAtPoint) {
-	// TODO
+	currentLookPoint = lookAtPoint;
+	glm::mat4 newTransform = GetTransformLookAtPoint(lookAtPoint);
+	turretGun->SetLocalTransform(newTransform);
 }
 
 std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
@@ -143,11 +146,8 @@ std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
 	return returnedGameObject;
 }
 
-glm::mat4 BasicTurret::GetTransformForSphericalCoords(float azim, float polar) {
-	glm::mat4 gunRelativeTransform(1.0f);
-	glm::vec3 gunCartesianCoords = CommonMath::GetCartesianFromSphericalCoords(azim,
-		polar, topRadius);
-	glm::vec3 lookAt = glm::normalize(gunCartesianCoords - gunCenter);
+glm::mat4 BasicTurret::GetTransformLookAtPoint(glm::vec3 const& lookAtPoint) {
+	glm::vec3 lookAt = glm::normalize(lookAtPoint - gunCenter);
 	glm::vec3 right, up;
 	CommonMath::CreateCoordinateSystemForLookDir(lookAt, up, right);
 	glm::mat4 rotationM(1.0f);
@@ -156,10 +156,19 @@ glm::mat4 BasicTurret::GetTransformForSphericalCoords(float azim, float polar) {
 	rotationM[2] = glm::vec4(lookAt, 0.0f);
 
 	// rotate the gun so that it faces outwards
-	float gunLength = turretDepth * 0.3f;
-	gunRelativeTransform = glm::translate(gunRelativeTransform,
-		gunCartesianCoords + lookAt * gunLength * 0.5f);
+	float gunLength = GetGunLength();
+	glm::mat4 gunRelativeTransform = glm::translate(
+		glm::mat4(1.0f),
+		lookAtPoint + lookAt * gunLength * 0.5f);
 	gunRelativeTransform *= rotationM;
+	return gunRelativeTransform;
+}
+
+glm::mat4 BasicTurret::GetTransformForSphericalCoords(float azim, float polar,
+	glm::vec3 & lookAtPoint) {
+	lookAtPoint = CommonMath::GetCartesianFromSphericalCoords(azim,
+		polar, topRadius);
+	glm::mat4 gunRelativeTransform = GetTransformLookAtPoint(lookAtPoint);
 
 	return gunRelativeTransform;
 }
