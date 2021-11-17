@@ -10,6 +10,12 @@ BasicTurretBehavior::BasicTurretBehavior(Scene* scene)
 	currentTurretState = TurretState::Idling;
 	currentHealth = maxHealth;
 	idleTransitionTime = -1.0f;
+
+	std::random_device rd;
+	mt = std::mt19937(rd());
+	distX = std::uniform_real_distribution<float>(-1.0f, 1.0f);
+	distY = std::uniform_real_distribution<float>(0.2f, 1.0f);
+	distZ = std::uniform_real_distribution<float>(-1.0f, 1.0f);
 }
 
 GameObjectBehavior::BehaviorStatus BasicTurretBehavior::UpdateSelf(float time,
@@ -52,7 +58,13 @@ void BasicTurretBehavior::Idle(float currentTime) {
 	}
 
 	if (idleTransitionTime < currentTime) {
-		// TODO make turret look somewhere else
 		idleTransitionTime = currentTime + 2.0f;
+		// TODO: need slerp in turret class
+		auto currLookAtPoint = turret->GetCurrentLookAtPoint();
+		auto newPoint = glm::vec3(distX(mt), distY(mt), distZ(mt));
+		while (glm::length(newPoint - currLookAtPoint) < 0.01f) {
+			newPoint = glm::vec3(distX(mt), distY(mt), distZ(mt));
+		}
+		turret->SetGunLookRotation(newPoint);
 	}
 }

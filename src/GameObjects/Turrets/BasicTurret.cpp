@@ -9,6 +9,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
+
 const float BasicTurret::turretWidth = 0.6f;
 const float BasicTurret::turretDepth = 0.6f;
 const float BasicTurret::turretHeight = 0.6f;
@@ -106,7 +108,7 @@ BasicTurret::BasicTurret(Scene* const scene,
 	float azim = glm::radians(80.0f);
 	float polar = glm::radians(90.0f);
 	glm::mat4 gunRelativeTransform = GetTransformForSphericalCoords(azim, polar,
-		currentLookPoint);
+		currentLookAtPoint);
 	turretGun = AddSubMeshAndReturnGameObject(gunMaterial, gunModel, gunBehavior,
 		gunRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
@@ -114,12 +116,13 @@ BasicTurret::BasicTurret(Scene* const scene,
 }
 
 void BasicTurret::SetGunTransformForSphericalCoords(float azim, float polar) {
-	auto newTransform = GetTransformForSphericalCoords(azim, polar, currentLookPoint);
+	auto newTransform = GetTransformForSphericalCoords(azim, polar, currentLookAtPoint);
 	turretGun->SetLocalTransform(newTransform);
 }
 
 void BasicTurret::SetGunLookRotation(glm::vec3 const& lookAtPoint) {
-	currentLookPoint = lookAtPoint;
+	currentLookAtPoint = lookAtPoint;
+	std::cout << lookAtPoint[0] << " " << lookAtPoint[1] << " " << lookAtPoint[2] << std::endl;
 	glm::mat4 newTransform = GetTransformLookAtPoint(lookAtPoint);
 	turretGun->SetLocalTransform(newTransform);
 }
@@ -147,19 +150,19 @@ std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
 }
 
 glm::mat4 BasicTurret::GetTransformLookAtPoint(glm::vec3 const& lookAtPoint) {
-	glm::vec3 lookAt = glm::normalize(lookAtPoint - gunCenter);
+	glm::vec3 forwardVector = glm::normalize(lookAtPoint - gunCenter);
 	glm::vec3 right, up;
-	CommonMath::CreateCoordinateSystemForLookDir(lookAt, up, right);
+	CommonMath::CreateCoordinateSystemForLookDir(forwardVector, up, right);
 	glm::mat4 rotationM(1.0f);
 	rotationM[0] = glm::vec4(right, 0.0f);
 	rotationM[1] = glm::vec4(up, 0.0f);
-	rotationM[2] = glm::vec4(lookAt, 0.0f);
+	rotationM[2] = glm::vec4(forwardVector, 0.0f);
 
 	// rotate the gun so that it faces outwards
 	float gunLength = GetGunLength();
 	glm::mat4 gunRelativeTransform = glm::translate(
 		glm::mat4(1.0f),
-		lookAtPoint + lookAt * gunLength * 0.5f);
+		forwardVector * (gunLength * 0.5f + topRadius));
 	gunRelativeTransform *= rotationM;
 	return gunRelativeTransform;
 }

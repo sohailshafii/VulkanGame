@@ -22,6 +22,10 @@ public:
 	void SetGunTransformForSphericalCoords(float azim, float polar);
 	void SetGunLookRotation(glm::vec3 const& lookAtPoint);
 
+	glm::vec3 GetCurrentLookAtPoint() const {
+		return currentLookAtPoint;
+	}
+
 private:
 	std::shared_ptr<GameObject> AddSubMeshAndReturnGameObject(
 		std::shared_ptr<Material> const& material,
@@ -49,7 +53,7 @@ private:
 	std::shared_ptr<GameObject> turretGun;
 	glm::vec3 gunCenter;
 	CommonMath::Quaternion currentRotation;
-	glm::vec3 currentLookPoint;
+	glm::vec3 currentLookAtPoint;
 
 	static const float turretWidth;
 	static const float turretDepth;

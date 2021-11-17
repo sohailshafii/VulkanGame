@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObjects/GameObjectBehavior.h"
+#include <random>
 
 class BasicTurret;
 class Scene;
@@ -27,9 +28,10 @@ private:
 	int currentHealth;
 
 	static const int maxHealth;
+	std::mt19937 mt;
+	std::uniform_real_distribution<float> distX, distY, distZ;
 
-	// TODO: need slerp in turret class
-	int idleTransitionTime;
+	float idleTransitionTime;
 
 	void Shoot();
 	void Cooldown();
