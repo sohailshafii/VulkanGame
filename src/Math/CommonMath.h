@@ -20,7 +20,11 @@ public:
 
 	static glm::mat4 ConstructProjectionMatrix(uint32_t width, uint32_t height);
 	static glm::vec3 GetCartesianFromSphericalCoords(float azimRadians, float polarRadians, float radius);
-	static Quaternion GetQuaternionForSphericalCoords(glm::mat4 const& matrixTrans);
+	static Quaternion GetQuaternionForMatrix(glm::mat4 const& matrixTrans);
+	static Quaternion GetNormalizedQuaternion(Quaternion const& quat);
+	static glm::mat4 GetMatrixForQuaternion(Quaternion const& quat);
 	static void CreateCoordinateSystemForLookDir(glm::vec3 const& lookAtDir,
 		glm::vec3& up, glm::vec3& right);
+
+	static Quaternion Slerp(Quaternion const& q1, Quaternion const& q2, float t);
 };

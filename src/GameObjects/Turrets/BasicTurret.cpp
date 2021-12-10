@@ -15,6 +15,7 @@ const float BasicTurret::turretWidth = 0.6f;
 const float BasicTurret::turretDepth = 0.6f;
 const float BasicTurret::turretHeight = 0.6f;
 const float BasicTurret::topRadius = 0.3f;
+const float BasicTurret::sLerpSpeed = 1.0f;
 
 BasicTurret::BasicTurret(Scene* const scene,
 	std::shared_ptr<BasicTurretBehavior> const& behavior,
@@ -113,18 +114,55 @@ BasicTurret::BasicTurret(Scene* const scene,
 		gunRelativeTransform, gfxDeviceManager,
 		logicalDeviceManager, resourceLoader,
 		commandPool, "turretGun", turretTop.get());
+
+	isDoingSLerp = false;
 }
 
-void BasicTurret::SetGunTransformForSphericalCoords(float azim, float polar) {
+void BasicTurret::SetGunTransformForSphericalCoords(float azim, float polar, bool sLerp) {
 	auto newTransform = GetTransformForSphericalCoords(azim, polar, currentLookAtPoint);
-	turretGun->SetLocalTransform(newTransform);
+	if (sLerp) {
+		glm::mat4 currentGunTransform = turretGun->GetLocalTransform();
+		startRotation = CommonMath::GetQuaternionForMatrix(currentGunTransform);
+		targetRotation = CommonMath::GetQuaternionForMatrix(newTransform);
+		isDoingSLerp = true;
+		currentT = 0.0f;
+	}
+	else {
+		turretGun->SetLocalTransform(newTransform);
+	}
 }
 
-void BasicTurret::SetGunLookRotation(glm::vec3 const& lookAtPoint) {
+void BasicTurret::SetGunLookRotation(glm::vec3 const& lookAtPoint, bool sLerp) {
 	currentLookAtPoint = lookAtPoint;
-	std::cout << lookAtPoint[0] << " " << lookAtPoint[1] << " " << lookAtPoint[2] << std::endl;
-	glm::mat4 newTransform = GetTransformLookAtPoint(lookAtPoint);
-	turretGun->SetLocalTransform(newTransform);
+	if (sLerp) {
+		glm::mat4 currentGunTransform = turretGun->GetLocalTransform();
+		glm::mat4 newTransform = GetRotationForLookAtPoint(currentLookAtPoint);
+		startRotation = CommonMath::GetQuaternionForMatrix(currentGunTransform);
+		targetRotation = CommonMath::GetQuaternionForMatrix(newTransform);
+		isDoingSLerp = true;
+		currentT = 0.0f;
+	}
+	else {
+		glm::mat4 newTransform = GetTransformLookAtPoint(lookAtPoint);
+		turretGun->SetLocalTransform(newTransform);
+	}
+}
+
+void BasicTurret::UpdateState(float time, float deltaTime) {
+	GameObject::UpdateState(time, deltaTime);
+
+	if (isDoingSLerp) {
+		currentT += deltaTime * sLerpSpeed;
+		if (currentT > 1.0f) {
+			currentT = 1.0f;
+			isDoingSLerp = false;
+		}
+		auto currentSlerpQuat = CommonMath::Slerp(startRotation, targetRotation, currentT);
+		auto currentMatrix = CommonMath::GetMatrixForQuaternion(currentSlerpQuat);
+		glm::mat4 gunRelativeTransform = GetGunPositionalTransform(currentMatrix[2]);
+		gunRelativeTransform *= currentMatrix;
+		turretGun->SetLocalTransform(gunRelativeTransform);
+	}
 }
 
 std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
@@ -149,7 +187,7 @@ std::shared_ptr<GameObject> BasicTurret::AddSubMeshAndReturnGameObject(
 	return returnedGameObject;
 }
 
-glm::mat4 BasicTurret::GetTransformLookAtPoint(glm::vec3 const& lookAtPoint) {
+glm::mat4 BasicTurret::GetRotationForLookAtPoint(glm::vec3 const& lookAtPoint) {
 	glm::vec3 forwardVector = glm::normalize(lookAtPoint - gunCenter);
 	glm::vec3 right, up;
 	CommonMath::CreateCoordinateSystemForLookDir(forwardVector, up, right);
@@ -157,12 +195,23 @@ glm::mat4 BasicTurret::GetTransformLookAtPoint(glm::vec3 const& lookAtPoint) {
 	rotationM[0] = glm::vec4(right, 0.0f);
 	rotationM[1] = glm::vec4(up, 0.0f);
 	rotationM[2] = glm::vec4(forwardVector, 0.0f);
+	return rotationM;
+}
 
-	// rotate the gun so that it faces outwards
+glm::mat4 BasicTurret::GetGunPositionalTransform(glm::vec3 const& forwardVector) {
 	float gunLength = GetGunLength();
 	glm::mat4 gunRelativeTransform = glm::translate(
 		glm::mat4(1.0f),
 		forwardVector * (gunLength * 0.5f + topRadius));
+	return gunRelativeTransform;
+}
+
+glm::mat4 BasicTurret::GetTransformLookAtPoint(glm::vec3 const& lookAtPoint) {
+	glm::mat4 rotationM = GetRotationForLookAtPoint(lookAtPoint);
+
+	// rotate the gun so that it faces outwards
+	float gunLength = GetGunLength();
+	glm::mat4 gunRelativeTransform = GetGunPositionalTransform(rotationM[2]);
 	gunRelativeTransform *= rotationM;
 	return gunRelativeTransform;
 }

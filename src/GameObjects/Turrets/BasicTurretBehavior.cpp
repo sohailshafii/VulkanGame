@@ -59,12 +59,12 @@ void BasicTurretBehavior::Idle(float currentTime) {
 
 	if (idleTransitionTime < currentTime) {
 		idleTransitionTime = currentTime + 2.0f;
-		// TODO: need slerp in turret class
+		// TODO: debug slerp
 		auto currLookAtPoint = turret->GetCurrentLookAtPoint();
 		auto newPoint = glm::vec3(distX(mt), distY(mt), distZ(mt));
 		while (glm::length(newPoint - currLookAtPoint) < 0.01f) {
 			newPoint = glm::vec3(distX(mt), distY(mt), distZ(mt));
 		}
-		turret->SetGunLookRotation(newPoint);
+		turret->SetGunLookRotation(newPoint, true);
 	}
 }
